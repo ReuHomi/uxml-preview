@@ -1,11 +1,11 @@
 {
   "name": "uxml-preview",
-  "version": "0.0.0",
-  "description": "Render and edit Unity UI Toolkit UXML/USS in the browser. Powered by Yoga (WebAssembly) — the same layout engine Unity UI Toolkit uses.",
+  "version": "0.1.0",
+  "description": "Preview Unity UI Toolkit UXML/USS in a browser without the Unity Editor. Uses Yoga (WebAssembly), the same layout engine UI Toolkit uses: 242 of 244 element coordinates identical to Unity 6. Parses and writes files back byte-for-byte.",
   "keywords": [
-    "unity", "unity3d", "ui-toolkit", "uitk", "uxml", "uss",
-    "yoga", "yoga-layout", "webassembly", "renderer", "preview",
-    "game-ui", "typescript", "editor-tooling"
+    "unity", "unity3d", "ui-toolkit", "uitk", "uielements", "uxml", "uss",
+    "yoga", "yoga-layout", "flexbox", "webassembly", "renderer", "preview",
+    "game-ui", "typescript", "editor-tooling", "unity-editor", "css-to-uss"
   ],
   "license": "Apache-2.0",
   "type": "module",
@@ -18,7 +18,10 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": ["dist", "README.md", "LICENSE", "THIRD-PARTY-NOTICES.md", "CHANGELOG.md"],
+  "sideEffects": false,
+  "engines": { "node": ">=18" },
+  "publishConfig": { "access": "public" },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ReuHomi/uxml-preview.git"
@@ -36,7 +39,8 @@
     "test:golden": "vitest run tests/golden --passWithNoTests",
     "golden:emit": "node --experimental-strip-types --no-warnings scripts/emit-golden-cases.mjs",
     "golden:update": "node scripts/update-golden.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build"
   },
   "dependencies": {
     "yoga-layout": "^3.2.1"

@@ -178,6 +178,42 @@ does not. It is recorded rather than smoothed over — see
 [`docs/accuracy.en.md`](docs/accuracy.en.md) for the numbers, the failed attempts to
 configure around it, and how to reproduce the measurement.
 
+### Questions this answers
+
+**Can I preview a UXML file without opening the Unity Editor?**
+Yes. Paste `.uxml` and `.uss` into the [playground](https://reuhomi.github.io/uxml-preview/),
+or call `parse()` and `render()` from the library. Nothing is uploaded and Unity
+is never launched.
+
+**Why does my CSS layout come out wrong in UI Toolkit?**
+Most often because `flex-direction` defaults to `column` in USS and `row` in CSS,
+so every container without an explicit direction is rotated ninety degrees. The
+other four common causes — no `z-index`, forced `border-box`, no bare text nodes,
+no margin collapsing — are in [USS is not CSS](docs/uss-vs-css.md), each with a
+live example.
+
+**Does USS support `z-index`, CSS Grid, or `calc()`?**
+No, none of the three. Overlap follows markup order, grid layouts must be rebuilt
+as nested flex, and computed values have to be resolved to fixed numbers or
+calculated in C#.
+
+**How close is the output to Unity?**
+242 of 244 element coordinates identical against Unity 6000.0.40f1, across 18
+layout cases. Geometry is compared rather than screenshots, because Unity draws
+text with its own font asset. The single divergence and the numbers behind this
+are in [`docs/accuracy.en.md`](docs/accuracy.en.md).
+
+**Will it damage my files if I edit them?**
+Editing goes through a model that keeps the original text. An unedited document
+serializes back byte-for-byte — comments, attribute order, entity encodings and
+CRLF endings included — and an edit rewrites only the region it touched. The
+playground shows this live as `round-trip: exact`.
+
+**What happens to controls it does not support?**
+They are kept in the tree, reported as a warning, excluded from rendering, and
+written back out unchanged. One unsupported control never takes down the rest of
+the screen, and nothing is silently dropped.
+
 ### License
 
 Apache-2.0
@@ -294,6 +330,39 @@ pnpm build
 
 정확도 수치를 재현하려면 유니티가 필요합니다. 절차는
 [`docs/accuracy.md`](docs/accuracy.md)에 있습니다.
+
+### 이런 질문에 답합니다
+
+**유니티를 켜지 않고 UXML을 미리 볼 수 있나요?**
+됩니다. [놀이터](https://reuhomi.github.io/uxml-preview/)에 `.uxml`과 `.uss`를
+붙여넣거나, 라이브러리의 `parse()`·`render()`를 호출하면 됩니다. 아무것도
+업로드되지 않고 유니티도 실행되지 않습니다.
+
+**CSS 레이아웃을 옮겼는데 UI Toolkit에서 왜 어긋나나요?**
+대개 `flex-direction` 기본값 때문입니다. USS는 `column`, CSS는 `row`라서
+방향을 명시하지 않은 모든 컨테이너가 90도 틀어집니다. 나머지 네 가지 흔한
+원인(`z-index` 없음, `border-box` 강제, 맨몸 텍스트 노드 없음, margin 상쇄 없음)은
+[USS는 CSS가 아니다](docs/uss-vs-css.ko.md)에 직접 해볼 수 있는 예제와 함께 있습니다.
+
+**USS에 `z-index`나 CSS Grid, `calc()`가 있나요?**
+셋 다 없습니다. 겹침은 마크업 순서로 정해지고, 그리드는 중첩 flex로 다시 짜야 하며,
+계산이 필요한 값은 고정값으로 풀거나 C#에서 계산해야 합니다.
+
+**유니티와 얼마나 같나요?**
+Unity 6000.0.40f1 기준, 레이아웃 케이스 18개에서 **요소 좌표 244개 중 242개 일치**
+입니다. 스크린샷이 아니라 좌표를 비교하는데, 유니티가 자기 폰트 에셋으로 글자를
+그리기 때문입니다. 유일한 불일치와 근거 수치는
+[`docs/accuracy.md`](docs/accuracy.md)에 있습니다.
+
+**편집하면 파일이 망가지지 않나요?**
+편집은 원본 텍스트를 그대로 들고 있는 모델을 거칩니다. 고치지 않은 문서는 주석·속성
+순서·엔티티 표기·CRLF까지 **바이트 단위로 같게** 저장되고, 고친 경우에도 건드린
+영역만 바뀝니다. 놀이터의 `round-trip: exact` 표시가 이걸 실시간으로 보여줍니다.
+
+**지원하지 않는 컨트롤은 어떻게 되나요?**
+트리에 유지되고, 경고로 보고되고, 렌더링에서만 빠지고, 저장하면 그대로 다시
+나옵니다. 미지원 컨트롤 하나 때문에 화면 전체가 죽지 않고, 조용히 사라지는 것도
+없습니다.
 
 ### 라이선스
 
