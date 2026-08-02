@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+	<ui:VisualElement    class="row"   name="header"  picking-mode="Ignore">
+  <ui:Label text='단일 따옴표로 감싼 값' class="title"/>
+      <ui:Button   text="OK"
+                   class="btn btn--primary"
+                   tooltip="여러 줄에 걸친 속성" />
+        <ui:VisualElement name="spacer"></ui:VisualElement>
+	</ui:VisualElement>
+</ui:UXML>

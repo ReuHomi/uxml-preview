@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:custom="MyGame.UI">
+  <ui:Template name="ItemTemplate" src="Item.uxml" />
+  <ui:ScrollView mode="Vertical">
+    <ui:Label text="스코프 밖 컨트롤 안의 지원 컨트롤" />
+  </ui:ScrollView>
+  <custom:HealthBar value="0.8" segments="10" />
+  <ui:Instance template="ItemTemplate" name="item-0" />
+</ui:UXML>

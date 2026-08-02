@@ -1,0 +1,36 @@
+* {
+  margin: 0;
+}
+
+Label {
+  color: rgb(224, 226, 232);
+}
+
+VisualElement Button {
+  flex-grow: 1;
+}
+
+.panel > .row {
+  flex-direction: row;
+}
+
+.a.b.c {
+  opacity: 0.5;
+}
+
+#header {
+  height: 48px;
+}
+
+.btn:hover {
+  background-color: rgb(88, 93, 105);
+}
+
+Button:active,
+.btn.primary:focus {
+  border-top-width: 2px;
+}
+
+:root {
+  --accent: rgb(110, 168, 254);
+}

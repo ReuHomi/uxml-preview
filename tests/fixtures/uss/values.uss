@@ -1,0 +1,23 @@
+.spacing {
+  padding: 6px 14px;
+  margin: 0;
+  /* 마지막 선언에 세미콜론이 없다 */
+  border-top-width: 1px
+}
+
+.tokens {
+  --gap: 8px;
+  margin-top: var(--gap);
+  color: var(--accent);
+}
+
+.multiline {
+  transition: opacity 200ms ease-in-out,
+              translate 200ms ease-in-out;
+  -unity-text-align: middle-center;
+  -unity-font-style: bold-and-italic;
+  background-image: url("project://database/Assets/UI/panel.png");
+  -unity-slice-left: 6;
+}
+
+.compact { flex-grow: 1; flex-shrink: 0; }

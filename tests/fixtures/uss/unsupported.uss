@@ -1,0 +1,27 @@
+/* USS가 지원하지 않는 셀렉터들. 파서는 담기만 하고, 판단은 리졸버가 한다. */
+
+.item:nth-child(2) {
+  color: rgb(255, 0, 0);
+}
+
+.a + .b {
+  color: rgb(0, 255, 0);
+}
+
+.a ~ .b {
+  color: rgb(0, 0, 255);
+}
+
+TextField[readonly="true"] {
+  width: 100px;
+}
+
+.a::before {
+  width: 1px;
+}
+
+@media (min-width: 100px) {
+  .responsive {
+    height: 10px;
+  }
+}

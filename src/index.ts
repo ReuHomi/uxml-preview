@@ -29,6 +29,10 @@ export type {
 } from './model/types';
 
 import type { UxmlDocument, Warning } from './model/types';
+import { parseUxml } from './parser/uxml';
+import { parseUss } from './parser/uss';
+import { serializeUxml } from './serializer/uxml';
+import { serializeUss } from './serializer/uss';
 
 // ---------------------------------------------------------------------------
 // Parsing / serialization
@@ -41,7 +45,19 @@ import type { UxmlDocument, Warning } from './model/types';
  * are kept verbatim so they survive `serialize`. Only malformed text produces a
  * warning here — whether something can be *rendered* is decided downstream.
  */
-export declare function parse(uxml: string, uss?: string): UxmlDocument;
+export function parse(uxml: string, uss?: string): UxmlDocument {
+  const tree = parseUxml(uxml);
+  if (uss === undefined) {
+    return { source: uxml, root: tree.root, sheets: [], warnings: tree.warnings };
+  }
+  const sheet = parseUss(uss, null, 0);
+  return {
+    source: uxml,
+    root: tree.root,
+    sheets: [sheet.sheet],
+    warnings: [...tree.warnings, ...sheet.warnings],
+  };
+}
 
 /**
  * Serialize a document model back to UXML and USS text.
@@ -50,7 +66,15 @@ export declare function parse(uxml: string, uss?: string): UxmlDocument;
  * input — untouched nodes are re-emitted by slicing `UxmlDocument.source`
  * rather than being regenerated. After an edit, only the edited region changes.
  */
-export declare function serialize(doc: UxmlDocument): { uxml: string; uss: string };
+export function serialize(doc: UxmlDocument): { uxml: string; uss: string } {
+  const sheet = doc.sheets[0];
+  return {
+    uxml: serializeUxml(doc.source, doc.root),
+    // Only the sheet passed to `parse` round-trips. `@import`ed sheets (Phase 3)
+    // are separate files and are not this function's to write.
+    uss: sheet === undefined ? '' : serializeUss(sheet),
+  };
+}
 
 // ---------------------------------------------------------------------------
 // Rendering

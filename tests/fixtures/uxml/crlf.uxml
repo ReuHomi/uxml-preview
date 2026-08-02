@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <!-- 이 파일은 CRLF로 저장되어 있다. .gitattributes가 -text로 보호한다. -->
+  <ui:VisualElement name="root">
+    <ui:Label text="CRLF" />
+  </ui:VisualElement>
+</ui:UXML>

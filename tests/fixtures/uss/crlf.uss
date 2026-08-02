@@ -1,0 +1,5 @@
+/* CRLF로 저장된 USS */
+.crlf {
+  flex-direction: row;
+  padding: 4px;
+}

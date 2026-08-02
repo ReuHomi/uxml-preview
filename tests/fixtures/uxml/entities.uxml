@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <!-- 같은 문자를 두 가지로 인코딩했다. 디코딩하면 되돌릴 수 없다. -->
+  <ui:Label text="A &amp; B" />
+  <ui:Label text="A &#38; B" />
+  <ui:Label text="&lt;tag&gt; &quot;큰따옴표&quot; &apos;작은따옴표&apos;" />
+  <ui:Button text="100% &#xB0;C" />
+</ui:UXML>

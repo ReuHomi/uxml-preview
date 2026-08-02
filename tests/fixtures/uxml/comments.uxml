@@ -1,0 +1,14 @@
+<!-- 파일 첫머리 주석. 루트 바깥이므로 전용 필드가 없다. -->
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <!-- 첫 자식 앞 -->
+  <ui:VisualElement name="root">
+    <ui:Label text="A" /> <!-- 같은 줄, 요소 뒤 -->
+    <!--
+      여러 줄에 걸친 주석
+      들여쓰기가 제각각이다
+    -->
+    <ui:Label text="B" />
+  </ui:VisualElement>
+  <!-- 마지막 자식 뒤 -->
+</ui:UXML>
+<!-- 루트 뒤 -->

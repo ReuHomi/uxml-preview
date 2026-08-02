@@ -1,0 +1,6 @@
+@import url("project://database/Assets/UI/base.uss");
+@import url("theme.uss");
+
+.derived {
+  color: rgb(255, 255, 255);
+}
