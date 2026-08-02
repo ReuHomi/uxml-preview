@@ -23,6 +23,12 @@ export default defineConfig(({ command }) => ({
     },
     outDir: resolve(here, 'dist'),
     emptyOutDir: true,
+    rollupOptions: {
+      // yoga-layout is a declared dependency, so consumers install it
+      // themselves. Bundling it inlines a base64 WebAssembly blob and would
+      // ship a second copy to anyone already using Yoga.
+      external: ['yoga-layout', 'yoga-layout/load'],
+    },
   },
   // Declarations are a build artifact; generating them on every dev reload
   // would only slow the playground down.
@@ -37,7 +43,9 @@ export default defineConfig(({ command }) => ({
         ]
       : [],
   optimizeDeps: {
-    // yoga-layout ships WASM; let Vite handle it explicitly
-    exclude: ['yoga-layout'],
+    // Only `yoga-layout/load` is imported: the package's default entry uses
+    // top-level await, which would make this library's whole module graph
+    // async and stop `render` from being a synchronous call.
+    include: ['yoga-layout/load'],
   },
 }));

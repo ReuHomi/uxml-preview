@@ -28,7 +28,12 @@ export type {
   StyleOrigin,
 } from './model/types';
 
-import type { StyleSheet, UxmlDocument, Warning } from './model/types';
+import type { NodeId, StyleSheet, UxmlDocument, Warning } from './model/types';
+export { loadLayoutEngine, isLayoutEngineReady, liveNodeCount } from './layout/yoga';
+export type { LayoutBox, MeasureText, TextContext, TextMetrics } from './layout/yoga';
+export { createDefaultMeasureText } from './render/measure';
+export { NODE_ATTRIBUTE } from './render/paint';
+export { supportedControlNames } from './controls/registry';
 export { resolveStyles, explainProperty } from './style/resolve';
 export type {
   Candidate,
@@ -44,6 +49,11 @@ import { parseUxml } from './parser/uxml';
 import { parseUss } from './parser/uss';
 import { serializeUxml } from './serializer/uxml';
 import { serializeUss } from './serializer/uss';
+import { resolveStyles } from './style/resolve';
+import { layoutDocument } from './layout/yoga';
+import type { MeasureText } from './layout/yoga';
+import { createDefaultMeasureText } from './render/measure';
+import { paint } from './render/paint';
 
 // ---------------------------------------------------------------------------
 // Parsing / serialization
@@ -145,6 +155,18 @@ export interface RenderOptions {
 
   /** Panel size in pixels. Defaults to the container's client size. */
   size?: { width: number; height: number };
+
+  /**
+   * Measures a control's text.
+   *
+   * The default uses a canvas, whose metrics move with the platform and the
+   * installed fonts. Anything that needs a reproducible result — golden tests
+   * above all — should supply its own.
+   */
+  measureText?: MeasureText;
+
+  /** Pseudo-classes to render as active, e.g. `new Set(['hover'])`. */
+  activeStates?: ReadonlySet<string>;
 }
 
 export interface RenderResult {
@@ -154,6 +176,8 @@ export interface RenderResult {
    * `UxmlDocument.warnings`, which only covers malformed input.
    */
   warnings: readonly Warning[];
+  /** Painted element per model node. Lets a host map a click back to the tree. */
+  elements: ReadonlyMap<NodeId, HTMLElement>;
   /**
    * Deps/Effects: frees the Yoga node tree (`freeRecursive`) and removes the
    * generated DOM from the container.
@@ -164,9 +188,47 @@ export interface RenderResult {
   dispose(): void;
 }
 
-/** Render a document into a container element. */
-export declare function render(
+/**
+ * Purpose:      draw a document into a container element.
+ * Deps/Effects: replaces the container's children and allocates Yoga nodes.
+ *               Call `dispose()` on the result before rendering again.
+ * Requires:     `await loadLayoutEngine()` once, first. Yoga is WebAssembly and
+ *               cannot be loaded synchronously; keeping that await out here is
+ *               what lets this function stay synchronous, which the playground
+ *               and the golden tests both want.
+ */
+export function render(
   doc: UxmlDocument,
   container: HTMLElement,
   options?: RenderOptions,
-): RenderResult;
+): RenderResult {
+  const ownerDocument = container.ownerDocument;
+  const size = options?.size ?? {
+    width: container.clientWidth,
+    height: container.clientHeight,
+  };
+
+  const resolved = resolveStyles(
+    doc,
+    options?.activeStates === undefined ? undefined : { activeStates: options.activeStates },
+  );
+  const measureText = options?.measureText ?? createDefaultMeasureText(ownerDocument);
+
+  const tree = layoutDocument(doc.root, resolved.styles, { size, measureText });
+  const painted = paint(doc.root, tree.boxes, resolved.styles, container, {
+    document: ownerDocument,
+    resolveAsset: options?.resolveAsset,
+  });
+
+  let disposed = false;
+  return {
+    warnings: [...resolved.warnings, ...tree.warnings, ...painted.warnings],
+    elements: painted.elements,
+    dispose(): void {
+      if (disposed) return;
+      disposed = true;
+      tree.dispose();
+      container.replaceChildren();
+    },
+  };
+}

@@ -4,28 +4,29 @@
 
 ## 현재 위치
 
-**Phase 4 — Yoga 레이아웃 + DOM 페인팅** (Phase 0~3은 2026-08-02 완료)
+**Phase 5 — 골든 테스트 체계** (Phase 0~4는 2026-08-02 완료)
 
-파싱·직렬화·스타일 계산까지 끝났다. 테스트 117개.
-**화면에는 아직 아무것도 안 나온다. Phase 4에서 처음 나온다.**
+파이프라인이 끝까지 연결됐다. 테스트 157개. 화면에 나온다.
+**단 "유니티와 얼마나 같은가"에는 아직 숫자로 답할 수 없다. 그게 Phase 5다.**
 
 ## 다음 할 일
 
-Phase 4 착수. 이 Phase에 함정이 몰려 있다.
+**먼저 `pnpm dev`로 브라우저에서 육안 확인부터 한다.** jsdom 테스트와 dev 서버
+응답까지만 확인했고, 실제 브라우저의 WASM 인스턴스화와 canvas 텍스트 측정은
+실행해보지 않았다.
 
-1. `yoga-layout` WASM 로드. ESM + top-level await이라 `yoga-layout/load` 경유도 준비
-2. **기본값 표를 만든다** — 리졸버는 기본값을 채우지 않는다.
-   **`flex-direction`의 기본값은 `column`이다.** 여기를 틀리면 전부 90도 어긋난다
-3. `ComputedStyle` → Yoga 노드 속성. 단위(`px` / `%` / `auto`) 해석이 여기서 처음 필요하다
-4. 레이아웃 계산 후 좌표 회수 → `position: absolute` DOM 생성
-5. 시각 속성 → CSS 매핑 (`src/render/css-map.ts`).
-   **`z-index`를 절대 출력하지 않는다.** 겹침은 DOM 순서에 맡긴다
-6. 모든 요소에 `box-sizing: border-box`
-7. `resolveAsset` 훅 + 플레이스홀더
-8. **리렌더 시 `freeRecursive()`.** Yoga 노드는 GC되지 않는다. 누수 테스트 필수
-9. 미지원 컨트롤은 렌더에서 제외하고 경고 — 트리에서 빼지 않는다
+그 다음 Phase 5:
 
-렌더링 버그는 추측으로 고치지 않는다. Yoga 계산 결과와 최종 DOM 좌표를 둘 다 찍는다.
+1. **`measureText`를 반드시 주입해서 고정한다.** 기본 구현이 캔버스 기반이라
+   플랫폼·폰트에 따라 결과가 흔들린다. 고정하지 않으면 정확도 수치가 기계를 재는 셈이다
+2. 케이스 세트 작성 (ROADMAP의 목록). **실패 패턴 검증이 1순위**
+3. 유니티에서 수동으로 스크린샷 확보
+4. 웹 렌더 자동 캡처 → 픽셀 diff → 임계값 판정
+5. `docs/accuracy.md`에 수치 기록
+
+Phase 5가 판정해야 할 미검증 가정 (전부 ROADMAP에 적혀 있다):
+`flex-shrink` 기본값 1, 우선순위 트리플 계산, 상속 목록, `:root` 의미,
+행 높이 `font-size * 1.2`.
 
 ## 결정 기록
 
@@ -53,6 +54,13 @@ Phase 4 착수. 이 Phase에 함정이 몰려 있다.
 | 2026-08-02 | 인라인 스타일에 도달 불가능한 specificity를 부여 | 별도 비교 경로를 만드는 대신 `[MAX_SAFE_INTEGER, 0, 0]`을 준다. 비교 함수가 하나로 유지되고, "인라인이 항상 이긴다"가 규칙이 아니라 산술의 결과가 된다 |
 | 2026-08-02 | `:root`를 `<ui:UXML>` 요소에 매칭 | USS의 `:root`는 스타일시트가 적용된 요소를 가리키는데, 프리뷰에는 UIDocument가 없다. 아무데도 매칭시키지 않으면 `:root { --token: ... }` 디자인 토큰 패턴이 통째로 깨진다. 매번 `version-dependent` 경고를 남긴다 |
 | 2026-08-02 | `explainProperty`가 `collectCandidates`를 공유 | 처음엔 수집 로직을 복제해서 썼는데, 그 순간 "두 답이 어긋날 수 없다"는 Phase 1 결정이 무효가 된다. 승자 판정뿐 아니라 **후보 수집까지** 한 함수여야 성립한다 |
+| 2026-08-02 | `yoga-layout` 대신 `yoga-layout/load`를 쓰고 `render`를 동기로 유지 | 기본 엔트리는 top-level await을 써서, import하는 것만으로 우리 모듈 그래프 전체가 비동기가 된다. `load`는 평범한 `async function`이라 그게 없다. `await loadLayoutEngine()`을 한 번 부르는 대가로 놀이터(타이핑마다 리렌더)와 골든 테스트가 동기 호출을 쓸 수 있다 |
+| 2026-08-02 | 지원하는 레이아웃 속성을 Yoga에 전부 명시적으로 쓴다 | Yoga 기본값이 USS와 **부분적으로만** 같다. `flex-direction`(column)·`box-sizing`(border-box)은 일치하지만 `flex-shrink`는 Yoga 0 / USS 1이다. "마침 맞는" 것에 기대면 어느 게 우연인지 구분이 안 되고, Yoga 업데이트에 조용히 깨진다 |
+| 2026-08-02 | Yoga enum을 import해서 쓰고 숫자를 코드에 적지 않는다 | `setPositionType(absolute)`에 0을 적을 뻔했다. 정답은 2이고 0은 Static이다. 타입 검사로도 테스트로도 안 잡히는 종류의 오류라, 상수를 손으로 옮기는 일 자체를 없앴다 |
+| 2026-08-02 | `measureText`를 주입 가능하게 | 기본 구현은 캔버스를 쓰는데 결과가 플랫폼·설치 폰트에 따라 흔들린다. Phase 5가 그 위에서 정확도를 재면 라이브러리가 아니라 기계를 재게 된다 |
+| 2026-08-02 | DOM을 트리 모양으로 중첩한다 (평탄화하지 않음) | 평탄화하면 `overflow: hidden` 클리핑과 겹침 순서를 직접 구현해야 한다. 중첩하면 **문서 순서가 곧 페인팅 순서**라 USS의 "뒤 형제가 위"가 공짜로 나오고, z-index를 출력할 이유가 사라진다 |
+| 2026-08-02 | 페인팅 시 `data-uxml-node`를 붙인다 | Phase 8이 클릭한 div를 노드로 되짚어야 하는데, 나중에 붙이려면 페인팅을 다시 짜야 한다. 지금은 속성 하나다 |
+| 2026-08-02 | 빌드에서 `yoga-layout`을 external로 | 번들에 넣으면 base64 WASM이 통째로 들어가 178KB가 된다(뺐더니 39KB). `dependencies`에 선언돼 있어 소비자가 이미 설치하므로 두 벌이 실린다 |
 
 ## 세션 로그
 
@@ -146,3 +154,28 @@ Phase 4 착수. 이 Phase에 함정이 몰려 있다.
   - 상속 목록(`src/style/properties.ts`의 `INHERITED`)이 버전 의존이다. 한 곳에 모아뒀다
   - `transition`은 전개하지 않고 통째로 둔다. 콤마 목록이라 longhand도 목록이고,
     Phase 4 전까지 읽는 곳이 없다
+- (21:22 추가) **Phase 4 착수 전 실측이 계획을 세 군데 바꿨다.** 문서만 읽고
+  시작했으면 전부 코드를 쓴 뒤에 발견했을 것들이다.
+  - `render()`가 동기로 선언돼 있는데 `yoga-layout` 기본 엔트리는 top-level await을
+    쓴다. `yoga-layout/load`에는 TLA가 없다는 걸 확인하고 그쪽을 경유했다
+  - Yoga 기본값을 실제로 찍어봤다. `flexDirection=0(Column)`·`boxSizing=0(BorderBox)`은
+    USS와 일치하지만 **`flexShrink=0`은 USS 문서값 1과 다르다.**
+    "마침 맞음"에 기대지 않기로 하고 지원 속성을 전부 명시적으로 쓴다
+  - `getInstanceCount`가 JS 바인딩에 없다. 누수를 Yoga에게 물어볼 수 없어서
+    `liveNodeCount()`로 직접 센다
+- **`setPositionType`에 0을 적을 뻔했다.** `absolute`는 2이고 0은 `Static`이다.
+  모든 절대위치 요소가 조용히 잘못 배치됐을 것이고 타입 검사로도 안 잡힌다.
+  enum 파일을 열어 값을 확인한 뒤, 하드코딩한 숫자를 전부 지우고 import로 바꿨다.
+- **Phase 4 완료.** `src/render/`(values·css-map·measure·paint), `src/layout/yoga.ts`,
+  `src/controls/registry.ts`. 레이아웃 테스트 23개 + 페인팅 테스트 17개, 전체 157개.
+  놀이터도 실제 렌더에 배선했다.
+- 테스트가 잡아준 착각: Label 너비가 200으로 나와서 측정이 깨진 줄 알았는데,
+  **`align-items: stretch`(기본값)가 교차축을 늘리는 게 맞았다.** 코드가 아니라
+  기대값이 틀렸다. 주축(높이)과 `align-self: flex-start`인 경우로 나눠 고정했다.
+- 빌드 산출물이 178KB였다. Yoga의 base64 WASM이 통째로 인라인된 것이라
+  external로 빼서 39KB가 됐다.
+- 다음에 바꿀 것 / 확인할 것
+  - **브라우저 육안 확인이 아직이다.** jsdom과 dev 서버 200까지만 봤다
+  - 행 높이를 `font-size * 1.2`로 잡았다. 유니티와 다를 가능성이 높다
+  - 미지원 컨트롤은 문서대로 하위 트리째 렌더에서 제외한다. 프리뷰 용도로는
+    일반 `VisualElement`처럼 그려주는 편이 나을 수 있어 backlog에 올렸다

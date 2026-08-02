@@ -154,18 +154,42 @@ Phase 2에서 실제 구현이 들어가면 채워진다.
 
 **목표:** 드디어 화면에 나온다.
 
-- [ ] `yoga-layout` 연동 (WASM 로드 포함)
-- [ ] 모델 → Yoga 노드 트리 변환
-- [ ] 레이아웃 계산 후 좌표 회수
-- [ ] 좌표에 맞춰 절대위치 DOM 생성
-- [ ] USS 시각 속성 → CSS 매핑 (`src/render/css-map.ts`)
-- [ ] 모든 요소에 `box-sizing: border-box`
-- [ ] **z-index를 출력하지 않음** (형제 순서에 맡김)
-- [ ] `resolveAsset` 훅 + 플레이스홀더 폴백
-- [ ] 리렌더 시 Yoga 노드 해제 (누수 테스트 통과)
-- [ ] 놀이터에서 실제로 보임
+- [x] `yoga-layout` 연동 (WASM 로드 포함) — `yoga-layout/load` 경유, `loadLayoutEngine()`
+- [x] 모델 → Yoga 노드 트리 변환
+- [x] 레이아웃 계산 후 좌표 회수
+- [x] 좌표에 맞춰 절대위치 DOM 생성
+- [x] USS 시각 속성 → CSS 매핑 (`src/render/css-map.ts`)
+- [x] 모든 요소에 `box-sizing: border-box`
+- [x] **z-index를 출력하지 않음** (형제 순서에 맡김) — 테스트로 고정
+- [x] `resolveAsset` 훅 + 플레이스홀더 폴백
+- [x] 리렌더 시 Yoga 노드 해제 (누수 테스트 통과)
+- [x] 놀이터 배선 완료 — **실제 브라우저 육안 확인은 아직** (아래)
 
 > 여기서 컨트롤을 더 추가하고 싶어지는데, **참는다.** v0.1은 3종이다.
+
+**완료 (2026-08-02).** 테스트 157개. 레이아웃 23개, 페인팅 17개가 새로 붙었다.
+
+### 코드를 쓰기 전 확인해서 잡은 것
+
+- **`render()`는 동기인데 Yoga 로드는 비동기다.** 기본 엔트리 `yoga-layout`은
+  top-level await을 쓴다. `yoga-layout/load`는 안 쓰므로 그쪽을 경유해서
+  모듈 그래프를 동기로 유지하고, `await loadLayoutEngine()`을 한 번 부르게 했다
+- **Yoga 기본값에 기대면 안 된다.** `flex-direction`(column)과 `box-sizing`(border-box)은
+  마침 USS와 같지만 **`flex-shrink`는 Yoga가 0, USS 문서는 1**이다.
+  지원하는 레이아웃 속성은 전부 명시적으로 쓴다
+- **`getInstanceCount`가 없다.** 누수를 Yoga에게 물어볼 수 없어서 `liveNodeCount()`로
+  직접 센다
+- `setPositionType(absolute)`에 0을 넣을 뻔했다(정답 2). enum을 import해서 쓰고
+  숫자를 코드에 적지 않는다
+
+### 남은 확인
+
+- **실제 브라우저에서 육안 확인.** jsdom 테스트와 dev 서버 응답까지는 확인했지만
+  브라우저 WASM 인스턴스화와 canvas 텍스트 측정은 실행해보지 않았다.
+  `pnpm dev`로 열어봐야 한다
+- 텍스트 측정 기본 구현이 캔버스 기반이라 플랫폼·폰트에 따라 흔들린다.
+  Phase 5는 반드시 `measureText`를 주입해서 고정해야 한다
+- 행 높이를 `font-size * 1.2`로 잡았다. 유니티와 다를 가능성이 높고 Phase 5에서 맞춘다
 
 ---
 

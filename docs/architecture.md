@@ -52,8 +52,17 @@ Unity UI Toolkit은 Flexbox의 부분집합을 구현한 Yoga를 레이아웃 �
 `yoga-layout` npm 패키지가 공식 WebAssembly 빌드를 제공하므로 그대로 쓴다.
 
 **주의**
-- ESM + top-level await 필요. 미지원 환경 대비로 `yoga-layout/load` 경유 로드도 지원
-- Yoga 노드는 자동 GC되지 않는다. `freeRecursive()` 호출 필수
+- **`yoga-layout` 기본 엔트리는 top-level await을 쓴다.** import하는 것만으로
+  이 라이브러리의 모듈 그래프 전체가 비동기가 되고 `render`를 동기로 유지할 수 없다.
+  그래서 항상 `yoga-layout/load`를 경유하고, 호스트가 `await loadLayoutEngine()`을
+  한 번 호출한다
+- **Yoga 기본값은 USS와 부분적으로만 같다.** `flex-direction`(column)과
+  `box-sizing`(border-box)은 일치하지만 `flex-shrink`는 Yoga 0 / USS 1이다.
+  지원 속성은 전부 명시적으로 설정하고, 어느 게 우연히 맞았는지 따지지 않는다
+- **enum 값을 숫자로 적지 않는다.** `PositionType.Absolute`는 2이고 0은 `Static`이다.
+  틀려도 타입 검사와 테스트를 통과하는 종류의 오류다
+- Yoga 노드는 자동 GC되지 않는다. `freeRecursive()` 호출 필수.
+  JS 바인딩에 `getInstanceCount`가 없으므로 생성 수를 직접 센다 (`liveNodeCount()`)
 
 ### 2. 캔버스가 아니라 DOM으로 그린다
 
@@ -67,6 +76,19 @@ Yoga가 계산한 좌표에 `position: absolute` div를 배치하고, 시각 속
 **주의**
 - 모든 요소에 `box-sizing: border-box` (USS는 항상 border-box 동작)
 - `z-index`를 출력하지 않는다 (USS에 없음, 형제 순서로 결정)
+
+**DOM은 트리 모양으로 중첩한다. 평탄화하지 않는다.**
+중첩하면 문서 순서가 곧 페인팅 순서라 "뒤 형제가 위"가 저절로 맞고,
+`overflow: hidden`이 자손을 클리핑한다. 평탄한 목록으로 그리면 둘 다 직접
+구현해야 하고, 그 구현이 곧 z-index를 다시 들여오는 길이 된다.
+Yoga가 주는 좌표는 부모 기준이므로 패널 좌표로 누적해뒀다가 페인팅에서 다시 뺀다.
+
+각 요소에 `data-uxml-node`로 `NodeId`를 붙인다. Phase 8이 클릭을 노드로 되짚는 데
+쓰고, 나중에 붙이려면 페인팅을 다시 짜야 한다.
+
+**텍스트 측정은 주입 가능하다** (`RenderOptions.measureText`).
+기본 구현은 캔버스를 쓰는데 플랫폼과 설치 폰트에 따라 결과가 달라진다.
+Phase 5 골든 테스트는 반드시 자기 구현을 넣어 고정해야 한다.
 
 ### 3. 계산된 값에는 출처가 따라붙고, 계산 결과는 모델 밖에 둔다
 

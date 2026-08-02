@@ -11,11 +11,14 @@ Phase가 진행되면서 갱신한다. 상세 매핑은 `uss-reference.md` 참�
 
 ## 컨트롤
 
+> 상태 표기: `코드 작성` = 코드는 있고 골든 테스트로 검증 안 됨,
+> `검증됨` = 유니티와 대조까지 끝남. Phase 5 전에는 `검증됨`이 하나도 없다.
+
 | 타입 | v0.1 | 비고 |
 |---|---|---|
-| `VisualElement` | ⬜ | |
-| `Label` | ⬜ | |
-| `Button` | ⬜ | |
+| `VisualElement` | 코드 작성 | |
+| `Label` | 코드 작성 | `text` 속성을 그린다 |
+| `Button` | 코드 작성 | `text` 속성을 그린다. `:hover`는 Phase 7 |
 | `ScrollView` | — | Phase 7 |
 | `TextField` | — | Phase 7 |
 | `Toggle` | — | Phase 7 |

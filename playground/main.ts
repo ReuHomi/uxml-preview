@@ -1,11 +1,11 @@
 /**
  * Playground entry point.
  *
- * Phase 0: wires up the editors and echoes input. The render call is stubbed
- * until Phase 4 (see docs/ROADMAP.md).
- *
- * This page doubles as the public online demo in Phase 6, so keep it usable.
+ * Doubles as the public online demo from Phase 6, so keep it usable.
  */
+
+import { loadLayoutEngine, parse, render } from '../src/index';
+import type { RenderResult, Warning } from '../src/index';
 
 const SAMPLE_UXML = `<ui:UXML xmlns:ui="UnityEngine.UIElements">
   <!-- Reminder: USS flex-direction defaults to column, unlike CSS. -->
@@ -61,15 +61,33 @@ const warnEl = document.getElementById('warnings') as HTMLElement;
 uxmlEl.value = SAMPLE_UXML;
 ussEl.value = SAMPLE_USS;
 
-function update(): void {
-  warnEl.textContent = '';
+let result: RenderResult | null = null;
 
-  // Phase 4:
-  //   const doc = parse(uxmlEl.value, ussEl.value);
-  //   result?.dispose();
-  //   result = render(doc, stageEl, { resolveAsset });
-  //   showWarnings(doc.warnings);
-  void stageEl;
+function showWarnings(warnings: readonly Warning[]): void {
+  warnEl.textContent = '';
+  if (warnings.length === 0) return;
+  for (const warning of warnings) {
+    const line = document.createElement('div');
+    line.textContent = `[${warning.kind}] ${warning.message}`;
+    warnEl.appendChild(line);
+  }
+}
+
+function update(): void {
+  // Yoga nodes are WASM handles; skipping this leaks one tree per keystroke.
+  result?.dispose();
+  result = null;
+
+  try {
+    const doc = parse(uxmlEl.value, ussEl.value);
+    result = render(doc, stageEl, {});
+    showWarnings([...doc.warnings, ...result.warnings]);
+  } catch (error) {
+    stageEl.replaceChildren();
+    showWarnings([
+      { kind: 'malformed', message: error instanceof Error ? error.message : String(error) },
+    ]);
+  }
 }
 
 let timer: number | undefined;
@@ -80,4 +98,6 @@ function schedule(): void {
 
 uxmlEl.addEventListener('input', schedule);
 ussEl.addEventListener('input', schedule);
-update();
+window.addEventListener('resize', schedule);
+
+void loadLayoutEngine().then(update);
