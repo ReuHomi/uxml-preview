@@ -21,6 +21,10 @@ directly in a web browser. It uses **Yoga** — the same layout engine Unity UI 
 itself uses — compiled to WebAssembly, so results match the Unity Editor rather than
 approximating it.
 
+Measured against Unity 6000.0.40f1: **242 of 244 element coordinates identical**
+across 18 layout cases. The two that differ are named and explained in
+[`docs/accuracy.md`](docs/accuracy.md).
+
 ```
 .uxml + .uss  →  parse  →  style resolve  →  Yoga layout  →  DOM paint
                                                                   ↓
@@ -63,13 +67,29 @@ That broken feedback loop is what this library fixes.
 | 2 | Parser + serializer (round-trip) | ✅ |
 | 3 | USS style resolver | ✅ |
 | 4 | Yoga layout + DOM painting | ✅ |
-| 5 | Golden image regression tests | 🔨 |
-| 6 | **v0.1 release** | ⬜ |
+| 5 | Golden tests against Unity | ✅ |
+| 6 | **v0.1 release** | 🔨 |
 | 7+ | More controls, editing layer, tool integration | ⬜ |
 
 Full plan: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 
-### Planned API
+### What is not verified yet
+
+The support matrix is deliberately conservative — see
+[`docs/supported.md`](docs/supported.md) for the full table.
+
+- **Only geometry was compared.** Colours, borders, corner radii and fonts are
+  implemented but were not measured against Unity; coordinates say nothing
+  about them.
+- **Text measurement was not compared.** Unity renders text with its own font
+  asset. Layout that is driven by measured text will not match exactly, and the
+  line-height factor is still an estimate.
+- **`Button` has no golden case.** It renders through the same path as `Label`,
+  but "same path" is not a measurement.
+- `-unity-slice-*`, `-unity-background-image-tint-color` and `transition` are
+  parsed and preserved, but not drawn.
+
+### API
 
 ```ts
 import { loadLayoutEngine, parse, render, serialize } from 'uxml-preview';
@@ -93,14 +113,38 @@ view.dispose();
 const { uxml, uss } = serialize(doc);
 ```
 
-### Development
+### Playground
 
 ```bash
 pnpm install
-pnpm dev      # playground
-pnpm test     # all tests
+pnpm dev
+```
+
+Edit UXML and USS on the left, see the result on the right. The panel size is
+set explicitly rather than following the window, because USS percentages and
+stretching resolve against the panel — a preview that resizes with the browser
+cannot answer "how does this look at 1920×1080".
+
+The corner reads `round-trip: exact` whenever serializing the document back out
+reproduces what you typed, byte for byte. It is the round-trip guarantee
+checked live, on your own file.
+
+The examples are chosen to show the traps: `flex-direction` defaulting to
+`column`, overlap ordered by markup rather than `z-index`, and unsupported
+controls surviving a round trip while being reported rather than drawn.
+
+### Development
+
+```bash
+pnpm test           # everything
+pnpm test:roundtrip # parse -> serialize is byte-identical
+pnpm test:golden    # regression snapshots + comparison against Unity
+pnpm golden:emit    # write the golden cases out for loading into Unity
 pnpm build
 ```
+
+Reproducing the accuracy numbers needs a Unity install; the procedure is in
+[`docs/accuracy.md`](docs/accuracy.md).
 
 ### Accuracy
 
@@ -136,6 +180,10 @@ Apache-2.0
 직접 렌더링하는 라이브러리입니다. Unity UI Toolkit이 실제로 사용하는 레이아웃 엔진인
 **Yoga**를 WebAssembly로 그대로 사용하기 때문에, 결과를 "비슷하게 흉내내는" 것이 아니라
 유니티 에디터와 일치시킵니다.
+
+Unity 6000.0.40f1과 대조한 결과, 레이아웃 케이스 18개에서
+**요소 좌표 244개 중 242개가 완전히 일치**합니다. 어긋난 2개는
+[`docs/accuracy.md`](docs/accuracy.md)에 사유까지 적어뒀습니다.
 
 ```
 .uxml + .uss  →  파싱  →  스타일 계산  →  Yoga 레이아웃  →  DOM 페인팅
@@ -178,20 +226,57 @@ Apache-2.0
 | 2 | 파서 + 직렬화 (왕복 검증) | ✅ |
 | 3 | USS 스타일 리졸버 | ✅ |
 | 4 | Yoga 레이아웃 + DOM 페인팅 | ✅ |
-| 5 | 골든 이미지 회귀 테스트 | 🔨 |
-| 6 | **v0.1 공개** | ⬜ |
+| 5 | 유니티 대조 골든 테스트 | ✅ |
+| 6 | **v0.1 공개** | 🔨 |
 | 7+ | 컨트롤 확장, 편집 레이어, 도구 통합 | ⬜ |
 
 전체 계획: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 
-### 개발
+### 아직 검증되지 않은 것
+
+지원 범위는 일부러 보수적으로 적었습니다. 전체 표는
+[`docs/supported.md`](docs/supported.md)에 있습니다.
+
+- **좌표만 비교했습니다.** 색·테두리·모서리·폰트는 구현돼 있지만 유니티와
+  대조하지 않았습니다. 좌표로는 알 수 없는 것들입니다
+- **텍스트 측정은 대조하지 않았습니다.** 유니티는 자기 폰트 에셋으로 글자를
+  그립니다. 측정된 텍스트가 좌우하는 레이아웃은 정확히 맞지 않고, 행 높이
+  계수도 아직 추정치입니다
+- **`Button`은 골든 케이스가 없습니다.** `Label`과 같은 경로로 그려지지만,
+  "같은 경로"는 측정이 아닙니다
+- `-unity-slice-*`, `-unity-background-image-tint-color`, `transition`은
+  파싱·보존은 되지만 그려지지 않습니다
+
+### 놀이터
 
 ```bash
 pnpm install
-pnpm dev      # 놀이터 실행
-pnpm test     # 전체 테스트
+pnpm dev
+```
+
+왼쪽에서 UXML과 USS를 고치면 오른쪽에 바로 반영됩니다. **패널 크기는 창을 따라가지
+않고 직접 지정합니다** — USS의 `%`와 stretch가 전부 패널 크기에 걸려 있어서,
+창 크기를 따라가는 프리뷰로는 "1920×1080에서 어떻게 보이나"에 답할 수 없기 때문입니다.
+
+우상단의 `round-trip: exact`는 **지금 입력한 내용을 다시 저장했을 때 바이트 단위로
+같다**는 뜻입니다. 왕복 보존이라는 약속을 사용자 파일로 실시간 검사하는 것입니다.
+
+예제는 예쁜 것보다 **함정을 보여주는 것**으로 골랐습니다 — `flex-direction`의 기본값이
+`column`이라는 것, 겹침 순서가 `z-index`가 아니라 마크업 순서로 정해진다는 것,
+미지원 컨트롤이 그려지지는 않지만 경고와 함께 왕복에서 살아남는다는 것.
+
+### 개발
+
+```bash
+pnpm test           # 전체
+pnpm test:roundtrip # 파싱 -> 직렬화 바이트 일치
+pnpm test:golden    # 회귀 스냅샷 + 유니티 대조
+pnpm golden:emit    # 골든 케이스를 유니티용 파일로 출력
 pnpm build
 ```
+
+정확도 수치를 재현하려면 유니티가 필요합니다. 절차는
+[`docs/accuracy.md`](docs/accuracy.md)에 있습니다.
 
 ### 라이선스
 

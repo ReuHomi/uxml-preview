@@ -1,71 +1,49 @@
 /**
  * Playground entry point.
  *
- * Doubles as the public online demo from Phase 6, so keep it usable.
+ * Doubles as the public online demo, so keep it usable.
+ *
+ * The panel size is deliberately independent of the window. USS percentages and
+ * stretching resolve against the panel, so a preview that silently resizes with
+ * the browser cannot answer "how does this look at 1920x1080" — which is most of
+ * what anyone wants a preview for. The panel is laid out at its true size and
+ * only scaled for display.
  */
 
-import { loadLayoutEngine, parse, render } from '../src/index';
+import { loadLayoutEngine, parse, render, serialize } from '../src/index';
 import type { RenderResult, Warning } from '../src/index';
-
-const SAMPLE_UXML = `<ui:UXML xmlns:ui="UnityEngine.UIElements">
-  <!-- Reminder: USS flex-direction defaults to column, unlike CSS. -->
-  <ui:VisualElement name="root" class="panel">
-    <ui:Label text="Inventory" class="title" />
-    <ui:VisualElement class="row">
-      <ui:Button text="Use" class="btn" />
-      <ui:Button text="Drop" class="btn btn--danger" />
-    </ui:VisualElement>
-  </ui:VisualElement>
-</ui:UXML>
-`;
-
-const SAMPLE_USS = `.panel {
-  padding: 16px;
-  background-color: rgb(40, 42, 48);
-  border-radius: 6px;
-}
-
-.title {
-  font-size: 18px;
-  color: rgb(224, 226, 232);
-  -unity-font-style: bold;
-}
-
-.row {
-  flex-direction: row;   /* required: column is the default */
-  margin-top: 12px;
-}
-
-.btn {
-  padding: 6px 14px;
-  margin-right: 8px;
-  background-color: rgb(70, 74, 84);
-  border-radius: 4px;
-  color: rgb(224, 226, 232);
-}
-
-.btn:hover {
-  background-color: rgb(88, 93, 105);
-}
-
-.btn--danger {
-  background-color: rgb(140, 62, 62);
-}
-`;
+import { EXAMPLES } from './examples';
 
 const uxmlEl = document.getElementById('uxml') as HTMLTextAreaElement;
 const ussEl = document.getElementById('uss') as HTMLTextAreaElement;
-const stageEl = document.getElementById('stage') as HTMLElement;
+const panelEl = document.getElementById('panel') as HTMLElement;
+const scalerEl = document.getElementById('scaler') as HTMLElement;
+const viewportEl = document.getElementById('viewport') as HTMLElement;
 const warnEl = document.getElementById('warnings') as HTMLElement;
+const metaEl = document.getElementById('meta') as HTMLElement;
+const presetEl = document.getElementById('preset') as HTMLSelectElement;
+const sizePresetEl = document.getElementById('size-preset') as HTMLSelectElement;
+const widthEl = document.getElementById('panel-w') as HTMLInputElement;
+const heightEl = document.getElementById('panel-h') as HTMLInputElement;
+const zoomEl = document.getElementById('zoom') as HTMLSelectElement;
+const swapEl = document.getElementById('swap') as HTMLButtonElement;
 
-uxmlEl.value = SAMPLE_UXML;
-ussEl.value = SAMPLE_USS;
+/** Common Unity target resolutions, plus something small for quick tests. */
+const SIZE_PRESETS: Array<{ label: string; width: number; height: number }> = [
+  { label: '1920 x 1080', width: 1920, height: 1080 },
+  { label: '1280 x 720', width: 1280, height: 720 },
+  { label: '1024 x 768', width: 1024, height: 768 },
+  { label: '800 x 600', width: 800, height: 600 },
+  { label: '640 x 360', width: 640, height: 360 },
+  { label: '400 x 300 (golden cases)', width: 400, height: 300 },
+  { label: '390 x 844 (phone)', width: 390, height: 844 },
+];
 
+let panel = { width: 1280, height: 720 };
 let result: RenderResult | null = null;
 
 function showWarnings(warnings: readonly Warning[]): void {
-  warnEl.textContent = '';
-  if (warnings.length === 0) return;
+  warnEl.replaceChildren();
   for (const warning of warnings) {
     const line = document.createElement('div');
     line.textContent = `[${warning.kind}] ${warning.message}`;
@@ -73,21 +51,67 @@ function showWarnings(warnings: readonly Warning[]): void {
   }
 }
 
+/**
+ * Display scale only. Applied with a transform so the laid-out geometry stays
+ * at the real panel size — reading coordinates off the DOM still gives the
+ * numbers Unity would produce.
+ */
+function applyScale(): number {
+  const choice = zoomEl.value;
+  let scale: number;
+  if (choice === 'fit') {
+    const available = viewportEl.getBoundingClientRect();
+    // A little slack so the drop shadow is not clipped against the edge.
+    scale = Math.min(
+      (available.width - 24) / panel.width,
+      (available.height - 24) / panel.height,
+      1,
+    );
+    scale = Math.max(scale, 0.05);
+  } else {
+    scale = Number(choice);
+  }
+  scalerEl.style.transform = `scale(${scale})`;
+  return scale;
+}
+
 function update(): void {
-  // Yoga nodes are WASM handles; skipping this leaks one tree per keystroke.
+  // Yoga nodes are WASM handles; skipping this leaks a tree per keystroke.
   result?.dispose();
   result = null;
 
+  panelEl.style.width = `${panel.width}px`;
+  panelEl.style.height = `${panel.height}px`;
+
+  let roundTrip = '';
   try {
     const doc = parse(uxmlEl.value, ussEl.value);
-    result = render(doc, stageEl, {});
+    result = render(doc, panelEl, { size: panel });
     showWarnings([...doc.warnings, ...result.warnings]);
+
+    // The headline claim, checked live on whatever the user just typed. Parsing
+    // already happened; serializing again is cheap, and an exact match is the
+    // only proof that unsupported controls and comments really are preserved
+    // rather than quietly dropped.
+    const out = serialize(doc);
+    roundTrip =
+      out.uxml === uxmlEl.value && out.uss === ussEl.value
+        ? 'round-trip: exact'
+        : 'round-trip: DIFFERS';
   } catch (error) {
-    stageEl.replaceChildren();
+    panelEl.replaceChildren();
     showWarnings([
       { kind: 'malformed', message: error instanceof Error ? error.message : String(error) },
     ]);
   }
+
+  const scale = applyScale();
+  const drawn = result?.boxes.size ?? 0;
+  metaEl.textContent =
+    `${panel.width} x ${panel.height} @ ${Math.round(scale * 100)}% - ` +
+    `${drawn} element${drawn === 1 ? '' : 's'}` +
+    (roundTrip === '' ? '' : ` - ${roundTrip}`);
+  metaEl.classList.toggle('bad', roundTrip === 'round-trip: DIFFERS');
 }
 
 let timer: number | undefined;
@@ -96,8 +120,72 @@ function schedule(): void {
   timer = window.setTimeout(update, 150);
 }
 
+function syncSizeInputs(): void {
+  widthEl.value = String(panel.width);
+  heightEl.value = String(panel.height);
+  const match = SIZE_PRESETS.findIndex(
+    (p) => p.width === panel.width && p.height === panel.height,
+  );
+  sizePresetEl.value = match < 0 ? 'custom' : String(match);
+}
+
+function setPanel(width: number, height: number): void {
+  panel = {
+    width: Math.max(1, Math.min(8192, Math.round(width))),
+    height: Math.max(1, Math.min(8192, Math.round(height))),
+  };
+  syncSizeInputs();
+  update();
+}
+
+// --- wiring -----------------------------------------------------------------
+
+for (const [index, example] of EXAMPLES.entries()) {
+  presetEl.add(new Option(example.name, String(index)));
+}
+sizePresetEl.add(new Option('custom', 'custom'));
+for (const [index, preset] of SIZE_PRESETS.entries()) {
+  sizePresetEl.add(new Option(preset.label, String(index)));
+}
+
+presetEl.addEventListener('change', () => {
+  const example = EXAMPLES[Number(presetEl.value)];
+  if (example === undefined) return;
+  uxmlEl.value = example.uxml;
+  ussEl.value = example.uss;
+  if (example.panel !== undefined) {
+    setPanel(example.panel.width, example.panel.height);
+  } else {
+    update();
+  }
+});
+
+sizePresetEl.addEventListener('change', () => {
+  const preset = SIZE_PRESETS[Number(sizePresetEl.value)];
+  if (preset !== undefined) setPanel(preset.width, preset.height);
+});
+
+for (const input of [widthEl, heightEl]) {
+  input.addEventListener('change', () => {
+    setPanel(Number(widthEl.value), Number(heightEl.value));
+  });
+}
+
+swapEl.addEventListener('click', () => setPanel(panel.height, panel.width));
+zoomEl.addEventListener('change', update);
 uxmlEl.addEventListener('input', schedule);
 ussEl.addEventListener('input', schedule);
-window.addEventListener('resize', schedule);
+
+// Only the display scale depends on the window, so a resize re-fits rather than
+// re-laying out.
+new ResizeObserver(() => {
+  if (zoomEl.value === 'fit') applyScale();
+}).observe(viewportEl);
+
+const first = EXAMPLES[0]!;
+uxmlEl.value = first.uxml;
+ussEl.value = first.uss;
+if (first.panel !== undefined) panel = first.panel;
+syncSizeInputs();
 
 void loadLayoutEngine().then(update);

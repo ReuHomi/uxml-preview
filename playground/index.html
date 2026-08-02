@@ -23,53 +23,75 @@
       font-size: 13px;
     }
     header {
-      display: flex; align-items: center; gap: 12px;
+      display: flex; align-items: center; gap: 10px;
       padding: 10px 14px; border-bottom: 1px solid var(--line);
-      flex: 0 0 auto;
+      flex: 0 0 auto; flex-wrap: wrap;
     }
     header h1 { font-size: 13px; font-weight: 600; margin: 0; letter-spacing: .02em; }
     header .tag {
       font-size: 11px; color: var(--muted);
       border: 1px solid var(--line); border-radius: 3px; padding: 1px 6px;
     }
-    header select {
-      margin-left: auto;
+    header .spacer { margin-left: auto; }
+    select, input, button {
       background: var(--panel); color: var(--text);
       border: 1px solid var(--line); border-radius: 4px;
       padding: 4px 8px; font: inherit;
     }
+    input[type="number"] { width: 68px; }
+    button { cursor: pointer; }
+    button:hover { border-color: var(--accent); }
+    label.field { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); font-size: 11px; }
+
     main { flex: 1 1 auto; display: flex; min-height: 0; }
     .col { display: flex; flex-direction: column; min-width: 0; }
     .col.left { flex: 0 0 42%; border-right: 1px solid var(--line); }
-    .col.right { flex: 1 1 auto; }
+    .col.right { flex: 1 1 auto; min-width: 0; }
     .pane { display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; }
     .pane + .pane { border-top: 1px solid var(--line); }
     .pane-label {
       padding: 6px 12px; font-size: 11px; color: var(--muted);
       border-bottom: 1px solid var(--line); flex: 0 0 auto;
       letter-spacing: .06em; text-transform: uppercase;
+      display: flex; align-items: center; gap: 10px;
     }
+    .pane-label .meta { margin-left: auto; text-transform: none; letter-spacing: 0; }
+    .pane-label .meta.bad { color: var(--warn); }
     textarea {
       flex: 1 1 auto; resize: none; border: 0; outline: none;
       background: transparent; color: var(--text);
       font: inherit; line-height: 1.55; padding: 12px; tab-size: 2;
     }
-    #stage {
+
+    /* The viewport the panel is shown inside. Deliberately a light, obviously
+       non-UI backdrop: the sample panel is a dark grey, and against the old
+       near-identical stage colour you could not tell whether it had drawn. */
+    #viewport {
       flex: 1 1 auto; margin: 12px; border: 1px solid var(--line);
-      border-radius: 4px; background: #2b2d33; position: relative;
-      overflow: hidden;
+      border-radius: 4px; position: relative; overflow: auto;
+      background-color: #6e727c;
+      background-image:
+        linear-gradient(45deg, #5f636c 25%, transparent 25%, transparent 75%, #5f636c 75%),
+        linear-gradient(45deg, #5f636c 25%, transparent 25%, transparent 75%, #5f636c 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 8px 8px;
+      display: grid; place-items: center;
     }
-    #stage .empty {
-      position: absolute; inset: 0; display: grid; place-items: center;
-      color: var(--muted); font-size: 12px; text-align: center; padding: 20px;
-      line-height: 1.7;
+    /* Scaled for display only. Yoga still lays out at the true panel size, so
+       the numbers a user reads off the DOM are the real ones. */
+    #scaler { transform-origin: center center; }
+    #panel {
+      position: relative; overflow: hidden;
+      background: #2b2d33;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, .55), 0 8px 24px rgba(0, 0, 0, .35);
     }
     #warnings {
       flex: 0 0 auto; max-height: 26%; overflow: auto;
       border-top: 1px solid var(--line); padding: 8px 12px;
-      font-size: 12px; color: var(--warn);
+      font-size: 12px; color: var(--warn); line-height: 1.6;
     }
     #warnings:empty { display: none; }
+    #warnings div + div { margin-top: 2px; }
     code { color: var(--accent); }
   </style>
 </head>
@@ -77,9 +99,36 @@
   <header>
     <h1>uxml-preview</h1>
     <span class="tag">playground</span>
-    <select id="preset">
-      <option>— presets (Phase 6) —</option>
-    </select>
+
+    <label class="field">
+      example
+      <select id="preset"></select>
+    </label>
+
+    <span class="spacer"></span>
+
+    <label class="field">
+      panel
+      <select id="size-preset"></select>
+    </label>
+    <label class="field">
+      <input id="panel-w" type="number" min="1" max="8192" step="1" />
+      &times;
+      <input id="panel-h" type="number" min="1" max="8192" step="1" />
+    </label>
+    <button id="swap" title="Swap width and height">&#8646;</button>
+    <label class="field">
+      zoom
+      <select id="zoom">
+        <option value="fit">fit</option>
+        <option value="0.25">25%</option>
+        <option value="0.5">50%</option>
+        <option value="0.75">75%</option>
+        <option value="1">100%</option>
+        <option value="1.5">150%</option>
+        <option value="2">200%</option>
+      </select>
+    </label>
   </header>
 
   <main>
@@ -95,12 +144,12 @@
     </div>
 
     <div class="col right">
-      <div class="pane-label">Preview</div>
-      <div id="stage">
-        <div class="empty">
-          Renderer lands in Phase 4.<br />
-          Layout via <code>yoga-layout</code> (WASM) → absolutely-positioned DOM.
-        </div>
+      <div class="pane-label">
+        Preview
+        <span class="meta" id="meta"></span>
+      </div>
+      <div id="viewport">
+        <div id="scaler"><div id="panel"></div></div>
       </div>
       <div id="warnings"></div>
     </div>
