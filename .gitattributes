@@ -1,0 +1,12 @@
+# 이 저장소의 1순위 규칙이 왕복 보존이라 줄바꿈이 민감하다.
+# git의 기본 동작(Windows에서 core.autocrlf=true)은 체크아웃 시 LF를 CRLF로
+# 바꾸는데, 그러면 파서가 읽는 바이트가 커밋된 바이트와 달라진다.
+# .editorconfig가 LF를 지정하고 있으므로 git도 여기에 맞춘다.
+* text=auto eol=lf
+
+# 픽스처는 바이트 단위로 비교한다. git이 손대면 안 된다.
+# "CRLF로 저장된 파일도 CRLF 그대로 왕복되는가"는 그 자체로 테스트 케이스다.
+tests/fixtures/** -text
+tests/golden/** -text
+*.uxml -text
+*.uss -text

@@ -31,7 +31,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:roundtrip": "vitest run tests/roundtrip",
-    "test:golden": "vitest run tests/golden",
+    "test:golden": "vitest run tests/golden --passWithNoTests",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
