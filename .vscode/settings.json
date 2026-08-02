@@ -1,0 +1,25 @@
+{
+  // Use the TypeScript from node_modules (5.9.x) so the editor and
+  // `pnpm typecheck` never disagree. VS Code will prompt once to switch.
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+
+  // .editorconfig sets end_of_line = lf
+  "files.eol": "\n",
+
+  // UXML really is XML, so this association is safe.
+  //
+  // *.uss is deliberately NOT mapped to css. USS is not CSS (see CLAUDE.md):
+  // the CSS language server would suggest z-index, box-shadow, display: block
+  // and other properties USS does not support, which is exactly the mistake
+  // this project exists to catch. Syntax highlighting is not worth that.
+  "files.associations": {
+    "*.uxml": "xml"
+  },
+
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/pnpm-lock.yaml": true
+  }
+}

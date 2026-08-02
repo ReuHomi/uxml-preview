@@ -12,4 +12,10 @@ Thumbs.db
 .env
 .env.local
 .idea/
-.vscode/
+
+# Share the project's editor setup, but not per-user VS Code state.
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json

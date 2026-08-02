@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  // `corepack pnpm` is used instead of bare `pnpm` so the version pinned in
+  // package.json ("packageManager") is always the one that runs, and so this
+  // works without `corepack enable` (which needs admin rights on Windows).
+  "tasks": [
+    {
+      "label": "dev",
+      "type": "shell",
+      "command": "corepack pnpm dev",
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "test",
+      "type": "shell",
+      "command": "corepack pnpm test",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "typecheck",
+      "type": "shell",
+      "command": "corepack pnpm typecheck",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "corepack pnpm build",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": ["$tsc"]
+    }
+  ]
+}

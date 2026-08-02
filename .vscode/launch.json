@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // Run the "dev" task first (Ctrl+Shift+B -> dev, or Run Task -> dev),
+      // then launch this to get breakpoints in playground/main.ts.
+      // Needed from Phase 4 on: CLAUDE.md forbids guessing at render bugs —
+      // inspect the Yoga output and the final DOM coordinates directly.
+      "type": "chrome",
+      "request": "launch",
+      "name": "Playground (Chrome)",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/playground"
+    }
+  ]
+}

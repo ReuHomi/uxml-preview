@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "anthropic.claude-code",
+    "vitest.explorer",
+    "editorconfig.editorconfig"
+  ]
+}
