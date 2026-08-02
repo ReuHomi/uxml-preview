@@ -32,7 +32,13 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build:site
+      # `enablement` turns Pages on for the repository if it is not already,
+      # instead of failing with "Get Pages site failed". Without it the first
+      # run of this workflow on a fresh repository always fails, and the fix is
+      # a setting nobody reading the log would think to look for.
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist-site
