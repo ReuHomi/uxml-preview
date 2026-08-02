@@ -223,6 +223,7 @@ export type WarningKind =
   | 'unsupported-unit'
   | 'version-dependent'
   | 'asset-unresolved'
+  | 'import-unresolved'
   | 'malformed';
 
 /**

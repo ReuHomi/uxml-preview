@@ -174,16 +174,34 @@ describe('import.uss', () => {
       'theme.uss',
     ]);
   });
+
+  it('warns for each import when no loader was supplied', () => {
+    const doc = parse(HOST, readFileSync(join(DIR, 'import.uss'), 'utf8'));
+    expect(doc.warnings.map((w) => w.kind)).toEqual([
+      'import-unresolved',
+      'import-unresolved',
+    ]);
+  });
+
+  it('pulls the imported sheet in when a loader is supplied', () => {
+    const doc = parse(HOST, readFileSync(join(DIR, 'import.uss'), 'utf8'), {
+      resolveImport: (url) => (url === 'theme.uss' ? '.imported { color: rgb(1, 2, 3); }' : null),
+    });
+    expect(doc.sheets).toHaveLength(2);
+    expect(doc.sheets[1]!.origin).toBe('theme.uss');
+    expect(doc.warnings.map((w) => w.kind)).toEqual(['import-unresolved']);
+  });
 });
 
 describe('every fixture', () => {
+  // import.uss is excluded on purpose: it warns because no loader is supplied,
+  // which is covered above.
   const names = [
     'minimal.uss',
     'comments.uss',
     'selectors.uss',
     'unsupported.uss',
     'values.uss',
-    'import.uss',
     'crlf.uss',
   ];
 

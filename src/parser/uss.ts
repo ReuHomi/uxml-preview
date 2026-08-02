@@ -34,6 +34,118 @@ function isSpace(c: string | undefined): boolean {
 }
 
 /**
+ * Scan forward to the first character in `stops` that is not inside a string,
+ * a comment, or a bracket pair. Returns `source.length` if none is found.
+ */
+function scanTo(source: string, from: number, stops: string): number {
+  let i = from;
+  let depth = 0;
+  while (i < source.length) {
+    const c = source[i]!;
+    if (c === '"' || c === "'") {
+      const close = source.indexOf(c, i + 1);
+      i = close < 0 ? source.length : close + 1;
+      continue;
+    }
+    if (c === '/' && source[i + 1] === '*') {
+      const close = source.indexOf('*/', i + 2);
+      i = close < 0 ? source.length : close + 2;
+      continue;
+    }
+    if (c === '(' || c === '[') {
+      depth++;
+    } else if (c === ')' || c === ']') {
+      if (depth > 0) depth--;
+    } else if (depth === 0 && stops.includes(c)) {
+      return i;
+    }
+    i++;
+  }
+  return source.length;
+}
+
+function trimmedSpan(source: string, start: number, end: number): Span {
+  let s = start;
+  let e = end;
+  while (s < e && isSpace(source[s])) s++;
+  while (e > s && isSpace(source[e - 1])) e--;
+  return { start: s, end: e };
+}
+
+/**
+ * Purpose:      read `property: value` pairs out of [start, end).
+ * Deps/Effects: calls `onProblem` for text it cannot make a declaration of;
+ *               it never throws and never stops early.
+ *
+ * Shared by rule blocks and by the inline `style` attribute, which is the same
+ * grammar without the braces. Spans are absolute, so declarations parsed out of
+ * an inline style index the UXML source rather than a stylesheet.
+ */
+export function parseDeclarationList(
+  source: string,
+  start: number,
+  end: number,
+  onProblem?: (message: string, from: number, to: number) => void,
+): Declaration[] {
+  const declarations: Declaration[] = [];
+  let pos = start;
+
+  while (pos < end) {
+    // Whitespace and comments both live in gaps and are never modelled.
+    while (pos < end && (isSpace(source[pos]) || source.startsWith('/*', pos))) {
+      if (source.startsWith('/*', pos)) {
+        const close = source.indexOf('*/', pos + 2);
+        pos = close < 0 ? end : close + 2;
+      } else {
+        pos++;
+      }
+    }
+    if (pos >= end) break;
+    if (source[pos] === ';') {
+      pos++;
+      continue;
+    }
+
+    const from = pos;
+    const colon = scanTo(source, from, ':;}');
+    if (colon >= end || source[colon] !== ':') {
+      const to = Math.min(colon, end);
+      onProblem?.('declaration without a value', from, to);
+      pos = to + 1;
+      continue;
+    }
+    const stop = Math.min(scanTo(source, colon + 1, ';}'), end);
+    const value = trimmedSpan(source, colon + 1, stop);
+
+    declarations.push({
+      property: source.slice(from, colon).trim(),
+      value: source.slice(value.start, value.end),
+      span: { start: from, end: value.end },
+      dirty: false,
+    });
+    pos = stop + 1;
+  }
+
+  return declarations;
+}
+
+/**
+ * Byte offset of an attribute value inside the UXML source.
+ *
+ * `Attribute.span` runs from the name to just past the closing quote, and the
+ * value is stored raw, so the value's start is fixed by arithmetic rather than
+ * by another field on the model. Returns null for the malformed shapes the
+ * scanner records without a quoted value.
+ */
+export function attributeValueStart(attr: {
+  value: string;
+  span: Span;
+}): number | null {
+  const start = attr.span.end - 1 - attr.value.length;
+  return start < attr.span.start ? null : start;
+}
+
+/**
  * Purpose:      USS text -> stylesheet with the spans serialization needs.
  * Ensures:      never throws; unterminated blocks and unknown at-rules become
  *               warnings plus an `unknown` item covering the remaining text.
@@ -68,36 +180,8 @@ export function parseUss(
     }
   }
 
-  /**
-   * Scan forward to the first character in `stops` that is not inside a string,
-   * a comment, or a bracket pair. Returns `source.length` if none is found.
-   */
-  function scanTo(from: number, stops: string): number {
-    let i = from;
-    let depth = 0;
-    while (i < source.length) {
-      const c = source[i]!;
-      if (c === '"' || c === "'") {
-        const close = source.indexOf(c, i + 1);
-        i = close < 0 ? source.length : close + 1;
-        continue;
-      }
-      if (c === '/' && source[i + 1] === '*') {
-        const close = source.indexOf('*/', i + 2);
-        i = close < 0 ? source.length : close + 2;
-        continue;
-      }
-      if (c === '(' || c === '[') {
-        depth++;
-      } else if (c === ')' || c === ']') {
-        if (depth > 0) depth--;
-      } else if (depth === 0 && stops.includes(c)) {
-        return i;
-      }
-      i++;
-    }
-    return source.length;
-  }
+  const at = (from: number, stops: string): number => scanTo(source, from, stops);
+  const trimmed = (start: number, end: number): Span => trimmedSpan(source, start, end);
 
   /** Requires: `source[from]` is `{`. Returns the index just past the matching `}`. */
   function endOfBlock(from: number): number {
@@ -120,14 +204,6 @@ export function parseUss(
       i++;
     }
     return source.length;
-  }
-
-  function trimmedSpan(start: number, end: number): Span {
-    let s = start;
-    let e = end;
-    while (s < e && isSpace(source[s])) s++;
-    while (e > s && isSpace(source[e - 1])) e--;
-    return { start: s, end: e };
   }
 
   // -------------------------------------------------------------------------
@@ -212,7 +288,7 @@ export function parseUss(
   }
 
   function parseSelector(start: number, end: number): Selector {
-    const span = trimmedSpan(start, end);
+    const span = trimmed(start, end);
     const parts: SelectorPart[] = [];
     let combinator: SelectorPart['combinator'] = 'descendant';
     /** Sibling combinators have no representation; they poison the rule instead. */
@@ -256,7 +332,7 @@ export function parseUss(
     const selectors: Selector[] = [];
     let from = start;
     for (;;) {
-      const comma = Math.min(scanTo(from, ','), end);
+      const comma = Math.min(at(from, ','), end);
       selectors.push(parseSelector(from, comma));
       if (comma >= end) break;
       from = comma + 1;
@@ -268,42 +344,6 @@ export function parseUss(
   // Declarations
   // -------------------------------------------------------------------------
 
-  function parseDeclarations(blockStart: number, blockEnd: number): Declaration[] {
-    const declarations: Declaration[] = [];
-    const saved = pos;
-    pos = blockStart;
-
-    while (pos < blockEnd) {
-      skipTrivia();
-      if (pos >= blockEnd) break;
-      if (source[pos] === ';') {
-        pos++;
-        continue;
-      }
-      const start = pos;
-      const colon = scanTo(start, ':;}');
-      if (colon >= blockEnd || source[colon] !== ':') {
-        warn('declaration without a value', start, Math.min(colon, blockEnd));
-        pos = Math.min(colon, blockEnd) + 1;
-        continue;
-      }
-      const property = source.slice(start, colon).trim();
-      const stop = Math.min(scanTo(colon + 1, ';}'), blockEnd);
-      const value = trimmedSpan(colon + 1, stop);
-
-      declarations.push({
-        property,
-        value: source.slice(value.start, value.end),
-        span: { start, end: value.end },
-        dirty: false,
-      });
-      pos = stop + 1;
-    }
-
-    pos = saved;
-    return declarations;
-  }
-
   // -------------------------------------------------------------------------
   // Top level
   // -------------------------------------------------------------------------
@@ -312,7 +352,7 @@ export function parseUss(
     const start = pos;
     const nameEnd = readIdent(pos + 1);
     const name = source.slice(pos + 1, nameEnd);
-    const brace = scanTo(nameEnd, '{;');
+    const brace = at(nameEnd, '{;');
 
     if (brace < source.length && source[brace] === '{') {
       // A block at-rule. `@media` and friends are unsupported, so the whole
@@ -339,13 +379,13 @@ export function parseUss(
 
   function parseRule(): SheetItem {
     const start = pos;
-    const brace = scanTo(start, '{');
+    const brace = at(start, '{');
     if (brace >= source.length) {
       warn('rule without a block', start, source.length);
       pos = source.length;
       return { kind: 'unknown', span: { start, end: source.length } };
     }
-    const selectorSpan = trimmedSpan(start, brace);
+    const selectorSpan = trimmed(start, brace);
     const blockEnd = endOfBlock(brace);
     if (blockEnd > source.length || source[blockEnd - 1] !== '}') {
       warn('unterminated rule block', start, blockEnd);
@@ -353,7 +393,7 @@ export function parseUss(
 
     const rule: Rule = {
       selectors: parseSelectorGroup(selectorSpan.start, selectorSpan.end),
-      declarations: parseDeclarations(brace + 1, blockEnd - 1),
+      declarations: parseDeclarationList(source, brace + 1, blockEnd - 1, warn),
       span: { start: selectorSpan.start, end: blockEnd },
       selectorSpan,
       selectorDirty: false,
