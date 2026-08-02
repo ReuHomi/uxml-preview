@@ -3,20 +3,16 @@
 //
 // Setup
 //   1. Put this file under Assets/Editor/ in any Unity project.
-//   2. In this repo run `pnpm golden:emit`, which writes tests/golden/cases/.
+//   2. In the repo run `pnpm golden:emit`, which writes tests/golden/cases/.
 //      Copy that folder into the project, e.g. Assets/GoldenCases/.
 //   3. Unity: Tools > uxml-preview > Golden Case Dumper
-//   4. Pick the case folder, press Run, then pick an output folder.
-//   5. Copy the resulting *.json into tests/golden/unity/ in this repo.
+//   4. Browse to the case folder, press Run, pick an output folder.
+//   5. Copy the resulting *.json into tests/golden/unity/ in the repo.
 //   6. `pnpm test:golden`
 //
 // Why geometry and not a screenshot: Unity draws text with its own font asset
 // and a browser does not, so a pixel diff over any case containing text
 // measures the font rather than the layout. Numbers say where the boxes went.
-//
-// Layout does not run the instant an element is added; it runs on the next
-// pass. Rather than poke at internals, each case waits for the
-// GeometryChangedEvent that Unity raises when its box is known.
 //
 // The panel size is written into every file, and the web side lays the case out
 // at exactly that size, so nobody has to keep two numbers in sync.
@@ -25,6 +21,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -38,48 +35,124 @@ namespace UxmlPreview.Golden
         private const float PanelWidth = 400f;
         private const float PanelHeight = 300f;
 
+        // Frames to let a case lay out before its numbers are read. Layout runs
+        // on the panel's own schedule, not when CloneTree returns.
+        private const long SettleMs = 120;
+
         private string _caseFolder = "Assets/GoldenCases";
         private string _outputFolder = "";
         private VisualElement _stage;
+        private Label _status;
         private readonly List<string> _log = new List<string>();
 
         [MenuItem("Tools/uxml-preview/Golden Case Dumper")]
         private static void Open()
         {
-            GetWindow<UxmlLayoutDumpWindow>("Golden Dump").minSize = new Vector2(520, 420);
+            GetWindow<UxmlLayoutDumpWindow>("Golden Dump").minSize = new Vector2(560, 260);
         }
 
         private void CreateGUI()
         {
             var root = rootVisualElement;
+            root.style.paddingLeft = 8;
+            root.style.paddingTop = 8;
+            root.style.paddingRight = 8;
 
-            var caseField = new TextField("Case folder (in Assets)") { value = _caseFolder };
-            caseField.RegisterValueChangedCallback(e => _caseFolder = e.newValue);
-            root.Add(caseField);
+            var pathField = new TextField("Case folder") { value = _caseFolder };
+            pathField.RegisterValueChangedCallback(e =>
+            {
+                _caseFolder = e.newValue;
+                Refresh();
+            });
+            root.Add(pathField);
 
-            var run = new Button(Run) { text = "Run" };
-            root.Add(run);
+            var browse = new Button(() =>
+            {
+                string picked = EditorUtility.OpenFolderPanel("Folder holding the .uxml cases",
+                    Application.dataPath, "");
+                if (string.IsNullOrEmpty(picked)) return;
+                _caseFolder = ToProjectRelative(picked);
+                pathField.SetValueWithoutNotify(_caseFolder);
+                Refresh();
+            })
+            { text = "Browse..." };
+            root.Add(browse);
 
-            // The stage is what the cases are laid out inside. Fixed size and
-            // taken out of the window's own flow so nothing here influences it.
+            _status = new Label();
+            _status.style.whiteSpace = WhiteSpace.Normal;
+            _status.style.marginTop = 6;
+            _status.style.marginBottom = 6;
+            root.Add(_status);
+
+            root.Add(new Button(Run) { text = "Run" });
+
+            // The cases are laid out inside this. Fixed size and taken out of
+            // the window's own flow, so nothing about the window affects them.
             _stage = new VisualElement();
             _stage.style.position = Position.Absolute;
             _stage.style.left = 0;
-            _stage.style.top = 2000; // parked offscreen; only its numbers matter
+            _stage.style.top = 4000; // parked offscreen; only its numbers matter
             _stage.style.width = PanelWidth;
             _stage.style.height = PanelHeight;
             root.Add(_stage);
+
+            Refresh();
+        }
+
+        /// Absolute path to a path relative to the project root, when possible.
+        private static string ToProjectRelative(string absolute)
+        {
+            string full = Path.GetFullPath(absolute).Replace('\\', '/');
+            string assets = Path.GetFullPath(Application.dataPath).Replace('\\', '/');
+            if (full == assets) return "Assets";
+            if (full.StartsWith(assets + "/")) return "Assets" + full.Substring(assets.Length);
+            return full; // outside the project: absolute still works for reading
+        }
+
+        private string[] FindCases()
+        {
+            if (string.IsNullOrWhiteSpace(_caseFolder) || !Directory.Exists(_caseFolder))
+            {
+                return new string[0];
+            }
+            // Recursive, so a folder copied one level deeper than expected still
+            // works rather than reporting nothing found.
+            return Directory.GetFiles(_caseFolder, "*.uxml", SearchOption.AllDirectories)
+                .OrderBy(p => p, System.StringComparer.Ordinal)
+                .ToArray();
+        }
+
+        private void Refresh()
+        {
+            if (_status == null) return;
+            string resolved = string.IsNullOrWhiteSpace(_caseFolder)
+                ? "(empty)"
+                : Path.GetFullPath(_caseFolder).Replace('\\', '/');
+
+            string[] found = FindCases();
+            _status.text =
+                $"Looking in: {resolved}\n" +
+                $"Exists: {Directory.Exists(_caseFolder)}   .uxml found: {found.Length}\n" +
+                $"Working directory: {Path.GetFullPath(".").Replace('\\', '/')}";
         }
 
         private void Run()
         {
-            string[] files = Directory.Exists(_caseFolder)
-                ? Directory.GetFiles(_caseFolder, "*.uxml", SearchOption.TopDirectoryOnly)
-                : new string[0];
+            Refresh();
+            string[] files = FindCases();
 
             if (files.Length == 0)
             {
-                EditorUtility.DisplayDialog("Golden Dump", $"No .uxml files under {_caseFolder}", "OK");
+                // Say exactly which path was checked. "No .uxml files" on its own
+                // leaves nothing to act on.
+                EditorUtility.DisplayDialog(
+                    "Golden Dump",
+                    $"No .uxml files found.\n\n" +
+                    $"Looked in:\n{Path.GetFullPath(_caseFolder).Replace('\\', '/')}\n\n" +
+                    $"Folder exists: {Directory.Exists(_caseFolder)}\n" +
+                    $"Working directory:\n{Path.GetFullPath(".").Replace('\\', '/')}\n\n" +
+                    "Use Browse... to point at the folder holding the .uxml files.",
+                    "OK");
                 return;
             }
 
@@ -94,18 +167,20 @@ namespace UxmlPreview.Golden
         {
             if (remaining.Count == 0)
             {
-                Debug.Log("[uxml-preview] " + string.Join("\n", _log));
+                Debug.Log("[uxml-preview] golden dump\n" + string.Join("\n", _log));
                 EditorUtility.RevealInFinder(_outputFolder);
+                _status.text = $"Done. {_log.Count} cases written to {_outputFolder}";
                 return;
             }
 
             string path = remaining.Dequeue().Replace('\\', '/');
             string name = Path.GetFileNameWithoutExtension(path);
+            string assetPath = ToProjectRelative(path);
 
-            var tree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(path);
+            var tree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(assetPath);
             if (tree == null)
             {
-                _log.Add($"skipped (could not load): {path}");
+                _log.Add($"{name}: SKIPPED, could not load as VisualTreeAsset ({assetPath})");
                 ProcessNext(remaining);
                 return;
             }
@@ -113,32 +188,35 @@ namespace UxmlPreview.Golden
             _stage.Clear();
             _stage.styleSheets.Clear();
 
-            string ussPath = Path.ChangeExtension(path, ".uss");
+            string ussPath = Path.ChangeExtension(assetPath, ".uss");
             var sheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(ussPath);
             if (sheet != null) _stage.styleSheets.Add(sheet);
 
             tree.CloneTree(_stage);
+            _status.text = $"Laying out {name} ({remaining.Count} left)...";
 
-            // Wait for the pass that actually computes the boxes. Reading
-            // straight after CloneTree yields zeroes.
-            EventCallback<GeometryChangedEvent> onLaidOut = null;
-            onLaidOut = _ =>
+            // Sequencing runs off the scheduler, not GeometryChangedEvent. The
+            // stage is a fixed 400x300 and never changes size, so that event
+            // fires for the first case and never again -- which stalls the queue
+            // silently at case two.
+            _stage.schedule.Execute(() =>
             {
-                _stage.UnregisterCallback(onLaidOut);
                 Write(name);
-                // Let the next case start on a clean pass.
-                EditorApplication.delayCall += () => ProcessNext(remaining);
-            };
-            _stage.RegisterCallback(onLaidOut);
+                ProcessNext(remaining);
+            }).ExecuteLater(SettleMs);
 
-            // Nudge a pass in case the geometry happens to be unchanged.
-            _stage.MarkDirtyRepaint();
+            Repaint();
         }
 
         private void Write(string name)
         {
             var entries = new List<string>();
             Collect(_stage, _stage.worldBound, entries);
+
+            if (entries.Count == 0)
+            {
+                _log.Add($"{name}: WARNING, no named elements found");
+            }
 
             var sb = new StringBuilder();
             sb.Append("{\n");
