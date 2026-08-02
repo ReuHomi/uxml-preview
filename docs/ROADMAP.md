@@ -290,16 +290,25 @@ Unity 고유 속성
 
 ## Phase 6 — 놀이터 완성 + v0.1 공개
 
-- [ ] 놀이터에 예제 프리셋 드롭다운
-- [ ] 경고/에러 표시 영역
-- [ ] URL 공유 기능
-- [ ] GitHub Pages 배포
-- [ ] README에 데모 GIF + 정확도 수치
-- [ ] `docs/uss-vs-css.md` 작성 (독립 SEO 자산)
-- [ ] `docs/supported.md` 완성
-- [ ] npm 배포
-- [ ] GitHub Topics 설정
-- [ ] v0.1.0 릴리스 노트
+- [x] 놀이터에 예제 프리셋 드롭다운 — 6개, 함정 위주로 선정
+- [x] 경고/에러 표시 영역
+- [x] URL 공유 기능 — 해시에 문서와 패널 크기를 실음
+- [x] GitHub Pages 배포 — <https://reuhomi.github.io/uxml-preview/>
+- [x] README에 정확도 수치
+- [ ] README에 데모 GIF — 구성안 확정, 녹화 대기
+- [x] `docs/uss-vs-css.md` 작성 (독립 SEO 자산) — 영/한, 함정마다 놀이터 링크
+- [x] `docs/supported.md` 완성 — 영어판 포함
+- [ ] npm 배포 — **준비 완료**(0.1.0, `prepublishOnly` 가드). `npm publish`만 남음
+- [ ] GitHub Topics 설정 — 문구 준비됨, `gh` CLI가 없어 수동
+- [x] v0.1.0 릴리스 노트 — `CHANGELOG.md`
+
+### 계획에 없었지만 넣은 것
+
+- **놀이터 패널 크기 지정.** 창을 따라가면 `%`와 stretch가 창에 걸려서
+  "1920x1080에서 어떻게 보이나"에 답할 수 없다. 프리뷰를 여는 이유의 절반이 그건데
+- **`round-trip: exact` 실시간 표시.** 놀이터가 1순위 기능을 전혀 안 보여주고 있었다
+- **`THIRD-PARTY-NOTICES.md`.** 사이트 번들이 yoga를 인라인하므로 MIT 재배포에
+  해당하는데 고지가 없었다
 
 ---
 
