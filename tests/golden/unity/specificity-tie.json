@@ -1,0 +1,6 @@
+{
+  "panel": { "width": 400, "height": 300 },
+  "elements": {
+    "tied": { "x": 0, "y": 0, "width": 200, "height": 40 }
+  }
+}

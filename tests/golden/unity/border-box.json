@@ -1,0 +1,7 @@
+{
+  "panel": { "width": 400, "height": 300 },
+  "elements": {
+    "outer": { "x": 0, "y": 0, "width": 200, "height": 120 },
+    "inner": { "x": 30, "y": 30, "width": 140, "height": 30 }
+  }
+}

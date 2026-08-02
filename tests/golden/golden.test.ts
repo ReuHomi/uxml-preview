@@ -78,6 +78,40 @@ interface Mismatch {
   unity: number;
 }
 
+/**
+ * Differences we have characterised and chosen not to paper over.
+ *
+ * Listed rather than tolerated: the comparison still has to produce exactly
+ * these and no others, so a divergence that gets fixed upstream, or spreads,
+ * fails the run instead of blending into an allowance.
+ */
+interface KnownDivergence {
+  case: string;
+  element: string;
+  field: keyof Rect;
+  reason: string;
+}
+
+const KNOWN_DIVERGENCES: KnownDivergence[] = [
+  {
+    case: 'percent-without-parent-size',
+    element: 'unsized',
+    field: 'height',
+    reason:
+      'yoga-layout 3.2.1 resolves a main-axis percentage against an indefinite ' +
+      'parent (150); the Yoga vendored in UI Toolkit 6000.0.40f1 treats it as 0. ' +
+      'Not configurable: no Errata, useWebDefaults or flex-basis setting ' +
+      "reproduces Unity's answer without breaking cases that currently match. " +
+      'See docs/accuracy.md.',
+  },
+  {
+    case: 'percent-without-parent-size',
+    element: 'pct-in-unsized',
+    field: 'height',
+    reason: 'Follows from the parent above resolving to 150 rather than 0.',
+  },
+];
+
 function compare(ours: CaseGeometry, unity: UnityDump): Mismatch[] {
   const out: Mismatch[] = [];
   for (const [element, expected] of Object.entries(unity.elements)) {
@@ -120,10 +154,27 @@ describe('accuracy: we match Unity', () => {
       // compared against the same containing block rather than a guess at it.
       const ours = runCase(golden, unity!.panel);
       const mismatches = compare(ours, unity!);
+      const known = KNOWN_DIVERGENCES.filter((k) => k.case === golden.name);
+
+      const unexpected = mismatches.filter(
+        (m) => !known.some((k) => k.element === m.element && k.field === m.field),
+      );
       expect(
-        mismatches,
-        mismatches
+        unexpected,
+        unexpected
           .map((m) => `${m.element}.${m.field}: ours ${m.ours}, Unity ${m.unity}`)
+          .join('\n'),
+      ).toEqual([]);
+
+      // And the other direction: a known divergence that stopped happening is
+      // news, not something to leave sitting in the list.
+      const stale = known.filter(
+        (k) => !mismatches.some((m) => m.element === k.element && m.field === k.field),
+      );
+      expect(
+        stale,
+        stale
+          .map((k) => `${k.element}.${k.field} now matches; remove it from KNOWN_DIVERGENCES`)
           .join('\n'),
       ).toEqual([]);
     });

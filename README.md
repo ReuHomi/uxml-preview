@@ -108,10 +108,18 @@ Checked by comparing element geometry against the Unity Editor, case by case.
 Geometry rather than pixels: Unity draws text with its own font asset and a
 browser does not, so a pixel diff would measure the font more than the layout.
 
-**Not yet measured.** The case set and the comparison harness exist; the Unity
-side of the ground truth does not. Current numbers, and how to produce them,
-are in [`docs/accuracy.md`](docs/accuracy.md). Until that table says otherwise,
-treat this library as unverified against Unity.
+Measured against Unity on 2026-08-02, over 18 cases and 61 elements:
+
+| | |
+|---|---|
+| Cases matching exactly | **17 / 18** |
+| Values within 0.5px | **242 / 244 (99.2%)** |
+
+The one divergence is a percentage sized against a parent that has no explicit
+size, where `yoga-layout` resolves the main axis and the Yoga inside UI Toolkit
+does not. It is recorded rather than smoothed over — see
+[`docs/accuracy.md`](docs/accuracy.md) for the numbers, the failed attempts to
+configure around it, and how to reproduce the measurement.
 
 ### License
 

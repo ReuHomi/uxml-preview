@@ -54,15 +54,14 @@ export const CASES: GoldenCase[] = [
   },
   {
     name: 'percent-without-parent-size',
-    // Yoga resolves these two axes differently, which is worth settling rather
-    // than assuming. Against an auto-sized parent it gives width 0 but height
-    // 75 (parent 150), apparently resolving the main axis against the space
-    // handed down and only then treating it as definite. CLAUDE.md states the
-    // flat rule "percentages do not resolve without an explicit parent size";
-    // if Unity agrees with Yoga here, that wording is too strong and
-    // docs/uss-reference.md needs the axis distinction.
+    // Settled, and the one case that does not match. Unity answers 0 on both
+    // axes, so CLAUDE.md's flat rule is right and it is this renderer that is
+    // wrong: yoga-layout 3.2.1 resolves a main-axis percentage against an
+    // indefinite parent, and the Yoga inside UI Toolkit does not. Left as-is
+    // rather than corrected by hand, because correcting it means reimplementing
+    // layout. See KNOWN_DIVERGENCES in golden.test.ts and docs/accuracy.md.
     question:
-      'Against an auto-sized parent, does the cross axis collapse to 0 while the main axis still resolves?',
+      'Does a percentage resolve when the parent has no explicit size? (Unity: no, on both axes)',
     uxml: wrap(
       '  <ui:VisualElement name="sized">\n' +
         '    <ui:VisualElement name="pct-in-sized" />\n' +

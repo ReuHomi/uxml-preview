@@ -1,0 +1,8 @@
+{
+  "panel": { "width": 400, "height": 300 },
+  "elements": {
+    "padded": { "x": 0, "y": 0, "width": 200, "height": 200 },
+    "abs": { "x": 0, "y": 0, "width": 40, "height": 40 },
+    "flow": { "x": 25, "y": 25, "width": 150, "height": 40 }
+  }
+}

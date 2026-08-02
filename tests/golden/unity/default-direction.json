@@ -1,0 +1,8 @@
+{
+  "panel": { "width": 400, "height": 300 },
+  "elements": {
+    "a": { "x": 0, "y": 0, "width": 60, "height": 40 },
+    "b": { "x": 0, "y": 40, "width": 60, "height": 40 },
+    "c": { "x": 0, "y": 80, "width": 60, "height": 40 }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "panel": { "width": 400, "height": 300 },
+  "elements": {
+    "target": { "x": 0, "y": 0, "width": 150, "height": 40 }
+  }
+}

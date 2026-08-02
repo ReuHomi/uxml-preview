@@ -1,0 +1,9 @@
+{
+  "panel": { "width": 400, "height": 300 },
+  "elements": {
+    "sized": { "x": 0, "y": 0, "width": 200, "height": 100 },
+    "pct-in-sized": { "x": 0, "y": 0, "width": 100, "height": 50 },
+    "unsized": { "x": 0, "y": 100, "width": 0, "height": 0 },
+    "pct-in-unsized": { "x": 0, "y": 100, "width": 0, "height": 0 }
+  }
+}

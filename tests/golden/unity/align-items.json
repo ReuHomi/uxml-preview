@@ -1,0 +1,11 @@
+{
+  "panel": { "width": 400, "height": 300 },
+  "elements": {
+    "stretch": { "x": 0, "y": 0, "width": 400, "height": 60 },
+    "s1": { "x": 0, "y": 0, "width": 80, "height": 20 },
+    "center": { "x": 0, "y": 60, "width": 400, "height": 60 },
+    "m1": { "x": 160, "y": 60, "width": 80, "height": 20 },
+    "end": { "x": 0, "y": 120, "width": 400, "height": 60 },
+    "e1": { "x": 320, "y": 120, "width": 80, "height": 20 }
+  }
+}
