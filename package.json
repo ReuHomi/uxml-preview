@@ -1,0 +1,50 @@
+{
+  "name": "uxml-preview",
+  "version": "0.0.0",
+  "description": "Render and edit Unity UI Toolkit UXML/USS in the browser. Powered by Yoga (WebAssembly) — the same layout engine Unity UI Toolkit uses.",
+  "keywords": [
+    "unity", "unity3d", "ui-toolkit", "uitk", "uxml", "uss",
+    "yoga", "yoga-layout", "webassembly", "renderer", "preview",
+    "game-ui", "typescript", "editor-tooling"
+  ],
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ReuHomi/uxml-preview.git"
+  },
+  "homepage": "https://github.com/ReuHomi/uxml-preview#readme",
+  "bugs": { "url": "https://github.com/ReuHomi/uxml-preview/issues" },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:roundtrip": "vitest run tests/roundtrip",
+    "test:golden": "vitest run tests/golden",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "yoga-layout": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "pixelmatch": "^6.0.0",
+    "pngjs": "^7.0.0",
+    "typescript": "^5.6.0",
+    "vite": "^6.0.0",
+    "vite-plugin-dts": "^4.3.0",
+    "vitest": "^2.1.0"
+  },
+  "packageManager": "pnpm@9.12.0"
+}

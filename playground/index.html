@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>uxml-preview — playground</title>
+  <style>
+    :root {
+      --bg: #1c1d21;
+      --panel: #24262b;
+      --line: #34373e;
+      --text: #d8dae0;
+      --muted: #8b8f99;
+      --accent: #6ea8fe;
+      --warn: #e0a458;
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      display: flex; flex-direction: column;
+      background: var(--bg); color: var(--text);
+      font-size: 13px;
+    }
+    header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px; border-bottom: 1px solid var(--line);
+      flex: 0 0 auto;
+    }
+    header h1 { font-size: 13px; font-weight: 600; margin: 0; letter-spacing: .02em; }
+    header .tag {
+      font-size: 11px; color: var(--muted);
+      border: 1px solid var(--line); border-radius: 3px; padding: 1px 6px;
+    }
+    header select {
+      margin-left: auto;
+      background: var(--panel); color: var(--text);
+      border: 1px solid var(--line); border-radius: 4px;
+      padding: 4px 8px; font: inherit;
+    }
+    main { flex: 1 1 auto; display: flex; min-height: 0; }
+    .col { display: flex; flex-direction: column; min-width: 0; }
+    .col.left { flex: 0 0 42%; border-right: 1px solid var(--line); }
+    .col.right { flex: 1 1 auto; }
+    .pane { display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; }
+    .pane + .pane { border-top: 1px solid var(--line); }
+    .pane-label {
+      padding: 6px 12px; font-size: 11px; color: var(--muted);
+      border-bottom: 1px solid var(--line); flex: 0 0 auto;
+      letter-spacing: .06em; text-transform: uppercase;
+    }
+    textarea {
+      flex: 1 1 auto; resize: none; border: 0; outline: none;
+      background: transparent; color: var(--text);
+      font: inherit; line-height: 1.55; padding: 12px; tab-size: 2;
+    }
+    #stage {
+      flex: 1 1 auto; margin: 12px; border: 1px solid var(--line);
+      border-radius: 4px; background: #2b2d33; position: relative;
+      overflow: hidden;
+    }
+    #stage .empty {
+      position: absolute; inset: 0; display: grid; place-items: center;
+      color: var(--muted); font-size: 12px; text-align: center; padding: 20px;
+      line-height: 1.7;
+    }
+    #warnings {
+      flex: 0 0 auto; max-height: 26%; overflow: auto;
+      border-top: 1px solid var(--line); padding: 8px 12px;
+      font-size: 12px; color: var(--warn);
+    }
+    #warnings:empty { display: none; }
+    code { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>uxml-preview</h1>
+    <span class="tag">playground</span>
+    <select id="preset">
+      <option>— presets (Phase 6) —</option>
+    </select>
+  </header>
+
+  <main>
+    <div class="col left">
+      <div class="pane">
+        <div class="pane-label">UXML</div>
+        <textarea id="uxml" spellcheck="false"></textarea>
+      </div>
+      <div class="pane">
+        <div class="pane-label">USS</div>
+        <textarea id="uss" spellcheck="false"></textarea>
+      </div>
+    </div>
+
+    <div class="col right">
+      <div class="pane-label">Preview</div>
+      <div id="stage">
+        <div class="empty">
+          Renderer lands in Phase 4.<br />
+          Layout via <code>yoga-layout</code> (WASM) → absolutely-positioned DOM.
+        </div>
+      </div>
+      <div id="warnings"></div>
+    </div>
+  </main>
+
+  <script type="module" src="./main.ts"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.vite/
+coverage/
+
+# golden test output (diff images are generated, not committed)
+tests/golden/output/
+
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.local
+.idea/
+.vscode/
