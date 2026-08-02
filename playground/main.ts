@@ -27,6 +27,7 @@ const widthEl = document.getElementById('panel-w') as HTMLInputElement;
 const heightEl = document.getElementById('panel-h') as HTMLInputElement;
 const zoomEl = document.getElementById('zoom') as HTMLSelectElement;
 const swapEl = document.getElementById('swap') as HTMLButtonElement;
+const shareEl = document.getElementById('share') as HTMLButtonElement;
 
 /** Common Unity target resolutions, plus something small for quick tests. */
 const SIZE_PRESETS: Array<{ label: string; width: number; height: number }> = [
@@ -41,6 +42,44 @@ const SIZE_PRESETS: Array<{ label: string; width: number; height: number }> = [
 
 let panel = { width: 1280, height: 720 };
 let result: RenderResult | null = null;
+
+// --- sharing ----------------------------------------------------------------
+
+interface SharedState {
+  uxml: string;
+  uss: string;
+  w: number;
+  h: number;
+}
+
+/**
+ * base64 over UTF-8 bytes, not `btoa` directly: `btoa` throws on anything
+ * outside Latin-1, and the examples contain Korean comments.
+ */
+function encodeState(state: SharedState): string {
+  const bytes = new TextEncoder().encode(JSON.stringify(state));
+  let binary = '';
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function decodeState(text: string): SharedState | null {
+  try {
+    const padded = text.replace(/-/g, '+').replace(/_/g, '/');
+    const binary = atob(padded);
+    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+    const parsed = JSON.parse(new TextDecoder().decode(bytes)) as Partial<SharedState>;
+    if (typeof parsed.uxml !== 'string' || typeof parsed.uss !== 'string') return null;
+    return {
+      uxml: parsed.uxml,
+      uss: parsed.uss,
+      w: Number(parsed.w) || 1280,
+      h: Number(parsed.h) || 720,
+    };
+  } catch {
+    return null;
+  }
+}
 
 function showWarnings(warnings: readonly Warning[]): void {
   warnEl.replaceChildren();
@@ -182,10 +221,37 @@ new ResizeObserver(() => {
   if (zoomEl.value === 'fit') applyScale();
 }).observe(viewportEl);
 
-const first = EXAMPLES[0]!;
-uxmlEl.value = first.uxml;
-ussEl.value = first.uss;
-if (first.panel !== undefined) panel = first.panel;
+shareEl.addEventListener('click', () => {
+  const url = new URL(window.location.href);
+  url.hash = encodeState({
+    uxml: uxmlEl.value,
+    uss: ussEl.value,
+    w: panel.width,
+    h: panel.height,
+  });
+  history.replaceState(null, '', url.toString());
+  void navigator.clipboard?.writeText(url.toString());
+  const previous = shareEl.textContent;
+  shareEl.textContent = 'copied';
+  window.setTimeout(() => {
+    shareEl.textContent = previous;
+  }, 1200);
+});
+
+// A shared link wins over the default example: someone following a URL wants
+// what was in it, not the inventory panel.
+const shared = window.location.hash.length > 1 ? decodeState(window.location.hash.slice(1)) : null;
+if (shared !== null) {
+  uxmlEl.value = shared.uxml;
+  ussEl.value = shared.uss;
+  panel = { width: shared.w, height: shared.h };
+  presetEl.value = '';
+} else {
+  const first = EXAMPLES[0]!;
+  uxmlEl.value = first.uxml;
+  ussEl.value = first.uss;
+  if (first.panel !== undefined) panel = first.panel;
+}
 syncSizeInputs();
 
 void loadLayoutEngine().then(update);

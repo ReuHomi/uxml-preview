@@ -28,6 +28,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:site": "vite build --config vite.playground.config.ts",
+    "preview:site": "vite preview --config vite.playground.config.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:roundtrip": "vitest run tests/roundtrip",

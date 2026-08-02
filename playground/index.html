@@ -42,6 +42,8 @@
     button { cursor: pointer; }
     button:hover { border-color: var(--accent); }
     label.field { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); font-size: 11px; }
+    a.repo { color: var(--muted); font-size: 11px; text-decoration: none; border-bottom: 1px solid var(--line); }
+    a.repo:hover { color: var(--accent); }
 
     main { flex: 1 1 auto; display: flex; min-height: 0; }
     .col { display: flex; flex-direction: column; min-width: 0; }
@@ -129,6 +131,8 @@
         <option value="2">200%</option>
       </select>
     </label>
+    <button id="share" title="Copy a link to this document">share</button>
+    <a class="repo" href="https://github.com/ReuHomi/uxml-preview">GitHub</a>
   </header>
 
   <main>
