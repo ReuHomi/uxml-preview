@@ -1,0 +1,27 @@
+{
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "col": {
+      "x": 0,
+      "y": 0,
+      "width": 400,
+      "height": 200
+    },
+    "c1": {
+      "x": 0,
+      "y": 160,
+      "width": 400,
+      "height": 40
+    },
+    "c2": {
+      "x": 0,
+      "y": 120,
+      "width": 400,
+      "height": 40
+    }
+  },
+  "warnings": []
+}

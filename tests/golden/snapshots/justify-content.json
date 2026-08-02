@@ -1,0 +1,63 @@
+{
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "start": {
+      "x": 0,
+      "y": 0,
+      "width": 400,
+      "height": 60
+    },
+    "s1": {
+      "x": 0,
+      "y": 0,
+      "width": 50,
+      "height": 20
+    },
+    "center": {
+      "x": 0,
+      "y": 60,
+      "width": 400,
+      "height": 60
+    },
+    "m1": {
+      "x": 175,
+      "y": 60,
+      "width": 50,
+      "height": 20
+    },
+    "end": {
+      "x": 0,
+      "y": 120,
+      "width": 400,
+      "height": 60
+    },
+    "e1": {
+      "x": 350,
+      "y": 120,
+      "width": 50,
+      "height": 20
+    },
+    "between": {
+      "x": 0,
+      "y": 180,
+      "width": 400,
+      "height": 60
+    },
+    "b1": {
+      "x": 0,
+      "y": 180,
+      "width": 50,
+      "height": 20
+    },
+    "b2": {
+      "x": 350,
+      "y": 180,
+      "width": 50,
+      "height": 20
+    }
+  },
+  "warnings": []
+}

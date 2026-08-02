@@ -6,6 +6,11 @@ coverage/
 # golden test output (diff images are generated, not committed)
 tests/golden/output/
 
+# emitted from tests/golden/cases.ts by `pnpm golden:emit`, for loading into
+# Unity. Derivable, so not committed — a stale copy here would be a second
+# source of truth for the case set.
+tests/golden/cases/
+
 .DS_Store
 Thumbs.db
 *.log

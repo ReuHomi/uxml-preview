@@ -1,0 +1,21 @@
+{
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "under": {
+      "x": 20,
+      "y": 20,
+      "width": 80,
+      "height": 80
+    },
+    "over": {
+      "x": 60,
+      "y": 60,
+      "width": 80,
+      "height": 80
+    }
+  },
+  "warnings": []
+}

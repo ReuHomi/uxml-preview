@@ -32,6 +32,8 @@
     "test:watch": "vitest",
     "test:roundtrip": "vitest run tests/roundtrip",
     "test:golden": "vitest run tests/golden --passWithNoTests",
+    "golden:emit": "node --experimental-strip-types --no-warnings scripts/emit-golden-cases.mjs",
+    "golden:update": "node scripts/update-golden.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

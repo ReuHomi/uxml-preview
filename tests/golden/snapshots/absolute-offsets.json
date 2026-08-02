@@ -1,0 +1,33 @@
+{
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "frame": {
+      "x": 0,
+      "y": 0,
+      "width": 200,
+      "height": 200
+    },
+    "tl": {
+      "x": 10,
+      "y": 10,
+      "width": 40,
+      "height": 40
+    },
+    "br": {
+      "x": 150,
+      "y": 150,
+      "width": 40,
+      "height": 40
+    },
+    "stretched": {
+      "x": 20,
+      "y": 80,
+      "width": 160,
+      "height": 30
+    }
+  },
+  "warnings": []
+}

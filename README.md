@@ -104,8 +104,14 @@ pnpm build
 
 ### Accuracy
 
-Verified against golden images captured from the actual Unity Editor.
-Results will be published in `docs/accuracy.md` once Phase 5 lands.
+Checked by comparing element geometry against the Unity Editor, case by case.
+Geometry rather than pixels: Unity draws text with its own font asset and a
+browser does not, so a pixel diff would measure the font more than the layout.
+
+**Not yet measured.** The case set and the comparison harness exist; the Unity
+side of the ground truth does not. Current numbers, and how to produce them,
+are in [`docs/accuracy.md`](docs/accuracy.md). Until that table says otherwise,
+treat this library as unverified against Unity.
 
 ### License
 

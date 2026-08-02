@@ -1,0 +1,27 @@
+{
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "upper-left": {
+      "x": 0,
+      "y": 0,
+      "width": 120,
+      "height": 60
+    },
+    "middle-center": {
+      "x": 0,
+      "y": 60,
+      "width": 120,
+      "height": 60
+    },
+    "lower-right": {
+      "x": 0,
+      "y": 120,
+      "width": 120,
+      "height": 60
+    }
+  },
+  "warnings": []
+}

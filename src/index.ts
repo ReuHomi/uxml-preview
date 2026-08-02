@@ -51,7 +51,7 @@ import { serializeUxml } from './serializer/uxml';
 import { serializeUss } from './serializer/uss';
 import { resolveStyles } from './style/resolve';
 import { layoutDocument } from './layout/yoga';
-import type { MeasureText } from './layout/yoga';
+import type { LayoutBox, MeasureText } from './layout/yoga';
 import { createDefaultMeasureText } from './render/measure';
 import { paint } from './render/paint';
 
@@ -179,6 +179,14 @@ export interface RenderResult {
   /** Painted element per model node. Lets a host map a click back to the tree. */
   elements: ReadonlyMap<NodeId, HTMLElement>;
   /**
+   * What Yoga computed, in panel coordinates, before any of it became CSS.
+   *
+   * Exposed because a layout bug has two possible homes — the Yoga mapping or
+   * the painting — and CLAUDE.md's rule is to read both rather than guess.
+   * Golden tests compare these numbers rather than pixels.
+   */
+  boxes: ReadonlyMap<NodeId, LayoutBox>;
+  /**
    * Deps/Effects: frees the Yoga node tree (`freeRecursive`) and removes the
    * generated DOM from the container.
    *
@@ -224,6 +232,7 @@ export function render(
   return {
     warnings: [...resolved.warnings, ...tree.warnings, ...painted.warnings],
     elements: painted.elements,
+    boxes: tree.boxes,
     dispose(): void {
       if (disposed) return;
       disposed = true;
