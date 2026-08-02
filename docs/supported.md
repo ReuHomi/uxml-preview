@@ -1,5 +1,7 @@
 # Support Matrix / 지원 범위
 
+*[English](supported.en.md) · 한국어*
+
 Phase가 진행되면서 갱신한다. 상세 매핑은 `uss-reference.md` 참조.
 
 ## 등급

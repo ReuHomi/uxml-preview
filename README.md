@@ -4,6 +4,15 @@
 
 **유니티 에디터 없이, 브라우저에서 UXML/USS를 렌더링하고 편집합니다.**
 
+### ▶ [Try it in your browser](https://reuhomi.github.io/uxml-preview/)
+
+Paste your own `.uxml` and `.uss`, or open one of the examples. Nothing is
+uploaded — it all runs locally in the page.
+
+[![CI](https://github.com/ReuHomi/uxml-preview/actions/workflows/ci.yml/badge.svg)](https://github.com/ReuHomi/uxml-preview/actions/workflows/ci.yml)
+[![Pages](https://github.com/ReuHomi/uxml-preview/actions/workflows/pages.yml/badge.svg)](https://github.com/ReuHomi/uxml-preview/actions/workflows/pages.yml)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+
 [English](#english) · [한국어](#한국어)
 
 > ⚠️ **Status: pre-alpha.** Under active development. Not yet published to npm.
@@ -23,7 +32,7 @@ approximating it.
 
 Measured against Unity 6000.0.40f1: **242 of 244 element coordinates identical**
 across 18 layout cases. The two that differ are named and explained in
-[`docs/accuracy.md`](docs/accuracy.md).
+[`docs/accuracy.en.md`](docs/accuracy.en.md).
 
 ```
 .uxml + .uss  →  parse  →  style resolve  →  Yoga layout  →  DOM paint
@@ -56,7 +65,7 @@ That broken feedback loop is what this library fixes.
 3. **USS is not CSS.** Different box model, different defaults, no `z-index`,
    no `@keyframes`. See [`docs/uss-reference.md`](docs/uss-reference.md).
 4. **Honest support matrix.** Unsupported properties produce warnings, not silent
-   wrong output. See [`docs/supported.md`](docs/supported.md).
+   wrong output. See [`docs/supported.en.md`](docs/supported.en.md).
 
 ### Status & roadmap
 
@@ -76,7 +85,7 @@ Full plan: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 ### What is not verified yet
 
 The support matrix is deliberately conservative — see
-[`docs/supported.md`](docs/supported.md) for the full table.
+[`docs/supported.en.md`](docs/supported.en.md) for the full table.
 
 - **Only geometry was compared.** Colours, borders, corner radii and fonts are
   implemented but were not measured against Unity; coordinates say nothing
@@ -115,6 +124,9 @@ const { uxml, uss } = serialize(doc);
 
 ### Playground
 
+**[reuhomi.github.io/uxml-preview](https://reuhomi.github.io/uxml-preview/)** —
+or run it locally:
+
 ```bash
 pnpm install
 pnpm dev
@@ -144,7 +156,7 @@ pnpm build
 ```
 
 Reproducing the accuracy numbers needs a Unity install; the procedure is in
-[`docs/accuracy.md`](docs/accuracy.md).
+[`docs/accuracy.en.md`](docs/accuracy.en.md).
 
 ### Accuracy
 
@@ -162,7 +174,7 @@ Measured against Unity on 2026-08-02, over 18 cases and 61 elements:
 The one divergence is a percentage sized against a parent that has no explicit
 size, where `yoga-layout` resolves the main axis and the Yoga inside UI Toolkit
 does not. It is recorded rather than smoothed over — see
-[`docs/accuracy.md`](docs/accuracy.md) for the numbers, the failed attempts to
+[`docs/accuracy.en.md`](docs/accuracy.en.md) for the numbers, the failed attempts to
 configure around it, and how to reproduce the measurement.
 
 ### License
@@ -248,6 +260,9 @@ Unity 6000.0.40f1과 대조한 결과, 레이아웃 케이스 18개에서
   파싱·보존은 되지만 그려지지 않습니다
 
 ### 놀이터
+
+**[reuhomi.github.io/uxml-preview](https://reuhomi.github.io/uxml-preview/)** —
+또는 로컬에서:
 
 ```bash
 pnpm install
