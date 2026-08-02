@@ -63,7 +63,8 @@ That broken feedback loop is what this library fixes.
    attribute order, and formatting. If opening and saving a file produces a noisy
    git diff, it's unusable in practice.
 3. **USS is not CSS.** Different box model, different defaults, no `z-index`,
-   no `@keyframes`. See [`docs/uss-reference.md`](docs/uss-reference.md).
+   no `@keyframes`. [**USS is not CSS**](docs/uss-vs-css.md) walks through the
+   differences with a live example for each.
 4. **Honest support matrix.** Unsupported properties produce warnings, not silent
    wrong output. See [`docs/supported.en.md`](docs/supported.en.md).
 
@@ -225,7 +226,8 @@ Unity 6000.0.40f1과 대조한 결과, 레이아웃 케이스 18개에서
 2. **왕복 보존은 타협 대상이 아니다.** 파싱 → 직렬화 시 주석, 속성 순서, 서식이
    유지되어야 합니다. 열었다 저장했을 때 git diff가 지저분해지면 실무에서 못 씁니다.
 3. **USS는 CSS가 아니다.** 박스 모델이 다르고, 기본값이 다르고, `z-index`가 없고,
-   `@keyframes`가 없습니다. [`docs/uss-reference.md`](docs/uss-reference.md) 참조.
+   `@keyframes`가 없습니다. [**USS는 CSS가 아니다**](docs/uss-vs-css.ko.md)에
+   차이점마다 직접 해볼 수 있는 예제 링크와 함께 정리해뒀습니다.
 4. **지원 범위를 정직하게 밝힌다.** 미지원 속성은 조용히 틀린 결과를 내는 대신
    경고를 남깁니다. [`docs/supported.md`](docs/supported.md) 참조.
 
