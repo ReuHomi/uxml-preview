@@ -1,48 +1,55 @@
 /**
  * uxml-preview — public API surface.
  *
- * Phase 0: signatures only. Implementations land in Phases 2–4.
+ * Phase 1: the document model is defined (src/model/types.ts). The functions
+ * below are still signatures only; implementations land in Phases 2–4.
  * See docs/ROADMAP.md.
  */
 
-// ---------------------------------------------------------------------------
-// Warnings
-// ---------------------------------------------------------------------------
+export type {
+  Span,
+  SourceRef,
+  NodeId,
+  ElementName,
+  Attribute,
+  ElementSpans,
+  ElementNode,
+  Combinator,
+  SimpleSelector,
+  SelectorPart,
+  Selector,
+  Declaration,
+  Rule,
+  SheetItem,
+  StyleSheet,
+  WarningKind,
+  Warning,
+  UxmlDocument,
+  StyleOrigin,
+} from './model/types';
 
-export type WarningKind =
-  | 'unsupported-control'
-  | 'unsupported-property'
-  | 'unsupported-selector'
-  | 'unsupported-unit'
-  | 'version-dependent'
-  | 'asset-unresolved';
-
-export interface Warning {
-  kind: WarningKind;
-  /** Human-readable message. */
-  message: string;
-  /** Source file the warning came from, if known. */
-  source?: 'uxml' | 'uss';
-  /** 1-based line number in the source, if known. */
-  line?: number;
-}
+import type { UxmlDocument, Warning } from './model/types';
 
 // ---------------------------------------------------------------------------
-// Document
+// Parsing / serialization
 // ---------------------------------------------------------------------------
 
 /**
- * Parsed in-memory representation of a UXML document plus its stylesheets.
- * Defined in Phase 1 (src/model/types.ts).
+ * Parse UXML and USS text into a document model.
+ *
+ * Never throws on unsupported input: unknown controls, properties and selectors
+ * are kept verbatim so they survive `serialize`. Only malformed text produces a
+ * warning here — whether something can be *rendered* is decided downstream.
  */
-export interface UxmlDocument {
-  readonly warnings: readonly Warning[];
-}
-
-/** Parse UXML and USS text into a document model. */
 export declare function parse(uxml: string, uss?: string): UxmlDocument;
 
-/** Serialize a document model back to UXML and USS text. */
+/**
+ * Serialize a document model back to UXML and USS text.
+ *
+ * Ensures: for a document with no edits, the output is byte-identical to the
+ * input — untouched nodes are re-emitted by slicing `UxmlDocument.source`
+ * rather than being regenerated. After an edit, only the edited region changes.
+ */
 export declare function serialize(doc: UxmlDocument): { uxml: string; uss: string };
 
 // ---------------------------------------------------------------------------
@@ -64,8 +71,19 @@ export interface RenderOptions {
 }
 
 export interface RenderResult {
+  /**
+   * Everything the renderer could not honour: unsupported controls, properties,
+   * selectors and units, plus unresolved assets. Distinct from
+   * `UxmlDocument.warnings`, which only covers malformed input.
+   */
   warnings: readonly Warning[];
-  /** Releases Yoga nodes and DOM. Must be called before re-rendering. */
+  /**
+   * Deps/Effects: frees the Yoga node tree (`freeRecursive`) and removes the
+   * generated DOM from the container.
+   *
+   * Requires: must be called before re-rendering into the same container. Yoga
+   * nodes are WASM handles and are not garbage collected.
+   */
   dispose(): void;
 }
 
