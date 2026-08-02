@@ -21,6 +21,18 @@ export default defineConfig({
   build: {
     outDir: resolve(here, 'dist-site'),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        // Unlike the npm package, this bundle inlines yoga-layout and its
+        // WebAssembly, so the site redistributes MIT-licensed code and has to
+        // carry the notice. yoga's own header says "@format" rather than
+        // "@license", so no minifier preserves it automatically.
+        banner:
+          '/*! uxml-preview — Apache-2.0. Bundles yoga-layout (MIT, ' +
+          'Copyright (c) Meta Platforms, Inc. and affiliates). ' +
+          'Full notices: https://github.com/ReuHomi/uxml-preview/blob/main/THIRD-PARTY-NOTICES.md */',
+      },
+    },
   },
   optimizeDeps: {
     include: ['yoga-layout/load'],
