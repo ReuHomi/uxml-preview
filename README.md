@@ -60,8 +60,8 @@ That broken feedback loop is what this library fixes.
 |---|---|---|
 | 0 | Repo scaffold + playground | ✅ |
 | 1 | Data model | ✅ |
-| 2 | Parser + serializer (round-trip) | 🔨 |
-| 3 | USS style resolver | ⬜ |
+| 2 | Parser + serializer (round-trip) | ✅ |
+| 3 | USS style resolver | 🔨 |
 | 4 | Yoga layout + DOM painting | ⬜ |
 | 5 | Golden image regression tests | ⬜ |
 | 6 | **v0.1 release** | ⬜ |
@@ -154,8 +154,8 @@ Apache-2.0
 |---|---|---|
 | 0 | 저장소 뼈대 + 놀이터 | ✅ |
 | 1 | 데이터 모델 | ✅ |
-| 2 | 파서 + 직렬화 (왕복 검증) | 🔨 |
-| 3 | USS 스타일 리졸버 | ⬜ |
+| 2 | 파서 + 직렬화 (왕복 검증) | ✅ |
+| 3 | USS 스타일 리졸버 | 🔨 |
 | 4 | Yoga 레이아웃 + DOM 페인팅 | ⬜ |
 | 5 | 골든 이미지 회귀 테스트 | ⬜ |
 | 6 | **v0.1 공개** | ⬜ |
