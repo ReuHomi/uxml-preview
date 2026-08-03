@@ -26,7 +26,7 @@
     "type": "git",
     "url": "git+https://github.com/ReuHomi/uxml-preview.git"
   },
-  "homepage": "https://github.com/ReuHomi/uxml-preview#readme",
+  "homepage": "https://reuhomi.github.io/uxml-preview/",
   "bugs": { "url": "https://github.com/ReuHomi/uxml-preview/issues" },
   "scripts": {
     "dev": "vite",
@@ -40,7 +40,7 @@
     "golden:emit": "node --experimental-strip-types --no-warnings scripts/emit-golden-cases.mjs",
     "golden:update": "node scripts/update-golden.mjs",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build"
+    "prepublishOnly": "npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {
     "yoga-layout": "^3.2.1"
