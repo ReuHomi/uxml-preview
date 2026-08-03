@@ -21,8 +21,17 @@ stylesheet comes out wrong.</sub>
 
 [English](#english) · [한국어](#한국어)
 
-> ⚠️ **Status: pre-alpha.** Under active development. Not yet published to npm.
-> 현재 개발 초기 단계입니다. 아직 npm에 배포되지 않았습니다.
+```bash
+npm install uxml-preview
+```
+
+> **v0.1.0 — early release.** Three controls (`VisualElement`, `Label`,
+> `Button`) and a support matrix that says plainly what has not been measured.
+> Read [what is not verified yet](#what-is-not-verified-yet) before relying on it.
+>
+> **v0.1.0 — 초기 릴리스입니다.** 컨트롤 3종(`VisualElement`, `Label`, `Button`)이고,
+> 검증되지 않은 부분을 지원 범위표에 그대로 적어뒀습니다. 쓰시기 전에
+> [아직 검증되지 않은 것](#아직-검증되지-않은-것)을 먼저 봐주세요.
 
 ---
 

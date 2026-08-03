@@ -295,12 +295,21 @@ Unity 고유 속성
 - [x] URL 공유 기능 — 해시에 문서와 패널 크기를 실음
 - [x] GitHub Pages 배포 — <https://reuhomi.github.io/uxml-preview/>
 - [x] README에 정확도 수치
-- [ ] README에 데모 GIF — 구성안 확정, 녹화 대기
+- [x] README에 데모 GIF — 3종 (flex-direction / round-trip / panel-size)
 - [x] `docs/uss-vs-css.md` 작성 (독립 SEO 자산) — 영/한, 함정마다 놀이터 링크
 - [x] `docs/supported.md` 완성 — 영어판 포함
-- [ ] npm 배포 — **준비 완료**(0.1.0, `prepublishOnly` 가드). `npm publish`만 남음
+- [x] **npm 배포 — `uxml-preview@0.1.0` (2026-08-03)**
 - [ ] GitHub Topics 설정 — 문구 준비됨, `gh` CLI가 없어 수동
 - [x] v0.1.0 릴리스 노트 — `CHANGELOG.md`
+
+---
+
+## v0.1 완료 (2026-08-03)
+
+Phase 0~6을 마쳤다. 테스트 228개, 유니티 6000.0.40f1 대조 좌표 242/244.
+놀이터 <https://reuhomi.github.io/uxml-preview/>, 패키지 `uxml-preview@0.1.0`.
+
+남은 것은 저장소 설정(Topics) 하나와 홍보뿐이고, 둘 다 코드가 아니다.
 
 ### 계획에 없었지만 넣은 것
 

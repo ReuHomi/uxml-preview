@@ -239,8 +239,13 @@ background-image: resource("panel");
 우상단의 `round-trip: exact`는 지금 문서를 다시 저장했을 때 주석과 미지원
 컨트롤까지 포함해 **바이트 단위로 같다**는 뜻입니다.
 
-자기 도구에 프리뷰를 넣고 싶다면 라이브러리로도 쓸 수 있습니다. 다만 아직
-pre-alpha이고 npm에 올라가 있지 않습니다. 소스와 API, 전체 지원 범위는
+자기 도구에 프리뷰를 넣고 싶다면 라이브러리로도 쓸 수 있습니다:
+
+```bash
+npm install uxml-preview
+```
+
+소스와 API, 그리고 **유니티와 대조하지 않은 부분까지 적어둔** 전체 지원 범위는
 [github.com/ReuHomi/uxml-preview](https://github.com/ReuHomi/uxml-preview)에
 있습니다.
 

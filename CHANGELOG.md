@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 — unreleased
+## 0.1.0 — 2026-08-03
 
 First release. Parses Unity UI Toolkit `.uxml` and `.uss`, lays them out through
 the same Yoga engine UI Toolkit uses, paints to the DOM, and writes the files
