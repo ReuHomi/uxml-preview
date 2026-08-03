@@ -261,10 +261,13 @@ export const EXAMPLES: Example[] = [
     under the preview. That is the intended behaviour, not a failure:
     one unsupported control must not take the whole screen down.
 
-    They are not lost, either. Watch "round-trip: exact" in the corner --
-    it means serializing this document back out reproduces the text above
-    byte for byte, this comment and both unsupported controls included.
-    Delete a closing tag to see it change.
+    They are not lost, either. "round-trip: exact" in the corner means
+    saving this document reproduces the text above byte for byte -- this
+    comment and both unsupported controls included.
+
+    Try to make it say otherwise. Delete a closing tag, drop a quote,
+    empty the whole file: it stays exact. Untouched text is copied out of
+    the original rather than regenerated, so there is nothing to lose.
   -->
   <ui:VisualElement class="pad">
     <ui:Label text="Drawn" class="ok" />

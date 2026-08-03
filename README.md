@@ -141,8 +141,11 @@ stretching resolve against the panel — a preview that resizes with the browser
 cannot answer "how does this look at 1920×1080".
 
 The corner reads `round-trip: exact` whenever serializing the document back out
-reproduces what you typed, byte for byte. It is the round-trip guarantee
-checked live, on your own file.
+reproduces what you typed, byte for byte. It is the round-trip guarantee checked
+live, on your own file — and it holds for text that does not parse, too, since
+untouched input is copied out of the original rather than regenerated. Half a
+tag, no root element, an empty file: still exact. `DIFFERS` would mean a bug
+here, not in your document.
 
 The examples are chosen to show the traps: `flex-direction` defaulting to
 `column`, overlap ordered by markup rather than `z-index`, and unsupported
@@ -316,7 +319,11 @@ pnpm dev
 창 크기를 따라가는 프리뷰로는 "1920×1080에서 어떻게 보이나"에 답할 수 없기 때문입니다.
 
 우상단의 `round-trip: exact`는 **지금 입력한 내용을 다시 저장했을 때 바이트 단위로
-같다**는 뜻입니다. 왕복 보존이라는 약속을 사용자 파일로 실시간 검사하는 것입니다.
+같다**는 뜻입니다. 왕복 보존이라는 약속을 사용자 파일로 실시간 검사하는 것이고,
+**파싱되지 않는 텍스트에도 성립합니다** — 건드리지 않은 입력은 재생성하지 않고
+원본에서 그대로 복사하기 때문입니다. 태그를 반쯤 지우든, 루트가 없든, 파일을
+비우든 `exact`입니다. `DIFFERS`가 뜬다면 그건 문서가 아니라 **이 라이브러리의
+버그**라는 뜻입니다.
 
 예제는 예쁜 것보다 **함정을 보여주는 것**으로 골랐습니다 — `flex-direction`의 기본값이
 `column`이라는 것, 겹침 순서가 `z-index`가 아니라 마크업 순서로 정해진다는 것,

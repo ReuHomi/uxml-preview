@@ -128,10 +128,13 @@ function update(): void {
     result = render(doc, panelEl, { size: panel });
     showWarnings([...doc.warnings, ...result.warnings]);
 
-    // The headline claim, checked live on whatever the user just typed. Parsing
-    // already happened; serializing again is cheap, and an exact match is the
-    // only proof that unsupported controls and comments really are preserved
-    // rather than quietly dropped.
+    // The headline claim, checked live on whatever the user just typed.
+    //
+    // It is meant to stay exact, including for text that does not parse:
+    // untouched input is copied out of the original rather than regenerated,
+    // so there is nothing for recovery to lose. That makes this a self-test
+    // rather than a puzzle — if it ever reads DIFFERS, the bug is here, not in
+    // the document.
     const out = serialize(doc);
     roundTrip =
       out.uxml === uxmlEl.value && out.uss === ussEl.value
@@ -151,6 +154,11 @@ function update(): void {
     `${drawn} element${drawn === 1 ? '' : 's'}` +
     (roundTrip === '' ? '' : ` - ${roundTrip}`);
   metaEl.classList.toggle('bad', roundTrip === 'round-trip: DIFFERS');
+  metaEl.title =
+    'Saving this document reproduces what you typed, byte for byte. It stays ' +
+    'exact even for text that does not parse, because untouched input is ' +
+    'copied out of the original rather than regenerated. DIFFERS would mean a ' +
+    'bug in uxml-preview, not in your file.';
 }
 
 let timer: number | undefined;
