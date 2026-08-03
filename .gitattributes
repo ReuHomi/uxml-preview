@@ -10,3 +10,14 @@ tests/fixtures/** -text
 tests/golden/** -text
 *.uxml -text
 *.uss -text
+
+# 위의 `* text=auto`는 바이너리를 자동 판별하지만, 판별이 어긋나면 이미지가
+# 줄바꿈 변환으로 조용히 깨진다. 미디어는 추측에 맡기지 않는다.
+*.webp binary
+*.gif binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.mp4 binary
+*.woff binary
+*.woff2 binary
