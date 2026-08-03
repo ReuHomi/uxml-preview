@@ -32,6 +32,8 @@ CSS는 `row`, USS는 `column`입니다. 아무 경고도 없습니다.
 
 **[직접 해보기][try-direction]** — `flex-direction` 줄을 지우면 가로가 세로로 바뀝니다.
 
+![flex-direction: row를 지우면 버튼이 세로로 쌓인다](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/demo-flex-direction.gif)
+
 ### 2. `z-index`가 없다
 
 겹침은 문서 순서로 정해집니다. **뒤에 오는 형제가 위에 그려지고**, 이걸 뒤집는

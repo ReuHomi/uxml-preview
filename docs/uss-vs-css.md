@@ -35,6 +35,8 @@ the mistake hides in plain sight.
 **[Try it][try-direction]** — delete the `flex-direction` line and watch the row
 become a column.
 
+![Deleting flex-direction: row makes the buttons stack](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/demo-flex-direction.gif)
+
 ### 2. There is no `z-index`
 
 Overlap is decided by document order. A later sibling draws on top of an earlier

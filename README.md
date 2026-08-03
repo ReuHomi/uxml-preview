@@ -4,10 +4,16 @@
 
 **유니티 에디터 없이, 브라우저에서 UXML/USS를 렌더링하고 편집합니다.**
 
-### ▶ [Try it in your browser](https://reuhomi.github.io/uxml-preview/)
+### ▶ [Try it in your browser](https://reuhomi.github.io/uxml-preview/) · [한국어](#한국어)
 
 Paste your own `.uxml` and `.uss`, or open one of the examples. Nothing is
 uploaded — it all runs locally in the page.
+
+[![Deleting flex-direction: row makes the buttons stack, because column is the USS default](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/demo-flex-direction.gif)](https://reuhomi.github.io/uxml-preview/)
+
+<sub>Deleting one line rotates the layout ninety degrees — `flex-direction`
+defaults to `column` in USS and `row` in CSS. It is the most common way a ported
+stylesheet comes out wrong.</sub>
 
 [![CI](https://github.com/ReuHomi/uxml-preview/actions/workflows/ci.yml/badge.svg)](https://github.com/ReuHomi/uxml-preview/actions/workflows/ci.yml)
 [![Pages](https://github.com/ReuHomi/uxml-preview/actions/workflows/pages.yml/badge.svg)](https://github.com/ReuHomi/uxml-preview/actions/workflows/pages.yml)
@@ -146,6 +152,13 @@ live, on your own file — and it holds for text that does not parse, too, since
 untouched input is copied out of the original rather than regenerated. Half a
 tag, no root element, an empty file: still exact. `DIFFERS` would mean a bug
 here, not in your document.
+
+![Unsupported controls are reported but still round-trip exactly](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/demo-round-trip.gif)
+
+The panel size is chosen rather than inherited from the window, so a layout can
+be checked at the resolution it will actually ship at.
+
+![Switching the panel between 1920x1080, portrait and a phone size](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/demo-panel-size.gif)
 
 The examples are chosen to show the traps: `flex-direction` defaulting to
 `column`, overlap ordered by markup rather than `z-index`, and unsupported
