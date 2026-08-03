@@ -28,8 +28,10 @@ entity encodings, CRLF line endings, mixed indentation, unsupported controls.
 
 ### Known limitations
 
-- **Only geometry was compared to Unity.** Colours, borders, corner radii and
-  fonts render but were never measured against it.
+- **Only geometry was compared to Unity, and only as far as Yoga.** The figure
+  is measured at the layout engine's output; the painted DOM is checked against
+  it by an invariant of our own, not against Unity. Colours, borders, corner
+  radii and fonts render but were never measured at all.
 - **Text measurement was not compared.** Unity uses its own font asset; the
   line-height factor is an estimate.
 - **`Button` has no golden case.** It renders through the `Label` path.

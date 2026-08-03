@@ -75,6 +75,28 @@ describe('specificity', () => {
     ).toBe('red');
   });
 
+  it('scores a comma group by its most specific matching selector', () => {
+    // CSS Cascade: when a selector list matches, the rule takes the specificity
+    // of the *most specific* selector that matched, not the first one in source
+    // order. Here `.a` matches first at (0,1,0) but `#b` also matches at
+    // (1,0,0), which has to beat `.c` in the later rule.
+    const d = doc(
+      '<ui:VisualElement name="b" class="a c" />',
+      '.a, #b { color: red; }\n.c { color: blue; }',
+    );
+    expect(value(d, 'b', 'color')).toBe('red');
+  });
+
+  it('still scores by the matching selector, not the most specific in the group', () => {
+    // The mirror of the above: `#zzz` is more specific but does not match, so
+    // it must not lend its score to the rule.
+    const d = doc(
+      '<ui:VisualElement name="b" class="a" />',
+      '.a, #zzz { color: red; }\n.a.x, #b { color: blue; }',
+    );
+    expect(value(d, 'b', 'color')).toBe('blue');
+  });
+
   it('a descendant selector adds the ancestor to the score', () => {
     const d = doc(
       '<ui:VisualElement class="p"><ui:Label name="a" class="x" /></ui:VisualElement>',
@@ -273,6 +295,20 @@ describe('custom properties', () => {
   it('survive a reference cycle instead of hanging', () => {
     const d = doc(ONE, '.x { --a: var(--b); --b: var(--a); color: var(--a); }');
     expect(value(d, 'a', 'color')).toBeUndefined();
+  });
+
+  it('resolves a var() nested inside a fallback', () => {
+    // VAR_PATTERN's fallback group is `[^)]*`, so it cannot span the inner
+    // `var(...)` in one pass — the substitution loop gets there on a second
+    // iteration instead. Pinned here because it currently works by arithmetic
+    // rather than by the pattern being right.
+    const d = doc(ONE, '.x { --b: green; color: var(--a, var(--b)); }');
+    expect(value(d, 'a', 'color')).toBe('green');
+  });
+
+  it('resolves a nested fallback chain down to the last one', () => {
+    const d = doc(ONE, '.x { color: var(--a, var(--b, red)); }');
+    expect(value(d, 'a', 'color')).toBe('red');
   });
 
   it('resolve a token that refers to another token', () => {

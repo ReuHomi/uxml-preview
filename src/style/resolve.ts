@@ -192,11 +192,19 @@ function collectCandidates(
   };
 
   for (const flat of prepared.usable) {
-    const matched = flat.rule.selectors.find((s) => matchesSelector(s, node, prepared.ctx));
-    // A rule contributes once even when several of its selectors match, and it
-    // does so at the specificity of the one that matched.
-    if (matched === undefined) continue;
-    const specificity = specificityOf(matched);
+    // A rule contributes once however many of its selectors match, and it does
+    // so at the specificity of the *most specific* one that matched — not the
+    // first in source order. `.a, #b { }` against an element carrying both has
+    // to score (1,0,0), or a later `.c` rule wins a tie it should have lost.
+    let specificity: Specificity | null = null;
+    for (const selector of flat.rule.selectors) {
+      if (!matchesSelector(selector, node, prepared.ctx)) continue;
+      const candidate = specificityOf(selector);
+      if (specificity === null || compareSpecificity(candidate, specificity) > 0) {
+        specificity = candidate;
+      }
+    }
+    if (specificity === null) continue;
     flat.rule.declarations.forEach((decl, declIndex) => {
       for (const [property, value] of expandShorthand(decl.property, decl.value)) {
         push(property, value, { kind: 'rule', sheet: flat.sheet, item: flat.item, declIndex }, specificity);

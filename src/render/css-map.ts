@@ -14,6 +14,7 @@
 
 import type { NodeId, Warning } from '../model/types';
 import type { ComputedStyle } from '../style/resolve';
+import { parseLength } from './values';
 
 export interface CssMapOptions {
   resolveAsset?: ((path: string) => string | null) | undefined;
@@ -140,9 +141,20 @@ export function toCss(
   for (const side of SIDES) {
     const width = value(`border-${side}-width`);
     if (width !== undefined && width !== '0') {
-      out[`border-${side}-width`] = width.endsWith('px') ? width : `${width}px`;
-      // USS draws solid borders only, so the style is not read from anywhere.
-      out[`border-${side}-style`] = 'solid';
+      const { length, problem } = parseLength(width);
+      if (length === null || length.kind !== 'px') {
+        // Appending "px" to anything non-pixel produced values like `50%px`,
+        // which CSSOM drops without a word — and Yoga ignores the same
+        // declaration. Silence in both layers is exactly what rule 6 forbids.
+        warn(
+          'unsupported-property',
+          `border-${side}-width: ${problem ?? `"${width}" is not a pixel length`}; ignored`,
+        );
+      } else {
+        out[`border-${side}-width`] = `${length.value}px`;
+        // USS draws solid borders only, so the style is not read from anywhere.
+        out[`border-${side}-style`] = 'solid';
+      }
     }
     const color = value(`border-${side}-color`);
     if (color !== undefined) out[`border-${side}-color`] = color;

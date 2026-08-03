@@ -223,10 +223,21 @@ export function render(
   const measureText = options?.measureText ?? createDefaultMeasureText(ownerDocument);
 
   const tree = layoutDocument(doc.root, resolved.styles, { size, measureText });
-  const painted = paint(doc.root, tree.boxes, resolved.styles, container, {
-    document: ownerDocument,
-    resolveAsset: options?.resolveAsset,
-  });
+
+  // Yoga nodes are already allocated at this point, and `dispose` does not
+  // exist until the result object below is built. Anything thrown in between
+  // would strand the whole tree — and the playground runs this path on every
+  // keystroke, so it would strand one per character typed.
+  let painted;
+  try {
+    painted = paint(doc.root, tree.boxes, resolved.styles, container, {
+      document: ownerDocument,
+      resolveAsset: options?.resolveAsset,
+    });
+  } catch (error) {
+    tree.dispose();
+    throw error;
+  }
 
   let disposed = false;
   return {

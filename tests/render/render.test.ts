@@ -170,6 +170,29 @@ describe('visual properties', () => {
     result.dispose();
   });
 
+  it('reports a border width it cannot use instead of emitting nonsense', () => {
+    // Appending "px" to a percentage produced `50%px`, which CSSOM drops in
+    // silence; Yoga ignores the same declaration. Two layers losing it quietly
+    // is what rule 6 exists to prevent.
+    const { doc, result } = draw(
+      '<ui:VisualElement name="a" />',
+      '#a { border-top-width: 50%; width: 40px; height: 40px; }',
+    );
+    const el = result.elements.get(named(doc.root, 'a').id)!;
+    expect(el.style.borderTopWidth).toBe('');
+    expect(el.getAttribute('style')).not.toContain('%px');
+    expect(result.warnings.some((w) => w.message.includes('border-top-width'))).toBe(true);
+    result.dispose();
+  });
+
+  it('survives a numeric entity outside the Unicode range', () => {
+    // String.fromCodePoint throws a RangeError on these. One bad character in
+    // one attribute must not take down the render.
+    const { doc, result } = draw('<ui:Label name="a" text="A &#xFFFFFF; B" />');
+    expect(result.elements.get(named(doc.root, 'a').id)!.textContent).toBe('A &#xFFFFFF; B');
+    result.dispose();
+  });
+
   it('warns about a property USS does not have', () => {
     const { result } = draw('<ui:VisualElement name="a" />', '#a { box-shadow: 0 0 4px red; }');
     expect(result.warnings.some((w) => w.message.includes('box-shadow'))).toBe(true);

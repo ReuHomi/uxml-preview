@@ -18,6 +18,7 @@ import type { LayoutBox } from '../layout/yoga';
 import { controlFor } from '../controls/registry';
 import { toCss } from './css-map';
 import type { CssMapOptions } from './css-map';
+import { INITIAL, parseLength } from './values';
 
 export const NODE_ATTRIBUTE = 'data-uxml-node';
 
@@ -46,7 +47,29 @@ export function paint(
   const warnings: Warning[] = [];
   const elements = new Map<NodeId, HTMLElement>();
 
-  function build(node: ElementNode, parentBox: LayoutBox | null): HTMLElement | null {
+  /**
+   * The parent's left and top border widths, in pixels.
+   *
+   * Yoga measures a child from the parent's *border box* origin. CSS measures an
+   * absolutely-positioned child from its parent's *padding box* — inside the
+   * border — so the border has to come back out of the number, or the browser
+   * counts it twice and every descendant of a bordered element sits too far in.
+   */
+  function borderOrigin(node: ElementNode): { left: number; top: number } {
+    const style = styles.get(node.id);
+    const read = (property: string): number => {
+      const text = style?.get(property)?.value ?? INITIAL[property] ?? '0';
+      const { length } = parseLength(text);
+      return length !== null && length.kind === 'px' ? length.value : 0;
+    };
+    return { left: read('border-left-width'), top: read('border-top-width') };
+  }
+
+  function build(
+    node: ElementNode,
+    parentBox: LayoutBox | null,
+    parentBorder: { left: number; top: number },
+  ): HTMLElement | null {
     const box = boxes.get(node.id);
     if (box === undefined) return null; // not laid out: unsupported control
 
@@ -58,9 +81,10 @@ export function paint(
     warnings.push(...css.warnings);
 
     // Yoga reports panel coordinates; a nested absolute box wants its parent's
-    // frame, so the parent's origin is subtracted back out.
-    const left = parentBox === null ? 0 : box.left - parentBox.left;
-    const top = parentBox === null ? 0 : box.top - parentBox.top;
+    // frame, so the parent's origin — and its border, see borderOrigin — is
+    // subtracted back out.
+    const left = parentBox === null ? 0 : box.left - parentBox.left - parentBorder.left;
+    const top = parentBox === null ? 0 : box.top - parentBox.top - parentBorder.top;
 
     const declarations: Record<string, string> = {
       position: 'absolute',
@@ -89,8 +113,9 @@ export function paint(
       }
       el.textContent = decodeEntities(text);
     } else {
+      const ownBorder = borderOrigin(node);
       for (const child of node.children) {
-        const childEl = build(child, box);
+        const childEl = build(child, box, ownBorder);
         // Appended in document order: later siblings paint on top, which is
         // how USS orders overlap.
         if (childEl !== null) el.appendChild(childEl);
@@ -102,7 +127,7 @@ export function paint(
   }
 
   container.replaceChildren();
-  const rootEl = build(root, null);
+  const rootEl = build(root, null, { left: 0, top: 0 });
   if (rootEl !== null) {
     rootEl.style.setProperty('position', 'relative');
     container.appendChild(rootEl);
@@ -114,11 +139,23 @@ export function paint(
 /**
  * Attribute values are stored exactly as written so that serialization can put
  * them back, which means the five XML entities are still encoded here.
+ *
+ * Ensures: never throws. A numeric reference outside the Unicode range makes
+ * `String.fromCodePoint` raise a RangeError, and one bad character in one
+ * attribute must not take down the render (CLAUDE.md rule 6). Unreadable
+ * references are left as written, which is also what round-trips.
  */
 function decodeEntities(text: string): string {
+  const codePoint = (value: number, original: string): string => {
+    if (!Number.isInteger(value) || value < 0 || value > 0x10ffff) return original;
+    // Surrogate halves are not standalone characters.
+    if (value >= 0xd800 && value <= 0xdfff) return original;
+    return String.fromCodePoint(value);
+  };
+
   return text
-    .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) => String.fromCodePoint(parseInt(hex, 16)))
-    .replace(/&#(\d+);/g, (_, dec: string) => String.fromCodePoint(Number(dec)))
+    .replace(/&#x([0-9a-f]+);/gi, (match, hex: string) => codePoint(parseInt(hex, 16), match))
+    .replace(/&#(\d+);/g, (match, dec: string) => codePoint(Number(dec), match))
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')

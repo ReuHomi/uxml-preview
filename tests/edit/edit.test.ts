@@ -14,7 +14,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { parse, serialize } from '../../src/index';
+import { createDefaultMeasureText, parse, serialize } from '../../src/index';
 import type { ElementNode } from '../../src/model/types';
 
 const UXML_DIR = fileURLToPath(new URL('../fixtures/uxml', import.meta.url));
@@ -139,6 +139,30 @@ describe('UXML: childrenDirty loses comments between children', () => {
   });
 });
 
+describe('UXML: a value containing both quote characters', () => {
+  const original =
+    '<ui:UXML xmlns:ui="UnityEngine.UIElements">\n' +
+    '  <ui:Label name="a" text="plain" />\n' +
+    '</ui:UXML>\n';
+
+  it('produces a tag that parses back to the same value', () => {
+    const doc = parse(original);
+    const label = find(doc.root, (n) => n.name.local === 'Label');
+    // Neither quote character can wrap this, so one has to be encoded.
+    label.attributes.find((a) => a.name === 'text')!.value = `he said "it’s" - o'clock`;
+    label.tagDirty = true;
+
+    const { uxml } = serialize(doc);
+    const reparsed = parse(uxml);
+    const text = find(reparsed.root, (n) => n.name.local === 'Label').attributes.find(
+      (a) => a.name === 'text',
+    )!.value;
+
+    expect(reparsed.warnings).toEqual([]);
+    expect(text).toBe(`he said &quot;it’s&quot; - o'clock`);
+  });
+});
+
 describe('USS: editing one declaration', () => {
   const original = readUss('values.uss');
   const doc = parse(HOST, original);
@@ -179,6 +203,24 @@ describe('USS: editing a selector', () => {
   it('rewrites only the selector', () => {
     expect(uss).toContain('.button:hover {');
     expectOnlyRegionChanged(original, uss, span.start, span.end);
+  });
+});
+
+describe('default text measurement', () => {
+  // No DOM here, so there is no canvas and the fallback estimate runs. What is
+  // being checked is line counting, which is independent of either.
+  const measure = createDefaultMeasureText();
+  const style = { fontSize: 10, fontStyle: 'normal', whiteSpace: 'pre' };
+
+  it('counts explicit line breaks under white-space: pre', () => {
+    const one = measure('one line', style, 0);
+    const three = measure('one\ntwo\nthree', style, 0);
+    expect(three.height).toBeCloseTo(one.height * 3);
+  });
+
+  it('takes its width from the longest line, not the whole string', () => {
+    const { width } = measure('a\nlonger line', style, 0);
+    expect(width).toBe(measure('longer line', style, 0).width);
   });
 });
 

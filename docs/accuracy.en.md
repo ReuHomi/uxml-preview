@@ -20,6 +20,24 @@ Tolerance 0.5px. Both mismatches come from the single case
 `percent-without-parent-size`; the other 17 cases and their 59 elements match
 **exactly, with zero error** — not merely inside the tolerance.
 
+### What this number covers, and what it does not
+
+**The 99.2% is measured at the coordinates Yoga produces.** The pipeline has
+four layers — parse, resolve styles, Yoga layout, DOM paint — and the comparison
+against Unity is of the third one's output. Whether the DOM actually drawn on
+screen reproduces those coordinates is **not** compared against Unity.
+
+That last step is covered a different way rather than left open.
+`tests/render/border-offset.test.ts` walks the painted tree, re-derives every
+element's panel position from its CSS, and asserts it equals what Yoga produced.
+It checks **our two layers against each other**, not against Unity.
+
+The distinction earned its keep. A code review on 2026-08-03 found that
+descendants of a bordered element were displaced by the border width: Yoga's
+coordinates were right and the translation into CSS was wrong. The golden suite
+could not see it by construction, and no render test at the time had a bordered
+parent. The invariant above is what closes that gap.
+
 Measurement environment:
 
 | | |

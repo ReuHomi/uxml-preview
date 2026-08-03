@@ -24,12 +24,20 @@ export function serializeUxml(source: string, root: ElementNode): string {
     return Math.max(node.spans.openTag.end, node.spans.inner.end);
   }
 
+  /**
+   * Values are stored raw, so the usual case needs no escaping — just a quote
+   * character the value does not contain. When it contains both, one has to be
+   * encoded, or the regenerated tag is malformed. `&quot;` is valid XML and
+   * decodes to the same string, so nothing is lost.
+   */
+  function quote(value: string): string {
+    if (!value.includes('"')) return `"${value}"`;
+    if (!value.includes("'")) return `'${value}'`;
+    return `"${value.replace(/"/g, '&quot;')}"`;
+  }
+
   function renderOpenTag(node: ElementNode): string {
-    // Values are stored raw, so they need no escaping — only a quote character
-    // that does not appear inside them.
-    const attrs = node.attributes
-      .map((a) => ` ${a.name}=${a.value.includes('"') ? `'${a.value}'` : `"${a.value}"`}`)
-      .join('');
+    const attrs = node.attributes.map((a) => ` ${a.name}=${quote(a.value)}`).join('');
     const name = qualify(node.name);
     return node.spans.closeTag === null ? `<${name}${attrs} />` : `<${name}${attrs}>`;
   }

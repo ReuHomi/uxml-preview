@@ -43,7 +43,12 @@ export function createDefaultMeasureText(doc?: Document): MeasureText {
 
     const wraps = style.whiteSpace !== 'nowrap' && style.whiteSpace !== 'pre';
     if (!wraps || availableWidth <= 0) {
-      return { width: widthOf(text), height: lineHeight };
+      // `pre` keeps explicit line breaks, so the text can still be several
+      // lines tall even though it never wraps. Treating it as one line made
+      // every multi-line string measure short.
+      const lines = text.split('\n');
+      const widest = lines.reduce((max, line) => Math.max(max, widthOf(line)), 0);
+      return { width: widest, height: lines.length * lineHeight };
     }
 
     const words = text.split(/\s+/).filter((w) => w.length > 0);

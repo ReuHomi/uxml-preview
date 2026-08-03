@@ -21,8 +21,12 @@ Updated as phases land. Detailed CSS↔USS mappings are in `uss-reference.md`.
 
 **`written` and `verified` are never conflated.** Golden cases compare
 coordinates only, so anything coordinates cannot see — colour, borders, fonts —
-stays `written` no matter how finished the code looks. See
-[`accuracy.en.md`](accuracy.en.md).
+stays `written` no matter how finished the code looks.
+
+That comparison also stops at the coordinates Yoga produces. Whether the painted
+DOM reproduces them is checked by an invariant of our own
+(`tests/render/border-offset.test.ts`), not against Unity. See
+[`accuracy.en.md`](accuracy.en.md) for why that distinction matters.
 
 ## Controls
 

@@ -88,9 +88,11 @@ Full plan: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 The support matrix is deliberately conservative — see
 [`docs/supported.en.md`](docs/supported.en.md) for the full table.
 
-- **Only geometry was compared.** Colours, borders, corner radii and fonts are
-  implemented but were not measured against Unity; coordinates say nothing
-  about them.
+- **Only geometry was compared, and only as far as Yoga.** The figure above is
+  measured at the coordinates the layout engine produces. Whether the painted
+  DOM reproduces them is checked by an invariant of our own rather than against
+  Unity. Colours, borders, corner radii and fonts are implemented but were not
+  measured at all; coordinates say nothing about them.
 - **Text measurement was not compared.** Unity renders text with its own font
   asset. Layout that is driven by measured text will not match exactly, and the
   line-height factor is still an estimate.
@@ -287,8 +289,10 @@ Unity 6000.0.40f1과 대조한 결과, 레이아웃 케이스 18개에서
 지원 범위는 일부러 보수적으로 적었습니다. 전체 표는
 [`docs/supported.md`](docs/supported.md)에 있습니다.
 
-- **좌표만 비교했습니다.** 색·테두리·모서리·폰트는 구현돼 있지만 유니티와
-  대조하지 않았습니다. 좌표로는 알 수 없는 것들입니다
+- **좌표만, 그것도 Yoga 층까지만 비교했습니다.** 위 수치는 레이아웃 엔진이 낸
+  좌표를 잰 것입니다. 그려진 DOM이 그 좌표를 재현하는지는 유니티가 아니라 자체
+  불변식 검사로 봅니다. 색·테두리·모서리·폰트는 구현돼 있지만 아예 측정하지
+  않았습니다 — 좌표로는 알 수 없는 것들입니다
 - **텍스트 측정은 대조하지 않았습니다.** 유니티는 자기 폰트 에셋으로 글자를
   그립니다. 측정된 텍스트가 좌우하는 레이아웃은 정확히 맞지 않고, 행 높이
   계수도 아직 추정치입니다
