@@ -63,6 +63,10 @@ Unity UI Toolkit은 Flexbox의 부분집합을 구현한 Yoga를 레이아웃 �
   틀려도 타입 검사와 테스트를 통과하는 종류의 오류다
 - Yoga 노드는 자동 GC되지 않는다. `freeRecursive()` 호출 필수.
   JS 바인딩에 `getInstanceCount`가 없으므로 생성 수를 직접 센다 (`liveNodeCount()`)
+- **레이아웃과 페인팅 사이가 누수 구간이다.** 노드는 `layoutDocument`에서
+  할당되는데 `dispose`는 그 뒤에 만들어지는 `RenderResult`에만 달려 있어서,
+  중간에 예외가 나면 트리가 영영 안 풀린다. `render`가 `paint`를 `try/catch`로
+  감싸는 이유다. 놀이터는 키 입력마다 이 경로를 타므로 한 번 새면 계속 샌다
 
 ### 2. 캔버스가 아니라 DOM으로 그린다
 
@@ -81,7 +85,17 @@ Yoga가 계산한 좌표에 `position: absolute` div를 배치하고, 시각 속
 중첩하면 문서 순서가 곧 페인팅 순서라 "뒤 형제가 위"가 저절로 맞고,
 `overflow: hidden`이 자손을 클리핑한다. 평탄한 목록으로 그리면 둘 다 직접
 구현해야 하고, 그 구현이 곧 z-index를 다시 들여오는 길이 된다.
-Yoga가 주는 좌표는 부모 기준이므로 패널 좌표로 누적해뒀다가 페인팅에서 다시 뺀다.
+**좌표 변환에 함정이 하나 있다.** Yoga가 주는 좌표는 부모 기준이라 패널 좌표로
+누적해뒀다가 페인팅에서 다시 빼는데, **그때 부모의 border 폭도 같이 빼야 한다.**
+Yoga는 부모의 **border box 원점** 기준으로 자식 위치를 주지만, CSS에서
+`position: absolute` 자식의 containing block은 **padding box**(border 안쪽)이기
+때문이다. 안 빼면 브라우저가 border 폭을 한 번 더 더한다.
+
+이 오류는 골든 테스트로는 잡히지 않는다. 골든은 Yoga 좌표를 유니티와 비교하는데
+그 좌표는 맞고, 틀린 것은 다음 층이기 때문이다. 그래서 두 층이 서로 맞는지 보는
+불변식 검사를 따로 둔다 — `tests/render/border-offset.test.ts`가 페인팅된 트리에서
+패널 좌표를 CSS로 역산해 Yoga 값과 대조한다. **Yoga → DOM 변환을 건드리면
+이 검사가 유일한 안전망이다.**
 
 각 요소에 `data-uxml-node`로 `NodeId`를 붙인다. Phase 8이 클릭을 노드로 되짚는 데
 쓰고, 나중에 붙이려면 페인팅을 다시 짜야 한다.
