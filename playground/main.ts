@@ -12,7 +12,7 @@
 
 import { loadLayoutEngine, parse, render, serialize } from '../src/index';
 import type { RenderResult, Warning } from '../src/index';
-import { EXAMPLES } from './examples';
+import { EXAMPLES, resolveAsset } from './examples';
 
 const uxmlEl = document.getElementById('uxml') as HTMLTextAreaElement;
 const ussEl = document.getElementById('uss') as HTMLTextAreaElement;
@@ -125,7 +125,7 @@ function update(): void {
   let roundTrip = '';
   try {
     const doc = parse(uxmlEl.value, ussEl.value);
-    result = render(doc, panelEl, { size: panel });
+    result = render(doc, panelEl, { size: panel, resolveAsset });
     showWarnings([...doc.warnings, ...result.warnings]);
 
     // The headline claim, checked live on whatever the user just typed.

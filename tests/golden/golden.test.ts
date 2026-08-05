@@ -119,6 +119,94 @@ const KNOWN_DIVERGENCES: KnownDivergence[] = [
     field: 'height',
     reason: 'Follows from the parent above resolving to 150 rather than 0.',
   },
+
+  /**
+   * The representative screen, whose divergences are two kinds and no more.
+   *
+   * Most of them are text measurement, and measured to be so. The Footer is a
+   * fixed width holding a flexible DetailPanel beside a 96px ActionBar, and the
+   * boundary between them is pushed by the Labels' min-content width. Both
+   * engines shrink the ActionBar for exactly that reason — Unity to 93, this
+   * renderer to 85 — and pinning the Labels to a fixed width collapses our
+   * excess to the same 3px Unity has. The mechanism agrees; the glyph widths do
+   * not, and cannot: a browser has no access to Unity's font asset. This is the
+   * same fact that made pixel diffing useless (docs/accuracy.md), showing up in
+   * coordinates instead of colours.
+   */
+  ...(
+    [
+      ['DetailPanel', 'width'],
+      ['ItemName', 'width'],
+      ['ItemDesc', 'width'],
+      ['ItemDesc', 'height'],
+      ['ActionBar', 'x'],
+      ['ActionBar', 'width'],
+      ['UseButton', 'x'],
+      ['UseButton', 'width'],
+      ['DropButton', 'x'],
+      ['DropButton', 'width'],
+    ] as const
+  ).map(([element, field]) => ({
+    case: 'inventory',
+    element,
+    field,
+    reason:
+      'Text measurement. The Footer boundary is set by the Labels\' min-content ' +
+      'width; Unity shrinks the 96px ActionBar to 93 and we shrink it to 85, and ' +
+      'pinning the Labels reduces our excess to the same 3px. Not reproducible: ' +
+      'the browser cannot measure Unity\'s font asset.',
+  })),
+
+  // Sub-pixel by the plan's own standard. Success criterion 2 allows 1px; the
+  // comparator holds 0.5 so that real drift is still visible everywhere else,
+  // which means these have to be named rather than tolerated away globally.
+  ...(
+    [
+      ['TitleLabel', 'y'],
+      ['CloseButton', 'y'],
+      ['ItemDesc', 'y'],
+    ] as const
+  ).map(([element, field]) => ({
+    case: 'inventory',
+    element,
+    field,
+    reason:
+      '1px, inside success criterion 2\'s tolerance. Listed rather than absorbed ' +
+      'into the comparator, which stays at 0.5px so that drift elsewhere still fails.',
+  })),
+
+  /**
+   * The one structural divergence left, and it is characterised rather than
+   * understood.
+   *
+   * A wrapped content container: Unity clamps it to the viewport (177) and lets
+   * the rows overflow, while Yoga grows it to the content (200). The obvious
+   * fix is measured and rejected — `flex-shrink: 1` with `min-height: 0` lands
+   * this case exactly on 177 and breaks `scrollview-overflowing`, where the
+   * container drops from 180 to 100 and its children compress from 60 to 33.
+   * Unity keeps 180 there. So the two directions genuinely want different
+   * answers, and no single declaration on the part gives both.
+   *
+   * Left alone deliberately. Making it direction-conditional would be a rule
+   * fitted to two data points, which is the kind of correction CLAUDE.md's
+   * first rule exists to forbid.
+   *
+   * **The open question is Unity's rule, not our fix.** We know what Unity does
+   * in these two cases and that no single declaration produces both; we do not
+   * know what decides it. A handful of wrap cases — wrapped inside an explicitly
+   * sized ScrollView, wrapped with a single line, wrapped in a row-direction
+   * viewport — would probably expose it, and that is where to resume.
+   */
+  {
+    case: 'inventory',
+    element: 'unity-content-container',
+    field: 'height',
+    reason:
+      'Yoga grows a wrapped container to its content (200); Unity clamps it to the ' +
+      'viewport (177) and overflows. Shrinking to match breaks the column case, ' +
+      'where Unity grows past the viewport instead. Unity\'s actual rule is not yet ' +
+      'identified — this is unmeasured, not unfixable. See the 2026-08-06 rows.',
+  },
 ];
 
 /**

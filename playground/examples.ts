@@ -6,6 +6,8 @@
  * one render live is worth more than a paragraph explaining it.
  */
 
+import { CASES, PANEL } from '../tests/golden/cases';
+
 export interface Example {
   name: string;
   uxml: string;
@@ -13,7 +15,45 @@ export interface Example {
   panel?: { width: number; height: number };
 }
 
+/**
+ * The one asset the examples reference, inlined.
+ *
+ * 64×16 on purpose: the three `-unity-background-scale-mode` values are
+ * indistinguishable on a square image, and judging that mapping by eye is what
+ * this exists for. Byte-for-byte the same file Unity imports as
+ * `tests/golden/assets/icon.png`, so both sides are looking at one picture.
+ */
+const ICON =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAIAAAAphe5+AAAAM0lEQVR4nO3P' +
+  'QQ0AAAzCwOlD1zRih6nYg6RNDdykvEli6W+t/wYAAAAAAAAAAADQD6juABdmAFJnsc7KAAAAAElFTkSuQmCC';
+
+/**
+ * Purpose:      stand in for the host application's asset resolution.
+ * Ensures:      returns null for anything it does not know, so the placeholder
+ *               and its warning stay reachable — that path is the interesting
+ *               one for everybody whose project this playground is not.
+ */
+export function resolveAsset(path: string): string | null {
+  return path.endsWith('/icon.png') ? ICON : null;
+}
+
+/**
+ * The representative screen, taken from the golden set rather than retyped.
+ *
+ * This is the exact document Unity measured, which is the only reason a
+ * screenshot of it is worth anything: a copy that drifted by one declaration
+ * would put the two pictures out of step without either side saying so. The
+ * panel size matches the dump's too, so the eye check compares like with like.
+ */
+const inventory = CASES.find((c) => c.name === 'inventory')!;
+
 export const EXAMPLES: Example[] = [
+  {
+    name: 'Representative screen (compared against Unity)',
+    panel: PANEL,
+    uxml: inventory.uxml,
+    uss: inventory.uss,
+  },
   {
     name: 'Inventory panel',
     panel: { width: 640, height: 360 },
