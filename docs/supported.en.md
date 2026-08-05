@@ -30,11 +30,11 @@ DOM reproduces them is checked by an invariant of our own
 
 ## Controls
 
-| Type | v0.1 | Notes |
+| Type | v0.2 | Notes |
 |---|---|---|
 | `VisualElement` | verified | most golden cases are built from it |
 | `Label` | written | layout verified; **text measurement was never compared to Unity** |
-| `Button` | verified | five golden cases compared against Unity. Carries Unity's **default `margin: 1px 3px`** (`src/controls/theme.ts`); honours `:hover` and the other states |
+| `Button` | verified | six golden cases compared against Unity. Its label is **centred**, found by the eye check. Carries Unity's **default `margin: 1px 3px`** (`src/controls/theme.ts`); honours `:hover` and the other states |
 | `ScrollView` | verified | reproduces the **three implicit levels** (`unity-content-and-vertical-scroll-container` → `unity-content-viewport` → `unity-content-container`); three golden cases compared against Unity. The scrollbar's **width is reserved (13px) but nothing is drawn** — dragging, wheeling and scroll position are outside a static render |
 | `TextField` | fallback | its `text` / `label` is not drawn |
 | `Toggle` | fallback | as above |
@@ -42,7 +42,7 @@ DOM reproduces them is checked by an invariant of our own
 | `Foldout` | fallback | as above |
 | `DropdownField` | fallback | as above |
 | `ListView` | fallback | undecided |
-| `Image` | written | has its own renderer (`unity-image`). Its picture arrives through USS `background-image` — a texture assigned from C# leaves no path a preview can follow. **Not compared to Unity** |
+| `Image` | verified (visually) | has its own renderer (`unity-image`). Its picture arrives through USS `background-image` — a texture assigned from C# leaves no path a preview can follow. **Not compared to Unity** |
 
 > **A control with no renderer of its own is drawn as a `VisualElement`**
 > (`fallback`). Its own styles and its children come out normally; what is
@@ -76,7 +76,7 @@ matched** ([`accuracy.en.md`](accuracy.en.md)).
 | `-unity-font-definition` | B | written | warns and falls back to the browser default font |
 | `-unity-font-style` | B | written | |
 | `-unity-text-align` | B | written | vertical+horizontal pair. Text cases are excluded from comparison |
-| `-unity-background-scale-mode` | A | written | `stretch-to-fill`→`100% 100%`, `scale-and-crop`→`cover`, `scale-to-fit`→`contain`. **Neither the mapping nor the default is compared to Unity** — a coordinate dump cannot see it; judged in the Step 6 eye check |
+| `-unity-background-scale-mode` | A | **default verified** | `stretch-to-fill`→`100% 100%`, `scale-and-crop`→`cover`, `scale-to-fit`→`contain`. The `stretch-to-fill` default was confirmed by the eye check (`docs/visual-check.md`); the other two values are not on the representative screen and remain **individually unconfirmed** |
 | `-unity-slice-*` | A | **not implemented** | warning only |
 | `-unity-background-image-tint-color` | A | **not implemented** | no CSS equivalent; warning only |
 | `-unity-text-outline-*` | B | not implemented | |

@@ -45,8 +45,10 @@ directly in a web browser. It uses **Yoga** — the same layout engine Unity UI 
 itself uses — compiled to WebAssembly, so results match the Unity Editor rather than
 approximating it.
 
-Measured against Unity 6000.0.40f1: **366 of 368 element coordinates identical**
-across 27 layout cases. The two that differ are named and explained in
+Measured against Unity 6000.0.40f1: **532 of 548 element coordinates identical**
+across 31 layout cases, including a full working screen. Ten of the sixteen
+differences are font metrics rather than layout — a browser cannot measure
+Unity's font asset. All sixteen are named in
 [`docs/accuracy.en.md`](docs/accuracy.en.md).
 
 ```
@@ -200,14 +202,17 @@ Measured against Unity on 2026-08-02, over 18 cases and 61 elements:
 
 | | |
 |---|---|
-| Cases matching exactly | **26 / 27** |
-| Values within 0.5px | **366 / 368 (99.5%)** |
+| Cases matching exactly | **29 / 31** |
+| Values within 0.5px | **532 / 548 (97.1%)** |
 
-The one divergence is a percentage sized against a parent that has no explicit
-size, where `yoga-layout` resolves the main axis and the Yoga inside UI Toolkit
-does not. It is recorded rather than smoothed over — see
-[`docs/accuracy.en.md`](docs/accuracy.en.md) for the numbers, the failed attempts to
-configure around it, and how to reproduce the measurement.
+The sixteen divergences are four different things, and the distinction matters
+more than the ratio: **ten are text metrics**, three are 1px, two are a
+`yoga-layout` version difference, and **one is unresolved**. The ten are not a
+layout defect — both engines shrink the same box for the same reason and only
+the ruler differs, which is the same fact that makes pixel diffing useless.
+Every one is named in [`docs/accuracy.en.md`](docs/accuracy.en.md), along with
+the failed attempts to configure around the version difference and how to
+reproduce the measurement.
 
 ### Questions this answers
 
@@ -229,10 +234,11 @@ as nested flex, and computed values have to be resolved to fixed numbers or
 calculated in C#.
 
 **How close is the output to Unity?**
-366 of 368 element coordinates identical against Unity 6000.0.40f1, across 27
-layout cases. Geometry is compared rather than screenshots, because Unity draws
-text with its own font asset. The single divergence and the numbers behind this
-are in [`docs/accuracy.en.md`](docs/accuracy.en.md).
+532 of 548 element coordinates identical against Unity 6000.0.40f1, across 31
+layout cases including a complete inventory screen. Geometry is compared rather
+than screenshots, because Unity draws text with its own font asset — which is
+also why ten of the sixteen differences are font metrics rather than layout.
+Every divergence is named in [`docs/accuracy.en.md`](docs/accuracy.en.md).
 
 **Will it damage my files if I edit them?**
 Editing goes through a model that keeps the original text. An unedited document
@@ -262,9 +268,10 @@ Apache-2.0
 **Yoga**를 WebAssembly로 그대로 사용하기 때문에, 결과를 "비슷하게 흉내내는" 것이 아니라
 유니티 에디터와 일치시킵니다.
 
-Unity 6000.0.40f1과 대조한 결과, 레이아웃 케이스 27개에서
-**요소 좌표 368개 중 366개가 완전히 일치**합니다. 어긋난 2개는
-[`docs/accuracy.md`](docs/accuracy.md)에 사유까지 적어뒀습니다.
+Unity 6000.0.40f1과 대조한 결과, 실무형 화면을 포함한 레이아웃 케이스 31개에서
+**요소 좌표 548개 중 532개가 일치**합니다. 어긋난 16개 중 **10개는 레이아웃이 아니라
+폰트 메트릭** 차이입니다 — 브라우저는 유니티 폰트 에셋을 잴 수 없습니다.
+16개 전부 [`docs/accuracy.md`](docs/accuracy.md)에 이름과 사유를 적어뒀습니다.
 
 ```
 .uxml + .uss  →  파싱  →  스타일 계산  →  Yoga 레이아웃  →  DOM 페인팅
@@ -387,10 +394,11 @@ pnpm build
 계산이 필요한 값은 고정값으로 풀거나 C#에서 계산해야 합니다.
 
 **유니티와 얼마나 같나요?**
-Unity 6000.0.40f1 기준, 레이아웃 케이스 27개에서 **요소 좌표 368개 중 366개 일치**
-입니다. 스크린샷이 아니라 좌표를 비교하는데, 유니티가 자기 폰트 에셋으로 글자를
-그리기 때문입니다. 유일한 불일치와 근거 수치는
-[`docs/accuracy.md`](docs/accuracy.md)에 있습니다.
+Unity 6000.0.40f1 기준, 인벤토리 화면 전체를 포함한 레이아웃 케이스 31개에서
+**요소 좌표 548개 중 532개 일치**입니다. 스크린샷이 아니라 좌표를 비교하는데,
+유니티가 자기 폰트 에셋으로 글자를 그리기 때문입니다 — 그리고 그 사실 때문에
+불일치 16개 중 **10개가 레이아웃이 아니라 폰트 메트릭**입니다. 전부
+[`docs/accuracy.md`](docs/accuracy.md)에 이름이 적혀 있습니다.
 
 **편집하면 파일이 망가지지 않나요?**
 편집은 원본 텍스트를 그대로 들고 있는 모델을 거칩니다. 고치지 않은 문서는 주석·속성

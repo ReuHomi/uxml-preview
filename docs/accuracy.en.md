@@ -9,19 +9,41 @@ It is the first question anyone asks, and without an answer nobody uses this.
 
 | | |
 |---|---|
-| Cases | 30 (27 comparable, 3 dependent on text measurement) |
-| Unity ground truth available | **27 / 27** |
-| Elements compared | 92 (368 values = elements × x/y/width/height) |
-| **Cases matching** | **26 / 27** |
-| **Values matching** | **366 / 368 (99.5%)** |
-| Known divergence | 1 case, 2 values — below |
+| Cases | 34 (31 comparable, 3 dependent on text measurement) |
+| Unity ground truth available | **31 / 31** |
+| Elements compared | 137 (548 values = elements × x/y/width/height) |
+| **Cases matching** | **29 / 31** |
+| **Values matching** | **532 / 548 (97.1%)** |
+| Known divergences | 16 values — **and they are four different things** |
 
-Tolerance 0.5px. Both mismatches come from the single case
-`percent-without-parent-size`; the other 26 cases and their 90 elements match
-**exactly, with zero error** — not merely inside the tolerance.
+Tolerance 0.5px, kept deliberately tighter than the 1px the S1 plan allows:
+loosening it would hide a real 1px error in any of the other thirty cases.
 
-> Across three re-measurements every pre-existing case reproduced **byte for
-> byte** (20, then 26, then 27). The dump harness is deterministic, which is
+### What the 16 divergences actually are
+
+| Kind | Values | What it means |
+|---|---|---|
+| **Text metrics** | **10** | **Not a layout defect.** Both engines behave identically; only the ruler differs |
+| 1px, inside the plan's tolerance | 3 | Named individually rather than tolerated away |
+| `yoga-layout` version difference | 2 | Judged and recorded 2026-08-02 |
+| **Unresolved** | **1** | A wrapped container's height. Unity's rule is not yet identified |
+
+The evidence for the ten: the representative screen's footer is a fixed width
+holding a flexible panel beside a 96px action bar, and the boundary between them
+is pushed by the labels' min-content width. **Both engines shrink that bar** —
+Unity to 93, this renderer to 85 — and pinning the labels collapses our excess to
+the same 3px Unity has. Same mechanism, different ruler. A browser cannot measure
+Unity's font asset, which is the fact that made pixel diffing useless, showing up
+in coordinates instead of colours.
+
+> The previous figure was 242/244 (99.2%). **The ratio fell because the case set
+> widened, not because accuracy did.** Then, 17 of 18 cases were `VisualElement`
+> alone and no `Button` had ever been compared. Now a text-heavy working screen
+> is in there and 10 of the 16 divergences are font metrics. **Move the case
+> composition along with the number whenever you quote it.**
+
+> Across six re-measurements every pre-existing case reproduced **byte for
+> byte** (20, 26, 27, 30, 32, 34). The dump harness is deterministic, which is
 > what lets a new number be attributed to the change rather than the environment.
 
 ### Which controls this covers — it widened on 2026-08-05
@@ -31,7 +53,8 @@ Tolerance 0.5px. Both mismatches come from the single case
 | `VisualElement` only | 17 |
 | `Label` | 1 (`inherit-vs-direct`) |
 | `Button` | 6 |
-| `ScrollView` | 3 |
+| `ScrollView` | 5 |
+| the representative screen | 1 — all five plus Image |
 
 The previous figure (242/244) was 17 of 18 cases in that first row: it was, in
 effect, `VisualElement` geometry, and **no `Button` had ever been compared**.
@@ -41,7 +64,7 @@ count, and it does not widen just because the value count does.
 
 ### What this number covers, and what it does not
 
-**The 99.5% is measured at the coordinates Yoga produces.** The pipeline has
+**The 97.1% is measured at the coordinates Yoga produces.** The pipeline has
 four layers — parse, resolve styles, Yoga layout, DOM paint — and the comparison
 against Unity is of the third one's output. Whether the DOM actually drawn on
 screen reproduces those coordinates is **not** compared against Unity.
