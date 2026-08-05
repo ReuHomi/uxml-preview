@@ -28,7 +28,7 @@ export type {
   StyleOrigin,
 } from './model/types';
 
-import type { NodeId, StyleSheet, UxmlDocument, Warning } from './model/types';
+import type { ElementNode, NodeId, StyleSheet, UxmlDocument, Warning } from './model/types';
 export { loadLayoutEngine, isLayoutEngineReady, liveNodeCount } from './layout/yoga';
 export type { LayoutBox, MeasureText, TextContext, TextMetrics } from './layout/yoga';
 export { createDefaultMeasureText } from './render/measure';
@@ -68,14 +68,35 @@ import { paint } from './render/paint';
  */
 export interface ParseOptions {
   /**
-   * Loads the text of an `@import`ed stylesheet. Return `null` when the path
-   * cannot be resolved; the import is then reported as a warning and its rules
+   * Loads the text of a stylesheet the document refers to. Return `null` when
+   * the path cannot be resolved; it is then reported as a warning and its rules
    * simply do not participate.
    *
-   * USS import paths look like `project://database/Assets/UI/base.uss`, which
-   * only the host application knows how to turn into file contents.
+   * Used for both ways a document can name a stylesheet — `@import` inside USS,
+   * and `<Style src="…">` inside UXML. Both quote paths like
+   * `project://database/Assets/UI/base.uss`, which only the host application
+   * knows how to turn into file contents, and there is no reason for a host to
+   * implement that lookup twice.
    */
   resolveImport?: (url: string) => string | null;
+}
+
+/**
+ * Purpose:      the stylesheets a UXML document names via `<Style src="…">`.
+ * Ensures:      document order is preserved, so a later sheet wins a tie.
+ *
+ * UI Builder writes one of these into the file whenever a stylesheet is
+ * attached, which makes it the ordinary shape of a real document rather than an
+ * optional extra. Ignoring it silently was the reason a real project's UXML
+ * rendered unstyled with nothing said about why.
+ */
+function styleReferences(node: ElementNode, out: string[] = []): string[] {
+  if (node.name.local === 'Style') {
+    const src = node.attributes.find((a) => a.name === 'src')?.value;
+    if (src !== undefined && src.length > 0) out.push(src);
+  }
+  for (const child of node.children) styleReferences(child, out);
+  return out;
 }
 
 export function parse(uxml: string, uss?: string, options?: ParseOptions): UxmlDocument {
@@ -83,12 +104,33 @@ export function parse(uxml: string, uss?: string, options?: ParseOptions): UxmlD
   const warnings: Warning[] = [...tree.warnings];
   const sheets: StyleSheet[] = [];
 
-  if (uss !== undefined) {
+  // The document's own `<Style src="…">` sheets come first, then anything the
+  // caller passed directly — so a host that supplies both keeps the last word.
+  const referenced: Array<{ text: string; origin: string | null }> = [];
+  for (const src of styleReferences(tree.root)) {
+    const text = options?.resolveImport?.(src) ?? null;
+    if (text === null) {
+      warnings.push({
+        kind: 'import-unresolved',
+        message:
+          options?.resolveImport === undefined
+            ? `<Style src="${src}"> was not loaded: pass resolveImport to read it, ` +
+              'or pass the stylesheet text directly. Until then this document renders unstyled.'
+            : `<Style src="${src}"> could not be resolved`,
+        node: tree.root.id,
+      });
+      continue;
+    }
+    referenced.push({ text, origin: src });
+  }
+
+  if (uss !== undefined || referenced.length > 0) {
     // Imports are followed breadth-first. `seen` guards against a cycle, which
     // would otherwise loop forever on a stylesheet that imports itself.
     const seen = new Set<string>();
     const queue: Array<{ text: string; origin: string | null }> = [
-      { text: uss, origin: null },
+      ...referenced,
+      ...(uss === undefined ? [] : [{ text: uss, origin: null }]),
     ];
 
     while (queue.length > 0) {

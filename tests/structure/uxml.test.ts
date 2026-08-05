@@ -14,7 +14,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { parse } from '../../src/index';
+import { parse, serialize } from '../../src/index';
 import type { ElementNode } from '../../src/model/types';
 
 const DIR = fileURLToPath(new URL('../fixtures/uxml', import.meta.url));
@@ -163,5 +163,58 @@ describe('every fixture', () => {
       };
       walk(load(name));
     }
+  });
+});
+
+/**
+ * `<Style src="…">` — the third way a document points outside itself.
+ *
+ * USS can name a stylesheet with `@import` and an image with `url()`, and both
+ * have gone through `resolveImport` / `resolveAsset` since Phase 3. UXML naming
+ * its own stylesheet is the same problem and was the one entry point left
+ * unwired, which is why a real project's file rendered unstyled with nothing
+ * said about it. UI Builder writes this element into the file the moment a
+ * stylesheet is attached, so it is the ordinary shape of a real document.
+ */
+describe('<Style src>', () => {
+  const doc = (uss: string) =>
+    `<ui:UXML xmlns:ui="UnityEngine.UIElements">\n` +
+    `  <Style src="project://database/Assets/UI/${uss}" />\n` +
+    '  <ui:VisualElement name="a" />\n' +
+    '</ui:UXML>\n';
+
+  it('loads the stylesheet through the same hook as @import', () => {
+    const parsed = parse(doc('panel.uss'), undefined, {
+      resolveImport: (url) => (url.endsWith('panel.uss') ? '#a { width: 42px; }' : null),
+    });
+    expect(parsed.sheets).toHaveLength(1);
+    expect(parsed.warnings).toHaveLength(0);
+  });
+
+  // Silence here was the actual defect: the document said where its styles were
+  // and the answer was to render it unstyled without comment.
+  it('says so when no hook was given, and says what to do', () => {
+    const parsed = parse(doc('panel.uss'));
+    expect(parsed.sheets).toHaveLength(0);
+    const warning = parsed.warnings.find((w) => w.kind === 'import-unresolved');
+    expect(warning).toBeDefined();
+    expect(warning!.message).toContain('renders unstyled');
+  });
+
+  it('says so when the hook cannot find it', () => {
+    const parsed = parse(doc('missing.uss'), undefined, { resolveImport: () => null });
+    expect(parsed.warnings.some((w) => w.kind === 'import-unresolved')).toBe(true);
+  });
+
+  it('keeps the element, so the document still round-trips', () => {
+    const text = doc('panel.uss');
+    expect(serialize(parse(text)).uxml).toBe(text);
+  });
+
+  it('lets a directly-passed stylesheet win over the referenced one', () => {
+    const parsed = parse(doc('panel.uss'), '#a { width: 7px; }', {
+      resolveImport: () => '#a { width: 42px; }',
+    });
+    expect(parsed.sheets).toHaveLength(2);
   });
 });

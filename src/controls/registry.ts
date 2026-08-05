@@ -126,6 +126,21 @@ const FALLBACK: ControlSpec = { hasText: false, classes: [], parts: [] };
 export const ROOT_LOCAL_NAME = 'UXML';
 
 /**
+ * Elements that carry instructions rather than pixels.
+ *
+ * `<Style src="…">` is how a UXML names its stylesheet, and UI Builder writes
+ * one into the file the moment you attach a USS — so it is the normal shape of
+ * a real document, not an optional flourish. It is not a control: drawing it as
+ * a fallback box would add a phantom element to the layout and report it as an
+ * unsupported control, which points at the wrong problem entirely.
+ */
+const NON_VISUAL = new Set(['Style']);
+
+export function isNonVisual(node: ElementNode): boolean {
+  return NON_VISUAL.has(node.name.local);
+}
+
+/**
  * Purpose:      the spec to draw `node` with, always.
  * Ensures:      never null. `fallback` is true only for elements a caller
  *               should report; the root is excluded because it is the panel

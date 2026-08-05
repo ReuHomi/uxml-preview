@@ -22,7 +22,7 @@ import type { Node as YogaNode, Yoga } from 'yoga-layout/load';
 
 import type { ElementNode, NodeId, Warning } from '../model/types';
 import type { ComputedStyle } from '../style/resolve';
-import { resolveControl } from '../controls/registry';
+import { isNonVisual, resolveControl } from '../controls/registry';
 import type { ControlPart } from '../controls/registry';
 import { THEME_UNITY_VERSION, verticalScrollbarWidth } from '../controls/theme';
 import { expandShorthand } from '../style/properties';
@@ -312,6 +312,7 @@ export function layoutDocument(
   }
 
   function build(node: ElementNode, parent: YogaNode | null): void {
+    if (isNonVisual(node)) return;
     const style = styles.get(node.id) ?? new Map();
     const yg = yoga!.Node.create();
     created++;
@@ -367,6 +368,10 @@ export function layoutDocument(
       return;
     }
 
+    // `<Style src="…">` names a stylesheet; it is not something on screen.
+    // Laying it out would add a phantom box to the flow and report it as an
+    // unsupported control, which names the wrong problem — the stylesheet is
+    // handled in `parse`, and if it could not be loaded that is what warns.
     // A control's own parts go between it and the file's children, so the
     // children are built into the innermost part rather than into the element.
     // Skipping this is exactly the bug that puts every descendant of a
