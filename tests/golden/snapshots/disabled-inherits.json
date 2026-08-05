@@ -4,21 +4,27 @@
     "height": 300
   },
   "elements": {
-    "states-disabled-holder": {
+    "di-holder": {
       "x": 0,
       "y": 0,
       "width": 300,
-      "height": 120
+      "height": 60
     },
-    "states-disabled-on": {
+    "di-child": {
       "x": 0,
       "y": 0,
       "width": 120,
       "height": 30
     },
-    "states-disabled-off": {
+    "di-other": {
       "x": 0,
-      "y": 30,
+      "y": 60,
+      "width": 300,
+      "height": 60
+    },
+    "di-loose": {
+      "x": 0,
+      "y": 60,
       "width": 40,
       "height": 30
     }

@@ -1,0 +1,39 @@
+{
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "cc-grid": {
+      "x": 0,
+      "y": 0,
+      "width": 200,
+      "height": 120
+    },
+    "unity-content-and-vertical-scroll-container": {
+      "x": 0,
+      "y": 0,
+      "width": 200,
+      "height": 120
+    },
+    "unity-content-viewport": {
+      "x": 0,
+      "y": 0,
+      "width": 200,
+      "height": 120
+    },
+    "unity-content-container": {
+      "x": 0,
+      "y": 0,
+      "width": 200,
+      "height": 40
+    },
+    "cc-slot": {
+      "x": 0,
+      "y": 0,
+      "width": 99,
+      "height": 40
+    }
+  },
+  "warnings": []
+}

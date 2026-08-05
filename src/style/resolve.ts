@@ -79,13 +79,33 @@ export interface ResolveResult {
   warnings: readonly Warning[];
 }
 
+/**
+ * Where a declaration sits in the cascade's outermost comparison.
+ *
+ * Unity's control defaults are not "a stylesheet that loaded first" — they are
+ * a lower origin, the way a browser's user-agent sheet is, so **an author rule
+ * beats them regardless of specificity**. Measured, not reasoned: the
+ * `states-disabled` case writes `Button { margin: 0 }` (a type selector, 0,0,1)
+ * against the theme's `.unity-button` (a class, 0,1,0), and Unity puts the
+ * button at x=0. Specificity alone would have put it at x=3.
+ *
+ * This is the axis the cascade was missing. Without it the theme wins ties it
+ * should lose, and every value added to `theme.ts` spreads the error.
+ */
+export const enum Rank {
+  BuiltinTheme = 0,
+  Author = 1,
+}
+
 /** One declaration that competed, winner or not. */
 export interface Candidate {
   property: string;
   value: string;
   origin: StyleOrigin;
+  /** Compared before specificity. A built-in default never beats author USS. */
+  rank: Rank;
   specificity: Specificity;
-  /** Position in cascade order; higher wins a specificity tie. */
+  /** Position in cascade order; higher wins a specificity tie within a rank. */
   order: number;
   winner: boolean;
 }
@@ -155,17 +175,32 @@ function buildStateMap(
   }
 
   const map = new Map<ElementNode, ReadonlySet<string>>();
-  const visit = (node: ElementNode): void => {
+
+  /**
+   * `enabled="false"` in the file is a state the document declares about itself,
+   * so it applies without anyone passing `states`. Measured: `states-disabled`
+   * writes it and Unity comes back 120 wide, having matched `:disabled`.
+   *
+   * It descends, because Unity's `SetEnabled(false)` disables the subtree. That
+   * part is documented rather than measured, so `disabled-inherits` exists to
+   * judge it — if Unity says otherwise, this inheritance is what comes out.
+   */
+  const disabledHere = (node: ElementNode): boolean =>
+    node.attributes.some((a) => a.name === 'enabled' && a.value === 'false');
+
+  const visit = (node: ElementNode, inheritedDisabled: boolean): void => {
+    const disabled = inheritedDisabled || disabledHere(node);
     const set = new Set(global);
+    if (disabled) set.add('disabled');
     for (const entry of parsed) {
       if (entry.selectors.some((s) => matchesSelector(s, node, base))) {
         for (const state of entry.states) set.add(state);
       }
     }
     map.set(node, set);
-    for (const child of node.children) visit(child);
+    for (const child of node.children) visit(child, disabled);
   };
-  visit(doc.root);
+  visit(doc.root, false);
   return map;
 }
 
@@ -306,9 +341,10 @@ function collectCandidates(
     property: string,
     value: string,
     origin: StyleOrigin,
+    rank: Rank,
     specificity: Specificity,
   ): void => {
-    out.push({ property, value, origin, specificity, order: order++, winner: false });
+    out.push({ property, value, origin, rank, specificity, order: order++, winner: false });
   };
 
   for (const flat of prepared.usable) {
@@ -351,14 +387,14 @@ function collectCandidates(
                 // common case stays the shape it has always been.
                 ...(states.length > 0 ? { states } : {}),
               };
-        push(property, value, origin, specificity);
+        push(property, value, origin, flat.builtin === true ? Rank.BuiltinTheme : Rank.Author, specificity);
       }
     });
   }
 
   inlineDeclarations(doc, node).forEach((decl, declIndex) => {
     for (const [property, value] of expandShorthand(decl.property, decl.value)) {
-      push(property, value, { kind: 'inline', node: node.id, declIndex }, INLINE_SPECIFICITY);
+      push(property, value, { kind: 'inline', node: node.id, declIndex }, Rank.Author, INLINE_SPECIFICITY);
     }
   });
 
@@ -372,6 +408,12 @@ function pickWinners(candidates: Candidate[]): Map<string, Candidate> {
     const current = best.get(candidate.property);
     if (current === undefined) {
       best.set(candidate.property, candidate);
+      continue;
+    }
+    // Rank outranks specificity, which outranks source order. Getting these in
+    // the wrong sequence is how a control default came to beat an author rule.
+    if (candidate.rank !== current.rank) {
+      if (candidate.rank > current.rank) best.set(candidate.property, candidate);
       continue;
     }
     const bySpecificity = compareSpecificity(candidate.specificity, current.specificity);

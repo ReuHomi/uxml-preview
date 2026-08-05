@@ -84,13 +84,24 @@ describe('where the defaults sit in the cascade', () => {
   });
 
   /**
-   * Unity's own gotcha, reproduced rather than smoothed over. The theme targets
-   * `.unity-button` (0,1,0), so an author's type selector (0,0,1) loses — which
-   * surprises people, and is exactly why the preview should show it.
+   * This test used to assert the opposite, on the theory that the theme's
+   * `.unity-button` (0,1,0) outranks an author's type selector (0,0,1) and that
+   * reproducing the resulting gotcha was a feature. **Unity refuted it.** The
+   * `states-disabled` case writes `Button { margin: 0 }` and Unity puts the
+   * button at x=0, so the author's type rule won.
+   *
+   * Control defaults are a lower *origin*, like a browser's user-agent sheet,
+   * not merely a sheet that loaded first — so specificity never enters into it.
+   * See the 2026-08-06 rows in docs/progress.md.
    */
-  it('beats an author type selector, as it does in Unity', () => {
+  it('loses to an author type selector, however specific the theme rule is', () => {
     const d = doc('<ui:Button name="b" text="OK" />', 'Button { margin-left: 20px; }');
-    expect(value(d, 'b', 'margin-left')).toBe('3px');
+    expect(value(d, 'b', 'margin-left')).toBe('20px');
+  });
+
+  it('loses to a universal selector too, which is as weak as USS gets', () => {
+    const d = doc('<ui:Button name="b" text="OK" />', '* { margin-left: 7px; }');
+    expect(value(d, 'b', 'margin-left')).toBe('7px');
   });
 
   it('lets an implicit class be targeted from author USS', () => {

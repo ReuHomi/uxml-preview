@@ -526,6 +526,53 @@ export const CASES: GoldenCase[] = [
       'Button:disabled {\n  width: 120px;\n}\n',
   },
 
+  // --- what promoting the visual tree will overturn -------------------------
+  //
+  // Moving the cascade onto the visual tree changes what `>` means, and the
+  // change has to be measured rather than chosen. A slot's real parent is the
+  // ScrollView's content container, not the ScrollView — so in Unity
+  // `#cc-grid > .cc-slot` should reach nothing, while against our current model
+  // tree it matches. Whichever way Unity answers is the answer.
+  //
+  // Written as a width so the existing coordinate dump can judge it: 99 means
+  // the child combinator matched, 40 means it did not.
+  {
+    name: 'child-combinator-through-parts',
+    question:
+      'Does `#Grid > .slot` reach a slot whose real parent is the ScrollView\'s ' +
+      'content container?',
+    uxml: wrap(
+      '  <ui:ScrollView name="cc-grid">\n' +
+        '    <ui:VisualElement name="cc-slot" class="cc-slot" />\n' +
+        '  </ui:ScrollView>',
+    ),
+    uss:
+      '#cc-grid {\n  width: 200px;\n  height: 120px;\n}\n' +
+      '.cc-slot {\n  width: 40px;\n  height: 40px;\n}\n' +
+      '#cc-grid > .cc-slot {\n  width: 99px;\n}\n',
+  },
+  {
+    name: 'disabled-inherits',
+    // `SetEnabled(false)` is documented to disable the subtree, but documented
+    // is not measured — the same distinction that made `.unity-button` a
+    // hypothesis until a case judged it. 120 means `:disabled` reached the
+    // child, 40 means being inside a disabled element is not enough.
+    question: 'Does enabled="false" on a parent put its children into :disabled too?',
+    uxml: wrap(
+      '  <ui:VisualElement name="di-holder" enabled="false">\n' +
+        '    <ui:Button name="di-child" text="In" />\n' +
+        '  </ui:VisualElement>\n' +
+        '  <ui:VisualElement name="di-other">\n' +
+        '    <ui:Button name="di-loose" text="Out" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#di-holder, #di-other {\n  align-items: flex-start;\n' +
+      '  width: 300px;\n  height: 60px;\n}\n' +
+      'Button {\n  width: 40px;\n  height: 30px;\n  margin: 0;\n}\n' +
+      'Button:disabled {\n  width: 120px;\n}\n',
+  },
+
   // --- the representative screen --------------------------------------------
   //
   // The S1 plan's §2 tree, written out as-is. It is deliberately not adjusted
