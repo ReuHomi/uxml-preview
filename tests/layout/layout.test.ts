@@ -232,7 +232,8 @@ describe('controls with no renderer', () => {
     expect(button.height).toBe(10);
     // Laid out *through* the fallback: stretched by the ScrollView's cross axis,
     // which only happens if the fallback is a real parent in the Yoga tree.
-    expect(button.width).toBe(80);
+    // 80 less Unity's default Button margin of 3px a side (src/controls/theme.ts).
+    expect(button.width).toBe(74);
     tree.dispose();
   });
 

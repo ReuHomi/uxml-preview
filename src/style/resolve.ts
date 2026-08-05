@@ -26,6 +26,9 @@ import type {
   UxmlDocument,
   Warning,
 } from '../model/types';
+import { implicitClassesOf } from '../controls/registry';
+import { THEME_UNITY_VERSION, THEME_USS } from '../controls/theme';
+import { parseUss } from '../parser/uss';
 import { attributeValueStart, parseDeclarationList } from '../parser/uss';
 import { expandShorthand, isInherited } from './properties';
 import { buildParentMap, matchesSelector, unsupportedFragment } from './selector';
@@ -69,6 +72,26 @@ interface FlatRule {
   rule: Rule;
   sheet: number;
   item: number;
+  /** From the built-in control defaults rather than from the user's files. */
+  builtin?: boolean;
+}
+
+/**
+ * Unity's control defaults, parsed once.
+ *
+ * Parsed rather than hand-built so it goes through the same selector and
+ * specificity code as author USS. A theme rule that scored differently from an
+ * identical rule in a user's file would be a second cascade, and the bug it
+ * produced would be unreproducible from the stylesheet the user can see.
+ */
+const THEME_RULES: FlatRule[] = parseUss(THEME_USS, null, -1).sheet.items.flatMap(
+  (item, index) =>
+    item.kind === 'rule' ? [{ rule: item.rule, sheet: -1, item: index, builtin: true }] : [],
+);
+
+/** The selector text a theme rule was written with, for provenance. */
+function themeSelectorText(rule: Rule): string {
+  return THEME_USS.slice(rule.selectorSpan.start, rule.selectorSpan.end).trim();
 }
 
 interface Prepared {
@@ -88,6 +111,10 @@ function cascadeOrder(doc: UxmlDocument): FlatRule[] {
   doc.sheets.forEach((sheet, index) => {
     if (sheet.origin !== null && !byOrigin.has(sheet.origin)) byOrigin.set(sheet.origin, index);
   });
+
+  // Control defaults go first, so an author rule of equal specificity wins on
+  // order. That is the whole reason Unity's own theme is overridable.
+  out.push(...THEME_RULES);
 
   const visited = new Set<number>();
   const walk = (index: number): void => {
@@ -125,6 +152,7 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
     parentOf: (node) => parents.get(node) ?? null,
     root: doc.root,
     activeStates: options?.activeStates ?? new Set<string>(),
+    implicitClassesOf,
   };
 
   const warnings: Warning[] = [];
@@ -132,6 +160,14 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
   let reportedRoot = false;
 
   for (const flat of cascadeOrder(doc)) {
+    // Built-in rules skip the checks below: they are ours, they cannot contain
+    // syntax we do not support, and they are reported when they actually apply
+    // to something rather than merely because they exist.
+    if (flat.builtin === true) {
+      usable.push(flat);
+      continue;
+    }
+
     const bad = unsupportedFragment(flat.rule.selectors);
     if (bad !== null) {
       // Reported once per rule rather than once per element it might have hit.
@@ -207,7 +243,19 @@ function collectCandidates(
     if (specificity === null) continue;
     flat.rule.declarations.forEach((decl, declIndex) => {
       for (const [property, value] of expandShorthand(decl.property, decl.value)) {
-        push(property, value, { kind: 'rule', sheet: flat.sheet, item: flat.item, declIndex }, specificity);
+        // A theme declaration has no file and no span, so it gets an origin that
+        // says so. Writing `{ kind: 'rule', sheet: -1 }` here would hand an
+        // editor a location it could follow to nowhere.
+        const origin: StyleOrigin =
+          flat.builtin === true
+            ? {
+                kind: 'builtin-theme',
+                selector: themeSelectorText(flat.rule),
+                property,
+                unityVersion: THEME_UNITY_VERSION,
+              }
+            : { kind: 'rule', sheet: flat.sheet, item: flat.item, declIndex };
+        push(property, value, origin, specificity);
       }
     });
   }
@@ -286,8 +334,17 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
   const warnings: Warning[] = [...prepared.warnings];
   const styles = new Map<NodeId, ComputedStyle>();
 
+  // Reported once, and only if a control default actually reached an element.
+  // Announcing the theme on a document with no Button would be a warning about
+  // something that did not happen.
+  let themeApplied = false;
+
   const visit = (node: ElementNode, inherited: ReadonlyMap<string, ComputedValue>): void => {
-    const own = pickWinners(collectCandidates(doc, node, prepared));
+    const candidates = collectCandidates(doc, node, prepared);
+    if (!themeApplied && candidates.some((c) => c.origin.kind === 'builtin-theme')) {
+      themeApplied = true;
+    }
+    const own = pickWinners(candidates);
 
     // Custom properties are resolved first: an ordinary value may reference one,
     // and a custom property may itself reference another.
@@ -331,6 +388,17 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
   };
 
   visit(doc.root, new Map());
+
+  if (themeApplied) {
+    warnings.push({
+      kind: 'version-dependent',
+      message:
+        `Unity's control defaults were applied, as measured on ${THEME_UNITY_VERSION} ` +
+        '(Unity ships these as a theme stylesheet). Other versions may use different ' +
+        'values; see src/controls/theme.ts.',
+    });
+  }
+
   return { styles, warnings };
 }
 

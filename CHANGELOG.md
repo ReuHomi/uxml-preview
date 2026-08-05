@@ -1,5 +1,31 @@
 # Changelog
 
+## Unreleased
+
+### Changed — this affects what you see on screen
+
+- **Controls with no renderer of their own are now drawn as plain boxes**
+  instead of being dropped along with everything inside them. One
+  `<ui:ScrollView>` used to empty a panel. Each still reports a warning, and
+  what is missing is only whatever makes that control look like itself.
+- **`Button` now carries Unity's default `margin: 1px 3px`.** Existing layouts
+  containing buttons will shift by a few pixels — toward Unity, not away from
+  it. Unity supplies this through a theme stylesheet and this library supplied
+  nothing, which is why the first `Button` ever compared missed on 18 of 48
+  values. Overridable from your own USS exactly as in Unity, and the values are
+  in `src/controls/theme.ts`.
+
+### Verified
+
+Now **290 of 292 element coordinates identical** against Unity 6000.0.40f1
+across 23 layout cases, up from 242 of 244 across 18. The earlier figure covered
+almost entirely `VisualElement`; `Button` had never been compared at all. See
+[`docs/accuracy.en.md`](docs/accuracy.en.md).
+
+Colour, borders and corners are now held by a CSS-declaration regression
+baseline (`tests/render/visual.test.ts`). It detects our own drift and is not
+evidence of agreement with Unity — that comparison is a one-time eye check.
+
 ## 0.1.0 — 2026-08-03
 
 First release. Parses Unity UI Toolkit `.uxml` and `.uss`, lays them out through

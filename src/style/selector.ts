@@ -25,11 +25,23 @@ export interface MatchContext {
   root: ElementNode;
   /** Pseudo-classes currently active, e.g. `hover`. Empty in a static render. */
   activeStates: ReadonlySet<string>;
+  /**
+   * Classes Unity's own control constructors add, e.g. `unity-button`.
+   *
+   * Passed in rather than looked up here: which classes a control carries is
+   * renderer knowledge, and this module stays a pure matcher that can be tested
+   * without one.
+   */
+  implicitClassesOf: (node: ElementNode) => readonly string[];
 }
 
-function classList(node: ElementNode): string[] {
+function classList(node: ElementNode, ctx: MatchContext): string[] {
   const raw = node.attributes.find((a) => a.name === 'class')?.value;
-  return raw === undefined ? [] : raw.split(/\s+/).filter((c) => c.length > 0);
+  const written = raw === undefined ? [] : raw.split(/\s+/).filter((c) => c.length > 0);
+  // Implicit classes are as real as written ones for matching: in Unity the
+  // element genuinely carries them, which is why `.unity-button` in author USS
+  // hits a plain `<ui:Button />`.
+  return [...written, ...ctx.implicitClassesOf(node)];
 }
 
 function elementName(node: ElementNode): string | undefined {
@@ -49,7 +61,7 @@ function matchesSimple(
       // of the comparison.
       return node.name.local === simple.name;
     case 'class':
-      return classList(node).includes(simple.name);
+      return classList(node, ctx).includes(simple.name);
     case 'name':
       return elementName(node) === simple.name;
     case 'pseudo':

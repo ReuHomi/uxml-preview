@@ -4,17 +4,17 @@
     "height": 300
   },
   "elements": {
-    "button-absolute-in-border-frame": {
+    "theme-class-hook-holder": {
       "x": 0,
       "y": 0,
-      "width": 200,
-      "height": 200
+      "width": 300,
+      "height": 100
     },
-    "button-absolute-in-border-btn": {
-      "x": 13,
-      "y": 11,
-      "width": 50,
-      "height": 30
+    "theme-class-hook-btn": {
+      "x": 0,
+      "y": 0,
+      "width": 120,
+      "height": 40
     }
   },
   "warnings": [

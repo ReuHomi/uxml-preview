@@ -1,0 +1,7 @@
+{
+  "panel": { "width": 400, "height": 300 },
+  "elements": {
+    "button-align-items-row": { "x": 0, "y": 0, "width": 200, "height": 100 },
+    "button-align-items-btn": { "x": 3, "y": 35, "width": 60, "height": 30 }
+  }
+}

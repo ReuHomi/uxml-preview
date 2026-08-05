@@ -34,7 +34,7 @@ DOM reproduces them is checked by an invariant of our own
 |---|---|---|
 | `VisualElement` | verified | most golden cases are built from it |
 | `Label` | written | layout verified; **text measurement was never compared to Unity** |
-| `Button` | written | six golden cases now exist but **none has been compared to Unity yet.** Renders through the same path as `Label`; `:hover` is S1 Step 3 |
+| `Button` | verified | five golden cases compared against Unity. Carries Unity's **default `margin: 1px 3px`** (`src/controls/theme.ts`); `:hover` is S1 Step 3 |
 | `ScrollView` | fallback | no implicit child hierarchy, so coordinates differ from Unity (S1 Step 5) |
 | `TextField` | fallback | its `text` / `label` is not drawn |
 | `Toggle` | fallback | as above |

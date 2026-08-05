@@ -413,6 +413,27 @@ export const CASES: GoldenCase[] = [
       '#button-align-items-btn {\n  width: 60px;\n  height: 30px;\n}\n',
   },
   {
+    name: 'theme-class-hook',
+    // Makes an assumption falsifiable. src/controls/theme.ts targets
+    // `.unity-button` because that is Unity's documented `Button.ussClassName`,
+    // but no dump has ever proved the class reaches the element — the measured
+    // margin says nothing about which selector delivers it. This case asks Unity
+    // directly: if the class is really there, the width below applies and the
+    // element is 120 wide; if it is not, Unity leaves it at 40 and the next dump
+    // says so. Sized in Unity's units either way, so the answer is unambiguous.
+    question: 'Does a `.unity-button` rule in author USS reach a plain <ui:Button>?',
+    uxml: wrap(
+      '  <ui:VisualElement name="theme-class-hook-holder">\n' +
+        '    <ui:Button name="theme-class-hook-btn" text="Hook" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#theme-class-hook-holder {\n  align-items: flex-start;\n' +
+      '  width: 300px;\n  height: 100px;\n}\n' +
+      '.unity-button {\n  width: 120px;\n  height: 40px;\n}\n' +
+      '#theme-class-hook-btn {\n  margin: 0;\n}\n',
+  },
+  {
     name: 'button-sizes-to-text',
     question: 'Does a Button with no declared size size itself to its text, the way a Label does?',
     measuresText: true,

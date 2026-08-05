@@ -20,7 +20,7 @@ Phase가 진행되면서 갱신한다. 상세 매핑은 `uss-reference.md` 참�
 |---|---|---|
 | `VisualElement` | 검증됨 | 골든 케이스 대부분이 이걸로 짜여 있다 |
 | `Label` | 코드 작성 | 레이아웃은 검증됨. **텍스트 측정은 유니티와 대조하지 않았다** |
-| `Button` | 코드 작성 | 골든 케이스 6개가 생겼지만 **아직 유니티와 대조되지 않았다.** 렌더링은 `Label`과 같은 경로. `:hover`는 S1 Step 3 |
+| `Button` | 검증됨 | 골든 케이스 5개 유니티 대조 완료. 유니티의 **기본 여백 `margin: 1px 3px`**을 적용한다 (`src/controls/theme.ts`). `:hover`는 S1 Step 3 |
 | `ScrollView` | 폴백 | 암묵적 자식 계층이 없으므로 좌표가 유니티와 다르다 (S1 Step 5) |
 | `TextField` | 폴백 | `text`·`label`이 그려지지 않는다 |
 | `Toggle` | 폴백 | 위와 같다 |

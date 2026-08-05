@@ -19,6 +19,12 @@ import type { ElementNode } from '../model/types';
 export interface ControlSpec {
   /** Renders the `text` attribute as its own content. */
   hasText: boolean;
+  /**
+   * USS classes Unity's own constructor puts on this control, which the theme
+   * stylesheet then targets. Not in the `class` attribute and not in the model:
+   * the file says `<ui:Button />` and Unity adds the rest.
+   */
+  classes: readonly string[];
 }
 
 export interface ResolvedControl {
@@ -38,9 +44,10 @@ export interface ResolvedControl {
  * be added here without a golden case (S1 plan §5.2).
  */
 const CONTROLS: Readonly<Record<string, ControlSpec>> = {
-  VisualElement: { hasText: false },
-  Label: { hasText: true },
-  Button: { hasText: true },
+  // VisualElement is the base class and carries no class of its own.
+  VisualElement: { hasText: false, classes: [] },
+  Label: { hasText: true, classes: ['unity-label'] },
+  Button: { hasText: true, classes: ['unity-button'] },
 };
 
 /**
@@ -51,7 +58,7 @@ const CONTROLS: Readonly<Record<string, ControlSpec>> = {
  * rather than drawing it themselves, so guessing `true` would paint text where
  * Unity paints a child and put every coordinate below it in the wrong place.
  */
-const FALLBACK: ControlSpec = { hasText: false };
+const FALLBACK: ControlSpec = { hasText: false, classes: [] };
 
 /** The document container. Not a control, but it is the panel's root box. */
 export const ROOT_LOCAL_NAME = 'UXML';
@@ -71,6 +78,16 @@ export function resolveControl(node: ElementNode): ResolvedControl {
 
 export function isRoot(node: ElementNode): boolean {
   return node.name.local === ROOT_LOCAL_NAME;
+}
+
+/**
+ * Purpose:      the USS classes Unity would have added to this element.
+ * Ensures:      empty for anything with no renderer of its own — a fallback box
+ *               must not pick up theme styling meant for a control we do not
+ *               actually draw.
+ */
+export function implicitClassesOf(node: ElementNode): readonly string[] {
+  return resolveControl(node).spec.classes;
 }
 
 /** Controls with a renderer of their own. Everything else still draws. */

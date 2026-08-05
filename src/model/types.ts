@@ -276,8 +276,10 @@ export interface UxmlDocument {
  * Where a computed value came from.
  *
  * Phase 8 needs this to answer "write to the inline style, or edit the rule?".
- * Every variant points into the model, so the editor can jump straight to the
- * declaration's span and rewrite exactly that text.
+ * Every variant *except `builtin-theme`* points into the model, so the editor
+ * can jump straight to the declaration's span and rewrite exactly that text.
+ * `builtin-theme` is the one that does not, and it says so rather than
+ * inventing a location — an editor must branch on it, not follow it.
  *
  * Note the inline variant indexes declarations parsed on demand from the
  * element's `style` attribute — those declarations are not stored on the node.
@@ -288,6 +290,21 @@ export type StyleOrigin =
   | { kind: 'inline'; node: NodeId; declIndex: number }
   | { kind: 'rule'; sheet: number; item: number; declIndex: number }
   | { kind: 'inherited'; from: NodeId; origin: StyleOrigin }
+  /**
+   * A control default this renderer supplies, standing in for Unity's theme
+   * stylesheet. **There is no file and no span**: the declaration exists in this
+   * library, not in the user's project.
+   *
+   * Its own variant rather than a `rule` with an invented path, because an
+   * editor offering "jump to the declaration" must be able to tell that there
+   * is nowhere to jump — pointing at a file that does not exist is worse than
+   * saying the value is not editable.
+   *
+   * `unityVersion` records where the value was measured. Theme values move
+   * between Unity versions, and when one stops matching this is the first thing
+   * to check.
+   */
+  | { kind: 'builtin-theme'; selector: string; property: string; unityVersion: string }
   /** USS default, which is not always the CSS default — `flex-direction` is `column`. */
   | { kind: 'default' };
 

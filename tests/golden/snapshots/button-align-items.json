@@ -11,11 +11,13 @@
       "height": 100
     },
     "button-align-items-btn": {
-      "x": 0,
+      "x": 3,
       "y": 35,
       "width": 60,
       "height": 30
     }
   },
-  "warnings": []
+  "warnings": [
+    "version-dependent: Unity's control defaults were applied, as measured on 6000.0.40f1 (Unity ships these as a theme stylesheet). Other versions may use different values; see src/controls/theme.ts."
+  ]
 }

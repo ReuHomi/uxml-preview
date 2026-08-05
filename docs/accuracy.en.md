@@ -5,24 +5,38 @@
 **The document that answers "does it actually match Unity?" with numbers.**
 It is the first question anyone asks, and without an answer nobody uses this.
 
-## Current state (measured 2026-08-02)
+## Current state (measured 2026-08-05)
 
 | | |
 |---|---|
-| Cases | 20 (18 comparable, 2 dependent on text measurement) |
-| Unity ground truth available | **18 / 18** |
-| Elements compared | 61 (244 values = elements × x/y/width/height) |
-| **Cases matching** | **17 / 18** |
-| **Values matching** | **242 / 244 (99.2%)** |
+| Cases | 27 (24 comparable, 3 dependent on text measurement) |
+| Unity ground truth available | **23 / 24** (`theme-class-hook` not yet measured) |
+| Elements compared | 73 (292 values = elements × x/y/width/height) |
+| **Cases matching** | **22 / 23** |
+| **Values matching** | **290 / 292 (99.3%)** |
 | Known divergence | 1 case, 2 values — below |
 
 Tolerance 0.5px. Both mismatches come from the single case
-`percent-without-parent-size`; the other 17 cases and their 59 elements match
+`percent-without-parent-size`; the other 22 cases and their 71 elements match
 **exactly, with zero error** — not merely inside the tolerance.
+
+### Which controls this covers — it widened on 2026-08-05
+
+| Cases containing | Count |
+|---|---|
+| `VisualElement` only | 17 |
+| `Label` | 1 (`inherit-vs-direct`) |
+| `Button` | 5 |
+
+The previous figure (242/244) was 17 of 18 cases in that first row: it was, in
+effect, `VisualElement` geometry, and **no `Button` had ever been compared**.
+Only one case with a `Label` is comparable because the other two depend on text
+measurement and are excluded. Control coverage is a different axis from value
+count, and it does not widen just because the value count does.
 
 ### What this number covers, and what it does not
 
-**The 99.2% is measured at the coordinates Yoga produces.** The pipeline has
+**The 99.3% is measured at the coordinates Yoga produces.** The pipeline has
 four layers — parse, resolve styles, Yoga layout, DOM paint — and the comparison
 against Unity is of the third one's output. Whether the DOM actually drawn on
 screen reproduces those coordinates is **not** compared against Unity.
@@ -115,6 +129,33 @@ Carried unasserted since Phases 1–4, all confirmed by this measurement.
 would have been wrong — and the Phase 4 decision to **write every supported
 property explicitly** rather than lean on whichever defaults happened to line up
 is what caught it.
+
+## The divergence that got fixed — Unity's control defaults (2026-08-05)
+
+The first time `Button` was ever compared, **18 of 48 values missed**, all the
+same shape: 3px out horizontally, 1px vertically, compounding along a row.
+
+The cause was not layout but a **missing input**. Unity ships a theme stylesheet
+that gives controls default spacing, and this renderer shipped none. The
+hypothesis was checked by computation rather than by eye: adding the single rule
+`.unity-button { margin: 1px 3px }` made **all 48 values match**.
+
+How it was fixed matters. No offset was added to any coordinate — the renderer
+was given *the same stylesheet Unity has*. The first would violate CLAUDE.md's
+first rule (never implement layout); the second is matching the input. The
+values live in `src/controls/theme.ts`.
+
+- Measured values only. `Label` gets nothing, and **that is a measurement**:
+  the explicitly-sized `Label` in `inherit-vs-direct` sits at x=0, y=0 in Unity.
+- Padding, border and font defaults are **unmeasured** and therefore absent.
+  Every compared element is explicitly sized and USS is border-box, so they
+  would not move the outer rectangle and the cases cannot see them.
+- The selector `.unity-button` comes from Unity's documented `Button.ussClassName`,
+  **not from a measurement**. The `theme-class-hook` case exists so the next dump
+  settles whether the class really reaches the element.
+
+These values are version-dependent, so a `version-dependent` warning naming the
+measured Unity version is raised once per document whenever they apply.
 
 ## The one divergence — percentages against an auto-sized parent
 
