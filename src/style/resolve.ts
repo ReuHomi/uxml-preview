@@ -22,6 +22,7 @@ import type {
   ElementNode,
   NodeId,
   Rule,
+  Selector,
   StyleOrigin,
   UxmlDocument,
   Warning,
@@ -31,7 +32,12 @@ import { THEME_UNITY_VERSION, THEME_USS } from '../controls/theme';
 import { parseUss } from '../parser/uss';
 import { attributeValueStart, parseDeclarationList } from '../parser/uss';
 import { expandShorthand, isInherited } from './properties';
-import { buildParentMap, matchesSelector, unsupportedFragment } from './selector';
+import {
+  buildParentMap,
+  matchesSelector,
+  statesRequiredBy,
+  unsupportedFragment,
+} from './selector';
 import type { MatchContext } from './selector';
 import { compareSpecificity, specificityOf } from './specificity';
 import type { Specificity } from './specificity';
@@ -45,8 +51,27 @@ export interface ComputedValue {
 export type ComputedStyle = ReadonlyMap<string, ComputedValue>;
 
 export interface ResolveOptions {
-  /** Pseudo-classes to treat as active, e.g. `new Set(['hover'])`. */
+  /**
+   * Pseudo-classes to treat as active on every element, e.g. `new Set(['hover'])`.
+   *
+   * Blunt, and kept for the case where that is what you want. Per-element
+   * control is `states`.
+   */
   activeStates?: ReadonlySet<string>;
+  /**
+   * Pseudo-classes to activate per element, keyed by USS selector.
+   *
+   * ```ts
+   * { '#UseButton': ['hover'], '#DropButton': ['disabled'] }
+   * ```
+   *
+   * States are explicit input, never mouse events: a render that depends on
+   * where the pointer is cannot be compared to anything twice.
+   *
+   * Keys are matched against the tree **without** any state applied, so a key
+   * cannot switch itself on, and `:hover` in a key is meaningless.
+   */
+  states?: Readonly<Record<string, readonly string[]>>;
 }
 
 export interface ResolveResult {
@@ -92,6 +117,56 @@ const THEME_RULES: FlatRule[] = parseUss(THEME_USS, null, -1).sheet.items.flatMa
 /** The selector text a theme rule was written with, for provenance. */
 function themeSelectorText(rule: Rule): string {
   return THEME_USS.slice(rule.selectorSpan.start, rule.selectorSpan.end).trim();
+}
+
+/**
+ * Purpose:      which pseudo-classes are active on each element.
+ * Deps/Effects: appends a warning for any `states` key that is not a usable
+ *               selector; the key is then ignored rather than throwing.
+ * Ensures:      keys are matched with no states active, so a key can never
+ *               switch itself on and the result cannot depend on its own output.
+ *
+ * The keys go through the ordinary USS selector parser — wrapped in an empty
+ * rule — so `#a`, `.b .c` and `Button.primary` mean exactly what they mean in a
+ * stylesheet. A second, hand-written selector syntax here would be one more
+ * thing that can disagree with the first.
+ */
+function buildStateMap(
+  doc: UxmlDocument,
+  base: MatchContext,
+  options: ResolveOptions | undefined,
+  warnings: Warning[],
+): Map<ElementNode, ReadonlySet<string>> {
+  const global = options?.activeStates ?? new Set<string>();
+  const entries = Object.entries(options?.states ?? {});
+
+  const parsed: Array<{ selectors: readonly Selector[]; states: readonly string[] }> = [];
+  for (const [key, states] of entries) {
+    const rule = parseUss(`${key} {}`, null, -1).sheet.items.find((i) => i.kind === 'rule');
+    const bad = rule === undefined ? key : unsupportedFragment(rule.rule.selectors);
+    if (rule === undefined || bad !== null) {
+      warnings.push({
+        kind: 'unsupported-selector',
+        message: `states key "${key}" is not a usable USS selector; it is ignored`,
+      });
+      continue;
+    }
+    parsed.push({ selectors: rule.rule.selectors, states });
+  }
+
+  const map = new Map<ElementNode, ReadonlySet<string>>();
+  const visit = (node: ElementNode): void => {
+    const set = new Set(global);
+    for (const entry of parsed) {
+      if (entry.selectors.some((s) => matchesSelector(s, node, base))) {
+        for (const state of entry.states) set.add(state);
+      }
+    }
+    map.set(node, set);
+    for (const child of node.children) visit(child);
+  };
+  visit(doc.root);
+  return map;
 }
 
 interface Prepared {
@@ -148,14 +223,23 @@ function hasRootPseudo(rule: Rule): boolean {
  */
 function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
   const parents = buildParentMap(doc.root);
-  const ctx: MatchContext = {
-    parentOf: (node) => parents.get(node) ?? null,
+  const warnings: Warning[] = [];
+
+  const NO_STATES: ReadonlySet<string> = new Set();
+  const shared = {
+    parentOf: (node: ElementNode) => parents.get(node) ?? null,
     root: doc.root,
-    activeStates: options?.activeStates ?? new Set<string>(),
     implicitClassesOf,
   };
 
-  const warnings: Warning[] = [];
+  // Two contexts, and the order matters. `base` has no states at all and is what
+  // the `states` keys are matched against; `ctx` carries the result and is what
+  // the stylesheet is matched against. Using one context for both would let a
+  // key like `Button:hover` turn itself on.
+  const base: MatchContext = { ...shared, statesOf: () => NO_STATES };
+  const stateMap = buildStateMap(doc, base, options, warnings);
+  const ctx: MatchContext = { ...shared, statesOf: (node) => stateMap.get(node) ?? NO_STATES };
+
   const usable: FlatRule[] = [];
   let reportedRoot = false;
 
@@ -233,11 +317,15 @@ function collectCandidates(
     // first in source order. `.a, #b { }` against an element carrying both has
     // to score (1,0,0), or a later `.c` rule wins a tie it should have lost.
     let specificity: Specificity | null = null;
+    let states: readonly string[] = [];
     for (const selector of flat.rule.selectors) {
       if (!matchesSelector(selector, node, prepared.ctx)) continue;
       const candidate = specificityOf(selector);
       if (specificity === null || compareSpecificity(candidate, specificity) > 0) {
         specificity = candidate;
+        // Taken from the selector that won, not from the group: `.a, .b:hover`
+        // reaching an element through `.a` is not conditional on anything.
+        states = statesRequiredBy(selector);
       }
     }
     if (specificity === null) continue;
@@ -254,7 +342,15 @@ function collectCandidates(
                 property,
                 unityVersion: THEME_UNITY_VERSION,
               }
-            : { kind: 'rule', sheet: flat.sheet, item: flat.item, declIndex };
+            : {
+                kind: 'rule',
+                sheet: flat.sheet,
+                item: flat.item,
+                declIndex,
+                // Omitted rather than set to [] when unconditional, so the
+                // common case stays the shape it has always been.
+                ...(states.length > 0 ? { states } : {}),
+              };
         push(property, value, origin, specificity);
       }
     });

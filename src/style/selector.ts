@@ -23,8 +23,17 @@ export interface MatchContext {
    * declared there inherit down the whole tree.
    */
   root: ElementNode;
-  /** Pseudo-classes currently active, e.g. `hover`. Empty in a static render. */
-  activeStates: ReadonlySet<string>;
+  /**
+   * Pseudo-classes active on one element, e.g. `hover`.
+   *
+   * Per element, not per document: the screen this renderer has to reproduce
+   * has a normal button and a disabled one side by side, and a single set for
+   * the whole tree cannot express that.
+   *
+   * Deps: read during matching, including for ancestors — `.panel:hover .item`
+   * asks the ancestor for its states, not the element's.
+   */
+  statesOf: (node: ElementNode) => ReadonlySet<string>;
   /**
    * Classes Unity's own control constructors add, e.g. `unity-button`.
    *
@@ -65,7 +74,7 @@ function matchesSimple(
     case 'name':
       return elementName(node) === simple.name;
     case 'pseudo':
-      return simple.name === 'root' ? node === ctx.root : ctx.activeStates.has(simple.name);
+      return simple.name === 'root' ? node === ctx.root : ctx.statesOf(node).has(simple.name);
     case 'unknown':
       // Unreachable in practice: a rule holding one of these is dropped before
       // matching is attempted. Answering false keeps that true either way.
@@ -106,6 +115,26 @@ export function matchesSelector(
 ): boolean {
   if (selector.parts.length === 0) return false;
   return matchFrom(selector.parts, selector.parts.length - 1, node, ctx);
+}
+
+/**
+ * Purpose:      the state pseudo-classes a selector depends on, in source order.
+ * Ensures:      `:root` is excluded — it names a position in the tree, not a
+ *               state, and cannot be switched on or off.
+ *
+ * Used for provenance: a value from `.unity-button:hover` is only true while
+ * hovering, and an editor that does not know this rewrites the wrong rule.
+ */
+export function statesRequiredBy(selector: Selector): string[] {
+  const out: string[] = [];
+  for (const part of selector.parts) {
+    for (const simple of part.simple) {
+      if (simple.kind === 'pseudo' && simple.name !== 'root' && !out.includes(simple.name)) {
+        out.push(simple.name);
+      }
+    }
+  }
+  return out;
 }
 
 /** The first unsupported fragment in a selector group, if any. */

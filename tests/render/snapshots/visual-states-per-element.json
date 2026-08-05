@@ -1,0 +1,31 @@
+{
+  "elements": {
+    "visual-states-normal": {
+      "align-items": "flex-start",
+      "background-color": "rgb(60, 60, 60)",
+      "box-sizing": "border-box",
+      "color": "rgb(230, 230, 230)",
+      "display": "flex",
+      "justify-content": "flex-start"
+    },
+    "visual-states-hover": {
+      "align-items": "flex-start",
+      "background-color": "rgb(90, 110, 160)",
+      "box-sizing": "border-box",
+      "color": "rgb(230, 230, 230)",
+      "display": "flex",
+      "justify-content": "flex-start"
+    },
+    "visual-states-disabled": {
+      "align-items": "flex-start",
+      "background-color": "rgb(40, 40, 40)",
+      "box-sizing": "border-box",
+      "color": "rgb(120, 120, 120)",
+      "display": "flex",
+      "justify-content": "flex-start"
+    }
+  },
+  "warnings": [
+    "version-dependent: Unity's control defaults were applied, as measured on 6000.0.40f1 (Unity ships these as a theme stylesheet). Other versions may use different values; see src/controls/theme.ts."
+  ]
+}

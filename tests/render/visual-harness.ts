@@ -24,6 +24,14 @@ export interface VisualCase {
   question: string;
   uxml: string;
   uss: string;
+  /**
+   * Pseudo-classes to activate, keyed by USS selector.
+   *
+   * State styling has no Unity ground truth — a layout dump reports geometry,
+   * and a hover colour is not geometry. So it is held here, as drift detection,
+   * and judged against Unity by eye in S1 Step 6.
+   */
+  states?: Readonly<Record<string, readonly string[]>>;
 }
 
 export interface CaseVisuals {
@@ -83,6 +91,7 @@ export function runVisualCase(
     size: PANEL,
     measureText: FIXED_MEASURE,
     ...(resolveAsset === undefined ? {} : { resolveAsset }),
+    ...(visual.states === undefined ? {} : { states: visual.states }),
   });
 
   const elements: Record<string, Record<string, string>> = {};

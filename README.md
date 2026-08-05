@@ -130,6 +130,10 @@ const doc = parse(uxmlText, ussText);
 // model → screen
 const view = render(doc, document.getElementById('preview'), {
   resolveAsset: (path) => myAssetUrlFor(path),
+
+  // Pseudo-class states are explicit input, keyed by USS selector, so the same
+  // call always draws the same picture. Per element, because real screens mix.
+  states: { '#UseButton': ['hover'], '#DropButton': ['disabled'] },
 });
 console.log(view.warnings);
 

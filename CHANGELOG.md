@@ -15,6 +15,20 @@
   values. Overridable from your own USS exactly as in Unity, and the values are
   in `src/controls/theme.ts`.
 
+### Added
+
+- **Pseudo-class states, per element.** `render(doc, el, { states: { '#UseButton':
+  ['hover'], '#DropButton': ['disabled'] } })`. Keys are ordinary USS selectors.
+  States are explicit input rather than mouse events, so the same call always
+  draws the same picture — a screen you can compare against Unity, or against
+  yesterday. Per element rather than per document because real screens mix one
+  hovered button with a disabled one.
+  Unity's *own* state defaults are deliberately not included: a layout dump
+  measures geometry and a hover colour is not geometry, so there is no way to
+  prove them yet.
+- Style provenance now records which states a rule needed (`origin.states`), so
+  an editor can tell "this is the hover colour" from "this is the colour".
+
 ### Verified
 
 Now **290 of 292 element coordinates identical** against Unity 6000.0.40f1

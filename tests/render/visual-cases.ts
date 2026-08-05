@@ -171,4 +171,30 @@ export const VISUAL_CASES: VisualCase[] = [
       '  background-image: url("project://database/Assets/missing.png");\n' +
       '}\n',
   },
+
+  // --- pseudo-class states --------------------------------------------------
+  //
+  // Drift detection only, and it will stay that way. A Unity layout dump reports
+  // geometry, and a hover colour is not geometry, so there is no ground truth to
+  // compare these against — the judgement happens by eye in S1 Step 6, with
+  // per-state screenshots. Nothing here should ever be described as verified.
+  {
+    name: 'visual-states-per-element',
+    question:
+      'Do three buttons in one render take three different states, and does each ' +
+      'pick up the styling for its own?',
+    uxml: wrap(
+      '  <ui:Button name="visual-states-normal" text="Normal" />\n' +
+        '  <ui:Button name="visual-states-hover" text="Hover" />\n' +
+        '  <ui:Button name="visual-states-disabled" text="Drop" />',
+    ),
+    uss:
+      'Button {\n  background-color: rgb(60, 60, 60);\n  color: rgb(230, 230, 230);\n}\n' +
+      'Button:hover {\n  background-color: rgb(90, 110, 160);\n}\n' +
+      'Button:disabled {\n  background-color: rgb(40, 40, 40);\n  color: rgb(120, 120, 120);\n}\n',
+    states: {
+      '#visual-states-hover': ['hover'],
+      '#visual-states-disabled': ['disabled'],
+    },
+  },
 ];

@@ -288,7 +288,21 @@ export interface UxmlDocument {
  */
 export type StyleOrigin =
   | { kind: 'inline'; node: NodeId; declIndex: number }
-  | { kind: 'rule'; sheet: number; item: number; declIndex: number }
+  | {
+      kind: 'rule';
+      sheet: number;
+      item: number;
+      declIndex: number;
+      /**
+       * Pseudo-class states the matched selector required, e.g. `['hover']`.
+       *
+       * Absent when the rule applies unconditionally. Present, it means the
+       * value is only true while those states hold — an editor showing "this
+       * came from line 12" without it would be telling half the truth, and a
+       * user would edit the base appearance while looking at the hover one.
+       */
+      states?: readonly string[];
+    }
   | { kind: 'inherited'; from: NodeId; origin: StyleOrigin }
   /**
    * A control default this renderer supplies, standing in for Unity's theme

@@ -165,8 +165,24 @@ export interface RenderOptions {
    */
   measureText?: MeasureText;
 
-  /** Pseudo-classes to render as active, e.g. `new Set(['hover'])`. */
+  /** Pseudo-classes to render as active on every element, e.g. `new Set(['hover'])`. */
   activeStates?: ReadonlySet<string>;
+
+  /**
+   * Pseudo-classes to render as active per element, keyed by USS selector.
+   *
+   * ```ts
+   * render(doc, el, { states: { '#UseButton': ['hover'], '#DropButton': ['disabled'] } });
+   * ```
+   *
+   * States are explicit input rather than real mouse events, so the same call
+   * always draws the same picture — which is what makes a rendered screen
+   * something you can compare against Unity, or against yesterday.
+   *
+   * Per element and not per document because real screens mix: one button
+   * hovered while another is disabled is the normal case, not an edge one.
+   */
+  states?: Readonly<Record<string, readonly string[]>>;
 }
 
 export interface RenderResult {
@@ -216,10 +232,10 @@ export function render(
     height: container.clientHeight,
   };
 
-  const resolved = resolveStyles(
-    doc,
-    options?.activeStates === undefined ? undefined : { activeStates: options.activeStates },
-  );
+  const resolved = resolveStyles(doc, {
+    ...(options?.activeStates === undefined ? {} : { activeStates: options.activeStates }),
+    ...(options?.states === undefined ? {} : { states: options.states }),
+  });
   const measureText = options?.measureText ?? createDefaultMeasureText(ownerDocument);
 
   const tree = layoutDocument(doc.root, resolved.styles, { size, measureText });

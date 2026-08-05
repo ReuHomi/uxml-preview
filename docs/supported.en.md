@@ -34,7 +34,7 @@ DOM reproduces them is checked by an invariant of our own
 |---|---|---|
 | `VisualElement` | verified | most golden cases are built from it |
 | `Label` | written | layout verified; **text measurement was never compared to Unity** |
-| `Button` | verified | five golden cases compared against Unity. Carries Unity's **default `margin: 1px 3px`** (`src/controls/theme.ts`); `:hover` is S1 Step 3 |
+| `Button` | verified | five golden cases compared against Unity. Carries Unity's **default `margin: 1px 3px`** (`src/controls/theme.ts`); honours `:hover` and the other states |
 | `ScrollView` | fallback | no implicit child hierarchy, so coordinates differ from Unity (S1 Step 5) |
 | `TextField` | fallback | its `text` / `label` is not drawn |
 | `Toggle` | fallback | as above |
@@ -100,6 +100,28 @@ Selectors: siblings (`+`, `~`), `:nth-child`, `:first/last-child`, `:not()`,
 > A rule containing any unsupported selector fragment is dropped **whole**, with
 > one warning naming the fragment. The parser still stores it, so the rule
 > round-trips intact.
+
+## Pseudo-class states
+
+`:hover`, `:active`, `:focus`, `:disabled`, `:checked`, `:selected` and
+`:inactive` are honoured as **styling**. States are explicit input rather than
+mouse events:
+
+```ts
+render(doc, el, { states: { '#UseButton': ['hover'], '#DropButton': ['disabled'] } });
+```
+
+Keys are USS selectors, and states are per element — a real screen has one
+button hovered while another is disabled, which a single document-wide set
+cannot express.
+
+- Nothing changes state because a pointer moved. The same call always draws the
+  same picture, which is what makes it comparable to Unity, or to yesterday.
+- Keys are matched against the tree with **no states active**, so `:hover`
+  inside a key is meaningless: it cannot switch itself on.
+- **Unity's own state defaults (a `:hover` background, say) are not included.**
+  A layout dump measures geometry, and a colour is not geometry, so there is no
+  way to prove them. Only state styling you wrote yourself applies.
 
 ## Version-dependent (needs checking)
 

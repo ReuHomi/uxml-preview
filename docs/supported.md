@@ -20,7 +20,7 @@ Phase가 진행되면서 갱신한다. 상세 매핑은 `uss-reference.md` 참�
 |---|---|---|
 | `VisualElement` | 검증됨 | 골든 케이스 대부분이 이걸로 짜여 있다 |
 | `Label` | 코드 작성 | 레이아웃은 검증됨. **텍스트 측정은 유니티와 대조하지 않았다** |
-| `Button` | 검증됨 | 골든 케이스 5개 유니티 대조 완료. 유니티의 **기본 여백 `margin: 1px 3px`**을 적용한다 (`src/controls/theme.ts`). `:hover`는 S1 Step 3 |
+| `Button` | 검증됨 | 골든 케이스 5개 유니티 대조 완료. 유니티의 **기본 여백 `margin: 1px 3px`**을 적용한다 (`src/controls/theme.ts`). `:hover` 등 상태 스타일 해석 지원 |
 | `ScrollView` | 폴백 | 암묵적 자식 계층이 없으므로 좌표가 유니티와 다르다 (S1 Step 5) |
 | `TextField` | 폴백 | `text`·`label`이 그려지지 않는다 |
 | `Toggle` | 폴백 | 위와 같다 |
@@ -83,6 +83,25 @@ Phase가 진행되면서 갱신한다. 상세 매핑은 `uss-reference.md` 참�
 
 셀렉터: 형제(`+`, `~`), `:nth-child`, `:first/last-child`, `:not()`, `:has()`,
 속성 셀렉터, `::before`/`::after`, `@media`
+
+## pseudo-class 상태
+
+`:hover` `:active` `:focus` `:disabled` `:checked` `:selected` `:inactive`의
+**스타일 해석**을 지원한다. 상태는 마우스 이벤트가 아니라 **명시적 입력**으로 받는다:
+
+```ts
+render(doc, el, { states: { '#UseButton': ['hover'], '#DropButton': ['disabled'] } });
+```
+
+키는 USS 셀렉터이고 요소마다 다른 상태를 줄 수 있다. 실제 화면은 한 버튼이 hover인
+동시에 다른 버튼이 disabled인 경우가 보통이기 때문이다.
+
+- 마우스로 상태가 바뀌지 않는다. 같은 호출은 항상 같은 그림을 그린다 —
+  그래야 유니티와도, 어제 결과와도 비교할 수 있다
+- 키는 **상태가 하나도 적용되지 않은 트리**에 대해 매칭된다. 키 안의 `:hover`는
+  자기 자신을 켤 수 없으므로 무의미하다
+- **상태별 유니티 기본값(예: `:hover` 배경색)은 넣지 않았다.** 좌표 덤프로는 색을
+  측정할 수 없어 증명 수단이 없다. 상태 스타일은 사용자가 USS에 쓴 것만 적용된다
 
 ## 버전 의존 (확인 필요)
 
