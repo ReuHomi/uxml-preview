@@ -23,6 +23,10 @@ import type { Node as YogaNode, Yoga } from 'yoga-layout/load';
 import type { ElementNode, NodeId, Warning } from '../model/types';
 import type { ComputedStyle } from '../style/resolve';
 import { resolveControl } from '../controls/registry';
+import type { ControlPart } from '../controls/registry';
+import { THEME_UNITY_VERSION, verticalScrollbarWidth } from '../controls/theme';
+import { expandShorthand } from '../style/properties';
+import type { ComputedValue } from '../style/resolve';
 import { INITIAL, parseLength, parseNumber } from '../render/values';
 import type { Length } from '../render/values';
 
@@ -87,9 +91,32 @@ export interface LayoutOptions {
   measureText: MeasureText;
 }
 
+/**
+ * A laid-out element the file never mentioned, built by a control.
+ *
+ * Separate from `boxes` rather than sharing its keys: `NodeId` identifies
+ * something in the document, and these have no document to be in. Giving them
+ * borrowed ids would make "which node is this?" answerable with a lie, and an
+ * editor asking that question needs to hear "this one is not yours".
+ */
+export interface LayoutPart {
+  /** Unity's name, e.g. `unity-content-viewport`. */
+  name: string;
+  /** The element whose control built it. */
+  owner: NodeId;
+  box: LayoutBox;
+  /** Fixed styling, with `builtin-theme` provenance on every value. */
+  style: ComputedStyle;
+}
+
 export interface LayoutTree {
   /** Computed box per element, in panel coordinates. */
   boxes: ReadonlyMap<NodeId, LayoutBox>;
+  /**
+   * Parts each element's control built, outermost first. The element's own
+   * children were laid out inside the last one.
+   */
+  parts: ReadonlyMap<NodeId, readonly LayoutPart[]>;
   /** Elements that were laid out, parents before children. */
   painted: readonly ElementNode[];
   warnings: readonly Warning[];
@@ -159,10 +186,38 @@ export function layoutDocument(
 
   const warnings: Warning[] = [];
   const boxes = new Map<NodeId, LayoutBox>();
+  const parts = new Map<NodeId, LayoutPart[]>();
   const painted: ElementNode[] = [];
   const yogaOf = new Map<ElementNode, YogaNode>();
+  /** Yoga node per part, in the same order as `parts`, so `collect` can pair them. */
+  const partNodes = new Map<NodeId, YogaNode[]>();
   let created = 0;
   let disposed = false;
+
+  /**
+   * Purpose:      a part's fixed USS as a ComputedStyle the rest of the pipeline
+   *               already knows how to read.
+   * Ensures:      every value carries `builtin-theme` provenance — a part is not
+   *               in any file, so there is nowhere for an editor to jump to and
+   *               the origin has to say so rather than invent a location.
+   */
+  function partStyle(part: ControlPart): ComputedStyle {
+    const out = new Map<string, ComputedValue>();
+    for (const [property, value] of Object.entries(part.style)) {
+      for (const [expanded, v] of expandShorthand(property, value)) {
+        out.set(expanded, {
+          value: v,
+          origin: {
+            kind: 'builtin-theme',
+            selector: `#${part.name}`,
+            property: expanded,
+            unityVersion: THEME_UNITY_VERSION,
+          },
+        });
+      }
+    }
+    return out;
+  }
 
   const read = (style: ComputedStyle, property: string): string =>
     style.get(property)?.value ?? INITIAL[property] ?? '';
@@ -324,9 +379,38 @@ export function layoutDocument(
       return;
     }
 
+    // A control's own parts go between it and the file's children, so the
+    // children are built into the innermost part rather than into the element.
+    // Skipping this is exactly the bug that puts every descendant of a
+    // ScrollView in the wrong place.
+    let host = yg;
+    if (spec.parts.length > 0) {
+      const chain: LayoutPart[] = [];
+      const nodes: YogaNode[] = [];
+      for (const part of spec.parts) {
+        const style = partStyle(part);
+        const partNode = yoga!.Node.create();
+        created++;
+        liveNodes++;
+        applyStyle(partNode, style, node);
+        host.insertChild(partNode, host.getChildCount());
+        host = partNode;
+        nodes.push(partNode);
+        // Box filled in by `collect`, once layout has actually run.
+        chain.push({
+          name: part.name,
+          owner: node.id,
+          box: { left: 0, top: 0, width: 0, height: 0 },
+          style,
+        });
+      }
+      parts.set(node.id, chain);
+      partNodes.set(node.id, nodes);
+    }
+
     // Every child is built. A control this version does not know still gets a
     // node, so an unfamiliar tag costs its own appearance and nothing below it.
-    for (const child of node.children) build(child, yg);
+    for (const child of node.children) build(child, host);
   }
 
   // The `<ui:UXML>` element is the panel box itself. Styling it — `:root`
@@ -338,29 +422,87 @@ export function layoutDocument(
   rootNode.setPositionType(PositionType.Relative);
   rootNode.calculateLayout(options.size.width, options.size.height, Direction.LTR);
 
+  /**
+   * Purpose:      reserve the width a visible vertical scrollbar takes, then lay
+   *               out again.
+   * Deps/Effects: mutates part nodes and re-runs `calculateLayout`.
+   *
+   * Two passes are needed because the question is circular: whether a scrollbar
+   * shows depends on the content height, and narrowing the viewport for one can
+   * change that height. Unity resolves the same circle the same way. The loop is
+   * bounded, and settling is the normal case — a second change would mean the
+   * content grew taller *because* it got narrower, which only wrapping text does.
+   *
+   * This is not a correction applied to Yoga's answer. It is the input Unity
+   * gives its own layout, and the width comes from `theme.ts` with the version
+   * it was measured on, not from a number typed here.
+   */
+  const reserved = new Map<NodeId, number>();
+  for (let pass = 0; pass < 3; pass++) {
+    let changed = false;
+    for (const [owner, chain] of parts) {
+      const nodes = partNodes.get(owner);
+      if (nodes === undefined) continue;
+      const viewport = chain.findIndex((p) => p.name === 'unity-content-viewport');
+      const content = chain.findIndex((p) => p.name === 'unity-content-container');
+      if (viewport === -1 || content === -1) continue;
+
+      const viewportBox = nodes[viewport]!.getComputedLayout();
+      const contentBox = nodes[content]!.getComputedLayout();
+      // A hair of tolerance: equal heights are not an overflow, and floating
+      // point should not decide whether a scrollbar exists.
+      const overflows = contentBox.height > viewportBox.height + 0.01;
+      const want = verticalScrollbarWidth(overflows);
+      if ((reserved.get(owner) ?? 0) === want) continue;
+
+      reserved.set(owner, want);
+      nodes[viewport]!.setMargin(Edge.Right, want);
+      changed = true;
+    }
+    if (!changed) break;
+    rootNode.calculateLayout(options.size.width, options.size.height, Direction.LTR);
+  }
+
   // Yoga reports each box relative to its parent; the painter wants panel
-  // coordinates, so offsets accumulate on the way down.
+  // coordinates, so offsets accumulate on the way down — through the parts as
+  // well, since a child sits inside the innermost one.
   function collect(node: ElementNode, offsetX: number, offsetY: number): void {
     const yg = yogaOf.get(node);
     if (yg === undefined) return;
     const box = yg.getComputedLayout();
-    const left = offsetX + box.left;
-    const top = offsetY + box.top;
+    let left = offsetX + box.left;
+    let top = offsetY + box.top;
     boxes.set(node.id, { left, top, width: box.width, height: box.height });
+
+    const chain = parts.get(node.id);
+    const nodes = partNodes.get(node.id);
+    if (chain !== undefined && nodes !== undefined) {
+      chain.forEach((part, index) => {
+        const partBox = nodes[index]!.getComputedLayout();
+        left += partBox.left;
+        top += partBox.top;
+        part.box = { left, top, width: partBox.width, height: partBox.height };
+      });
+    }
+
     for (const child of node.children) collect(child, left, top);
   }
   collect(root, 0, 0);
 
   return {
     boxes,
+    parts,
     painted,
     warnings,
     dispose(): void {
       if (disposed) return;
       disposed = true;
+      // Parts were inserted as children, so freeRecursive already covers them;
+      // `created` counted them, so the live tally comes back to where it started.
       rootNode.freeRecursive();
       liveNodes -= created;
       yogaOf.clear();
+      partNodes.clear();
     },
   };
 }

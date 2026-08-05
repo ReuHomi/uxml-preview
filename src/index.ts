@@ -32,7 +32,7 @@ import type { NodeId, StyleSheet, UxmlDocument, Warning } from './model/types';
 export { loadLayoutEngine, isLayoutEngineReady, liveNodeCount } from './layout/yoga';
 export type { LayoutBox, MeasureText, TextContext, TextMetrics } from './layout/yoga';
 export { createDefaultMeasureText } from './render/measure';
-export { NODE_ATTRIBUTE } from './render/paint';
+export { NODE_ATTRIBUTE, PART_ATTRIBUTE, PART_OWNER_ATTRIBUTE } from './render/paint';
 export { supportedControlNames } from './controls/registry';
 export { resolveStyles, explainProperty } from './style/resolve';
 export type {
@@ -246,7 +246,7 @@ export function render(
   // keystroke, so it would strand one per character typed.
   let painted;
   try {
-    painted = paint(doc.root, tree.boxes, resolved.styles, container, {
+    painted = paint(doc.root, tree.boxes, tree.parts, resolved.styles, container, {
       document: ownerDocument,
       resolveAsset: options?.resolveAsset,
     });

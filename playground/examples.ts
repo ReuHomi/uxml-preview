@@ -256,16 +256,17 @@ export const EXAMPLES: Example[] = [
     panel: { width: 640, height: 360 },
     uxml: `<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:custom="MyGame.UI">
   <!--
-    Only VisualElement, Label and Button have renderers of their own.
-    ScrollView and the custom control below do not, so they are drawn as
-    plain boxes -- and you should see one warning for each under the
-    preview. Note that the Label INSIDE the ScrollView is still drawn:
-    an unfamiliar tag costs its own appearance and nothing below it.
+    VisualElement, Label, Button, Image and ScrollView have renderers of
+    their own. The custom control below does not, so it is drawn as a plain
+    box -- you should see one warning for it under the preview. Note that
+    its contents would still be drawn: an unfamiliar tag costs its own
+    appearance and nothing below it.
 
-    What is missing is only what makes those controls look like themselves.
-    A real ScrollView has an implicit child hierarchy that shifts the
-    coordinates of everything inside it, so treat this as the shape of the
-    screen rather than as its exact geometry.
+    What is missing from a fallback is only what makes that control look
+    like itself. Compare it with the ScrollView above, which is reproduced
+    properly: one tag, but four elements, because Unity builds a viewport
+    and a content container inside it. Those decide where its children
+    land, which is why a scroll region cannot be faked with one box.
 
     Nothing is lost, either. "round-trip: exact" in the corner means saving
     this document reproduces the text above byte for byte -- this comment
@@ -277,8 +278,10 @@ export const EXAMPLES: Example[] = [
   -->
   <ui:VisualElement class="pad">
     <ui:Label text="Drawn" class="ok" />
-    <ui:ScrollView>
-      <ui:Label text="drawn through the fallback" class="ok" />
+    <ui:ScrollView style="width: 260px; height: 70px;">
+      <ui:Label text="inside a real viewport" class="ok" />
+      <ui:Label text="taller than the view, so it clips" class="ok" />
+      <ui:Label text="and this one is cut off" class="ok" />
     </ui:ScrollView>
     <custom:HealthBar value="0.8" />
     <ui:Label text="Drawn" class="ok" />

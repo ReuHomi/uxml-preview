@@ -9,20 +9,20 @@ It is the first question anyone asks, and without an answer nobody uses this.
 
 | | |
 |---|---|
-| Cases | 27 (24 comparable, 3 dependent on text measurement) |
-| Unity ground truth available | **24 / 24** |
-| Elements compared | 75 (300 values = elements × x/y/width/height) |
-| **Cases matching** | **23 / 24** |
-| **Values matching** | **298 / 300 (99.3%)** |
+| Cases | 30 (27 comparable, 3 dependent on text measurement) |
+| Unity ground truth available | **27 / 27** |
+| Elements compared | 92 (368 values = elements × x/y/width/height) |
+| **Cases matching** | **26 / 27** |
+| **Values matching** | **366 / 368 (99.5%)** |
 | Known divergence | 1 case, 2 values — below |
 
 Tolerance 0.5px. Both mismatches come from the single case
-`percent-without-parent-size`; the other 23 cases and their 73 elements match
+`percent-without-parent-size`; the other 26 cases and their 90 elements match
 **exactly, with zero error** — not merely inside the tolerance.
 
-> Across two re-measurements every pre-existing case reproduced **byte for
-> byte** (20 cases, then 26). The dump harness is deterministic, which is what
-> lets a new number be attributed to the change rather than to the environment.
+> Across three re-measurements every pre-existing case reproduced **byte for
+> byte** (20, then 26, then 27). The dump harness is deterministic, which is
+> what lets a new number be attributed to the change rather than the environment.
 
 ### Which controls this covers — it widened on 2026-08-05
 
@@ -31,6 +31,7 @@ Tolerance 0.5px. Both mismatches come from the single case
 | `VisualElement` only | 17 |
 | `Label` | 1 (`inherit-vs-direct`) |
 | `Button` | 6 |
+| `ScrollView` | 3 |
 
 The previous figure (242/244) was 17 of 18 cases in that first row: it was, in
 effect, `VisualElement` geometry, and **no `Button` had ever been compared**.
@@ -40,7 +41,7 @@ count, and it does not widen just because the value count does.
 
 ### What this number covers, and what it does not
 
-**The 99.3% is measured at the coordinates Yoga produces.** The pipeline has
+**The 99.5% is measured at the coordinates Yoga produces.** The pipeline has
 four layers — parse, resolve styles, Yoga layout, DOM paint — and the comparison
 against Unity is of the third one's output. Whether the DOM actually drawn on
 screen reproduces those coordinates is **not** compared against Unity.
@@ -162,6 +163,40 @@ values live in `src/controls/theme.ts`.
 
 These values are version-dependent, so a `version-dependent` warning naming the
 measured Unity version is raised once per document whenever they apply.
+
+## ScrollView — the hierarchy was observed, not assumed (2026-08-05)
+
+A ScrollView is one tag that becomes four elements, and the three Unity adds
+decide where everything inside lands:
+
+```
+ScrollView
+└── #unity-content-and-vertical-scroll-container
+    └── #unity-content-viewport                  <- clips
+        └── #unity-content-container             <- the file's children
+```
+
+**The middle level appears in no documentation.** It was found by dumping rather
+than by reading a source mirror: the dumper walks `hierarchy`, the physical
+tree, and Unity names these parts, so they simply appear in the output.
+
+Three measured rules:
+
+- level 1 fills the ScrollView's content box, inside padding and border
+- the viewport surrenders 13px to a vertical scrollbar **only when the content
+  overflows**; otherwise the scroller is 0x0 and the full width is kept. Being
+  conditional matters as much as the number
+- the content container's height is the *content's*, not the viewport's
+
+That last rule is the substance. The old fallback squeezed three 60px children
+into a 100px box and produced 33/34/33; Unity grows the container to 180, keeps
+the children at 60, and lets the viewport clip. **Child sizes were wrong, not
+just positions by a few pixels.**
+
+The scrollbar's seven internal parts are not reproduced — out of scope for a
+static render — and sit in an explicit `NOT_REPRODUCED` list in
+`golden.test.ts`. A `unity-` pattern would have excused
+`unity-content-viewport` too, which has to match exactly.
 
 ## The one divergence — percentages against an auto-sized parent
 

@@ -14,13 +14,27 @@
 
 import type { ElementNode, NodeId, Warning } from '../model/types';
 import type { ComputedStyle } from '../style/resolve';
-import type { LayoutBox } from '../layout/yoga';
+import type { LayoutBox, LayoutPart } from '../layout/yoga';
 import { resolveControl } from '../controls/registry';
 import { toCss } from './css-map';
 import type { CssMapOptions } from './css-map';
 import { INITIAL, parseLength } from './values';
 
 export const NODE_ATTRIBUTE = 'data-uxml-node';
+
+/**
+ * Marks an element a control built rather than one the file asked for, and
+ * carries Unity's name for it.
+ *
+ * Deliberately not `data-uxml-node`: these have no node. An editor that traced
+ * a click back through the node attribute would get an id that belongs to
+ * something else, and would then offer to edit the wrong element. Here it finds
+ * a different attribute and can say "this part is not yours to change".
+ */
+export const PART_ATTRIBUTE = 'data-uxml-part';
+
+/** The element whose control built a part. Lets a click land on its owner. */
+export const PART_OWNER_ATTRIBUTE = 'data-uxml-part-owner';
 
 export interface PaintResult {
   warnings: Warning[];
@@ -40,6 +54,7 @@ export interface PaintOptions extends CssMapOptions {
 export function paint(
   root: ElementNode,
   boxes: ReadonlyMap<NodeId, LayoutBox>,
+  parts: ReadonlyMap<NodeId, readonly LayoutPart[]>,
   styles: ReadonlyMap<NodeId, ComputedStyle>,
   container: HTMLElement,
   options: PaintOptions,
@@ -59,6 +74,16 @@ export function paint(
     const style = styles.get(node.id);
     const read = (property: string): number => {
       const text = style?.get(property)?.value ?? INITIAL[property] ?? '0';
+      const { length } = parseLength(text);
+      return length !== null && length.kind === 'px' ? length.value : 0;
+    };
+    return { left: read('border-left-width'), top: read('border-top-width') };
+  }
+
+  /** Same correction as `borderOrigin`, for a part, whose style is not in `styles`. */
+  function partBorderOrigin(part: LayoutPart): { left: number; top: number } {
+    const read = (property: string): number => {
+      const text = part.style.get(property)?.value ?? INITIAL[property] ?? '0';
       const { length } = parseLength(text);
       return length !== null && length.kind === 'px' ? length.value : 0;
     };
@@ -116,12 +141,44 @@ export function paint(
       }
       el.textContent = decodeEntities(text);
     } else {
-      const ownBorder = borderOrigin(node);
+      // The control's own parts nest between this element and the file's
+      // children, so `host` walks inward and the children are appended to the
+      // innermost one — matching the tree Unity actually builds.
+      let host = el;
+      let hostBox = box;
+      let hostBorder = borderOrigin(node);
+
+      for (const part of parts.get(node.id) ?? []) {
+        const partEl = options.document.createElement('div');
+        partEl.setAttribute(PART_ATTRIBUTE, part.name);
+        partEl.setAttribute(PART_OWNER_ATTRIBUTE, String(node.id));
+
+        const partCss = toCss(part.style, node.id, options);
+        warnings.push(...partCss.warnings);
+        const partDeclarations: Record<string, string> = {
+          position: 'absolute',
+          left: `${part.box.left - hostBox.left - hostBorder.left}px`,
+          top: `${part.box.top - hostBox.top - hostBorder.top}px`,
+          width: `${part.box.width}px`,
+          height: `${part.box.height}px`,
+          margin: '0',
+          ...partCss.declarations,
+        };
+        for (const [property, value] of Object.entries(partDeclarations)) {
+          partEl.style.setProperty(property, value);
+        }
+
+        host.appendChild(partEl);
+        host = partEl;
+        hostBox = part.box;
+        hostBorder = partBorderOrigin(part);
+      }
+
       for (const child of node.children) {
-        const childEl = build(child, box, ownBorder);
+        const childEl = build(child, hostBox, hostBorder);
         // Appended in document order: later siblings paint on top, which is
         // how USS orders overlap.
-        if (childEl !== null) el.appendChild(childEl);
+        if (childEl !== null) host.appendChild(childEl);
       }
     }
 

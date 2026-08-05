@@ -16,9 +16,38 @@
 
 import type { ElementNode } from '../model/types';
 
+/**
+ * An element a control builds for itself, which the file never mentions.
+ *
+ * Unity's ScrollView is one tag that becomes four elements, and the three it
+ * adds are what decide where everything inside lands — a child of a ScrollView
+ * is not a child of the ScrollView. Reproducing the box without them puts every
+ * descendant in the wrong place, so they are modelled rather than approximated.
+ *
+ * `name` is Unity's own, and it is the key the layout dump joins on: these are
+ * observed in `tests/golden/unity/scrollview-*.json`, not invented.
+ */
+export interface ControlPart {
+  /** Unity's name, e.g. `unity-content-viewport`. */
+  name: string;
+  /**
+   * USS this part always carries, because the control fixes it.
+   *
+   * Written as USS rather than as CSS or Yoga calls so it goes through the same
+   * cascade output, Yoga mapping and CSS mapping as everything else. A second
+   * styling path for parts would be a second set of USS bugs.
+   */
+  style: Readonly<Record<string, string>>;
+}
+
 export interface ControlSpec {
   /** Renders the `text` attribute as its own content. */
   hasText: boolean;
+  /**
+   * Elements the control inserts between itself and the file's children,
+   * outermost first. The file's children go inside the last one.
+   */
+  parts: readonly ControlPart[];
   /**
    * USS classes Unity's own constructor puts on this control, which the theme
    * stylesheet then targets. Not in the `class` attribute and not in the model:
@@ -45,13 +74,42 @@ export interface ResolvedControl {
  */
 const CONTROLS: Readonly<Record<string, ControlSpec>> = {
   // VisualElement is the base class and carries no class of its own.
-  VisualElement: { hasText: false, classes: [] },
-  Label: { hasText: true, classes: ['unity-label'] },
-  Button: { hasText: true, classes: ['unity-button'] },
+  VisualElement: { hasText: false, classes: [], parts: [] },
+  Label: { hasText: true, classes: ['unity-label'], parts: [] },
+  Button: { hasText: true, classes: ['unity-button'], parts: [] },
   // Image draws a texture, not text. Its picture reaches this renderer through
   // `background-image` in USS, which `resolveAsset` can turn into something a
   // browser will load; a texture assigned from C# has no path to follow here.
-  Image: { hasText: false, classes: ['unity-image'] },
+  Image: { hasText: false, classes: ['unity-image'], parts: [] },
+  /**
+   * Four elements from one tag. The names below are observed in
+   * `tests/golden/unity/scrollview-*.json`, not taken from documentation — the
+   * middle one, `unity-content-and-vertical-scroll-container`, is not in
+   * Unity's manual diagram at all and was found by dumping.
+   *
+   * The styles are inference, unlike the names: they are how this renderer
+   * reproduces the measured geometry, and the three `scrollview-*` golden cases
+   * are what decides whether the inference is right.
+   */
+  ScrollView: {
+    hasText: false,
+    classes: ['unity-scroll-view'],
+    parts: [
+      // Fills the ScrollView's content box, and lays the viewport out beside
+      // the vertical scrollbar — hence row.
+      {
+        name: 'unity-content-and-vertical-scroll-container',
+        style: { 'flex-grow': '1', 'flex-direction': 'row' },
+      },
+      // What actually clips. Takes whatever width the scrollbar leaves.
+      { name: 'unity-content-viewport', style: { 'flex-grow': '1', overflow: 'hidden' } },
+      // `flex-shrink: 0` is the whole reason a ScrollView is not one box:
+      // this grows to the content's height instead of being squeezed into the
+      // viewport's, so children keep their sizes and the viewport crops them.
+      // Without it three 60px children in a 100px view come out 33/34/33.
+      { name: 'unity-content-container', style: { 'flex-shrink': '0' } },
+    ],
+  },
 };
 
 /**
@@ -62,7 +120,7 @@ const CONTROLS: Readonly<Record<string, ControlSpec>> = {
  * rather than drawing it themselves, so guessing `true` would paint text where
  * Unity paints a child and put every coordinate below it in the wrong place.
  */
-const FALLBACK: ControlSpec = { hasText: false, classes: [] };
+const FALLBACK: ControlSpec = { hasText: false, classes: [], parts: [] };
 
 /** The document container. Not a control, but it is the panel's root box. */
 export const ROOT_LOCAL_NAME = 'UXML';

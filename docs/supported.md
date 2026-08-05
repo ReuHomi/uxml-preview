@@ -21,7 +21,7 @@ Phase가 진행되면서 갱신한다. 상세 매핑은 `uss-reference.md` 참�
 | `VisualElement` | 검증됨 | 골든 케이스 대부분이 이걸로 짜여 있다 |
 | `Label` | 코드 작성 | 레이아웃은 검증됨. **텍스트 측정은 유니티와 대조하지 않았다** |
 | `Button` | 검증됨 | 골든 케이스 5개 유니티 대조 완료. 유니티의 **기본 여백 `margin: 1px 3px`**을 적용한다 (`src/controls/theme.ts`). `:hover` 등 상태 스타일 해석 지원 |
-| `ScrollView` | 폴백 | 암묵적 자식 계층이 없으므로 좌표가 유니티와 다르다 (S1 Step 5) |
+| `ScrollView` | 검증됨 | **암묵 계층 3층**(`unity-content-and-vertical-scroll-container` → `unity-content-viewport` → `unity-content-container`)을 재현한다. 골든 케이스 3개 유니티 대조 완료. 스크롤바는 **폭(13px)만 예약**하고 그리지 않는다 — 드래그·휠·스크롤 위치는 정지 렌더 스코프 밖 |
 | `TextField` | 폴백 | `text`·`label`이 그려지지 않는다 |
 | `Toggle` | 폴백 | 위와 같다 |
 | `Slider` / `SliderInt` | 폴백 | 위와 같다 |

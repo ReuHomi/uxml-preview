@@ -46,3 +46,27 @@ export const THEME_USS = `.unity-button {
   margin: 1px 3px;
 }
 `;
+
+/**
+ * Width a visible vertical scrollbar takes from a ScrollView's viewport, in px.
+ *
+ * Measured, like everything else here: `scrollview-overflowing` has a 200px
+ * ScrollView whose viewport comes back 187 wide once the content overflows.
+ *
+ * **It is conditional, and that is the part worth guarding.** When the content
+ * fits, Unity reports the scroller as 0×0 and the viewport keeps the full 200 —
+ * `scrollview-hierarchy` measures exactly that. A renderer that subtracted this
+ * unconditionally would be wrong on every ScrollView that does not scroll,
+ * which on a real screen is most of them. Read it through
+ * `verticalScrollbarWidth`, never as a bare constant.
+ */
+const VERTICAL_SCROLLBAR_PX = 13;
+
+/**
+ * Purpose:      how much width a vertical scrollbar claims, given whether it shows.
+ * Ensures:      0 when the content fits — Unity hides the scroller rather than
+ *               shrinking the viewport for a bar nobody can see.
+ */
+export function verticalScrollbarWidth(overflows: boolean): number {
+  return overflows ? VERTICAL_SCROLLBAR_PX : 0;
+}

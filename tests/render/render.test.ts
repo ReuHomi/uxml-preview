@@ -9,7 +9,7 @@
 
 import { describe, it, expect, beforeAll } from 'vitest';
 
-import { parse, render, loadLayoutEngine, liveNodeCount, NODE_ATTRIBUTE } from '../../src/index';
+import { parse, render, loadLayoutEngine, liveNodeCount, NODE_ATTRIBUTE, PART_ATTRIBUTE } from '../../src/index';
 import type { MeasureText } from '../../src/index';
 import type { ElementNode } from '../../src/model/types';
 
@@ -319,5 +319,63 @@ describe('Button', () => {
     // The stub measures half an em per character: 3 chars at 10px.
     expect(box.height).toBe(10);
     expect(result.elements.get(named(doc.root, 'b').id)!.children.length).toBe(0);
+  });
+});
+
+/**
+ * Parts a control builds for itself.
+ *
+ * Unity's ScrollView is one tag that becomes four elements, and a child of a
+ * ScrollView is not a child of the ScrollView. The coordinates are checked
+ * against Unity by tests/golden; what is checked here is the thing a dump
+ * cannot see — that these exist in the DOM, nest in the right order, and are
+ * distinguishable from elements the user actually wrote.
+ */
+describe('control parts', () => {
+  it('nests the file\'s children inside the innermost part', () => {
+    const { doc, result } = draw(
+      '<ui:ScrollView name="s"><ui:VisualElement name="c" /></ui:ScrollView>',
+      '#s { width: 100px; height: 60px; }',
+    );
+    const scrollView = result.elements.get(named(doc.root, 's').id)!;
+    const child = result.elements.get(named(doc.root, 'c').id)!;
+
+    const chain = ['unity-content-and-vertical-scroll-container', 'unity-content-viewport', 'unity-content-container'];
+    let host: Element = scrollView;
+    for (const name of chain) {
+      const next = host.firstElementChild!;
+      expect(next.getAttribute(PART_ATTRIBUTE)).toBe(name);
+      host = next;
+    }
+    // The child hangs off the innermost part, not off the ScrollView.
+    expect(child.parentElement).toBe(host);
+    expect(child.parentElement).not.toBe(scrollView);
+    result.dispose();
+  });
+
+  // A part has no node in the document, so an editor must be able to tell that
+  // there is nothing here to edit. Borrowing the owner's id would answer "which
+  // node is this?" with something that belongs to a different element.
+  it('marks a part as a part, and never as a node', () => {
+    const { doc, result } = draw('<ui:ScrollView name="s" />', '#s { width: 100px; height: 60px; }');
+    const part = result.elements.get(named(doc.root, 's').id)!.firstElementChild!;
+    expect(part.getAttribute(PART_ATTRIBUTE)).toBe('unity-content-and-vertical-scroll-container');
+    expect(part.hasAttribute(NODE_ATTRIBUTE)).toBe(false);
+    expect(part.getAttribute('data-uxml-part-owner')).toBe(String(named(doc.root, 's').id));
+    result.dispose();
+  });
+
+  it('frees the part nodes too', () => {
+    const before = liveNodeCount();
+    const { result } = draw('<ui:ScrollView name="s"><ui:Label text="x" /></ui:ScrollView>');
+    expect(liveNodeCount()).toBeGreaterThan(before + 3);
+    result.dispose();
+    expect(liveNodeCount()).toBe(before);
+  });
+
+  it('does not report ScrollView as unsupported any more', () => {
+    const { result } = draw('<ui:ScrollView name="s" />');
+    expect(result.warnings.filter((w) => w.kind === 'unsupported-control')).toHaveLength(0);
+    result.dispose();
   });
 });

@@ -67,17 +67,26 @@ export function runCase(
   });
 
   const elements: Record<string, Rect> = {};
+  const record = (name: string, box: { left: number; top: number; width: number; height: number }): void => {
+    elements[name] = {
+      x: round(box.left),
+      y: round(box.top),
+      width: round(box.width),
+      height: round(box.height),
+    };
+  };
+
   const walk = (node: ElementNode): void => {
     const name = nameOf(node);
     const box = tree.boxes.get(node.id);
-    if (name !== undefined && box !== undefined) {
-      elements[name] = {
-        x: round(box.left),
-        y: round(box.top),
-        width: round(box.width),
-        height: round(box.height),
-      };
-    }
+    if (name !== undefined && box !== undefined) record(name, box);
+
+    // Parts a control built are keyed by Unity's own name, which is the same
+    // key the dump uses. Without this the comparison cannot see them at all,
+    // and a wrong hierarchy would show up only as displaced children with no
+    // hint as to why.
+    for (const part of tree.parts.get(node.id) ?? []) record(part.name, part.box);
+
     for (const child of node.children) walk(child);
   };
   walk(doc.root);

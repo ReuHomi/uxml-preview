@@ -35,7 +35,7 @@ DOM reproduces them is checked by an invariant of our own
 | `VisualElement` | verified | most golden cases are built from it |
 | `Label` | written | layout verified; **text measurement was never compared to Unity** |
 | `Button` | verified | five golden cases compared against Unity. Carries Unity's **default `margin: 1px 3px`** (`src/controls/theme.ts`); honours `:hover` and the other states |
-| `ScrollView` | fallback | no implicit child hierarchy, so coordinates differ from Unity (S1 Step 5) |
+| `ScrollView` | verified | reproduces the **three implicit levels** (`unity-content-and-vertical-scroll-container` → `unity-content-viewport` → `unity-content-container`); three golden cases compared against Unity. The scrollbar's **width is reserved (13px) but nothing is drawn** — dragging, wheeling and scroll position are outside a static render |
 | `TextField` | fallback | its `text` / `label` is not drawn |
 | `Toggle` | fallback | as above |
 | `Slider` / `SliderInt` | fallback | as above |

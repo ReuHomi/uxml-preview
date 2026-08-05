@@ -10,26 +10,42 @@
       "width": 200,
       "height": 100
     },
-    "sv-over-a": {
+    "unity-content-and-vertical-scroll-container": {
       "x": 0,
       "y": 0,
       "width": 200,
-      "height": 33
+      "height": 100
+    },
+    "unity-content-viewport": {
+      "x": 0,
+      "y": 0,
+      "width": 187,
+      "height": 100
+    },
+    "unity-content-container": {
+      "x": 0,
+      "y": 0,
+      "width": 187,
+      "height": 180
+    },
+    "sv-over-a": {
+      "x": 0,
+      "y": 0,
+      "width": 187,
+      "height": 60
     },
     "sv-over-b": {
       "x": 0,
-      "y": 33,
-      "width": 200,
-      "height": 34
+      "y": 60,
+      "width": 187,
+      "height": 60
     },
     "sv-over-c": {
       "x": 0,
-      "y": 67,
-      "width": 200,
-      "height": 33
+      "y": 120,
+      "width": 187,
+      "height": 60
     }
   },
-  "warnings": [
-    "unsupported-control: <ScrollView> has no renderer in this version and is drawn as a plain VisualElement"
-  ]
+  "warnings": []
 }

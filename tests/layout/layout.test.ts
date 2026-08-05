@@ -216,7 +216,7 @@ describe('display', () => {
  */
 describe('controls with no renderer', () => {
   it('are laid out as plain boxes, and reported once each', () => {
-    const { doc, tree } = build('<ui:ScrollView name="s"><ui:Label name="l" text="x" /></ui:ScrollView>');
+    const { doc, tree } = build('<ui:Foldout name="s"><ui:Label name="l" text="x" /></ui:Foldout>');
     expect(tree.boxes.has(named(doc.root, 's').id)).toBe(true);
     expect(tree.warnings.filter((w) => w.kind === 'unsupported-control')).toHaveLength(1);
     tree.dispose();
@@ -224,7 +224,7 @@ describe('controls with no renderer', () => {
 
   it('do not take their children down with them', () => {
     const { doc, tree } = build(
-      '<ui:ScrollView name="s"><ui:Button name="b" text="ok" /></ui:ScrollView>',
+      '<ui:Foldout name="s"><ui:Button name="b" text="ok" /></ui:Foldout>',
       '#s { width: 80px; height: 40px; } #b { height: 10px; }',
     );
     const button = tree.boxes.get(named(doc.root, 'b').id)!;

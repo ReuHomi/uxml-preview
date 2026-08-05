@@ -67,7 +67,7 @@ describe('which elements the defaults reach', () => {
   // A fallback box is not the control it stands in for. Styling it as one would
   // be guessing at defaults we have never measured.
   it('gives a control with no renderer nothing', () => {
-    const d = doc('<ui:ScrollView name="s" />');
+    const d = doc('<ui:Foldout name="s" />');
     expect(value(d, 's', 'margin-left')).toBeUndefined();
   });
 });
@@ -99,7 +99,7 @@ describe('where the defaults sit in the cascade', () => {
   });
 
   it('does not put the implicit class on a control that has no renderer', () => {
-    const d = doc('<ui:ScrollView name="s" />', '.unity-button { color: red; }');
+    const d = doc('<ui:Foldout name="s" />', '.unity-button { color: red; }');
     expect(value(d, 's', 'color')).toBeUndefined();
   });
 
