@@ -134,10 +134,13 @@ describe('accuracy: we match Unity', () => {
 
   it('reports how much ground truth exists', () => {
     const present = measured.filter((c) => existsSync(join(UNITY, `${c.name}.json`)));
-    // Not an assertion about correctness — a statement of coverage, so that a
-    // green run never gets mistaken for a verified one.
+    // Coverage, not accuracy, and labelled as such because the two get quoted
+    // interchangeably otherwise. The accuracy figure is 242/244 compared values
+    // (docs/accuracy.md); this line only says how many cases have a baseline at
+    // all, so that a green run is never mistaken for a verified one.
     console.info(
-      `Unity ground truth: ${present.length}/${measured.length} comparable cases` +
+      `Unity ground-truth COVERAGE (not accuracy): ${present.length}/${measured.length} ` +
+        'comparable cases have a baseline' +
         (present.length === 0
           ? ' — run tools/UxmlLayoutDump.cs to produce it (see docs/accuracy.md)'
           : ''),

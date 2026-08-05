@@ -248,9 +248,32 @@ describe('controls with no renderer', () => {
   });
 
   it('say that a text attribute they carry is not drawn', () => {
-    const { tree } = build('<ui:TextField name="t" text="typed" />');
+    const { tree } = build('<ui:Foldout name="f" text="Stats" />');
     const warning = tree.warnings.find((w) => w.kind === 'unsupported-control')!;
     expect(warning.message).toContain('text attribute is not drawn');
+    tree.dispose();
+  });
+
+  // Everything deriving from BaseField calls its caption `label`, so a warning
+  // that only looked at `text` would let a Toggle's caption vanish in silence.
+  it('say the same about a label attribute', () => {
+    const { tree } = build('<ui:Toggle name="t" label="Enabled" />');
+    const warning = tree.warnings.find((w) => w.kind === 'unsupported-control')!;
+    expect(warning.message).toContain('label attribute is not drawn');
+    tree.dispose();
+  });
+
+  it('name both when a control carries both', () => {
+    const { tree } = build('<ui:TextField name="t" label="Name" text="typed" />');
+    const warning = tree.warnings.find((w) => w.kind === 'unsupported-control')!;
+    expect(warning.message).toContain('text and label attributes are not drawn');
+    tree.dispose();
+  });
+
+  it('stay quiet about an empty caption', () => {
+    const { tree } = build('<ui:Toggle name="t" label="" />');
+    const warning = tree.warnings.find((w) => w.kind === 'unsupported-control')!;
+    expect(warning.message).not.toContain('not drawn');
     tree.dispose();
   });
 

@@ -252,6 +252,22 @@ export function layoutDocument(
     return node.attributes.find((a) => a.name === 'text')?.value;
   }
 
+  /**
+   * Attributes that put words on screen in Unity but not in a fallback box.
+   *
+   * `text` is not the only one. Everything deriving from `BaseField` — TextField,
+   * Toggle, Slider, DropdownField — names its caption `label`, and Foldout uses
+   * `text`. A warning that looked at `text` alone would let a Toggle's caption
+   * vanish without a word, which is the silent loss rule 6 exists to prevent.
+   */
+  const CAPTION_ATTRIBUTES = ['text', 'label'] as const;
+
+  function captionsOf(node: ElementNode): string[] {
+    return CAPTION_ATTRIBUTES.filter((name) =>
+      node.attributes.some((a) => a.name === name && a.value.length > 0),
+    );
+  }
+
   function build(node: ElementNode, parent: YogaNode | null): void {
     const style = styles.get(node.id) ?? new Map();
     const yg = yoga!.Node.create();
@@ -269,14 +285,16 @@ export function layoutDocument(
     if (fallback) {
       // Drawn, not dropped — but say so. The one thing a preview must never do
       // is show a plausible screen that is missing part of the tree.
+      const captions = captionsOf(node);
       warnings.push({
         kind: 'unsupported-control',
         message:
           `<${node.name.local}> has no renderer in this version and is drawn as a ` +
           `plain VisualElement` +
-          (text !== undefined && text.length > 0
-            ? '; its text attribute is not drawn, because Unity draws that through a child element'
-            : ''),
+          (captions.length === 0
+            ? ''
+            : `; its ${captions.join(' and ')} attribute${captions.length > 1 ? 's are' : ' is'} ` +
+              'not drawn, because Unity draws that through a child element'),
         node: node.id,
       });
     }
