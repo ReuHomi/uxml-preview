@@ -105,16 +105,25 @@ Full plan: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 The support matrix is deliberately conservative — see
 [`docs/supported.en.md`](docs/supported.en.md) for the full table.
 
-- **Only geometry was compared, and only as far as Yoga.** The figure above is
-  measured at the coordinates the layout engine produces. Whether the painted
-  DOM reproduces them is checked by an invariant of our own rather than against
-  Unity. Colours, borders, corner radii and fonts are implemented but were not
-  measured at all; coordinates say nothing about them.
+- **Only geometry is compared automatically, and only as far as Yoga.** The
+  figure above is measured at the coordinates the layout engine produces.
+  Whether the painted DOM reproduces them is checked by an invariant of our own
+  rather than against Unity.
+- **Colour, borders and corners rest on a single eye comparison.** One screen was
+  put side by side with Unity and checked item by item
+  ([`docs/visual-check.md`](docs/visual-check.md)); it found two real defects, so
+  it was worth doing, but it is one screen and not an automated diff. Everything
+  it did not contain is still unmeasured.
 - **Text measurement was not compared.** Unity renders text with its own font
-  asset. Layout that is driven by measured text will not match exactly, and the
-  line-height factor is still an estimate.
-- **`Button` has no golden case.** It renders through the same path as `Label`,
-  but "same path" is not a measurement.
+  asset, so any box sized by its text differs — this accounts for ten of the
+  sixteen coordinate divergences. The line-height factor is still an estimate.
+- **A wrapped `ScrollView`'s content height diverges.** Unity clamps it to the
+  viewport; Yoga grows it to the content. Unity's rule is not yet identified.
+- **Nested disabled elements dim twice.** `enabled="false"` disables a subtree
+  and each level takes the half opacity, so a disabled control inside a disabled
+  panel comes out at a quarter. Unity almost certainly dims once; this is not
+  measured yet.
+- Scrollbars reserve their width but are not drawn, and nothing scrolls.
 - `-unity-slice-*`, `-unity-background-image-tint-color` and `transition` are
   parsed and preserved, but not drawn.
 
@@ -326,15 +335,22 @@ Unity 6000.0.40f1과 대조한 결과, 실무형 화면을 포함한 레이아�
 지원 범위는 일부러 보수적으로 적었습니다. 전체 표는
 [`docs/supported.md`](docs/supported.md)에 있습니다.
 
-- **좌표만, 그것도 Yoga 층까지만 비교했습니다.** 위 수치는 레이아웃 엔진이 낸
+- **자동 대조는 좌표만, 그것도 Yoga 층까지입니다.** 위 수치는 레이아웃 엔진이 낸
   좌표를 잰 것입니다. 그려진 DOM이 그 좌표를 재현하는지는 유니티가 아니라 자체
-  불변식 검사로 봅니다. 색·테두리·모서리·폰트는 구현돼 있지만 아예 측정하지
-  않았습니다 — 좌표로는 알 수 없는 것들입니다
+  불변식 검사로 봅니다
+- **색·테두리·모서리는 육안 대조 1회에 기대고 있습니다.** 화면 하나를 유니티와
+  나란히 놓고 항목별로 확인했고([`docs/visual-check.md`](docs/visual-check.md)),
+  거기서 실제 결함 두 개가 나왔으니 할 값어치는 있었습니다. 다만 **화면 하나이고
+  자동 diff가 아닙니다.** 그 화면에 없던 것은 여전히 미측정입니다
 - **텍스트 측정은 대조하지 않았습니다.** 유니티는 자기 폰트 에셋으로 글자를
-  그립니다. 측정된 텍스트가 좌우하는 레이아웃은 정확히 맞지 않고, 행 높이
-  계수도 아직 추정치입니다
-- **`Button`은 골든 케이스가 없습니다.** `Label`과 같은 경로로 그려지지만,
-  "같은 경로"는 측정이 아닙니다
+  그리므로 텍스트가 크기를 좌우하는 박스는 어긋납니다 — 좌표 불일치 16건 중
+  10건이 이것입니다. 행 높이 계수도 아직 추정치입니다
+- **wrap된 `ScrollView`의 콘텐츠 높이가 어긋납니다.** 유니티는 뷰포트에 묶고
+  Yoga는 콘텐츠로 키웁니다. 유니티의 규칙을 아직 특정하지 못했습니다
+- **중첩된 비활성 요소가 두 번 흐려집니다.** `enabled="false"`가 하위 트리를
+  비활성으로 만들고 각 층이 0.5 불투명도를 받아 1/4이 됩니다. 유니티는 한 번만
+  흐리게 할 것이 거의 확실하지만 아직 측정하지 않았습니다
+- 스크롤바는 폭만 예약하고 그리지 않으며, 스크롤되지 않습니다
 - `-unity-slice-*`, `-unity-background-image-tint-color`, `transition`은
   파싱·보존은 되지만 그려지지 않습니다
 
