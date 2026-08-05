@@ -252,20 +252,26 @@ namespace UxmlPreview.Golden
             _log.Add($"{name}: {entries.Count} elements");
         }
 
-        /// Walks the real visual tree, not the UXML.
+        /// Walks `hierarchy`, the physical tree, and NOT `Children()`.
         ///
-        /// That distinction is the whole value of this dump for controls that
-        /// build children of their own. A ScrollView written as one tag becomes
-        /// a ScrollView, a `unity-content-viewport` and a `unity-content-container`
-        /// in the tree, and because Unity names those parts they land here
-        /// automatically. The hierarchy is therefore observed, never guessed --
-        /// which matters, because it is the hierarchy that decides where every
-        /// child of a scroll region ends up.
+        /// The difference is invisible until a control builds children of its
+        /// own, and then it is the whole point. `Children()` iterates the
+        /// element's *contentContainer*, which ScrollView overrides to be its
+        /// `#unity-content-container` -- so asking a ScrollView for its children
+        /// hands back the user's elements and hides the two levels in between.
+        /// The first dump taken this way reported a ScrollView case as two
+        /// elements, exactly as if the implicit hierarchy did not exist.
+        ///
+        /// `hierarchy` has no such redirection. It is what decides where every
+        /// child of a scroll region actually lands, so it is what gets measured.
         private static void Collect(VisualElement element, Rect origin, List<string> into,
             List<string> seen)
         {
-            foreach (VisualElement child in element.Children())
+            // Indexer rather than an enumerator: `hierarchy` exposes childCount
+            // and [i] on every version this tool targets.
+            for (int i = 0; i < element.hierarchy.childCount; i++)
             {
+                VisualElement child = element.hierarchy[i];
                 // Only named elements are comparable: `name` is the key the web
                 // side joins on. Unnamed elements are walked through, not dumped.
                 if (!string.IsNullOrEmpty(child.name))
