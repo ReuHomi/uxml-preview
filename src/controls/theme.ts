@@ -13,6 +13,13 @@
  * wrong in a way no test could see: they would not appear in the unmeasured
  * list, so they would quietly pass for ground truth.
  *
+ * Two kinds of measurement feed this file, and the second was a long time
+ * coming. Geometry comes from the coordinate dumps. `-unity-text-align` cannot:
+ * where a glyph sits inside a box does not move the box, so no dump can ever
+ * see it. It came from the Step 6 eye check — Unity centres a Button's label
+ * and this renderer had it at the top left, which is visible the moment the two
+ * screenshots sit side by side and invisible in 368 compared numbers.
+ *
  * What is deliberately absent, and why:
  *
  *   - `Label` — measured, and it has no default margin. `inherit-vs-direct`
@@ -21,6 +28,8 @@
  *   - padding, border, font — invisible to the cases we have. Every compared
  *     element is explicitly sized, and USS is border-box, so padding and border
  *     do not move the outer rectangle. They are unmeasured, so they are not here.
+ *   - `Label`'s text alignment — the eye check could not separate it from the
+ *     box at this size. Unmeasured, so absent.
  *
  * The class names were a separate claim from the values, and are now measured
  * too. `unity-button` came from Unity's documented `Button.ussClassName`, which
@@ -44,6 +53,7 @@ export const THEME_UNITY_VERSION = '6000.0.40f1';
  */
 export const THEME_USS = `.unity-button {
   margin: 1px 3px;
+  -unity-text-align: middle-center;
 }
 `;
 
