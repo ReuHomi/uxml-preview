@@ -45,6 +45,7 @@ export type {
 export type { Specificity } from './style/specificity';
 export { isInherited } from './style/properties';
 
+import { decodeEntities } from './parser/entities';
 import { parseUxml } from './parser/uxml';
 import { parseUss } from './parser/uss';
 import { serializeUxml } from './serializer/uxml';
@@ -93,7 +94,9 @@ export interface ParseOptions {
 function styleReferences(node: ElementNode, out: string[] = []): string[] {
   if (node.name.local === 'Style') {
     const src = node.attributes.find((a) => a.name === 'src')?.value;
-    if (src !== undefined && src.length > 0) out.push(src);
+    // Decoded here, not stored decoded: the model keeps the raw text so the
+    // file round-trips, and the host needs the value the text stands for.
+    if (src !== undefined && src.length > 0) out.push(decodeEntities(src));
   }
   for (const child of node.children) styleReferences(child, out);
   return out;

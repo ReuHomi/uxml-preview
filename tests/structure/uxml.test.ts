@@ -218,3 +218,38 @@ describe('<Style src>', () => {
     expect(parsed.sheets).toHaveLength(2);
   });
 });
+
+/**
+ * Paths reach the host as values, not as stored text.
+ *
+ * Attribute values keep their entities in the model so serialization is
+ * byte-exact, but a hook is given the thing the text *means*. UI Builder writes
+ * `?fileID=…&amp;guid=…&amp;type=3`, and a host handed that undecoded would try
+ * to read `amp;guid` as a parameter name.
+ */
+describe('<Style src> entity decoding', () => {
+  const raw =
+    'project://database/Assets/UI/panel.uss?fileID=7433441132597879392&amp;guid=abc123&amp;type=3#panel';
+
+  it('hands the hook a decoded path', () => {
+    const seen: string[] = [];
+    parse(
+      `<ui:UXML xmlns:ui="UnityEngine.UIElements"><Style src="${raw}" /></ui:UXML>`,
+      undefined,
+      {
+        resolveImport: (url) => {
+          seen.push(url);
+          return '';
+        },
+      },
+    );
+    expect(seen).toHaveLength(1);
+    expect(seen[0]).toContain('&guid=abc123');
+    expect(seen[0]).not.toContain('&amp;');
+  });
+
+  it('still round-trips the raw text', () => {
+    const text = `<ui:UXML xmlns:ui="UnityEngine.UIElements"><Style src="${raw}" /></ui:UXML>`;
+    expect(serialize(parse(text)).uxml).toBe(text);
+  });
+});

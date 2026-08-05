@@ -16,6 +16,7 @@ import type { ElementNode, NodeId, Warning } from '../model/types';
 import type { ComputedStyle } from '../style/resolve';
 import type { LayoutBox, LayoutPart } from '../layout/yoga';
 import { resolveControl } from '../controls/registry';
+import { decodeEntities } from '../parser/entities';
 import { toCss } from './css-map';
 import type { CssMapOptions } from './css-map';
 import { INITIAL, parseLength } from './values';
@@ -194,31 +195,4 @@ export function paint(
   }
 
   return { warnings, elements };
-}
-
-/**
- * Attribute values are stored exactly as written so that serialization can put
- * them back, which means the five XML entities are still encoded here.
- *
- * Ensures: never throws. A numeric reference outside the Unicode range makes
- * `String.fromCodePoint` raise a RangeError, and one bad character in one
- * attribute must not take down the render (CLAUDE.md rule 6). Unreadable
- * references are left as written, which is also what round-trips.
- */
-function decodeEntities(text: string): string {
-  const codePoint = (value: number, original: string): string => {
-    if (!Number.isInteger(value) || value < 0 || value > 0x10ffff) return original;
-    // Surrogate halves are not standalone characters.
-    if (value >= 0xd800 && value <= 0xdfff) return original;
-    return String.fromCodePoint(value);
-  };
-
-  return text
-    .replace(/&#x([0-9a-f]+);/gi, (match, hex: string) => codePoint(parseInt(hex, 16), match))
-    .replace(/&#(\d+);/g, (match, dec: string) => codePoint(Number(dec), match))
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
-    .replace(/&amp;/g, '&');
 }
