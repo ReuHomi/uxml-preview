@@ -25,12 +25,14 @@ stylesheet comes out wrong.</sub>
 npm install uxml-preview
 ```
 
-> **v0.1.0 — early release.** Three controls (`VisualElement`, `Label`,
-> `Button`) and a support matrix that says plainly what has not been measured.
+> **v0.2.0 — early release.** Five controls (`VisualElement`, `Label`, `Button`,
+> `Image`, `ScrollView`), everything else drawn as a plain box with a warning,
+> and a support matrix that says plainly what has not been measured.
 > Read [what is not verified yet](#what-is-not-verified-yet) before relying on it.
 >
-> **v0.1.0 — 초기 릴리스입니다.** 컨트롤 3종(`VisualElement`, `Label`, `Button`)이고,
-> 검증되지 않은 부분을 지원 범위표에 그대로 적어뒀습니다. 쓰시기 전에
+> **v0.2.0 — 초기 릴리스입니다.** 컨트롤 5종(`VisualElement`, `Label`, `Button`,
+> `Image`, `ScrollView`)이고, 나머지는 경고와 함께 일반 박스로 그립니다.
+> 검증되지 않은 부분은 지원 범위표에 그대로 적어뒀습니다. 쓰시기 전에
 > [아직 검증되지 않은 것](#아직-검증되지-않은-것)을 먼저 봐주세요.
 
 ---
@@ -95,8 +97,9 @@ That broken feedback loop is what this library fixes.
 | 3 | USS style resolver | ✅ |
 | 4 | Yoga layout + DOM painting | ✅ |
 | 5 | Golden tests against Unity | ✅ |
-| 6 | **v0.1 release** | 🔨 |
-| 7+ | More controls, editing layer, tool integration | ⬜ |
+| 6 | **v0.1 release** | ✅ |
+| 7 | **v0.2 — ScrollView, Image, states, a measured screen** | ✅ |
+| 8+ | Editing layer, tool integration | ⬜ |
 
 Full plan: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 
@@ -325,8 +328,9 @@ Unity 6000.0.40f1과 대조한 결과, 실무형 화면을 포함한 레이아�
 | 3 | USS 스타일 리졸버 | ✅ |
 | 4 | Yoga 레이아웃 + DOM 페인팅 | ✅ |
 | 5 | 유니티 대조 골든 테스트 | ✅ |
-| 6 | **v0.1 공개** | 🔨 |
-| 7+ | 컨트롤 확장, 편집 레이어, 도구 통합 | ⬜ |
+| 6 | **v0.1 공개** | ✅ |
+| 7 | **v0.2 — ScrollView·Image·상태, 대표 화면 대조** | ✅ |
+| 8+ | 편집 레이어, 도구 통합 | ⬜ |
 
 전체 계획: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 
