@@ -1,0 +1,209 @@
+{
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "InventoryRoot": {
+      "x": 0,
+      "y": 0,
+      "width": 400,
+      "height": 300
+    },
+    "Header": {
+      "x": 0,
+      "y": 0,
+      "width": 400,
+      "height": 17
+    },
+    "TitleLabel": {
+      "x": 12,
+      "y": -2,
+      "width": 200,
+      "height": 20
+    },
+    "CloseButton": {
+      "x": 360,
+      "y": -6,
+      "width": 28,
+      "height": 28
+    },
+    "ItemGrid": {
+      "x": 0,
+      "y": 17,
+      "width": 400,
+      "height": 240
+    },
+    "unity-content-and-vertical-scroll-container": {
+      "x": 0,
+      "y": 17,
+      "width": 400,
+      "height": 240
+    },
+    "unity-content-viewport": {
+      "x": 0,
+      "y": 17,
+      "width": 387,
+      "height": 240
+    },
+    "unity-content-container": {
+      "x": 0,
+      "y": 17,
+      "width": 387,
+      "height": 552
+    },
+    "ItemSlot0": {
+      "x": 4,
+      "y": 21,
+      "width": 84,
+      "height": 84
+    },
+    "ItemIcon0": {
+      "x": 5,
+      "y": 22,
+      "width": 64,
+      "height": 64
+    },
+    "ItemCount0": {
+      "x": 59,
+      "y": 86,
+      "width": 24,
+      "height": 16
+    },
+    "ItemSlot1": {
+      "x": 4,
+      "y": 113,
+      "width": 84,
+      "height": 84
+    },
+    "ItemIcon1": {
+      "x": 5,
+      "y": 114,
+      "width": 64,
+      "height": 64
+    },
+    "ItemCount1": {
+      "x": 59,
+      "y": 178,
+      "width": 24,
+      "height": 16
+    },
+    "ItemSlot2": {
+      "x": 4,
+      "y": 205,
+      "width": 84,
+      "height": 84
+    },
+    "ItemIcon2": {
+      "x": 5,
+      "y": 206,
+      "width": 64,
+      "height": 64
+    },
+    "ItemCount2": {
+      "x": 59,
+      "y": 270,
+      "width": 24,
+      "height": 16
+    },
+    "ItemSlot3": {
+      "x": 4,
+      "y": 297,
+      "width": 84,
+      "height": 84
+    },
+    "ItemIcon3": {
+      "x": 5,
+      "y": 298,
+      "width": 64,
+      "height": 64
+    },
+    "ItemCount3": {
+      "x": 59,
+      "y": 362,
+      "width": 24,
+      "height": 16
+    },
+    "ItemSlot4": {
+      "x": 4,
+      "y": 389,
+      "width": 84,
+      "height": 84
+    },
+    "ItemIcon4": {
+      "x": 5,
+      "y": 390,
+      "width": 64,
+      "height": 64
+    },
+    "ItemCount4": {
+      "x": 59,
+      "y": 454,
+      "width": 24,
+      "height": 16
+    },
+    "ItemSlot5": {
+      "x": 4,
+      "y": 481,
+      "width": 84,
+      "height": 84
+    },
+    "ItemIcon5": {
+      "x": 5,
+      "y": 482,
+      "width": 64,
+      "height": 64
+    },
+    "ItemCount5": {
+      "x": 59,
+      "y": 546,
+      "width": 24,
+      "height": 16
+    },
+    "Footer": {
+      "x": 0,
+      "y": 257,
+      "width": 400,
+      "height": 43
+    },
+    "DetailPanel": {
+      "x": 8,
+      "y": 265,
+      "width": 299,
+      "height": 27
+    },
+    "ItemName": {
+      "x": 8,
+      "y": 265,
+      "width": 292,
+      "height": 8
+    },
+    "ItemDesc": {
+      "x": 8,
+      "y": 272,
+      "width": 292,
+      "height": 21
+    },
+    "ActionBar": {
+      "x": 307,
+      "y": 265,
+      "width": 85,
+      "height": 27
+    },
+    "UseButton": {
+      "x": 307,
+      "y": 265,
+      "width": 85,
+      "height": 9
+    },
+    "DropButton": {
+      "x": 307,
+      "y": 278,
+      "width": 85,
+      "height": 8
+    }
+  },
+  "warnings": [
+    "version-dependent: Unity's control defaults were applied, as measured on 6000.0.40f1 (Unity ships these as a theme stylesheet). Other versions may use different values; see src/controls/theme.ts."
+  ]
+}

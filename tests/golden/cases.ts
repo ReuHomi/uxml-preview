@@ -496,6 +496,130 @@ export const CASES: GoldenCase[] = [
       '  border-bottom-width: 5px;\n  border-left-width: 5px;\n}\n' +
       '#sv-pad-child {\n  width: 50px;\n  height: 30px;\n}\n',
   },
+
+  // --- pseudo-class states, made measurable ---------------------------------
+  //
+  // `:disabled` is the one state Unity enters statically, through
+  // `enabled="false"`, so it is the only one a coordinate dump can judge. Wiring
+  // it to a *width* rather than a colour is what turns "did the state apply?"
+  // into a number: 120 means Unity matched `:disabled`, 40 means it did not.
+  //
+  // That answer carries further than itself. `:hover` runs through the same
+  // selector matching, specificity and cascade; the only difference is the
+  // trigger, and triggers are explicit input here by design (plan §3.2). So this
+  // case judges the machinery, and hover inherits the verdict.
+  {
+    name: 'states-disabled',
+    question:
+      'Does Unity apply `:disabled` to an element marked enabled="false", and ' +
+      'does it beat the plain type rule the way our cascade says?',
+    uxml: wrap(
+      '  <ui:VisualElement name="states-disabled-holder">\n' +
+        '    <ui:Button name="states-disabled-on" text="Off" enabled="false" />\n' +
+        '    <ui:Button name="states-disabled-off" text="On" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#states-disabled-holder {\n  align-items: flex-start;\n' +
+      '  width: 300px;\n  height: 120px;\n}\n' +
+      'Button {\n  width: 40px;\n  height: 30px;\n  margin: 0;\n}\n' +
+      'Button:disabled {\n  width: 120px;\n}\n',
+  },
+
+  // --- the representative screen --------------------------------------------
+  //
+  // The S1 plan's §2 tree, written out as-is. It is deliberately not adjusted
+  // to what this renderer happens to support: the point of a representative
+  // screen is that it looks like work, and anything it asks for that we cannot
+  // do is a finding rather than a reason to edit the screen.
+  //
+  // Sizes are explicit throughout so the geometry is comparable to Unity —
+  // text still wraps inside the boxes for the screenshot, but it does not
+  // decide where anything goes, which would compare font metrics instead.
+  //
+  // Two things here exist to be judged rather than to look good: the count
+  // badge sits over the icon with no z-index anywhere (USS decides overlap by
+  // sibling order), and DropButton is `enabled="false"`.
+  {
+    name: 'inventory',
+    question: 'Does a screen that looks like real work land where Unity puts it?',
+    uxml: wrap(
+      '  <ui:VisualElement name="InventoryRoot">\n' +
+        '    <ui:VisualElement name="Header">\n' +
+        '      <ui:Label name="TitleLabel" text="Inventory" />\n' +
+        '      <ui:Button name="CloseButton" text="X" />\n' +
+        '    </ui:VisualElement>\n' +
+        '    <ui:ScrollView name="ItemGrid">\n' +
+        [0, 1, 2, 3, 4, 5]
+          .map(
+            (i) =>
+              `      <ui:VisualElement name="ItemSlot${i}" class="slot">\n` +
+              `        <ui:Image name="ItemIcon${i}" class="icon" />\n` +
+              `        <ui:Label name="ItemCount${i}" class="count" text="12" />\n` +
+              '      </ui:VisualElement>\n',
+          )
+          .join('') +
+        '    </ui:ScrollView>\n' +
+        '    <ui:VisualElement name="Footer">\n' +
+        '      <ui:VisualElement name="DetailPanel">\n' +
+        '        <ui:Label name="ItemName" text="Iron Sword" />\n' +
+        '        <ui:Label name="ItemDesc" text="A plain blade, notched from use. Sells for very little." />\n' +
+        '      </ui:VisualElement>\n' +
+        '      <ui:VisualElement name="ActionBar">\n' +
+        '        <ui:Button name="UseButton" text="Use" />\n' +
+        '        <ui:Button name="DropButton" text="Drop" enabled="false" />\n' +
+        '      </ui:VisualElement>\n' +
+        '    </ui:VisualElement>\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#InventoryRoot {\n  width: 400px;\n  height: 300px;\n' +
+      '  background-color: rgb(34, 36, 42);\n}\n' +
+      '#Header {\n  flex-direction: row;\n  height: 40px;\n' +
+      '  justify-content: space-between;\n  align-items: center;\n' +
+      '  padding-left: 12px;\n  padding-right: 12px;\n' +
+      '  background-color: rgb(24, 26, 31);\n}\n' +
+      '#TitleLabel {\n  width: 200px;\n  height: 20px;\n' +
+      '  color: rgb(232, 232, 236);\n  -unity-font-style: bold;\n}\n' +
+      '#CloseButton {\n  width: 28px;\n  height: 28px;\n  margin: 0;\n' +
+      '  background-color: rgb(58, 44, 44);\n  color: rgb(232, 200, 200);\n' +
+      '  border-top-left-radius: 4px;\n  border-top-right-radius: 4px;\n' +
+      '  border-bottom-left-radius: 4px;\n  border-bottom-right-radius: 4px;\n}\n' +
+      '#ItemGrid {\n  flex-grow: 1;\n}\n' +
+      // Targets the ScrollView's own content container, which is where a real
+      // project puts grid styling — the ScrollView's children are not the
+      // file's children. Whether an author rule can reach a part at all is one
+      // of the things this screen is here to find out.
+      '#unity-content-container {\n  flex-direction: row;\n  flex-wrap: wrap;\n  padding: 8px;\n}\n' +
+      '.slot {\n  width: 84px;\n  height: 84px;\n  margin: 4px;\n' +
+      '  background-color: rgb(48, 51, 59);\n' +
+      '  border-top-width: 1px;\n  border-right-width: 1px;\n' +
+      '  border-bottom-width: 1px;\n  border-left-width: 1px;\n' +
+      '  border-top-color: rgb(70, 74, 84);\n  border-right-color: rgb(70, 74, 84);\n' +
+      '  border-bottom-color: rgb(70, 74, 84);\n  border-left-color: rgb(70, 74, 84);\n}\n' +
+      '.icon {\n  width: 64px;\n  height: 64px;\n' +
+      '  background-image: url("project://database/Assets/GoldenCases/icon.png");\n}\n' +
+      // Absolute, bottom-right, and written *after* the icon: USS has no
+      // z-index, so being the later sibling is the only thing putting this on
+      // top. If that rule were wrong the badge would vanish behind the icon.
+      '.count {\n  position: absolute;\n  right: 4px;\n  bottom: 2px;\n' +
+      '  width: 24px;\n  height: 16px;\n  color: rgb(255, 236, 180);\n' +
+      '  -unity-text-align: middle-right;\n}\n' +
+      '#Footer {\n  flex-direction: row;\n  height: 100px;\n  padding: 8px;\n' +
+      '  background-color: rgb(24, 26, 31);\n}\n' +
+      '#DetailPanel {\n  flex-grow: 1;\n  padding-right: 8px;\n}\n' +
+      '#ItemName {\n  height: 20px;\n  color: rgb(232, 232, 236);\n' +
+      '  -unity-font-style: bold;\n}\n' +
+      '#ItemDesc {\n  height: 56px;\n  color: rgb(160, 164, 174);\n' +
+      '  white-space: normal;\n}\n' +
+      '#ActionBar {\n  width: 96px;\n}\n' +
+      'Button {\n  height: 30px;\n}\n' +
+      '#UseButton, #DropButton {\n  margin: 0;\n  margin-bottom: 6px;\n' +
+      '  background-color: rgb(58, 74, 104);\n  color: rgb(226, 232, 244);\n}\n' +
+      '#UseButton:hover {\n  background-color: rgb(84, 108, 150);\n}\n' +
+      'Button:disabled {\n  background-color: rgb(40, 42, 48);\n' +
+      '  color: rgb(104, 108, 118);\n}\n',
+  },
   {
     name: 'button-sizes-to-text',
     question: 'Does a Button with no declared size size itself to its text, the way a Label does?',

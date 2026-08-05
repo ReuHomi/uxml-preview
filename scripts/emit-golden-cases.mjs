@@ -6,7 +6,7 @@
  * because Unity needs assets on disk.
  */
 
-import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -24,6 +24,14 @@ mkdirSync(outDir, { recursive: true });
 for (const golden of CASES) {
   writeFileSync(join(outDir, `${golden.name}.uxml`), golden.uxml, 'utf8');
   writeFileSync(join(outDir, `${golden.name}.uss`), golden.uss, 'utf8');
+}
+
+// Assets the cases reference by path. Unity has to import a real file, and the
+// representative screen needs a picture with a known aspect ratio — the three
+// scale modes are indistinguishable on a square one.
+const assetDir = join(here, '..', 'tests', 'golden', 'assets');
+for (const asset of readdirSync(assetDir)) {
+  copyFileSync(join(assetDir, asset), join(outDir, asset));
 }
 
 writeFileSync(
