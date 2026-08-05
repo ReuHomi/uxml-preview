@@ -1,0 +1,15 @@
+{
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "button-border-box-btn": {
+      "x": 0,
+      "y": 0,
+      "width": 160,
+      "height": 80
+    }
+  },
+  "warnings": []
+}

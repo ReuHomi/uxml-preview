@@ -1,0 +1,12 @@
+{
+  "elements": {
+    "visual-warnings-version-dependent-box": {
+      "box-sizing": "border-box"
+    }
+  },
+  "warnings": [
+    "version-dependent: gap depends on the Unity version; verify it in your project",
+    "version-dependent: aspect-ratio depends on the Unity version; verify it in your project",
+    "version-dependent: word-break depends on the Unity version; verify it in your project"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "button-sizes-to-text-holder": {
+      "x": 0,
+      "y": 0,
+      "width": 300,
+      "height": 100
+    },
+    "button-sizes-to-text-btn": {
+      "x": 0,
+      "y": 0,
+      "width": 70,
+      "height": 20
+    }
+  },
+  "warnings": []
+}

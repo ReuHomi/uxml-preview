@@ -1,0 +1,33 @@
+{
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "button-row-margins-row": {
+      "x": 0,
+      "y": 0,
+      "width": 400,
+      "height": 50
+    },
+    "button-row-margins-a": {
+      "x": 0,
+      "y": 0,
+      "width": 80,
+      "height": 40
+    },
+    "button-row-margins-b": {
+      "x": 90,
+      "y": 0,
+      "width": 80,
+      "height": 40
+    },
+    "button-row-margins-c": {
+      "x": 180,
+      "y": 0,
+      "width": 80,
+      "height": 40
+    }
+  },
+  "warnings": []
+}

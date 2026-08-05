@@ -320,4 +320,109 @@ export const CASES: GoldenCase[] = [
       '#middle-center {\n  -unity-text-align: middle-center;\n}\n' +
       '#lower-right {\n  -unity-text-align: lower-right;\n}\n',
   },
+
+  // --- Button, which has zero golden cases otherwise -----------------------
+  //
+  // What these can and cannot settle, established by mutation:
+  //
+  // Against *this* renderer the explicitly-sized ones are near-redundant. Make
+  // Button stop drawing its own text and only `button-sizes-to-text` notices;
+  // break border-box and `button-border-box` and `button-absolute-in-border`
+  // notice, but so do four VisualElement cases that already existed. Sized like
+  // this, our Button and our VisualElement are the same code path.
+  //
+  // Their value is in the Unity comparison, and it is a specific suspicion:
+  // Unity's default theme USS gives Button its own margin, padding and border,
+  // and this renderer applies none of them. If that is so, these cases fail on
+  // first contact with a Unity dump — which is the point of adding them.
+  // Until that dump exists they are drift detection and nothing more.
+  //
+  // In Unity, Button derives from TextElement: it draws its own text and has
+  // no child element of its own. Every case below gives width/height (or a
+  // sized parent) explicitly so the layout does not depend on FIXED_MEASURE,
+  // per the header note above. `text` is set on each Button for realism only
+  // — it never drives geometry here because no dimension is left for Yoga to
+  // measure.
+  {
+    name: 'button-border-box',
+    question: 'Does a Button (a TextElement, not a VisualElement) still size border-box?',
+    uxml: wrap('  <ui:Button name="button-border-box-btn" text="OK" />'),
+    uss:
+      '#button-border-box-btn {\n  width: 160px;\n  height: 80px;\n  padding: 20px;\n' +
+      '  border-top-width: 10px;\n  border-right-width: 10px;\n' +
+      '  border-bottom-width: 10px;\n  border-left-width: 10px;\n}\n',
+  },
+  {
+    name: 'button-row-margins',
+    question: 'Do margins between Buttons in a row add up the same way as between VisualElements?',
+    uxml: wrap(
+      '  <ui:VisualElement name="button-row-margins-row">\n' +
+        '    <ui:Button name="button-row-margins-a" text="A" />\n' +
+        '    <ui:Button name="button-row-margins-b" text="B" />\n' +
+        '    <ui:Button name="button-row-margins-c" text="C" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#button-row-margins-row {\n  flex-direction: row;\n  width: 400px;\n  height: 50px;\n}\n' +
+      '#button-row-margins-a, #button-row-margins-b, #button-row-margins-c {\n' +
+      '  width: 80px;\n  height: 40px;\n}\n' +
+      '#button-row-margins-a, #button-row-margins-b {\n  margin-right: 10px;\n}\n',
+  },
+  {
+    name: 'button-flex-grow',
+    question: 'Does flex-grow expand a Button to fill remaining row space the same as a VisualElement?',
+    uxml: wrap(
+      '  <ui:VisualElement name="button-flex-grow-row">\n' +
+        '    <ui:Button name="button-flex-grow-fixed" text="Fixed" />\n' +
+        '    <ui:Button name="button-flex-grow-grow" text="Grow" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#button-flex-grow-row {\n  flex-direction: row;\n  width: 300px;\n  height: 50px;\n}\n' +
+      '#button-flex-grow-fixed {\n  width: 100px;\n}\n' +
+      '#button-flex-grow-grow {\n  flex-grow: 1;\n}\n',
+  },
+  {
+    name: 'button-absolute-in-border',
+    question:
+      "Does an absolutely positioned Button sit inside its bordered parent's border box, " +
+      'the same as a VisualElement child would?',
+    uxml: wrap(
+      '  <ui:VisualElement name="button-absolute-in-border-frame">\n' +
+        '    <ui:Button name="button-absolute-in-border-btn" text="X" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#button-absolute-in-border-frame {\n  width: 200px;\n  height: 200px;\n' +
+      '  border-top-width: 10px;\n  border-right-width: 10px;\n' +
+      '  border-bottom-width: 10px;\n  border-left-width: 10px;\n}\n' +
+      '#button-absolute-in-border-btn {\n  position: absolute;\n  left: 0;\n  top: 0;\n' +
+      '  width: 50px;\n  height: 30px;\n}\n',
+  },
+  {
+    name: 'button-align-items',
+    question: 'Does align-items: center on the parent center a Button on the cross axis?',
+    uxml: wrap(
+      '  <ui:VisualElement name="button-align-items-row">\n' +
+        '    <ui:Button name="button-align-items-btn" text="Center" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#button-align-items-row {\n  flex-direction: row;\n  align-items: center;\n' +
+      '  width: 200px;\n  height: 100px;\n}\n' +
+      '#button-align-items-btn {\n  width: 60px;\n  height: 30px;\n}\n',
+  },
+  {
+    name: 'button-sizes-to-text',
+    question: 'Does a Button with no declared size size itself to its text, the way a Label does?',
+    measuresText: true,
+    uxml: wrap(
+      '  <ui:VisualElement name="button-sizes-to-text-holder">\n' +
+        '    <ui:Button name="button-sizes-to-text-btn" text="Confirm" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#button-sizes-to-text-holder {\n  align-items: flex-start;\n  width: 300px;\n  height: 100px;\n}\n' +
+      '#button-sizes-to-text-btn {\n  font-size: 20px;\n}\n',
+  },
 ];

@@ -57,6 +57,15 @@ describe('regression: our own output is stable', () => {
       const path = snapshotPath(golden.name);
 
       if (UPDATING || !existsSync(path)) {
+        // Says so out loud. A snapshot is written from *our own output*, so a
+        // new case goes green the moment it is added while having settled
+        // nothing — the one way a golden set can grow without gaining value.
+        // Whether the numbers are right is the accuracy half's question, and
+        // that half needs a Unity dump this case may not have yet.
+        console.info(
+          `WROTE SNAPSHOT ${golden.name} from current output — regression baseline ` +
+            'only, NOT evidence it matches Unity',
+        );
         mkdirSync(SNAPSHOTS, { recursive: true });
         writeFileSync(path, `${JSON.stringify(actual, null, 2)}\n`, 'utf8');
         return;
@@ -134,6 +143,16 @@ describe('accuracy: we match Unity', () => {
 
   it('reports how much ground truth exists', () => {
     const present = measured.filter((c) => existsSync(join(UNITY, `${c.name}.json`)));
+    const missing = measured.filter((c) => !existsSync(join(UNITY, `${c.name}.json`)));
+    // Named, not just counted. A case with a regression snapshot and no Unity
+    // dump looks finished from every other angle, so this is the only place it
+    // is visible — and it stays visible until someone runs the dump.
+    if (missing.length > 0) {
+      console.info(
+        `UNMEASURED against Unity (${missing.length}): ${missing.map((c) => c.name).join(', ')}` +
+          ' — run tools/UxmlLayoutDump.cs',
+      );
+    }
     // Coverage, not accuracy, and labelled as such because the two get quoted
     // interchangeably otherwise. The accuracy figure is 242/244 compared values
     // (docs/accuracy.md); this line only says how many cases have a baseline at

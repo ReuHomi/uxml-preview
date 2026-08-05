@@ -1,0 +1,16 @@
+{
+  "elements": {
+    "visual-colors-box": {
+      "background-color": "rgb(30, 30, 30)",
+      "box-sizing": "border-box"
+    },
+    "visual-colors-label": {
+      "align-items": "flex-start",
+      "box-sizing": "border-box",
+      "color": "rgb(255, 0, 0)",
+      "display": "flex",
+      "justify-content": "flex-start"
+    }
+  },
+  "warnings": []
+}

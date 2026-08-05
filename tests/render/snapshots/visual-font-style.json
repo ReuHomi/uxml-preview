@@ -1,0 +1,37 @@
+{
+  "elements": {
+    "visual-font-style-normal": {
+      "align-items": "flex-start",
+      "box-sizing": "border-box",
+      "display": "flex",
+      "font-style": "normal",
+      "font-weight": "normal",
+      "justify-content": "flex-start"
+    },
+    "visual-font-style-bold": {
+      "align-items": "flex-start",
+      "box-sizing": "border-box",
+      "display": "flex",
+      "font-style": "normal",
+      "font-weight": "bold",
+      "justify-content": "flex-start"
+    },
+    "visual-font-style-italic": {
+      "align-items": "flex-start",
+      "box-sizing": "border-box",
+      "display": "flex",
+      "font-style": "italic",
+      "font-weight": "normal",
+      "justify-content": "flex-start"
+    },
+    "visual-font-style-bold-italic": {
+      "align-items": "flex-start",
+      "box-sizing": "border-box",
+      "display": "flex",
+      "font-style": "italic",
+      "font-weight": "bold",
+      "justify-content": "flex-start"
+    }
+  },
+  "warnings": []
+}

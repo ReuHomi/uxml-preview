@@ -1,0 +1,9 @@
+{
+  "elements": {
+    "visual-transform-box": {
+      "box-sizing": "border-box",
+      "transform": "translate(10px, 20px) rotate(45deg) scale(1.2, 0.8)"
+    }
+  },
+  "warnings": []
+}

@@ -1,0 +1,10 @@
+{
+  "elements": {
+    "visual-border-width-percent-box": {
+      "box-sizing": "border-box"
+    }
+  },
+  "warnings": [
+    "unsupported-property: border-top-width: \"50%\" is not a pixel length; ignored"
+  ]
+}

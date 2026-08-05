@@ -298,3 +298,26 @@ describe('controls with no renderer', () => {
     result.dispose();
   });
 });
+
+/**
+ * Unity's Button derives from TextElement: it draws its own text and holds no
+ * child Label. Building `<button><span>` here would look right on screen and be
+ * wrong the moment anything inside is measured or positioned (S1 plan §3.3).
+ */
+describe('Button', () => {
+  it('draws its own text, with no child element to hold it', () => {
+    const { doc, result } = draw('<ui:Button name="b" text="Use" />');
+    const el = result.elements.get(named(doc.root, 'b').id)!;
+    expect(el.textContent).toBe('Use');
+    expect(el.children.length).toBe(0);
+    result.dispose();
+  });
+
+  it('is measured as a leaf, so its box is its own', () => {
+    const { doc, result } = draw('<ui:Button name="b" text="Use" />', '#b { font-size: 10px; }');
+    const box = result.boxes.get(named(doc.root, 'b').id)!;
+    // The stub measures half an em per character: 3 chars at 10px.
+    expect(box.height).toBe(10);
+    expect(result.elements.get(named(doc.root, 'b').id)!.children.length).toBe(0);
+  });
+});
