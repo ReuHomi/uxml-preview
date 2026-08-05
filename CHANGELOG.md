@@ -31,8 +31,8 @@
 
 ### Verified
 
-Now **290 of 292 element coordinates identical** against Unity 6000.0.40f1
-across 23 layout cases, up from 242 of 244 across 18. The earlier figure covered
+Now **298 of 300 element coordinates identical** against Unity 6000.0.40f1
+across 24 layout cases, up from 242 of 244 across 18. The earlier figure covered
 almost entirely `VisualElement`; `Button` had never been compared at all. See
 [`docs/accuracy.en.md`](docs/accuracy.en.md).
 

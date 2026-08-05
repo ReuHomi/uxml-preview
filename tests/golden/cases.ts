@@ -414,13 +414,13 @@ export const CASES: GoldenCase[] = [
   },
   {
     name: 'theme-class-hook',
-    // Makes an assumption falsifiable. src/controls/theme.ts targets
-    // `.unity-button` because that is Unity's documented `Button.ussClassName`,
-    // but no dump has ever proved the class reaches the element — the measured
-    // margin says nothing about which selector delivers it. This case asks Unity
-    // directly: if the class is really there, the width below applies and the
-    // element is 120 wide; if it is not, Unity leaves it at 40 and the next dump
-    // says so. Sized in Unity's units either way, so the answer is unambiguous.
+    // Written to make an assumption falsifiable, and it has since been judged.
+    // src/controls/theme.ts targets `.unity-button` because that is Unity's
+    // documented `Button.ussClassName`, but the margin dumps proved the spacing,
+    // not the selector delivering it. Unity answered on 2026-08-05: 120×40, the
+    // same as ours, so the class does reach a bare <ui:Button>. Kept as a
+    // regression guard — if Unity ever stops putting that class on, this is
+    // where it shows.
     question: 'Does a `.unity-button` rule in author USS reach a plain <ui:Button>?',
     uxml: wrap(
       '  <ui:VisualElement name="theme-class-hook-holder">\n' +

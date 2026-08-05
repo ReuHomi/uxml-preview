@@ -22,12 +22,13 @@
  *     element is explicitly sized, and USS is border-box, so padding and border
  *     do not move the outer rectangle. They are unmeasured, so they are not here.
  *
- * Class names are a different kind of claim from the values. `unity-button` is
- * Unity's documented `Button.ussClassName`, not something our dumps prove, and
- * the selector matters because it decides which author rules win. The golden
- * case `theme-class-hook` exists to settle it: its USS targets `.unity-button`
- * directly, so the next Unity dump either confirms the class reaches the
- * element or shows it does not.
+ * The class names were a separate claim from the values, and are now measured
+ * too. `unity-button` came from Unity's documented `Button.ussClassName`, which
+ * the margin dumps said nothing about — they proved the spacing, not the
+ * selector delivering it. The golden case `theme-class-hook` was written to
+ * settle exactly that, and Unity answered on 2026-08-05: a `.unity-button` rule
+ * in author USS reaches a bare `<ui:Button>`, sizing it 120×40 in both engines.
+ * The selector below is therefore measured, not assumed.
  */
 
 /** Where every value in this file was measured. Theme values move between versions. */

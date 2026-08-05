@@ -45,8 +45,8 @@ directly in a web browser. It uses **Yoga** — the same layout engine Unity UI 
 itself uses — compiled to WebAssembly, so results match the Unity Editor rather than
 approximating it.
 
-Measured against Unity 6000.0.40f1: **290 of 292 element coordinates identical**
-across 23 layout cases. The two that differ are named and explained in
+Measured against Unity 6000.0.40f1: **298 of 300 element coordinates identical**
+across 24 layout cases. The two that differ are named and explained in
 [`docs/accuracy.en.md`](docs/accuracy.en.md).
 
 ```
@@ -200,8 +200,8 @@ Measured against Unity on 2026-08-02, over 18 cases and 61 elements:
 
 | | |
 |---|---|
-| Cases matching exactly | **22 / 23** |
-| Values within 0.5px | **290 / 292 (99.3%)** |
+| Cases matching exactly | **23 / 24** |
+| Values within 0.5px | **298 / 300 (99.3%)** |
 
 The one divergence is a percentage sized against a parent that has no explicit
 size, where `yoga-layout` resolves the main axis and the Yoga inside UI Toolkit
@@ -229,7 +229,7 @@ as nested flex, and computed values have to be resolved to fixed numbers or
 calculated in C#.
 
 **How close is the output to Unity?**
-290 of 292 element coordinates identical against Unity 6000.0.40f1, across 23
+298 of 300 element coordinates identical against Unity 6000.0.40f1, across 24
 layout cases. Geometry is compared rather than screenshots, because Unity draws
 text with its own font asset. The single divergence and the numbers behind this
 are in [`docs/accuracy.en.md`](docs/accuracy.en.md).
@@ -262,8 +262,8 @@ Apache-2.0
 **Yoga**를 WebAssembly로 그대로 사용하기 때문에, 결과를 "비슷하게 흉내내는" 것이 아니라
 유니티 에디터와 일치시킵니다.
 
-Unity 6000.0.40f1과 대조한 결과, 레이아웃 케이스 23개에서
-**요소 좌표 292개 중 290개가 완전히 일치**합니다. 어긋난 2개는
+Unity 6000.0.40f1과 대조한 결과, 레이아웃 케이스 24개에서
+**요소 좌표 300개 중 298개가 완전히 일치**합니다. 어긋난 2개는
 [`docs/accuracy.md`](docs/accuracy.md)에 사유까지 적어뒀습니다.
 
 ```
@@ -387,7 +387,7 @@ pnpm build
 계산이 필요한 값은 고정값으로 풀거나 C#에서 계산해야 합니다.
 
 **유니티와 얼마나 같나요?**
-Unity 6000.0.40f1 기준, 레이아웃 케이스 23개에서 **요소 좌표 292개 중 290개 일치**
+Unity 6000.0.40f1 기준, 레이아웃 케이스 24개에서 **요소 좌표 300개 중 298개 일치**
 입니다. 스크린샷이 아니라 좌표를 비교하는데, 유니티가 자기 폰트 에셋으로 글자를
 그리기 때문입니다. 유일한 불일치와 근거 수치는
 [`docs/accuracy.md`](docs/accuracy.md)에 있습니다.

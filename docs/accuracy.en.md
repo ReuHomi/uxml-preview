@@ -10,15 +10,19 @@ It is the first question anyone asks, and without an answer nobody uses this.
 | | |
 |---|---|
 | Cases | 27 (24 comparable, 3 dependent on text measurement) |
-| Unity ground truth available | **23 / 24** (`theme-class-hook` not yet measured) |
-| Elements compared | 73 (292 values = elements × x/y/width/height) |
-| **Cases matching** | **22 / 23** |
-| **Values matching** | **290 / 292 (99.3%)** |
+| Unity ground truth available | **24 / 24** |
+| Elements compared | 75 (300 values = elements × x/y/width/height) |
+| **Cases matching** | **23 / 24** |
+| **Values matching** | **298 / 300 (99.3%)** |
 | Known divergence | 1 case, 2 values — below |
 
 Tolerance 0.5px. Both mismatches come from the single case
-`percent-without-parent-size`; the other 22 cases and their 71 elements match
+`percent-without-parent-size`; the other 23 cases and their 73 elements match
 **exactly, with zero error** — not merely inside the tolerance.
+
+> Across two re-measurements every pre-existing case reproduced **byte for
+> byte** (20 cases, then 26). The dump harness is deterministic, which is what
+> lets a new number be attributed to the change rather than to the environment.
 
 ### Which controls this covers — it widened on 2026-08-05
 
@@ -26,7 +30,7 @@ Tolerance 0.5px. Both mismatches come from the single case
 |---|---|
 | `VisualElement` only | 17 |
 | `Label` | 1 (`inherit-vs-direct`) |
-| `Button` | 5 |
+| `Button` | 6 |
 
 The previous figure (242/244) was 17 of 18 cases in that first row: it was, in
 effect, `VisualElement` geometry, and **no `Button` had ever been compared**.
@@ -150,9 +154,11 @@ values live in `src/controls/theme.ts`.
 - Padding, border and font defaults are **unmeasured** and therefore absent.
   Every compared element is explicitly sized and USS is border-box, so they
   would not move the outer rectangle and the cases cannot see them.
-- The selector `.unity-button` comes from Unity's documented `Button.ussClassName`,
-  **not from a measurement**. The `theme-class-hook` case exists so the next dump
-  settles whether the class really reaches the element.
+- The selector `.unity-button` comes from Unity's documented `Button.ussClassName`
+  and **was not measured at first** — the margin dumps proved the spacing, not the
+  selector carrying it. The `theme-class-hook` case was written to settle that,
+  and Unity answered on 2026-08-05: a `.unity-button` rule in author USS reaches a
+  bare `<ui:Button>`, sizing it 120×40 in both engines. The selector is measured now.
 
 These values are version-dependent, so a `version-dependent` warning naming the
 measured Unity version is raised once per document whenever they apply.
