@@ -21,17 +21,24 @@ Phase가 진행되면서 갱신한다. 상세 매핑은 `uss-reference.md` 참�
 | `VisualElement` | 검증됨 | 골든 케이스 대부분이 이걸로 짜여 있다 |
 | `Label` | 코드 작성 | 레이아웃은 검증됨. **텍스트 측정은 유니티와 대조하지 않았다** |
 | `Button` | 코드 작성 | **골든 케이스에 없다.** 렌더링은 `Label`과 같은 경로. `:hover`는 Phase 7 |
-| `ScrollView` | — | Phase 7 |
-| `TextField` | — | Phase 7 |
-| `Toggle` | — | Phase 7 |
-| `Slider` / `SliderInt` | — | Phase 7 |
-| `Foldout` | — | Phase 7 |
-| `DropdownField` | — | Phase 7 |
-| `ListView` | — | 미정 |
-| `Image` | — | Phase 7 |
+| `ScrollView` | 폴백 | 암묵적 자식 계층이 없으므로 좌표가 유니티와 다르다 (S1 Step 5) |
+| `TextField` | 폴백 | `text`·`label`이 그려지지 않는다 |
+| `Toggle` | 폴백 | 위와 같다 |
+| `Slider` / `SliderInt` | 폴백 | 위와 같다 |
+| `Foldout` | 폴백 | 위와 같다 |
+| `DropdownField` | 폴백 | 위와 같다 |
+| `ListView` | 폴백 | 미정 |
+| `Image` | 폴백 | `background-image`는 이미 동작한다. 전용 렌더러는 S1 Step 4 |
 
-> 미지원 컨트롤을 만나도 파싱은 성공한다. "미지원"으로 표시된 채 트리에 유지되며,
-> 렌더링에서 제외되고 경고 목록에 담긴다. 왕복 시 유실되지 않는다.
+> **전용 렌더러가 없는 컨트롤은 `VisualElement`처럼 그려진다** (`폴백`).
+> 자기 스타일과 자식은 정상적으로 나오고, 그 컨트롤 고유의 모양(스크롤바, 입력 필드,
+> 암묵적 자식 계층)만 빠진다. 요소마다 경고가 한 건 남는다.
+>
+> 하위 트리를 통째로 버리던 v0.1 동작을 뒤집은 것이다. 미지원 컨트롤 하나에 화면
+> 절반이 사라지는 것은 "지원 범위"가 아니라 고장이고, 그런 화면은 무엇이 맞고 무엇이
+> 틀린지 판단할 근거조차 주지 않는다.
+>
+> 파싱은 어느 쪽이든 성공하며, 왕복 시 유실되지 않는다.
 
 ## USS 속성
 

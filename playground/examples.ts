@@ -256,14 +256,20 @@ export const EXAMPLES: Example[] = [
     panel: { width: 640, height: 360 },
     uxml: `<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:custom="MyGame.UI">
   <!--
-    v0.1 draws VisualElement, Label and Button. ScrollView and the custom
-    control below are NOT drawn, and you should see two warnings for them
-    under the preview. That is the intended behaviour, not a failure:
-    one unsupported control must not take the whole screen down.
+    Only VisualElement, Label and Button have renderers of their own.
+    ScrollView and the custom control below do not, so they are drawn as
+    plain boxes -- and you should see one warning for each under the
+    preview. Note that the Label INSIDE the ScrollView is still drawn:
+    an unfamiliar tag costs its own appearance and nothing below it.
 
-    They are not lost, either. "round-trip: exact" in the corner means
-    saving this document reproduces the text above byte for byte -- this
-    comment and both unsupported controls included.
+    What is missing is only what makes those controls look like themselves.
+    A real ScrollView has an implicit child hierarchy that shifts the
+    coordinates of everything inside it, so treat this as the shape of the
+    screen rather than as its exact geometry.
+
+    Nothing is lost, either. "round-trip: exact" in the corner means saving
+    this document reproduces the text above byte for byte -- this comment
+    and both unsupported controls included.
 
     Try to make it say otherwise. Delete a closing tag, drop a quote,
     empty the whole file: it stays exact. Untouched text is copied out of
@@ -272,7 +278,7 @@ export const EXAMPLES: Example[] = [
   <ui:VisualElement class="pad">
     <ui:Label text="Drawn" class="ok" />
     <ui:ScrollView>
-      <ui:Label text="not drawn, still in the tree" />
+      <ui:Label text="drawn through the fallback" class="ok" />
     </ui:ScrollView>
     <custom:HealthBar value="0.8" />
     <ui:Label text="Drawn" class="ok" />

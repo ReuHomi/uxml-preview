@@ -209,11 +209,54 @@ describe('display', () => {
   });
 });
 
-describe('unsupported controls', () => {
-  it('are not drawn, and are reported once', () => {
-    const { doc, tree } = build('<ui:ScrollView name="s"><ui:Label text="x" /></ui:ScrollView>');
-    expect(tree.boxes.has(named(doc.root, 's').id)).toBe(false);
+/**
+ * The fallback is the default path, not an error path (S1 plan §5.3). A control
+ * this version has no renderer for is drawn as a plain VisualElement, because a
+ * screen that silently loses a subtree is worse than one drawn approximately.
+ */
+describe('controls with no renderer', () => {
+  it('are laid out as plain boxes, and reported once each', () => {
+    const { doc, tree } = build('<ui:ScrollView name="s"><ui:Label name="l" text="x" /></ui:ScrollView>');
+    expect(tree.boxes.has(named(doc.root, 's').id)).toBe(true);
     expect(tree.warnings.filter((w) => w.kind === 'unsupported-control')).toHaveLength(1);
+    tree.dispose();
+  });
+
+  it('do not take their children down with them', () => {
+    const { doc, tree } = build(
+      '<ui:ScrollView name="s"><ui:Button name="b" text="ok" /></ui:ScrollView>',
+      '#s { width: 80px; height: 40px; } #b { height: 10px; }',
+    );
+    const button = tree.boxes.get(named(doc.root, 'b').id)!;
+    expect(button).toBeDefined();
+    expect(button.height).toBe(10);
+    // Laid out *through* the fallback: stretched by the ScrollView's cross axis,
+    // which only happens if the fallback is a real parent in the Yoga tree.
+    expect(button.width).toBe(80);
+    tree.dispose();
+  });
+
+  it('nest, so an unknown control inside an unknown control still draws', () => {
+    const { doc, tree } = build(
+      '<ui:Foldout name="f"><ui:Slider name="s"><ui:Label name="l" text="x" /></ui:Slider></ui:Foldout>',
+    );
+    for (const name of ['f', 's', 'l']) {
+      expect(tree.boxes.has(named(doc.root, name).id)).toBe(true);
+    }
+    expect(tree.warnings.filter((w) => w.kind === 'unsupported-control')).toHaveLength(2);
+    tree.dispose();
+  });
+
+  it('say that a text attribute they carry is not drawn', () => {
+    const { tree } = build('<ui:TextField name="t" text="typed" />');
+    const warning = tree.warnings.find((w) => w.kind === 'unsupported-control')!;
+    expect(warning.message).toContain('text attribute is not drawn');
+    tree.dispose();
+  });
+
+  it('do not report the document element, which is the panel box', () => {
+    const { tree } = build('<ui:VisualElement name="a" />');
+    expect(tree.warnings.filter((w) => w.kind === 'unsupported-control')).toHaveLength(0);
     tree.dispose();
   });
 });

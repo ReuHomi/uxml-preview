@@ -22,7 +22,7 @@ import type { Node as YogaNode, Yoga } from 'yoga-layout/load';
 
 import type { ElementNode, NodeId, Warning } from '../model/types';
 import type { ComputedStyle } from '../style/resolve';
-import { controlFor } from '../controls/registry';
+import { resolveControl } from '../controls/registry';
 import { INITIAL, parseLength, parseNumber } from '../render/values';
 import type { Length } from '../render/values';
 
@@ -262,9 +262,24 @@ export function layoutDocument(
     applyStyle(yg, style, node);
     if (parent !== null) parent.insertChild(yg, parent.getChildCount());
 
-    const control = controlFor(node);
+    const { spec, fallback } = resolveControl(node);
     const text = textOf(node);
-    const drawsText = control?.hasText === true && text !== undefined && text.length > 0;
+    const drawsText = spec.hasText && text !== undefined && text.length > 0;
+
+    if (fallback) {
+      // Drawn, not dropped — but say so. The one thing a preview must never do
+      // is show a plausible screen that is missing part of the tree.
+      warnings.push({
+        kind: 'unsupported-control',
+        message:
+          `<${node.name.local}> has no renderer in this version and is drawn as a ` +
+          `plain VisualElement` +
+          (text !== undefined && text.length > 0
+            ? '; its text attribute is not drawn, because Unity draws that through a child element'
+            : ''),
+        node: node.id,
+      });
+    }
 
     if (drawsText) {
       // Yoga refuses to measure a node that has children, and would not ask for
@@ -291,17 +306,9 @@ export function layoutDocument(
       return;
     }
 
-    for (const child of node.children) {
-      if (controlFor(child) === null) {
-        warnings.push({
-          kind: 'unsupported-control',
-          message: `<${child.name.local}> is not supported in v0.1 and is not drawn`,
-          node: child.id,
-        });
-        continue;
-      }
-      build(child, yg);
-    }
+    // Every child is built. A control this version does not know still gets a
+    // node, so an unfamiliar tag costs its own appearance and nothing below it.
+    for (const child of node.children) build(child, yg);
   }
 
   // The `<ui:UXML>` element is the panel box itself. Styling it — `:root`

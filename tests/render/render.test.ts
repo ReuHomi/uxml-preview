@@ -256,3 +256,45 @@ describe('lifecycle', () => {
     expect(liveNodeCount()).toBe(before);
   });
 });
+
+/**
+ * S1 Step 1's completion check, at the layer a user actually sees: a control
+ * this version has no renderer for must not remove anything from the screen.
+ */
+describe('controls with no renderer', () => {
+  it('paints a Button that sits inside a ScrollView', () => {
+    const { doc, result } = draw(
+      '<ui:ScrollView name="s"><ui:Button name="b" text="Use" /></ui:ScrollView>',
+    );
+    const scrollView = result.elements.get(named(doc.root, 's').id);
+    const button = result.elements.get(named(doc.root, 'b').id);
+    expect(scrollView).toBeDefined();
+    expect(button).toBeDefined();
+    expect(scrollView!.contains(button!)).toBe(true);
+    expect(button!.textContent).toBe('Use');
+    result.dispose();
+  });
+
+  it('keeps provenance, so an editor can still trace the DOM back to the tree', () => {
+    const { doc, result } = draw('<ui:Foldout name="f"><ui:Slider name="s" /></ui:Foldout>');
+    for (const name of ['f', 's']) {
+      const node = named(doc.root, name);
+      const el = result.elements.get(node.id)!;
+      expect(el.getAttribute(NODE_ATTRIBUTE)).toBe(String(node.id));
+    }
+    result.dispose();
+  });
+
+  it('draws them as plain boxes: styles still apply, text does not', () => {
+    const { doc, result } = draw(
+      '<ui:TextField name="t" text="typed" />',
+      '#t { background-color: rgb(1, 2, 3); }',
+    );
+    const el = result.elements.get(named(doc.root, 't').id)!;
+    expect(el.style.backgroundColor).toBe('rgb(1, 2, 3)');
+    // Unity draws a TextField's text through a child element, so a fallback box
+    // that painted it itself would put the text in the wrong place.
+    expect(el.textContent).toBe('');
+    result.dispose();
+  });
+});

@@ -237,9 +237,10 @@ CRLF endings included — and an edit rewrites only the region it touched. The
 playground shows this live as `round-trip: exact`.
 
 **What happens to controls it does not support?**
-They are kept in the tree, reported as a warning, excluded from rendering, and
-written back out unchanged. One unsupported control never takes down the rest of
-the screen, and nothing is silently dropped.
+They are drawn as a plain `VisualElement`, reported as a warning, and written
+back out unchanged. Their own styles and their children come out normally; only
+what makes that control look like itself is missing. One unfamiliar tag never
+takes down the rest of the screen, and nothing is silently dropped.
 
 ### License
 
@@ -349,7 +350,7 @@ pnpm dev
 
 예제는 예쁜 것보다 **함정을 보여주는 것**으로 골랐습니다 — `flex-direction`의 기본값이
 `column`이라는 것, 겹침 순서가 `z-index`가 아니라 마크업 순서로 정해진다는 것,
-미지원 컨트롤이 그려지지는 않지만 경고와 함께 왕복에서 살아남는다는 것.
+전용 렌더러가 없는 컨트롤도 일반 박스로 그려지고 경고와 함께 왕복에서 살아남는다는 것.
 
 ### 개발
 
@@ -393,9 +394,9 @@ Unity 6000.0.40f1 기준, 레이아웃 케이스 18개에서 **요소 좌표 244
 영역만 바뀝니다. 놀이터의 `round-trip: exact` 표시가 이걸 실시간으로 보여줍니다.
 
 **지원하지 않는 컨트롤은 어떻게 되나요?**
-트리에 유지되고, 경고로 보고되고, 렌더링에서만 빠지고, 저장하면 그대로 다시
-나옵니다. 미지원 컨트롤 하나 때문에 화면 전체가 죽지 않고, 조용히 사라지는 것도
-없습니다.
+일반 `VisualElement`처럼 그려지고, 경고로 보고되고, 저장하면 그대로 다시 나옵니다.
+자기 스타일과 자식은 정상적으로 나오며 그 컨트롤 고유의 모양만 빠집니다. 모르는 태그
+하나 때문에 화면 전체가 죽지 않고, 조용히 사라지는 것도 없습니다.
 
 ### 라이선스
 

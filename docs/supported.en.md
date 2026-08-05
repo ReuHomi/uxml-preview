@@ -35,19 +35,26 @@ DOM reproduces them is checked by an invariant of our own
 | `VisualElement` | verified | most golden cases are built from it |
 | `Label` | written | layout verified; **text measurement was never compared to Unity** |
 | `Button` | written | **no golden case at all.** Renders through the same path as `Label`; `:hover` is Phase 7 |
-| `ScrollView` | — | Phase 7 |
-| `TextField` | — | Phase 7 |
-| `Toggle` | — | Phase 7 |
-| `Slider` / `SliderInt` | — | Phase 7 |
-| `Foldout` | — | Phase 7 |
-| `DropdownField` | — | Phase 7 |
-| `ListView` | — | undecided |
-| `Image` | — | Phase 7 |
+| `ScrollView` | fallback | no implicit child hierarchy, so coordinates differ from Unity (S1 Step 5) |
+| `TextField` | fallback | its `text` / `label` is not drawn |
+| `Toggle` | fallback | as above |
+| `Slider` / `SliderInt` | fallback | as above |
+| `Foldout` | fallback | as above |
+| `DropdownField` | fallback | as above |
+| `ListView` | fallback | undecided |
+| `Image` | fallback | `background-image` already works; a dedicated renderer is S1 Step 4 |
 
-> Parsing succeeds for unsupported controls. They stay in the tree marked
-> unsupported, are excluded from rendering, and are reported as warnings.
-> **They survive a round trip unchanged** — the playground's `round-trip: exact`
-> indicator is that guarantee checked live.
+> **A control with no renderer of its own is drawn as a `VisualElement`**
+> (`fallback`). Its own styles and its children come out normally; what is
+> missing is whatever makes that control look like itself — scrollbars, an input
+> field, an implicit child hierarchy. One warning is reported per element.
+>
+> This reverses v0.1, which dropped the whole subtree. Losing half a screen to
+> one unfamiliar tag is a defect rather than a scope limit, and a screen like
+> that gives you nothing to judge the rest of the render by.
+>
+> Parsing succeeds either way, and **nothing is lost in a round trip** — the
+> playground's `round-trip: exact` indicator is that guarantee checked live.
 
 ## USS properties
 

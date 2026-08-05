@@ -15,7 +15,7 @@
 import type { ElementNode, NodeId, Warning } from '../model/types';
 import type { ComputedStyle } from '../style/resolve';
 import type { LayoutBox } from '../layout/yoga';
-import { controlFor } from '../controls/registry';
+import { resolveControl } from '../controls/registry';
 import { toCss } from './css-map';
 import type { CssMapOptions } from './css-map';
 import { INITIAL, parseLength } from './values';
@@ -71,7 +71,10 @@ export function paint(
     parentBorder: { left: number; top: number },
   ): HTMLElement | null {
     const box = boxes.get(node.id);
-    if (box === undefined) return null; // not laid out: unsupported control
+    // Not laid out. Every element gets a box now, including controls with no
+    // renderer of their own, so this means a descendant of a text-drawing
+    // control — Yoga measures those as leaves and never reaches their children.
+    if (box === undefined) return null;
 
     const el = options.document.createElement('div');
     el.setAttribute(NODE_ATTRIBUTE, String(node.id));
@@ -99,9 +102,9 @@ export function paint(
       el.style.setProperty(property, value);
     }
 
-    const control = controlFor(node);
+    const { spec } = resolveControl(node);
     const text = node.attributes.find((a) => a.name === 'text')?.value;
-    if (control?.hasText === true && text !== undefined && text.length > 0) {
+    if (spec.hasText && text !== undefined && text.length > 0) {
       // Laid out as a measured leaf, so it has no painted children and can use
       // flex for the vertical half of -unity-text-align.
       el.style.setProperty('display', css.declarations['display'] ?? 'flex');
