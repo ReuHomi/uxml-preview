@@ -1,0 +1,23 @@
+{
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "sv-pad": {
+      "x": 0,
+      "y": 0,
+      "width": 200,
+      "height": 120
+    },
+    "sv-pad-child": {
+      "x": 20,
+      "y": 20,
+      "width": 50,
+      "height": 30
+    }
+  },
+  "warnings": [
+    "unsupported-control: <ScrollView> has no renderer in this version and is drawn as a plain VisualElement"
+  ]
+}

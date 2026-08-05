@@ -433,6 +433,69 @@ export const CASES: GoldenCase[] = [
       '.unity-button {\n  width: 120px;\n  height: 40px;\n}\n' +
       '#theme-class-hook-btn {\n  margin: 0;\n}\n',
   },
+
+  // --- ScrollView, whose hierarchy has to be observed before it is built -----
+  //
+  // Written before any implementation exists, on purpose. A ScrollView is one
+  // tag that becomes three elements in Unity, and it is that hierarchy which
+  // decides where every child inside it lands. Implementing first and writing
+  // cases after would let whatever structure got built become the right answer.
+  //
+  // These cases carry no expected numbers, because none are ours to invent.
+  // The dumper walks Unity's real visual tree and names of implicit parts
+  // (`unity-content-viewport`, `unity-content-container`, the scrollers) appear
+  // in the output on their own. So the dump *is* the specification: run it,
+  // read the structure out of the result, then make the renderer agree.
+  //
+  // One ScrollView per case, deliberately. The implicit parts are named the
+  // same in every ScrollView, and the dump is a JSON object keyed by name --
+  // two in one case would silently overwrite each other.
+  {
+    name: 'scrollview-hierarchy',
+    question:
+      'What elements does a ScrollView actually create, and where do they sit ' +
+      'inside it?',
+    uxml: wrap(
+      '  <ui:ScrollView name="sv-plain">\n' +
+        '    <ui:VisualElement name="sv-plain-child" />\n' +
+        '  </ui:ScrollView>',
+    ),
+    uss:
+      '#sv-plain {\n  width: 200px;\n  height: 120px;\n}\n' +
+      '#sv-plain-child {\n  width: 60px;\n  height: 40px;\n}\n',
+  },
+  {
+    name: 'scrollview-overflowing',
+    question:
+      'Where do children sit once the content is taller than the ScrollView, ' +
+      'and how much room does the vertical scrollbar take from the viewport?',
+    uxml: wrap(
+      '  <ui:ScrollView name="sv-over">\n' +
+        '    <ui:VisualElement name="sv-over-a" />\n' +
+        '    <ui:VisualElement name="sv-over-b" />\n' +
+        '    <ui:VisualElement name="sv-over-c" />\n' +
+        '  </ui:ScrollView>',
+    ),
+    uss:
+      '#sv-over {\n  width: 200px;\n  height: 100px;\n}\n' +
+      '#sv-over-a, #sv-over-b, #sv-over-c {\n  height: 60px;\n}\n',
+  },
+  {
+    name: 'scrollview-padding',
+    question:
+      "Does a ScrollView's own padding apply to it, to its viewport, or to its " +
+      'content container?',
+    uxml: wrap(
+      '  <ui:ScrollView name="sv-pad">\n' +
+        '    <ui:VisualElement name="sv-pad-child" />\n' +
+        '  </ui:ScrollView>',
+    ),
+    uss:
+      '#sv-pad {\n  width: 200px;\n  height: 120px;\n  padding: 15px;\n' +
+      '  border-top-width: 5px;\n  border-right-width: 5px;\n' +
+      '  border-bottom-width: 5px;\n  border-left-width: 5px;\n}\n' +
+      '#sv-pad-child {\n  width: 50px;\n  height: 30px;\n}\n',
+  },
   {
     name: 'button-sizes-to-text',
     question: 'Does a Button with no declared size size itself to its text, the way a Label does?',

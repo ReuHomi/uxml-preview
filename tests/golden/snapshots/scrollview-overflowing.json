@@ -1,0 +1,35 @@
+{
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "sv-over": {
+      "x": 0,
+      "y": 0,
+      "width": 200,
+      "height": 100
+    },
+    "sv-over-a": {
+      "x": 0,
+      "y": 0,
+      "width": 200,
+      "height": 33
+    },
+    "sv-over-b": {
+      "x": 0,
+      "y": 33,
+      "width": 200,
+      "height": 34
+    },
+    "sv-over-c": {
+      "x": 0,
+      "y": 67,
+      "width": 200,
+      "height": 33
+    }
+  },
+  "warnings": [
+    "unsupported-control: <ScrollView> has no renderer in this version and is drawn as a plain VisualElement"
+  ]
+}

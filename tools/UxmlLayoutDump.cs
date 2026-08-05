@@ -211,11 +211,32 @@ namespace UxmlPreview.Golden
         private void Write(string name)
         {
             var entries = new List<string>();
-            Collect(_stage, _stage.worldBound, entries);
+            var seen = new List<string>();
+            Collect(_stage, _stage.worldBound, entries, seen);
 
             if (entries.Count == 0)
             {
                 _log.Add($"{name}: WARNING, no named elements found");
+            }
+
+            // Names are the join key on both sides, and the file is a JSON
+            // object, so a repeat silently overwrites: JSON.parse keeps the last
+            // and the comparison never learns the other one existed. This became
+            // reachable the moment controls with implicit children were dumped --
+            // two ScrollViews in one case means two `unity-content-container`s.
+            var duplicates = new List<string>();
+            for (int i = 0; i < seen.Count; i++)
+            {
+                if (seen.IndexOf(seen[i]) != i && !duplicates.Contains(seen[i]))
+                {
+                    duplicates.Add(seen[i]);
+                }
+            }
+            if (duplicates.Count > 0)
+            {
+                _log.Add($"{name}: DUPLICATE NAMES, only the last of each is written -- " +
+                    string.Join(", ", duplicates) +
+                    ". Give each element a unique name, or split the case.");
             }
 
             var sb = new StringBuilder();
@@ -231,7 +252,17 @@ namespace UxmlPreview.Golden
             _log.Add($"{name}: {entries.Count} elements");
         }
 
-        private static void Collect(VisualElement element, Rect origin, List<string> into)
+        /// Walks the real visual tree, not the UXML.
+        ///
+        /// That distinction is the whole value of this dump for controls that
+        /// build children of their own. A ScrollView written as one tag becomes
+        /// a ScrollView, a `unity-content-viewport` and a `unity-content-container`
+        /// in the tree, and because Unity names those parts they land here
+        /// automatically. The hierarchy is therefore observed, never guessed --
+        /// which matters, because it is the hierarchy that decides where every
+        /// child of a scroll region ends up.
+        private static void Collect(VisualElement element, Rect origin, List<string> into,
+            List<string> seen)
         {
             foreach (VisualElement child in element.Children())
             {
@@ -239,12 +270,13 @@ namespace UxmlPreview.Golden
                 // side joins on. Unnamed elements are walked through, not dumped.
                 if (!string.IsNullOrEmpty(child.name))
                 {
+                    seen.Add(child.name);
                     Rect w = child.worldBound;
                     into.Add(string.Format(CultureInfo.InvariantCulture,
                         "    \"{0}\": {{ \"x\": {1}, \"y\": {2}, \"width\": {3}, \"height\": {4} }}",
                         child.name, R(w.x - origin.x), R(w.y - origin.y), R(w.width), R(w.height)));
                 }
-                Collect(child, origin, into);
+                Collect(child, origin, into, seen);
             }
         }
 
