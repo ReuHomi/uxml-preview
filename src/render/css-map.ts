@@ -78,6 +78,33 @@ const HORIZONTAL: Readonly<Record<string, string>> = {
   right: 'flex-end',
 };
 
+/**
+ * `-unity-background-scale-mode` to `background-size`.
+ *
+ * Unity's `ScaleMode` has exactly these three values, and CSS happens to have a
+ * keyword for each: fill the box regardless of aspect, cover it and crop, or fit
+ * inside it. The names are the only part CSS shares — the semantics line up, the
+ * spelling does not.
+ *
+ * **Unverified against Unity.** A layout dump reports rectangles, and which part
+ * of a texture ends up inside a rectangle is not a rectangle, so nothing in the
+ * golden set can judge this. Scheduled for the Step 6 eye check (S1 plan §1,
+ * criterion 3) rather than left to look settled.
+ */
+const SCALE_MODE: Readonly<Record<string, string>> = {
+  'stretch-to-fill': '100% 100%',
+  'scale-and-crop': 'cover',
+  'scale-to-fit': 'contain',
+};
+
+/**
+ * Unity's default when nothing declares one.
+ *
+ * Also unverified, and it matters more than the mapping: it applies to every
+ * background image nobody wrote a scale mode for.
+ */
+const DEFAULT_SCALE_MODE = 'stretch-to-fill';
+
 /** `url("project://...")` or `resource("...")` to the bare path. */
 function assetPath(value: string): string | null {
   const match = /^(?:url|resource)\(\s*(["']?)(.*?)\1\s*\)$/.exec(value.trim());
@@ -223,9 +250,23 @@ export function toCss(
         warn('asset-unresolved', `background-image: "${path}" was not resolved`);
       } else {
         out['background-image'] = `url("${url}")`;
-        out['background-size'] = value('background-size') ?? 'contain';
         out['background-repeat'] = value('background-repeat') ?? 'no-repeat';
         out['background-position'] = value('background-position') ?? 'center';
+
+        // `background-size` is the CSS name and exists in some Unity versions;
+        // `-unity-background-scale-mode` is the USS one. An author who wrote the
+        // CSS name meant it, so it wins over the mode we derive.
+        const declared = value('background-size');
+        const mode = value('-unity-background-scale-mode') ?? DEFAULT_SCALE_MODE;
+        const mapped = SCALE_MODE[mode];
+        if (mapped === undefined) {
+          warn(
+            'unsupported-property',
+            `-unity-background-scale-mode: ${mode} is not a USS value; ` +
+              `expected one of ${Object.keys(SCALE_MODE).join(', ')}`,
+          );
+        }
+        out['background-size'] = declared ?? mapped ?? SCALE_MODE[DEFAULT_SCALE_MODE]!;
       }
     }
   }

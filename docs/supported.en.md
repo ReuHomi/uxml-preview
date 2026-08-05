@@ -30,24 +30,31 @@ DOM reproduces them is checked by an invariant of our own
 
 ## Controls
 
-| Type | v0.1 | Notes |
+| Type | v0.2 | Notes |
 |---|---|---|
 | `VisualElement` | verified | most golden cases are built from it |
 | `Label` | written | layout verified; **text measurement was never compared to Unity** |
-| `Button` | written | **no golden case at all.** Renders through the same path as `Label`; `:hover` is Phase 7 |
-| `ScrollView` | — | Phase 7 |
-| `TextField` | — | Phase 7 |
-| `Toggle` | — | Phase 7 |
-| `Slider` / `SliderInt` | — | Phase 7 |
-| `Foldout` | — | Phase 7 |
-| `DropdownField` | — | Phase 7 |
-| `ListView` | — | undecided |
-| `Image` | — | Phase 7 |
+| `Button` | verified | six golden cases compared against Unity. Its label is **centred**, found by the eye check. Carries Unity's **default `margin: 1px 3px`** (`src/controls/theme.ts`); honours `:hover` and the other states |
+| `ScrollView` | verified | reproduces the **three implicit levels** (`unity-content-and-vertical-scroll-container` → `unity-content-viewport` → `unity-content-container`); three golden cases compared against Unity. The scrollbar's **width is reserved (13px) but nothing is drawn** — dragging, wheeling and scroll position are outside a static render |
+| `TextField` | fallback | its `text` / `label` is not drawn |
+| `Toggle` | fallback | as above |
+| `Slider` / `SliderInt` | fallback | as above |
+| `Foldout` | fallback | as above |
+| `DropdownField` | fallback | as above |
+| `ListView` | fallback | undecided |
+| `Image` | verified (visually) | has its own renderer (`unity-image`). Its picture arrives through USS `background-image` — a texture assigned from C# leaves no path a preview can follow. **Not compared to Unity** |
 
-> Parsing succeeds for unsupported controls. They stay in the tree marked
-> unsupported, are excluded from rendering, and are reported as warnings.
-> **They survive a round trip unchanged** — the playground's `round-trip: exact`
-> indicator is that guarantee checked live.
+> **A control with no renderer of its own is drawn as a `VisualElement`**
+> (`fallback`). Its own styles and its children come out normally; what is
+> missing is whatever makes that control look like itself — scrollbars, an input
+> field, an implicit child hierarchy. One warning is reported per element.
+>
+> This reverses v0.1, which dropped the whole subtree. Losing half a screen to
+> one unfamiliar tag is a defect rather than a scope limit, and a screen like
+> that gives you nothing to judge the rest of the render by.
+>
+> Parsing succeeds either way, and **nothing is lost in a round trip** — the
+> playground's `round-trip: exact` indicator is that guarantee checked live.
 
 ## USS properties
 
@@ -69,6 +76,7 @@ matched** ([`accuracy.en.md`](accuracy.en.md)).
 | `-unity-font-definition` | B | written | warns and falls back to the browser default font |
 | `-unity-font-style` | B | written | |
 | `-unity-text-align` | B | written | vertical+horizontal pair. Text cases are excluded from comparison |
+| `-unity-background-scale-mode` | A | **default verified** | `stretch-to-fill`→`100% 100%`, `scale-and-crop`→`cover`, `scale-to-fit`→`contain`. The `stretch-to-fill` default was confirmed by the eye check (`docs/visual-check.md`); the other two values are not on the representative screen and remain **individually unconfirmed** |
 | `-unity-slice-*` | A | **not implemented** | warning only |
 | `-unity-background-image-tint-color` | A | **not implemented** | no CSS equivalent; warning only |
 | `-unity-text-outline-*` | B | not implemented | |
@@ -93,6 +101,28 @@ Selectors: siblings (`+`, `~`), `:nth-child`, `:first/last-child`, `:not()`,
 > A rule containing any unsupported selector fragment is dropped **whole**, with
 > one warning naming the fragment. The parser still stores it, so the rule
 > round-trips intact.
+
+## Pseudo-class states
+
+`:hover`, `:active`, `:focus`, `:disabled`, `:checked`, `:selected` and
+`:inactive` are honoured as **styling**. States are explicit input rather than
+mouse events:
+
+```ts
+render(doc, el, { states: { '#UseButton': ['hover'], '#DropButton': ['disabled'] } });
+```
+
+Keys are USS selectors, and states are per element — a real screen has one
+button hovered while another is disabled, which a single document-wide set
+cannot express.
+
+- Nothing changes state because a pointer moved. The same call always draws the
+  same picture, which is what makes it comparable to Unity, or to yesterday.
+- Keys are matched against the tree with **no states active**, so `:hover`
+  inside a key is meaningless: it cannot switch itself on.
+- **Unity's own state defaults (a `:hover` background, say) are not included.**
+  A layout dump measures geometry, and a colour is not geometry, so there is no
+  way to prove them. Only state styling you wrote yourself applies.
 
 ## Version-dependent (needs checking)
 

@@ -320,4 +320,406 @@ export const CASES: GoldenCase[] = [
       '#middle-center {\n  -unity-text-align: middle-center;\n}\n' +
       '#lower-right {\n  -unity-text-align: lower-right;\n}\n',
   },
+
+  // --- Button, which has zero golden cases otherwise -----------------------
+  //
+  // What these can and cannot settle, established by mutation:
+  //
+  // Against *this* renderer the explicitly-sized ones are near-redundant. Make
+  // Button stop drawing its own text and only `button-sizes-to-text` notices;
+  // break border-box and `button-border-box` and `button-absolute-in-border`
+  // notice, but so do four VisualElement cases that already existed. Sized like
+  // this, our Button and our VisualElement are the same code path.
+  //
+  // Their value is in the Unity comparison, and it is a specific suspicion:
+  // Unity's default theme USS gives Button its own margin, padding and border,
+  // and this renderer applies none of them. If that is so, these cases fail on
+  // first contact with a Unity dump — which is the point of adding them.
+  // Until that dump exists they are drift detection and nothing more.
+  //
+  // In Unity, Button derives from TextElement: it draws its own text and has
+  // no child element of its own. Every case below gives width/height (or a
+  // sized parent) explicitly so the layout does not depend on FIXED_MEASURE,
+  // per the header note above. `text` is set on each Button for realism only
+  // — it never drives geometry here because no dimension is left for Yoga to
+  // measure.
+  {
+    name: 'button-border-box',
+    question: 'Does a Button (a TextElement, not a VisualElement) still size border-box?',
+    uxml: wrap('  <ui:Button name="button-border-box-btn" text="OK" />'),
+    uss:
+      '#button-border-box-btn {\n  width: 160px;\n  height: 80px;\n  padding: 20px;\n' +
+      '  border-top-width: 10px;\n  border-right-width: 10px;\n' +
+      '  border-bottom-width: 10px;\n  border-left-width: 10px;\n}\n',
+  },
+  {
+    name: 'button-row-margins',
+    question: 'Do margins between Buttons in a row add up the same way as between VisualElements?',
+    uxml: wrap(
+      '  <ui:VisualElement name="button-row-margins-row">\n' +
+        '    <ui:Button name="button-row-margins-a" text="A" />\n' +
+        '    <ui:Button name="button-row-margins-b" text="B" />\n' +
+        '    <ui:Button name="button-row-margins-c" text="C" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#button-row-margins-row {\n  flex-direction: row;\n  width: 400px;\n  height: 50px;\n}\n' +
+      '#button-row-margins-a, #button-row-margins-b, #button-row-margins-c {\n' +
+      '  width: 80px;\n  height: 40px;\n}\n' +
+      '#button-row-margins-a, #button-row-margins-b {\n  margin-right: 10px;\n}\n',
+  },
+  {
+    name: 'button-flex-grow',
+    question: 'Does flex-grow expand a Button to fill remaining row space the same as a VisualElement?',
+    uxml: wrap(
+      '  <ui:VisualElement name="button-flex-grow-row">\n' +
+        '    <ui:Button name="button-flex-grow-fixed" text="Fixed" />\n' +
+        '    <ui:Button name="button-flex-grow-grow" text="Grow" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#button-flex-grow-row {\n  flex-direction: row;\n  width: 300px;\n  height: 50px;\n}\n' +
+      '#button-flex-grow-fixed {\n  width: 100px;\n}\n' +
+      '#button-flex-grow-grow {\n  flex-grow: 1;\n}\n',
+  },
+  {
+    name: 'button-absolute-in-border',
+    question:
+      "Does an absolutely positioned Button sit inside its bordered parent's border box, " +
+      'the same as a VisualElement child would?',
+    uxml: wrap(
+      '  <ui:VisualElement name="button-absolute-in-border-frame">\n' +
+        '    <ui:Button name="button-absolute-in-border-btn" text="X" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#button-absolute-in-border-frame {\n  width: 200px;\n  height: 200px;\n' +
+      '  border-top-width: 10px;\n  border-right-width: 10px;\n' +
+      '  border-bottom-width: 10px;\n  border-left-width: 10px;\n}\n' +
+      '#button-absolute-in-border-btn {\n  position: absolute;\n  left: 0;\n  top: 0;\n' +
+      '  width: 50px;\n  height: 30px;\n}\n',
+  },
+  {
+    name: 'button-align-items',
+    question: 'Does align-items: center on the parent center a Button on the cross axis?',
+    uxml: wrap(
+      '  <ui:VisualElement name="button-align-items-row">\n' +
+        '    <ui:Button name="button-align-items-btn" text="Center" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#button-align-items-row {\n  flex-direction: row;\n  align-items: center;\n' +
+      '  width: 200px;\n  height: 100px;\n}\n' +
+      '#button-align-items-btn {\n  width: 60px;\n  height: 30px;\n}\n',
+  },
+  {
+    name: 'theme-class-hook',
+    // Written to make an assumption falsifiable, and it has since been judged.
+    // src/controls/theme.ts targets `.unity-button` because that is Unity's
+    // documented `Button.ussClassName`, but the margin dumps proved the spacing,
+    // not the selector delivering it. Unity answered on 2026-08-05: 120×40, the
+    // same as ours, so the class does reach a bare <ui:Button>. Kept as a
+    // regression guard — if Unity ever stops putting that class on, this is
+    // where it shows.
+    question: 'Does a `.unity-button` rule in author USS reach a plain <ui:Button>?',
+    uxml: wrap(
+      '  <ui:VisualElement name="theme-class-hook-holder">\n' +
+        '    <ui:Button name="theme-class-hook-btn" text="Hook" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#theme-class-hook-holder {\n  align-items: flex-start;\n' +
+      '  width: 300px;\n  height: 100px;\n}\n' +
+      '.unity-button {\n  width: 120px;\n  height: 40px;\n}\n' +
+      '#theme-class-hook-btn {\n  margin: 0;\n}\n',
+  },
+
+  // --- ScrollView, whose hierarchy has to be observed before it is built -----
+  //
+  // Written before any implementation exists, on purpose. A ScrollView is one
+  // tag that becomes three elements in Unity, and it is that hierarchy which
+  // decides where every child inside it lands. Implementing first and writing
+  // cases after would let whatever structure got built become the right answer.
+  //
+  // These cases carry no expected numbers, because none are ours to invent.
+  // The dumper walks Unity's real visual tree and names of implicit parts
+  // (`unity-content-viewport`, `unity-content-container`, the scrollers) appear
+  // in the output on their own. So the dump *is* the specification: run it,
+  // read the structure out of the result, then make the renderer agree.
+  //
+  // One ScrollView per case, deliberately. The implicit parts are named the
+  // same in every ScrollView, and the dump is a JSON object keyed by name --
+  // two in one case would silently overwrite each other.
+  {
+    name: 'scrollview-hierarchy',
+    question:
+      'What elements does a ScrollView actually create, and where do they sit ' +
+      'inside it?',
+    uxml: wrap(
+      '  <ui:ScrollView name="sv-plain">\n' +
+        '    <ui:VisualElement name="sv-plain-child" />\n' +
+        '  </ui:ScrollView>',
+    ),
+    uss:
+      '#sv-plain {\n  width: 200px;\n  height: 120px;\n}\n' +
+      '#sv-plain-child {\n  width: 60px;\n  height: 40px;\n}\n',
+  },
+  {
+    name: 'scrollview-overflowing',
+    question:
+      'Where do children sit once the content is taller than the ScrollView, ' +
+      'and how much room does the vertical scrollbar take from the viewport?',
+    uxml: wrap(
+      '  <ui:ScrollView name="sv-over">\n' +
+        '    <ui:VisualElement name="sv-over-a" />\n' +
+        '    <ui:VisualElement name="sv-over-b" />\n' +
+        '    <ui:VisualElement name="sv-over-c" />\n' +
+        '  </ui:ScrollView>',
+    ),
+    uss:
+      '#sv-over {\n  width: 200px;\n  height: 100px;\n}\n' +
+      '#sv-over-a, #sv-over-b, #sv-over-c {\n  height: 60px;\n}\n',
+  },
+  {
+    name: 'scrollview-padding',
+    question:
+      "Does a ScrollView's own padding apply to it, to its viewport, or to its " +
+      'content container?',
+    uxml: wrap(
+      '  <ui:ScrollView name="sv-pad">\n' +
+        '    <ui:VisualElement name="sv-pad-child" />\n' +
+        '  </ui:ScrollView>',
+    ),
+    uss:
+      '#sv-pad {\n  width: 200px;\n  height: 120px;\n  padding: 15px;\n' +
+      '  border-top-width: 5px;\n  border-right-width: 5px;\n' +
+      '  border-bottom-width: 5px;\n  border-left-width: 5px;\n}\n' +
+      '#sv-pad-child {\n  width: 50px;\n  height: 30px;\n}\n',
+  },
+
+  // --- pseudo-class states, made measurable ---------------------------------
+  //
+  // `:disabled` is the one state Unity enters statically, through
+  // `enabled="false"`, so it is the only one a coordinate dump can judge. Wiring
+  // it to a *width* rather than a colour is what turns "did the state apply?"
+  // into a number: 120 means Unity matched `:disabled`, 40 means it did not.
+  //
+  // That answer carries further than itself. `:hover` runs through the same
+  // selector matching, specificity and cascade; the only difference is the
+  // trigger, and triggers are explicit input here by design (plan §3.2). So this
+  // case judges the machinery, and hover inherits the verdict.
+  {
+    name: 'states-disabled',
+    question:
+      'Does Unity apply `:disabled` to an element marked enabled="false", and ' +
+      'does it beat the plain type rule the way our cascade says?',
+    uxml: wrap(
+      '  <ui:VisualElement name="states-disabled-holder">\n' +
+        '    <ui:Button name="states-disabled-on" text="Off" enabled="false" />\n' +
+        '    <ui:Button name="states-disabled-off" text="On" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#states-disabled-holder {\n  align-items: flex-start;\n' +
+      '  width: 300px;\n  height: 120px;\n}\n' +
+      'Button {\n  width: 40px;\n  height: 30px;\n  margin: 0;\n}\n' +
+      'Button:disabled {\n  width: 120px;\n}\n',
+  },
+
+  // --- what promoting the visual tree will overturn -------------------------
+  //
+  // Moving the cascade onto the visual tree changes what `>` means, and the
+  // change has to be measured rather than chosen. A slot's real parent is the
+  // ScrollView's content container, not the ScrollView — so in Unity
+  // `#cc-grid > .cc-slot` should reach nothing, while against our current model
+  // tree it matches. Whichever way Unity answers is the answer.
+  //
+  // Written as a width so the existing coordinate dump can judge it: 99 means
+  // the child combinator matched, 40 means it did not.
+  {
+    name: 'child-combinator-through-parts',
+    question:
+      'Does `#Grid > .slot` reach a slot whose real parent is the ScrollView\'s ' +
+      'content container?',
+    uxml: wrap(
+      '  <ui:ScrollView name="cc-grid">\n' +
+        '    <ui:VisualElement name="cc-slot" class="cc-slot" />\n' +
+        '  </ui:ScrollView>',
+    ),
+    uss:
+      '#cc-grid {\n  width: 200px;\n  height: 120px;\n}\n' +
+      '.cc-slot {\n  width: 40px;\n  height: 40px;\n}\n' +
+      '#cc-grid > .cc-slot {\n  width: 99px;\n}\n',
+  },
+  {
+    name: 'disabled-inherits',
+    // `SetEnabled(false)` is documented to disable the subtree, but documented
+    // is not measured — the same distinction that made `.unity-button` a
+    // hypothesis until a case judged it. 120 means `:disabled` reached the
+    // child, 40 means being inside a disabled element is not enough.
+    question: 'Does enabled="false" on a parent put its children into :disabled too?',
+    uxml: wrap(
+      '  <ui:VisualElement name="di-holder" enabled="false">\n' +
+        '    <ui:Button name="di-child" text="In" />\n' +
+        '  </ui:VisualElement>\n' +
+        '  <ui:VisualElement name="di-other">\n' +
+        '    <ui:Button name="di-loose" text="Out" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#di-holder, #di-other {\n  align-items: flex-start;\n' +
+      '  width: 300px;\n  height: 60px;\n}\n' +
+      'Button {\n  width: 40px;\n  height: 30px;\n  margin: 0;\n}\n' +
+      'Button:disabled {\n  width: 120px;\n}\n',
+  },
+
+  // --- how far a state rule outranks an ordinary one ------------------------
+  //
+  // The representative screen settled that it *does*: Unity paints the disabled
+  // Drop button with `Button:disabled`'s colour even though `#DropButton` also
+  // matches, and by CSS specificity (1,0,0) beats (0,1,1). Measured from the
+  // screenshots by sampling pixels, not by eye.
+  //
+  // What that does not say is how far it goes, and guessing the rule from one
+  // observation is what `.unity-button` taught us not to do. These two ask the
+  // question as geometry so the coordinate dump answers it: 120 means the state
+  // rule won, 40 means it did not.
+  {
+    name: 'state-vs-id',
+    question: 'Does a `:disabled` rule beat an `#id` rule, which outranks it in CSS?',
+    uxml: wrap(
+      '  <ui:VisualElement name="svi-holder">\n' +
+        '    <ui:Button name="svi-btn" text="A" enabled="false" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#svi-holder {\n  align-items: flex-start;\n  width: 300px;\n  height: 80px;\n}\n' +
+      'Button {\n  height: 30px;\n  margin: 0;\n}\n' +
+      '#svi-btn {\n  width: 40px;\n}\n' +
+      'Button:disabled {\n  width: 120px;\n}\n',
+  },
+  {
+    name: 'state-vs-inline',
+    // The other end of the range. Inline styles beat every selector in USS, so
+    // if a state rule beats them too then states are not specificity at all but
+    // a separate stage of the cascade.
+    question: 'Does a `:disabled` rule beat an inline `style` attribute?',
+    uxml: wrap(
+      '  <ui:VisualElement name="svl-holder">\n' +
+        '    <ui:Button name="svl-btn" text="A" enabled="false" style="width: 40px;" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#svl-holder {\n  align-items: flex-start;\n  width: 300px;\n  height: 80px;\n}\n' +
+      'Button {\n  height: 30px;\n  margin: 0;\n}\n' +
+      'Button:disabled {\n  width: 120px;\n}\n',
+  },
+
+  // --- the representative screen --------------------------------------------
+  //
+  // The S1 plan's §2 tree, written out as-is. It is deliberately not adjusted
+  // to what this renderer happens to support: the point of a representative
+  // screen is that it looks like work, and anything it asks for that we cannot
+  // do is a finding rather than a reason to edit the screen.
+  //
+  // Sizes are explicit throughout so the geometry is comparable to Unity —
+  // text still wraps inside the boxes for the screenshot, but it does not
+  // decide where anything goes, which would compare font metrics instead.
+  //
+  // Two things here exist to be judged rather than to look good: the count
+  // badge sits over the icon with no z-index anywhere (USS decides overlap by
+  // sibling order), and DropButton is `enabled="false"`.
+  {
+    name: 'inventory',
+    question: 'Does a screen that looks like real work land where Unity puts it?',
+    uxml: wrap(
+      '  <ui:VisualElement name="InventoryRoot">\n' +
+        '    <ui:VisualElement name="Header">\n' +
+        '      <ui:Label name="TitleLabel" text="Inventory" />\n' +
+        '      <ui:Button name="CloseButton" text="X" />\n' +
+        '    </ui:VisualElement>\n' +
+        '    <ui:ScrollView name="ItemGrid">\n' +
+        [0, 1, 2, 3, 4, 5]
+          .map(
+            (i) =>
+              `      <ui:VisualElement name="ItemSlot${i}" class="slot">\n` +
+              `        <ui:Image name="ItemIcon${i}" class="icon" />\n` +
+              `        <ui:Label name="ItemCount${i}" class="count" text="12" />\n` +
+              '      </ui:VisualElement>\n',
+          )
+          .join('') +
+        '    </ui:ScrollView>\n' +
+        '    <ui:VisualElement name="Footer">\n' +
+        '      <ui:VisualElement name="DetailPanel">\n' +
+        '        <ui:Label name="ItemName" text="Iron Sword" />\n' +
+        '        <ui:Label name="ItemDesc" text="A plain blade, notched from use. Sells for very little." />\n' +
+        '      </ui:VisualElement>\n' +
+        '      <ui:VisualElement name="ActionBar">\n' +
+        '        <ui:Button name="UseButton" text="Use" />\n' +
+        '        <ui:Button name="DropButton" text="Drop" enabled="false" />\n' +
+        '      </ui:VisualElement>\n' +
+        '    </ui:VisualElement>\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#InventoryRoot {\n  width: 400px;\n  height: 300px;\n' +
+      '  background-color: rgb(34, 36, 42);\n}\n' +
+      '#Header {\n  flex-direction: row;\n  height: 40px;\n' +
+      '  justify-content: space-between;\n  align-items: center;\n' +
+      '  padding-left: 12px;\n  padding-right: 12px;\n' +
+      '  background-color: rgb(24, 26, 31);\n}\n' +
+      '#TitleLabel {\n  width: 200px;\n  height: 20px;\n' +
+      '  color: rgb(232, 232, 236);\n  -unity-font-style: bold;\n}\n' +
+      '#CloseButton {\n  width: 28px;\n  height: 28px;\n  margin: 0;\n' +
+      '  background-color: rgb(58, 44, 44);\n  color: rgb(232, 200, 200);\n' +
+      '  border-top-left-radius: 4px;\n  border-top-right-radius: 4px;\n' +
+      '  border-bottom-left-radius: 4px;\n  border-bottom-right-radius: 4px;\n}\n' +
+      '#ItemGrid {\n  flex-grow: 1;\n}\n' +
+      // Targets the ScrollView's own content container, which is where a real
+      // project puts grid styling — the ScrollView's children are not the
+      // file's children. Whether an author rule can reach a part at all is one
+      // of the things this screen is here to find out.
+      '#unity-content-container {\n  flex-direction: row;\n  flex-wrap: wrap;\n  padding: 8px;\n}\n' +
+      '.slot {\n  width: 84px;\n  height: 84px;\n  margin: 4px;\n' +
+      '  background-color: rgb(48, 51, 59);\n' +
+      '  border-top-width: 1px;\n  border-right-width: 1px;\n' +
+      '  border-bottom-width: 1px;\n  border-left-width: 1px;\n' +
+      '  border-top-color: rgb(70, 74, 84);\n  border-right-color: rgb(70, 74, 84);\n' +
+      '  border-bottom-color: rgb(70, 74, 84);\n  border-left-color: rgb(70, 74, 84);\n}\n' +
+      '.icon {\n  width: 64px;\n  height: 64px;\n' +
+      '  background-image: url("project://database/Assets/GoldenCases/icon.png");\n}\n' +
+      // Absolute, bottom-right, and written *after* the icon: USS has no
+      // z-index, so being the later sibling is the only thing putting this on
+      // top. If that rule were wrong the badge would vanish behind the icon.
+      '.count {\n  position: absolute;\n  right: 4px;\n  bottom: 2px;\n' +
+      '  width: 24px;\n  height: 16px;\n  color: rgb(255, 236, 180);\n' +
+      '  -unity-text-align: middle-right;\n}\n' +
+      '#Footer {\n  flex-direction: row;\n  height: 100px;\n  padding: 8px;\n' +
+      '  background-color: rgb(24, 26, 31);\n}\n' +
+      '#DetailPanel {\n  flex-grow: 1;\n  padding-right: 8px;\n}\n' +
+      '#ItemName {\n  height: 20px;\n  color: rgb(232, 232, 236);\n' +
+      '  -unity-font-style: bold;\n}\n' +
+      '#ItemDesc {\n  height: 56px;\n  color: rgb(160, 164, 174);\n' +
+      '  white-space: normal;\n}\n' +
+      '#ActionBar {\n  width: 96px;\n}\n' +
+      'Button {\n  height: 30px;\n}\n' +
+      '#UseButton, #DropButton {\n  margin: 0;\n  margin-bottom: 6px;\n' +
+      '  background-color: rgb(58, 74, 104);\n  color: rgb(226, 232, 244);\n}\n' +
+      '#UseButton:hover {\n  background-color: rgb(84, 108, 150);\n}\n' +
+      'Button:disabled {\n  background-color: rgb(40, 42, 48);\n' +
+      '  color: rgb(104, 108, 118);\n}\n',
+  },
+  {
+    name: 'button-sizes-to-text',
+    question: 'Does a Button with no declared size size itself to its text, the way a Label does?',
+    measuresText: true,
+    uxml: wrap(
+      '  <ui:VisualElement name="button-sizes-to-text-holder">\n' +
+        '    <ui:Button name="button-sizes-to-text-btn" text="Confirm" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#button-sizes-to-text-holder {\n  align-items: flex-start;\n  width: 300px;\n  height: 100px;\n}\n' +
+      '#button-sizes-to-text-btn {\n  font-size: 20px;\n}\n',
+  },
 ];

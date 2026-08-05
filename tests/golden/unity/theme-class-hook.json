@@ -1,0 +1,7 @@
+{
+  "panel": { "width": 400, "height": 300 },
+  "elements": {
+    "theme-class-hook-holder": { "x": 0, "y": 0, "width": 300, "height": 100 },
+    "theme-class-hook-btn": { "x": 0, "y": 0, "width": 120, "height": 40 }
+  }
+}

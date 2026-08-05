@@ -1,0 +1,11 @@
+{
+  "elements": {
+    "asset-background-unresolved-box": {
+      "background-image": "repeating-linear-gradient(45deg, rgba(255, 0, 255, 0.35) 0 6px, rgba(0, 0, 0, 0) 6px 12px)",
+      "box-sizing": "border-box"
+    }
+  },
+  "warnings": [
+    "asset-unresolved: background-image: \"project://database/Assets/missing.png\" was not resolved"
+  ]
+}

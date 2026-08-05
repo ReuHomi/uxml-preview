@@ -1,0 +1,23 @@
+{
+  "elements": {
+    "visual-text-align-upper-left": {
+      "align-items": "flex-start",
+      "box-sizing": "border-box",
+      "display": "flex",
+      "justify-content": "flex-start"
+    },
+    "visual-text-align-middle-center": {
+      "align-items": "center",
+      "box-sizing": "border-box",
+      "display": "flex",
+      "justify-content": "center"
+    },
+    "visual-text-align-lower-right": {
+      "align-items": "flex-end",
+      "box-sizing": "border-box",
+      "display": "flex",
+      "justify-content": "flex-end"
+    }
+  },
+  "warnings": []
+}

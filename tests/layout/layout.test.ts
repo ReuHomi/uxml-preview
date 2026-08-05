@@ -30,8 +30,8 @@ const SIZE = { width: 200, height: 100 };
 
 function build(body: string, uss = ''): { doc: UxmlDocument; tree: ReturnType<typeof layoutDocument> } {
   const doc = parse(`<ui:UXML xmlns:ui="UnityEngine.UIElements">${body}</ui:UXML>`, uss);
-  const { styles } = resolveStyles(doc);
-  return { doc, tree: layoutDocument(doc.root, styles, { size: SIZE, measureText }) };
+  const { styles, partStyles } = resolveStyles(doc);
+  return { doc, tree: layoutDocument(doc.root, styles, partStyles, { size: SIZE, measureText }) };
 }
 
 function named(node: ElementNode, name: string): ElementNode {
@@ -209,11 +209,86 @@ describe('display', () => {
   });
 });
 
-describe('unsupported controls', () => {
-  it('are not drawn, and are reported once', () => {
-    const { doc, tree } = build('<ui:ScrollView name="s"><ui:Label text="x" /></ui:ScrollView>');
-    expect(tree.boxes.has(named(doc.root, 's').id)).toBe(false);
+/**
+ * The fallback is the default path, not an error path (S1 plan §5.3). A control
+ * this version has no renderer for is drawn as a plain VisualElement, because a
+ * screen that silently loses a subtree is worse than one drawn approximately.
+ */
+describe('controls with no renderer', () => {
+  it('are laid out as plain boxes, and reported once each', () => {
+    const { doc, tree } = build('<ui:Foldout name="s"><ui:Label name="l" text="x" /></ui:Foldout>');
+    expect(tree.boxes.has(named(doc.root, 's').id)).toBe(true);
     expect(tree.warnings.filter((w) => w.kind === 'unsupported-control')).toHaveLength(1);
+    tree.dispose();
+  });
+
+  it('do not take their children down with them', () => {
+    const { doc, tree } = build(
+      '<ui:Foldout name="s"><ui:Button name="b" text="ok" /></ui:Foldout>',
+      '#s { width: 80px; height: 40px; } #b { height: 10px; }',
+    );
+    const button = tree.boxes.get(named(doc.root, 'b').id)!;
+    expect(button).toBeDefined();
+    expect(button.height).toBe(10);
+    // Laid out *through* the fallback: stretched by the ScrollView's cross axis,
+    // which only happens if the fallback is a real parent in the Yoga tree.
+    // 80 less Unity's default Button margin of 3px a side (src/controls/theme.ts).
+    expect(button.width).toBe(74);
+    tree.dispose();
+  });
+
+  it('nest, so an unknown control inside an unknown control still draws', () => {
+    const { doc, tree } = build(
+      '<ui:Foldout name="f"><ui:Slider name="s"><ui:Label name="l" text="x" /></ui:Slider></ui:Foldout>',
+    );
+    for (const name of ['f', 's', 'l']) {
+      expect(tree.boxes.has(named(doc.root, name).id)).toBe(true);
+    }
+    expect(tree.warnings.filter((w) => w.kind === 'unsupported-control')).toHaveLength(2);
+    tree.dispose();
+  });
+
+  it('say that a text attribute they carry is not drawn', () => {
+    const { tree } = build('<ui:Foldout name="f" text="Stats" />');
+    const warning = tree.warnings.find((w) => w.kind === 'unsupported-control')!;
+    expect(warning.message).toContain('text attribute is not drawn');
+    tree.dispose();
+  });
+
+  // Everything deriving from BaseField calls its caption `label`, so a warning
+  // that only looked at `text` would let a Toggle's caption vanish in silence.
+  it('say the same about a label attribute', () => {
+    const { tree } = build('<ui:Toggle name="t" label="Enabled" />');
+    const warning = tree.warnings.find((w) => w.kind === 'unsupported-control')!;
+    expect(warning.message).toContain('label attribute is not drawn');
+    tree.dispose();
+  });
+
+  it('name both when a control carries both', () => {
+    const { tree } = build('<ui:TextField name="t" label="Name" text="typed" />');
+    const warning = tree.warnings.find((w) => w.kind === 'unsupported-control')!;
+    expect(warning.message).toContain('text and label attributes are not drawn');
+    tree.dispose();
+  });
+
+  it('stay quiet about an empty caption', () => {
+    const { tree } = build('<ui:Toggle name="t" label="" />');
+    const warning = tree.warnings.find((w) => w.kind === 'unsupported-control')!;
+    expect(warning.message).not.toContain('not drawn');
+    tree.dispose();
+  });
+
+  it('do not report the document element, which is the panel box', () => {
+    const { tree } = build('<ui:VisualElement name="a" />');
+    expect(tree.warnings.filter((w) => w.kind === 'unsupported-control')).toHaveLength(0);
+    tree.dispose();
+  });
+
+  it('do not report Image, which has a renderer of its own', () => {
+    const { doc, tree } = build('<ui:Image name="i" />', '#i { width: 40px; height: 40px; }');
+    expect(tree.warnings.filter((w) => w.kind === 'unsupported-control')).toHaveLength(0);
+    // A box, not a text control: an Image draws a texture and has no caption.
+    expect(tree.boxes.get(named(doc.root, 'i').id)!.width).toBe(40);
     tree.dispose();
   });
 });

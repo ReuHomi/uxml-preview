@@ -1,0 +1,20 @@
+{
+  "elements": {
+    "visual-nested-outer": {
+      "background-color": "rgb(60, 60, 60)",
+      "box-sizing": "border-box",
+      "opacity": "0.5"
+    },
+    "visual-nested-inner": {
+      "align-items": "center",
+      "background-color": "rgb(90, 110, 160)",
+      "box-sizing": "border-box",
+      "display": "flex",
+      "justify-content": "center",
+      "opacity": "0.5"
+    }
+  },
+  "warnings": [
+    "version-dependent: Unity's control defaults were applied, as measured on 6000.0.40f1 (Unity ships these as a theme stylesheet). Other versions may use different values; see src/controls/theme.ts."
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "panel": { "width": 400, "height": 300 },
+  "elements": {
+    "states-disabled-holder": { "x": 0, "y": 0, "width": 300, "height": 120 },
+    "states-disabled-on": { "x": 0, "y": 0, "width": 120, "height": 30 },
+    "states-disabled-off": { "x": 0, "y": 30, "width": 40, "height": 30 }
+  }
+}

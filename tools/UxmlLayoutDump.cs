@@ -211,11 +211,41 @@ namespace UxmlPreview.Golden
         private void Write(string name)
         {
             var entries = new List<string>();
-            Collect(_stage, _stage.worldBound, entries);
+            var seen = new List<string>();
+            Collect(_stage, _stage.worldBound, entries, seen);
 
             if (entries.Count == 0)
             {
                 _log.Add($"{name}: WARNING, no named elements found");
+            }
+
+            // Names are the join key on both sides and the file is a JSON object,
+            // so a repeat would silently overwrite: JSON.parse keeps the last and
+            // the comparison never learns the other existed. Unity supplies plenty
+            // of repeats -- a ScrollView's horizontal and vertical scrollers hold
+            // identically named parts -- so repeats get an ordinal suffix instead
+            // of being dropped. Names that occur once are untouched, which keeps
+            // every existing baseline byte-identical.
+            var counts = new Dictionary<string, int>();
+            foreach (string n in seen)
+            {
+                counts[n] = counts.ContainsKey(n) ? counts[n] + 1 : 1;
+            }
+            var ordinals = new Dictionary<string, int>();
+            var duplicated = new List<string>();
+            for (int i = 0; i < seen.Count; i++)
+            {
+                if (counts[seen[i]] == 1) continue;
+                int next = ordinals.ContainsKey(seen[i]) ? ordinals[seen[i]] + 1 : 1;
+                ordinals[seen[i]] = next;
+                // Tree order, so the suffix is stable between runs.
+                entries[i] = entries[i].Replace($"\"{seen[i]}\":", $"\"{seen[i]}#{next}\":");
+                if (next == 1) duplicated.Add(seen[i]);
+            }
+            if (duplicated.Count > 0)
+            {
+                _log.Add($"{name}: repeated names, suffixed #1..#n in tree order -- " +
+                    string.Join(", ", duplicated));
             }
 
             var sb = new StringBuilder();
@@ -231,20 +261,37 @@ namespace UxmlPreview.Golden
             _log.Add($"{name}: {entries.Count} elements");
         }
 
-        private static void Collect(VisualElement element, Rect origin, List<string> into)
+        /// Walks `hierarchy`, the physical tree, and NOT `Children()`.
+        ///
+        /// The difference is invisible until a control builds children of its
+        /// own, and then it is the whole point. `Children()` iterates the
+        /// element's *contentContainer*, which ScrollView overrides to be its
+        /// `#unity-content-container` -- so asking a ScrollView for its children
+        /// hands back the user's elements and hides the two levels in between.
+        /// The first dump taken this way reported a ScrollView case as two
+        /// elements, exactly as if the implicit hierarchy did not exist.
+        ///
+        /// `hierarchy` has no such redirection. It is what decides where every
+        /// child of a scroll region actually lands, so it is what gets measured.
+        private static void Collect(VisualElement element, Rect origin, List<string> into,
+            List<string> seen)
         {
-            foreach (VisualElement child in element.Children())
+            // Indexer rather than an enumerator: `hierarchy` exposes childCount
+            // and [i] on every version this tool targets.
+            for (int i = 0; i < element.hierarchy.childCount; i++)
             {
+                VisualElement child = element.hierarchy[i];
                 // Only named elements are comparable: `name` is the key the web
                 // side joins on. Unnamed elements are walked through, not dumped.
                 if (!string.IsNullOrEmpty(child.name))
                 {
+                    seen.Add(child.name);
                     Rect w = child.worldBound;
                     into.Add(string.Format(CultureInfo.InvariantCulture,
                         "    \"{0}\": {{ \"x\": {1}, \"y\": {2}, \"width\": {3}, \"height\": {4} }}",
                         child.name, R(w.x - origin.x), R(w.y - origin.y), R(w.width), R(w.height)));
                 }
-                Collect(child, origin, into);
+                Collect(child, origin, into, seen);
             }
         }
 

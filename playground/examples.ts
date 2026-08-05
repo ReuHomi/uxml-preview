@@ -6,6 +6,8 @@
  * one render live is worth more than a paragraph explaining it.
  */
 
+import { CASES, PANEL } from '../tests/golden/cases';
+
 export interface Example {
   name: string;
   uxml: string;
@@ -13,7 +15,45 @@ export interface Example {
   panel?: { width: number; height: number };
 }
 
+/**
+ * The one asset the examples reference, inlined.
+ *
+ * 64×16 on purpose: the three `-unity-background-scale-mode` values are
+ * indistinguishable on a square image, and judging that mapping by eye is what
+ * this exists for. Byte-for-byte the same file Unity imports as
+ * `tests/golden/assets/icon.png`, so both sides are looking at one picture.
+ */
+const ICON =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAIAAAAphe5+AAAAM0lEQVR4nO3P' +
+  'QQ0AAAzCwOlD1zRih6nYg6RNDdykvEli6W+t/wYAAAAAAAAAAADQD6juABdmAFJnsc7KAAAAAElFTkSuQmCC';
+
+/**
+ * Purpose:      stand in for the host application's asset resolution.
+ * Ensures:      returns null for anything it does not know, so the placeholder
+ *               and its warning stay reachable — that path is the interesting
+ *               one for everybody whose project this playground is not.
+ */
+export function resolveAsset(path: string): string | null {
+  return path.endsWith('/icon.png') ? ICON : null;
+}
+
+/**
+ * The representative screen, taken from the golden set rather than retyped.
+ *
+ * This is the exact document Unity measured, which is the only reason a
+ * screenshot of it is worth anything: a copy that drifted by one declaration
+ * would put the two pictures out of step without either side saying so. The
+ * panel size matches the dump's too, so the eye check compares like with like.
+ */
+const inventory = CASES.find((c) => c.name === 'inventory')!;
+
 export const EXAMPLES: Example[] = [
+  {
+    name: 'Representative screen (compared against Unity)',
+    panel: PANEL,
+    uxml: inventory.uxml,
+    uss: inventory.uss,
+  },
   {
     name: 'Inventory panel',
     panel: { width: 640, height: 360 },
@@ -256,14 +296,21 @@ export const EXAMPLES: Example[] = [
     panel: { width: 640, height: 360 },
     uxml: `<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:custom="MyGame.UI">
   <!--
-    v0.1 draws VisualElement, Label and Button. ScrollView and the custom
-    control below are NOT drawn, and you should see two warnings for them
-    under the preview. That is the intended behaviour, not a failure:
-    one unsupported control must not take the whole screen down.
+    VisualElement, Label, Button, Image and ScrollView have renderers of
+    their own. The custom control below does not, so it is drawn as a plain
+    box -- you should see one warning for it under the preview. Note that
+    its contents would still be drawn: an unfamiliar tag costs its own
+    appearance and nothing below it.
 
-    They are not lost, either. "round-trip: exact" in the corner means
-    saving this document reproduces the text above byte for byte -- this
-    comment and both unsupported controls included.
+    What is missing from a fallback is only what makes that control look
+    like itself. Compare it with the ScrollView above, which is reproduced
+    properly: one tag, but four elements, because Unity builds a viewport
+    and a content container inside it. Those decide where its children
+    land, which is why a scroll region cannot be faked with one box.
+
+    Nothing is lost, either. "round-trip: exact" in the corner means saving
+    this document reproduces the text above byte for byte -- this comment
+    and both unsupported controls included.
 
     Try to make it say otherwise. Delete a closing tag, drop a quote,
     empty the whole file: it stays exact. Untouched text is copied out of
@@ -271,8 +318,10 @@ export const EXAMPLES: Example[] = [
   -->
   <ui:VisualElement class="pad">
     <ui:Label text="Drawn" class="ok" />
-    <ui:ScrollView>
-      <ui:Label text="not drawn, still in the tree" />
+    <ui:ScrollView style="width: 260px; height: 70px;">
+      <ui:Label text="inside a real viewport" class="ok" />
+      <ui:Label text="taller than the view, so it clips" class="ok" />
+      <ui:Label text="and this one is cut off" class="ok" />
     </ui:ScrollView>
     <custom:HealthBar value="0.8" />
     <ui:Label text="Drawn" class="ok" />

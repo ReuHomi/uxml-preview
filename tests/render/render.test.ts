@@ -9,7 +9,7 @@
 
 import { describe, it, expect, beforeAll } from 'vitest';
 
-import { parse, render, loadLayoutEngine, liveNodeCount, NODE_ATTRIBUTE } from '../../src/index';
+import { parse, render, loadLayoutEngine, liveNodeCount, NODE_ATTRIBUTE, PART_ATTRIBUTE } from '../../src/index';
 import type { MeasureText } from '../../src/index';
 import type { ElementNode } from '../../src/model/types';
 
@@ -254,5 +254,128 @@ describe('lifecycle', () => {
       result.dispose();
     }
     expect(liveNodeCount()).toBe(before);
+  });
+});
+
+/**
+ * S1 Step 1's completion check, at the layer a user actually sees: a control
+ * this version has no renderer for must not remove anything from the screen.
+ */
+describe('controls with no renderer', () => {
+  it('paints a Button that sits inside a ScrollView', () => {
+    const { doc, result } = draw(
+      '<ui:ScrollView name="s"><ui:Button name="b" text="Use" /></ui:ScrollView>',
+    );
+    const scrollView = result.elements.get(named(doc.root, 's').id);
+    const button = result.elements.get(named(doc.root, 'b').id);
+    expect(scrollView).toBeDefined();
+    expect(button).toBeDefined();
+    expect(scrollView!.contains(button!)).toBe(true);
+    expect(button!.textContent).toBe('Use');
+    result.dispose();
+  });
+
+  it('keeps provenance, so an editor can still trace the DOM back to the tree', () => {
+    const { doc, result } = draw('<ui:Foldout name="f"><ui:Slider name="s" /></ui:Foldout>');
+    for (const name of ['f', 's']) {
+      const node = named(doc.root, name);
+      const el = result.elements.get(node.id)!;
+      expect(el.getAttribute(NODE_ATTRIBUTE)).toBe(String(node.id));
+    }
+    result.dispose();
+  });
+
+  it('draws them as plain boxes: styles still apply, text does not', () => {
+    const { doc, result } = draw(
+      '<ui:TextField name="t" text="typed" />',
+      '#t { background-color: rgb(1, 2, 3); }',
+    );
+    const el = result.elements.get(named(doc.root, 't').id)!;
+    expect(el.style.backgroundColor).toBe('rgb(1, 2, 3)');
+    // Unity draws a TextField's text through a child element, so a fallback box
+    // that painted it itself would put the text in the wrong place.
+    expect(el.textContent).toBe('');
+    result.dispose();
+  });
+});
+
+/**
+ * Unity's Button derives from TextElement: it draws its own text and holds no
+ * child Label. Building `<button><span>` here would look right on screen and be
+ * wrong the moment anything inside is measured or positioned (S1 plan §3.3).
+ */
+describe('Button', () => {
+  it('draws its own text, with no child element to hold it', () => {
+    const { doc, result } = draw('<ui:Button name="b" text="Use" />');
+    const el = result.elements.get(named(doc.root, 'b').id)!;
+    expect(el.textContent).toBe('Use');
+    expect(el.children.length).toBe(0);
+    result.dispose();
+  });
+
+  it('is measured as a leaf, so its box is its own', () => {
+    const { doc, result } = draw('<ui:Button name="b" text="Use" />', '#b { font-size: 10px; }');
+    const box = result.boxes.get(named(doc.root, 'b').id)!;
+    // The stub measures half an em per character: 3 chars at 10px.
+    expect(box.height).toBe(10);
+    expect(result.elements.get(named(doc.root, 'b').id)!.children.length).toBe(0);
+  });
+});
+
+/**
+ * Parts a control builds for itself.
+ *
+ * Unity's ScrollView is one tag that becomes four elements, and a child of a
+ * ScrollView is not a child of the ScrollView. The coordinates are checked
+ * against Unity by tests/golden; what is checked here is the thing a dump
+ * cannot see — that these exist in the DOM, nest in the right order, and are
+ * distinguishable from elements the user actually wrote.
+ */
+describe('control parts', () => {
+  it('nests the file\'s children inside the innermost part', () => {
+    const { doc, result } = draw(
+      '<ui:ScrollView name="s"><ui:VisualElement name="c" /></ui:ScrollView>',
+      '#s { width: 100px; height: 60px; }',
+    );
+    const scrollView = result.elements.get(named(doc.root, 's').id)!;
+    const child = result.elements.get(named(doc.root, 'c').id)!;
+
+    const chain = ['unity-content-and-vertical-scroll-container', 'unity-content-viewport', 'unity-content-container'];
+    let host: Element = scrollView;
+    for (const name of chain) {
+      const next = host.firstElementChild!;
+      expect(next.getAttribute(PART_ATTRIBUTE)).toBe(name);
+      host = next;
+    }
+    // The child hangs off the innermost part, not off the ScrollView.
+    expect(child.parentElement).toBe(host);
+    expect(child.parentElement).not.toBe(scrollView);
+    result.dispose();
+  });
+
+  // A part has no node in the document, so an editor must be able to tell that
+  // there is nothing here to edit. Borrowing the owner's id would answer "which
+  // node is this?" with something that belongs to a different element.
+  it('marks a part as a part, and never as a node', () => {
+    const { doc, result } = draw('<ui:ScrollView name="s" />', '#s { width: 100px; height: 60px; }');
+    const part = result.elements.get(named(doc.root, 's').id)!.firstElementChild!;
+    expect(part.getAttribute(PART_ATTRIBUTE)).toBe('unity-content-and-vertical-scroll-container');
+    expect(part.hasAttribute(NODE_ATTRIBUTE)).toBe(false);
+    expect(part.getAttribute('data-uxml-part-owner')).toBe(String(named(doc.root, 's').id));
+    result.dispose();
+  });
+
+  it('frees the part nodes too', () => {
+    const before = liveNodeCount();
+    const { result } = draw('<ui:ScrollView name="s"><ui:Label text="x" /></ui:ScrollView>');
+    expect(liveNodeCount()).toBeGreaterThan(before + 3);
+    result.dispose();
+    expect(liveNodeCount()).toBe(before);
+  });
+
+  it('does not report ScrollView as unsupported any more', () => {
+    const { result } = draw('<ui:ScrollView name="s" />');
+    expect(result.warnings.filter((w) => w.kind === 'unsupported-control')).toHaveLength(0);
+    result.dispose();
   });
 });

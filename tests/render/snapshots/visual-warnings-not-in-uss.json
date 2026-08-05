@@ -1,0 +1,13 @@
+{
+  "elements": {
+    "visual-warnings-not-in-uss-box": {
+      "box-sizing": "border-box"
+    }
+  },
+  "warnings": [
+    "unsupported-property: box-shadow does not exist in USS and is ignored",
+    "unsupported-property: outline does not exist in USS and is ignored",
+    "unsupported-property: text-transform does not exist in USS and is ignored",
+    "unsupported-property: border-style does not exist in USS and is ignored"
+  ]
+}

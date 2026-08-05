@@ -1,0 +1,17 @@
+{
+  "elements": {
+    "visual-ovd-opacity": {
+      "box-sizing": "border-box",
+      "opacity": "0.5"
+    },
+    "visual-ovd-hidden": {
+      "box-sizing": "border-box",
+      "visibility": "hidden"
+    },
+    "visual-ovd-none": {
+      "box-sizing": "border-box",
+      "display": "none"
+    }
+  },
+  "warnings": []
+}

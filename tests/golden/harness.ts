@@ -61,26 +61,61 @@ export function runCase(
 ): CaseGeometry {
   const doc = parse(golden.uxml, golden.uss);
   const resolved = resolveStyles(doc);
-  const tree = layoutDocument(doc.root, resolved.styles, {
+  const tree = layoutDocument(doc.root, resolved.styles, resolved.partStyles, {
     size: panel,
     measureText: FIXED_MEASURE,
   });
 
-  const elements: Record<string, Rect> = {};
+  /**
+   * Collected in tree order first, keyed second.
+   *
+   * The key is a protocol shared with `tools/UxmlLayoutDump.cs`, and both sides
+   * have to implement it identically or the comparison silently comes apart.
+   * Assigning straight into an object looked equivalent right up until the
+   * dumper started suffixing repeats: Unity would send `unity-dragger#2` and
+   * this side would hold one unsuffixed entry, so every suffixed element read
+   * as missing while an earlier one was quietly overwritten.
+   */
+  const collected: Array<{ name: string; box: { left: number; top: number; width: number; height: number } }> = [];
+
   const walk = (node: ElementNode): void => {
     const name = nameOf(node);
     const box = tree.boxes.get(node.id);
-    if (name !== undefined && box !== undefined) {
-      elements[name] = {
-        x: round(box.left),
-        y: round(box.top),
-        width: round(box.width),
-        height: round(box.height),
-      };
+    if (name !== undefined && box !== undefined) collected.push({ name, box });
+
+    // Parts a control built are keyed by Unity's own name, which is the same
+    // key the dump uses. Without this the comparison cannot see them at all,
+    // and a wrong hierarchy would show up only as displaced children with no
+    // hint as to why.
+    for (const part of tree.parts.get(node.id) ?? []) {
+      collected.push({ name: part.name, box: part.box });
     }
+
     for (const child of node.children) walk(child);
   };
   walk(doc.root);
+
+  // Same rule as the dumper: a name that appears once keeps it, a name that
+  // repeats gets #1..#n in tree order.
+  const counts = new Map<string, number>();
+  for (const { name } of collected) counts.set(name, (counts.get(name) ?? 0) + 1);
+  const seen = new Map<string, number>();
+
+  const elements: Record<string, Rect> = {};
+  for (const { name, box } of collected) {
+    let key = name;
+    if ((counts.get(name) ?? 0) > 1) {
+      const n = (seen.get(name) ?? 0) + 1;
+      seen.set(name, n);
+      key = `${name}#${n}`;
+    }
+    elements[key] = {
+      x: round(box.left),
+      y: round(box.top),
+      width: round(box.width),
+      height: round(box.height),
+    };
+  }
 
   const warnings = [...doc.warnings, ...resolved.warnings, ...tree.warnings].map(
     (w) => `${w.kind}: ${w.message}`,

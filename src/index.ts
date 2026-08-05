@@ -28,11 +28,11 @@ export type {
   StyleOrigin,
 } from './model/types';
 
-import type { NodeId, StyleSheet, UxmlDocument, Warning } from './model/types';
+import type { ElementNode, NodeId, StyleSheet, UxmlDocument, Warning } from './model/types';
 export { loadLayoutEngine, isLayoutEngineReady, liveNodeCount } from './layout/yoga';
 export type { LayoutBox, MeasureText, TextContext, TextMetrics } from './layout/yoga';
 export { createDefaultMeasureText } from './render/measure';
-export { NODE_ATTRIBUTE } from './render/paint';
+export { NODE_ATTRIBUTE, PART_ATTRIBUTE, PART_OWNER_ATTRIBUTE } from './render/paint';
 export { supportedControlNames } from './controls/registry';
 export { resolveStyles, explainProperty } from './style/resolve';
 export type {
@@ -45,6 +45,7 @@ export type {
 export type { Specificity } from './style/specificity';
 export { isInherited } from './style/properties';
 
+import { decodeEntities } from './parser/entities';
 import { parseUxml } from './parser/uxml';
 import { parseUss } from './parser/uss';
 import { serializeUxml } from './serializer/uxml';
@@ -68,14 +69,37 @@ import { paint } from './render/paint';
  */
 export interface ParseOptions {
   /**
-   * Loads the text of an `@import`ed stylesheet. Return `null` when the path
-   * cannot be resolved; the import is then reported as a warning and its rules
+   * Loads the text of a stylesheet the document refers to. Return `null` when
+   * the path cannot be resolved; it is then reported as a warning and its rules
    * simply do not participate.
    *
-   * USS import paths look like `project://database/Assets/UI/base.uss`, which
-   * only the host application knows how to turn into file contents.
+   * Used for both ways a document can name a stylesheet — `@import` inside USS,
+   * and `<Style src="…">` inside UXML. Both quote paths like
+   * `project://database/Assets/UI/base.uss`, which only the host application
+   * knows how to turn into file contents, and there is no reason for a host to
+   * implement that lookup twice.
    */
   resolveImport?: (url: string) => string | null;
+}
+
+/**
+ * Purpose:      the stylesheets a UXML document names via `<Style src="…">`.
+ * Ensures:      document order is preserved, so a later sheet wins a tie.
+ *
+ * UI Builder writes one of these into the file whenever a stylesheet is
+ * attached, which makes it the ordinary shape of a real document rather than an
+ * optional extra. Ignoring it silently was the reason a real project's UXML
+ * rendered unstyled with nothing said about why.
+ */
+function styleReferences(node: ElementNode, out: string[] = []): string[] {
+  if (node.name.local === 'Style') {
+    const src = node.attributes.find((a) => a.name === 'src')?.value;
+    // Decoded here, not stored decoded: the model keeps the raw text so the
+    // file round-trips, and the host needs the value the text stands for.
+    if (src !== undefined && src.length > 0) out.push(decodeEntities(src));
+  }
+  for (const child of node.children) styleReferences(child, out);
+  return out;
 }
 
 export function parse(uxml: string, uss?: string, options?: ParseOptions): UxmlDocument {
@@ -83,12 +107,33 @@ export function parse(uxml: string, uss?: string, options?: ParseOptions): UxmlD
   const warnings: Warning[] = [...tree.warnings];
   const sheets: StyleSheet[] = [];
 
-  if (uss !== undefined) {
+  // The document's own `<Style src="…">` sheets come first, then anything the
+  // caller passed directly — so a host that supplies both keeps the last word.
+  const referenced: Array<{ text: string; origin: string | null }> = [];
+  for (const src of styleReferences(tree.root)) {
+    const text = options?.resolveImport?.(src) ?? null;
+    if (text === null) {
+      warnings.push({
+        kind: 'import-unresolved',
+        message:
+          options?.resolveImport === undefined
+            ? `<Style src="${src}"> was not loaded: pass resolveImport to read it, ` +
+              'or pass the stylesheet text directly. Until then this document renders unstyled.'
+            : `<Style src="${src}"> could not be resolved`,
+        node: tree.root.id,
+      });
+      continue;
+    }
+    referenced.push({ text, origin: src });
+  }
+
+  if (uss !== undefined || referenced.length > 0) {
     // Imports are followed breadth-first. `seen` guards against a cycle, which
     // would otherwise loop forever on a stylesheet that imports itself.
     const seen = new Set<string>();
     const queue: Array<{ text: string; origin: string | null }> = [
-      { text: uss, origin: null },
+      ...referenced,
+      ...(uss === undefined ? [] : [{ text: uss, origin: null }]),
     ];
 
     while (queue.length > 0) {
@@ -165,8 +210,24 @@ export interface RenderOptions {
    */
   measureText?: MeasureText;
 
-  /** Pseudo-classes to render as active, e.g. `new Set(['hover'])`. */
+  /** Pseudo-classes to render as active on every element, e.g. `new Set(['hover'])`. */
   activeStates?: ReadonlySet<string>;
+
+  /**
+   * Pseudo-classes to render as active per element, keyed by USS selector.
+   *
+   * ```ts
+   * render(doc, el, { states: { '#UseButton': ['hover'], '#DropButton': ['disabled'] } });
+   * ```
+   *
+   * States are explicit input rather than real mouse events, so the same call
+   * always draws the same picture — which is what makes a rendered screen
+   * something you can compare against Unity, or against yesterday.
+   *
+   * Per element and not per document because real screens mix: one button
+   * hovered while another is disabled is the normal case, not an edge one.
+   */
+  states?: Readonly<Record<string, readonly string[]>>;
 }
 
 export interface RenderResult {
@@ -216,13 +277,13 @@ export function render(
     height: container.clientHeight,
   };
 
-  const resolved = resolveStyles(
-    doc,
-    options?.activeStates === undefined ? undefined : { activeStates: options.activeStates },
-  );
+  const resolved = resolveStyles(doc, {
+    ...(options?.activeStates === undefined ? {} : { activeStates: options.activeStates }),
+    ...(options?.states === undefined ? {} : { states: options.states }),
+  });
   const measureText = options?.measureText ?? createDefaultMeasureText(ownerDocument);
 
-  const tree = layoutDocument(doc.root, resolved.styles, { size, measureText });
+  const tree = layoutDocument(doc.root, resolved.styles, resolved.partStyles, { size, measureText });
 
   // Yoga nodes are already allocated at this point, and `dispose` does not
   // exist until the result object below is built. Anything thrown in between
@@ -230,7 +291,7 @@ export function render(
   // keystroke, so it would strand one per character typed.
   let painted;
   try {
-    painted = paint(doc.root, tree.boxes, resolved.styles, container, {
+    painted = paint(doc.root, tree.boxes, tree.parts, resolved.styles, container, {
       document: ownerDocument,
       resolveAsset: options?.resolveAsset,
     });

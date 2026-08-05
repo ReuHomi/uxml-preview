@@ -1,0 +1,54 @@
+{
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "sv-over": {
+      "x": 0,
+      "y": 0,
+      "width": 200,
+      "height": 100
+    },
+    "unity-content-and-vertical-scroll-container": {
+      "x": 0,
+      "y": 0,
+      "width": 200,
+      "height": 100
+    },
+    "unity-content-viewport": {
+      "x": 0,
+      "y": 0,
+      "width": 187,
+      "height": 100
+    },
+    "unity-content-container": {
+      "x": 0,
+      "y": 0,
+      "width": 187,
+      "height": 180
+    },
+    "sv-over-a": {
+      "x": 0,
+      "y": 0,
+      "width": 187,
+      "height": 60
+    },
+    "sv-over-b": {
+      "x": 0,
+      "y": 60,
+      "width": 187,
+      "height": 60
+    },
+    "sv-over-c": {
+      "x": 0,
+      "y": 120,
+      "width": 187,
+      "height": 60
+    }
+  },
+  "warnings": [
+    "version-dependent: Unity's control defaults were applied, as measured on 6000.0.40f1 (Unity ships these as a theme stylesheet). Other versions may use different values; see src/controls/theme.ts.",
+    "version-dependent: <ScrollView> is drawn with the implicit child elements Unity builds for it, and their geometry was measured on Unity 6000.0.40f1. Other versions may differ; see src/controls/theme.ts."
+  ]
+}
