@@ -121,9 +121,41 @@ const KNOWN_DIVERGENCES: KnownDivergence[] = [
   },
 ];
 
+/**
+ * Parts Unity builds that this renderer deliberately does not.
+ *
+ * A scrollbar's internals are out of scope for S1 (the plan draws a static
+ * screen; dragging, wheeling and scroll position are all out), but the dump
+ * reports them because they are real elements with names. Without this list
+ * every ScrollView case would fail with fourteen `MISSING` entries that say
+ * nothing about whether the layout is right.
+ *
+ * A list rather than a filter on `unity-`, for the reason the divergence list
+ * is a list: `unity-content-viewport` is also a Unity-made element, and it is
+ * one we must reproduce exactly. A pattern would quietly excuse it too.
+ *
+ * Matched on the base name — the dumper suffixes repeats `#1`, `#2`, since the
+ * horizontal and vertical scrollers hold identically named parts.
+ */
+const NOT_REPRODUCED = new Set([
+  'unity-low-button',
+  'unity-high-button',
+  'unity-slider',
+  'unity-drag-container',
+  'unity-tracker',
+  'unity-dragger-border',
+  'unity-dragger',
+]);
+
+function baseName(key: string): string {
+  const hash = key.indexOf('#');
+  return hash === -1 ? key : key.slice(0, hash);
+}
+
 function compare(ours: CaseGeometry, unity: UnityDump): Mismatch[] {
   const out: Mismatch[] = [];
   for (const [element, expected] of Object.entries(unity.elements)) {
+    if (NOT_REPRODUCED.has(baseName(element))) continue;
     const actual = ours.elements[element];
     if (actual === undefined) {
       out.push({ element, field: 'x', ours: NaN, unity: expected.x });
@@ -165,6 +197,28 @@ describe('accuracy: we match Unity', () => {
           : ''),
     );
     expect(present.length).toBeGreaterThanOrEqual(0);
+  });
+
+  // The excuse list has to keep describing reality. A name Unity stopped
+  // producing, or one this renderer started producing, is an entry that now
+  // silently excuses nothing — or worse, excuses something real.
+  it('only excuses parts Unity produces and we do not', () => {
+    const inUnity = new Set<string>();
+    for (const golden of measured) {
+      const unity = readJson<UnityDump>(join(UNITY, `${golden.name}.json`));
+      if (unity === null) continue;
+      for (const key of Object.keys(unity.elements)) inUnity.add(baseName(key));
+    }
+    const stale = [...NOT_REPRODUCED].filter((n) => !inUnity.has(n));
+    expect(stale, `no dump contains: ${stale.join(', ')}`).toEqual([]);
+
+    const nowProduced = measured.flatMap((golden) =>
+      Object.keys(runCase(golden).elements).filter((n) => NOT_REPRODUCED.has(baseName(n))),
+    );
+    expect(
+      [...new Set(nowProduced)],
+      'these are produced now and should be compared, not excused',
+    ).toEqual([]);
   });
 
   for (const golden of measured) {

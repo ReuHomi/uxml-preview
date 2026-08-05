@@ -219,24 +219,33 @@ namespace UxmlPreview.Golden
                 _log.Add($"{name}: WARNING, no named elements found");
             }
 
-            // Names are the join key on both sides, and the file is a JSON
-            // object, so a repeat silently overwrites: JSON.parse keeps the last
-            // and the comparison never learns the other one existed. This became
-            // reachable the moment controls with implicit children were dumped --
-            // two ScrollViews in one case means two `unity-content-container`s.
-            var duplicates = new List<string>();
+            // Names are the join key on both sides and the file is a JSON object,
+            // so a repeat would silently overwrite: JSON.parse keeps the last and
+            // the comparison never learns the other existed. Unity supplies plenty
+            // of repeats -- a ScrollView's horizontal and vertical scrollers hold
+            // identically named parts -- so repeats get an ordinal suffix instead
+            // of being dropped. Names that occur once are untouched, which keeps
+            // every existing baseline byte-identical.
+            var counts = new Dictionary<string, int>();
+            foreach (string n in seen)
+            {
+                counts[n] = counts.ContainsKey(n) ? counts[n] + 1 : 1;
+            }
+            var ordinals = new Dictionary<string, int>();
+            var duplicated = new List<string>();
             for (int i = 0; i < seen.Count; i++)
             {
-                if (seen.IndexOf(seen[i]) != i && !duplicates.Contains(seen[i]))
-                {
-                    duplicates.Add(seen[i]);
-                }
+                if (counts[seen[i]] == 1) continue;
+                int next = ordinals.ContainsKey(seen[i]) ? ordinals[seen[i]] + 1 : 1;
+                ordinals[seen[i]] = next;
+                // Tree order, so the suffix is stable between runs.
+                entries[i] = entries[i].Replace($"\"{seen[i]}\":", $"\"{seen[i]}#{next}\":");
+                if (next == 1) duplicated.Add(seen[i]);
             }
-            if (duplicates.Count > 0)
+            if (duplicated.Count > 0)
             {
-                _log.Add($"{name}: DUPLICATE NAMES, only the last of each is written -- " +
-                    string.Join(", ", duplicates) +
-                    ". Give each element a unique name, or split the case.");
+                _log.Add($"{name}: repeated names, suffixed #1..#n in tree order -- " +
+                    string.Join(", ", duplicated));
             }
 
             var sb = new StringBuilder();

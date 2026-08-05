@@ -1,0 +1,24 @@
+{
+  "panel": { "width": 400, "height": 300 },
+  "elements": {
+    "sv-pad": { "x": 0, "y": 0, "width": 200, "height": 120 },
+    "unity-content-and-vertical-scroll-container": { "x": 20, "y": 20, "width": 160, "height": 80 },
+    "unity-content-viewport": { "x": 20, "y": 20, "width": 160, "height": 80 },
+    "unity-content-container": { "x": 20, "y": 20, "width": 160, "height": 30 },
+    "sv-pad-child": { "x": 20, "y": 20, "width": 50, "height": 30 },
+    "unity-low-button": { "x": 20, "y": 20, "width": 0, "height": 0 },
+    "unity-high-button": { "x": 20, "y": 20, "width": 0, "height": 0 },
+    "unity-slider": { "x": 20, "y": 20, "width": 0, "height": 0 },
+    "unity-drag-container": { "x": 20, "y": 20, "width": 0, "height": 0 },
+    "unity-tracker": { "x": 20, "y": 20, "width": 0, "height": 0 },
+    "unity-dragger-border": { "x": 20, "y": 20, "width": 0, "height": 0 },
+    "unity-dragger": { "x": 20, "y": 20, "width": 0, "height": 0 },
+    "unity-low-button": { "x": 0, "y": 0, "width": 0, "height": 0 },
+    "unity-high-button": { "x": 0, "y": 0, "width": 0, "height": 0 },
+    "unity-slider": { "x": 0, "y": 0, "width": 0, "height": 0 },
+    "unity-drag-container": { "x": 0, "y": 0, "width": 0, "height": 0 },
+    "unity-tracker": { "x": 0, "y": 0, "width": 0, "height": 0 },
+    "unity-dragger-border": { "x": 0, "y": 0, "width": 0, "height": 0 },
+    "unity-dragger": { "x": 0, "y": 0, "width": 0, "height": 0 }
+  }
+}

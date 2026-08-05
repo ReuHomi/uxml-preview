@@ -1,0 +1,26 @@
+{
+  "panel": { "width": 400, "height": 300 },
+  "elements": {
+    "sv-over": { "x": 0, "y": 0, "width": 200, "height": 100 },
+    "unity-content-and-vertical-scroll-container": { "x": 0, "y": 0, "width": 200, "height": 100 },
+    "unity-content-viewport": { "x": 0, "y": 0, "width": 187, "height": 100 },
+    "unity-content-container": { "x": 0, "y": 0, "width": 187, "height": 180 },
+    "sv-over-a": { "x": 0, "y": 0, "width": 187, "height": 60 },
+    "sv-over-b": { "x": 0, "y": 60, "width": 187, "height": 60 },
+    "sv-over-c": { "x": 0, "y": 120, "width": 187, "height": 60 },
+    "unity-low-button": { "x": 188, "y": 0, "width": 12, "height": 16 },
+    "unity-high-button": { "x": 188, "y": 84, "width": 12, "height": 16 },
+    "unity-slider": { "x": 188, "y": 16, "width": 12, "height": 68 },
+    "unity-drag-container": { "x": 188, "y": 16, "width": 12, "height": 68 },
+    "unity-tracker": { "x": 188, "y": 18, "width": 13, "height": 64 },
+    "unity-dragger-border": { "x": 184, "y": 12, "width": 0, "height": 0 },
+    "unity-dragger": { "x": 188, "y": 16, "width": 12, "height": 38 },
+    "unity-low-button": { "x": 0, "y": 0, "width": 0, "height": 0 },
+    "unity-high-button": { "x": 0, "y": 0, "width": 0, "height": 0 },
+    "unity-slider": { "x": 0, "y": 0, "width": 0, "height": 0 },
+    "unity-drag-container": { "x": 0, "y": 0, "width": 0, "height": 0 },
+    "unity-tracker": { "x": 0, "y": 0, "width": 0, "height": 0 },
+    "unity-dragger-border": { "x": 0, "y": 0, "width": 0, "height": 0 },
+    "unity-dragger": { "x": 0, "y": 0, "width": 0, "height": 0 }
+  }
+}
