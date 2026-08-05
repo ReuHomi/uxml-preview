@@ -1,0 +1,7 @@
+{
+  "panel": { "width": 400, "height": 300 },
+  "elements": {
+    "svl-holder": { "x": 0, "y": 0, "width": 300, "height": 80 },
+    "svl-btn": { "x": 0, "y": 0, "width": 40, "height": 30 }
+  }
+}

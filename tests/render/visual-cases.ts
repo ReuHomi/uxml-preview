@@ -276,4 +276,25 @@ export const VISUAL_CASES: VisualCase[] = [
       '#visual-states-disabled': ['disabled'],
     },
   },
+  {
+    name: 'visual-nested-disabled',
+    // Deliberately shows a value we are not sure of. `enabled="false"` puts the
+    // whole subtree into `:disabled`, so the theme's `opacity: 0.5` lands on
+    // both the panel and the button inside it and CSS multiplies them to a
+    // quarter. Unity almost certainly dims once. Nothing was changed to hide
+    // that — the snapshot records it so the day it is measured, the difference
+    // is a failing test rather than a discovery.
+    question:
+      'What does a disabled button inside a disabled panel end up at? (Unity: unmeasured)',
+    uxml: wrap(
+      '  <ui:VisualElement name="visual-nested-outer" enabled="false">\n' +
+        '    <ui:Button name="visual-nested-inner" text="In" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#visual-nested-outer {\n  width: 120px;\n  height: 60px;\n' +
+      '  background-color: rgb(60, 60, 60);\n}\n' +
+      '#visual-nested-inner {\n  width: 80px;\n  height: 30px;\n' +
+      '  background-color: rgb(90, 110, 160);\n}\n',
+  },
 ];

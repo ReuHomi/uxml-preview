@@ -28,6 +28,10 @@ found.
   stylesheet now wins against the built-in `.unity-button` rule, as in Unity.
 - **`enabled="false"` puts an element and its subtree into `:disabled`**, without
   anyone passing `states`. Both the state and its inheritance are measured.
+- **Disabled elements render at half opacity**, as Unity draws them. The value
+  came from sampling the screenshots rather than judging them: Unity paints the
+  disabled button rgb(41,50,67), which is its base colour composited at exactly
+  one half over the footer on all three channels.
 
 ### Added
 

@@ -1,26 +1,14 @@
 {
   "elements": {
-    "visual-states-normal": {
-      "align-items": "center",
+    "visual-nested-outer": {
       "background-color": "rgb(60, 60, 60)",
       "box-sizing": "border-box",
-      "color": "rgb(230, 230, 230)",
-      "display": "flex",
-      "justify-content": "center"
+      "opacity": "0.5"
     },
-    "visual-states-hover": {
+    "visual-nested-inner": {
       "align-items": "center",
       "background-color": "rgb(90, 110, 160)",
       "box-sizing": "border-box",
-      "color": "rgb(230, 230, 230)",
-      "display": "flex",
-      "justify-content": "center"
-    },
-    "visual-states-disabled": {
-      "align-items": "center",
-      "background-color": "rgb(40, 40, 40)",
-      "box-sizing": "border-box",
-      "color": "rgb(120, 120, 120)",
       "display": "flex",
       "justify-content": "center",
       "opacity": "0.5"

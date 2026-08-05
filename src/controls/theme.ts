@@ -20,6 +20,20 @@
  * and this renderer had it at the top left, which is visible the moment the two
  * screenshots sit side by side and invisible in 368 compared numbers.
  *
+ * `opacity` on `:disabled` came from the same screenshots, but by sampling
+ * pixels rather than looking. Unity's disabled Drop button is rgb(41,50,67);
+ * the base colour rgb(58,74,104) composited at half over the footer's
+ * rgb(24,26,31) is (41, 50, 67.5) — all three channels exact. That arithmetic
+ * is the evidence, and it is why the value is 0.5 and not a number that merely
+ * looked about right.
+ *
+ * Getting there took two wrong turns worth recording. First the author's
+ * `Button:disabled` rule was blamed for not applying — it genuinely does not,
+ * because `#DropButton` outranks it, in both engines. Then Unity was accused of
+ * ranking state rules above specificity, and `state-vs-id` and `state-vs-inline`
+ * refuted that: Unity answers 40 to both, exactly as this cascade already did.
+ * The dimming was never about the cascade at all.
+ *
  * What is deliberately absent, and why:
  *
  *   - `Label` — measured, and it has no default margin. `inherit-vs-direct`
@@ -51,7 +65,11 @@ export const THEME_UNITY_VERSION = '6000.0.40f1';
  * rule at `.unity-button` (0,1,0) beats an author's `Button { }` (0,0,1), and
  * that is a real Unity gotcha worth reproducing rather than smoothing over.
  */
-export const THEME_USS = `.unity-button {
+export const THEME_USS = `:disabled {
+  opacity: 0.5;
+}
+
+.unity-button {
   margin: 1px 3px;
   -unity-text-align: middle-center;
 }
@@ -71,6 +89,22 @@ export const THEME_USS = `.unity-button {
  * `verticalScrollbarWidth`, never as a bare constant.
  */
 const VERTICAL_SCROLLBAR_PX = 13;
+
+/**
+ * **Unmeasured, and reachable: nested disabled elements.**
+ *
+ * `enabled="false"` puts a whole subtree into `:disabled` — measured, by
+ * `disabled-inherits`. The rule above therefore hands every level its own
+ * `opacity: 0.5`, and CSS multiplies them, so a disabled button inside a
+ * disabled panel comes out at a quarter. Unity almost certainly dims once.
+ *
+ * Not guessed at, because the fix has a choice inside it — dim only where
+ * `enabled="false"` was written, or suppress the inherited one — and picking
+ * without evidence is how the `.unity-button` selector became a hypothesis
+ * nobody noticed for a day. Opacity leaves no trace in a coordinate dump, so
+ * settling it needs a screenshot of a nested case. Recorded in
+ * `docs/backlog.md` and visible in `visual-nested-disabled`.
+ */
 
 /**
  * Purpose:      how much width a vertical scrollbar claims, given whether it shows.
