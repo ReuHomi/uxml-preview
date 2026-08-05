@@ -14,193 +14,193 @@
       "x": 0,
       "y": 0,
       "width": 400,
-      "height": 17
+      "height": 35
     },
     "TitleLabel": {
       "x": 12,
-      "y": -2,
+      "y": 7,
       "width": 200,
       "height": 20
     },
     "CloseButton": {
       "x": 360,
-      "y": -6,
+      "y": 3,
       "width": 28,
       "height": 28
     },
     "ItemGrid": {
       "x": 0,
-      "y": 17,
+      "y": 35,
       "width": 400,
-      "height": 240
+      "height": 177
     },
     "unity-content-and-vertical-scroll-container": {
       "x": 0,
-      "y": 17,
+      "y": 35,
       "width": 400,
-      "height": 240
+      "height": 177
     },
     "unity-content-viewport": {
       "x": 0,
-      "y": 17,
+      "y": 35,
       "width": 387,
-      "height": 240
+      "height": 177
     },
     "unity-content-container": {
       "x": 0,
-      "y": 17,
+      "y": 35,
       "width": 387,
-      "height": 552
+      "height": 200
     },
     "ItemSlot0": {
-      "x": 4,
-      "y": 21,
+      "x": 12,
+      "y": 47,
       "width": 84,
       "height": 84
     },
     "ItemIcon0": {
-      "x": 5,
-      "y": 22,
+      "x": 13,
+      "y": 48,
       "width": 64,
       "height": 64
     },
     "ItemCount0": {
-      "x": 59,
-      "y": 86,
+      "x": 67,
+      "y": 112,
       "width": 24,
       "height": 16
     },
     "ItemSlot1": {
-      "x": 4,
-      "y": 113,
+      "x": 104,
+      "y": 47,
       "width": 84,
       "height": 84
     },
     "ItemIcon1": {
-      "x": 5,
-      "y": 114,
+      "x": 105,
+      "y": 48,
       "width": 64,
       "height": 64
     },
     "ItemCount1": {
-      "x": 59,
-      "y": 178,
+      "x": 159,
+      "y": 112,
       "width": 24,
       "height": 16
     },
     "ItemSlot2": {
-      "x": 4,
-      "y": 205,
+      "x": 196,
+      "y": 47,
       "width": 84,
       "height": 84
     },
     "ItemIcon2": {
-      "x": 5,
-      "y": 206,
+      "x": 197,
+      "y": 48,
       "width": 64,
       "height": 64
     },
     "ItemCount2": {
-      "x": 59,
-      "y": 270,
+      "x": 251,
+      "y": 112,
       "width": 24,
       "height": 16
     },
     "ItemSlot3": {
-      "x": 4,
-      "y": 297,
+      "x": 288,
+      "y": 47,
       "width": 84,
       "height": 84
     },
     "ItemIcon3": {
-      "x": 5,
-      "y": 298,
+      "x": 289,
+      "y": 48,
       "width": 64,
       "height": 64
     },
     "ItemCount3": {
-      "x": 59,
-      "y": 362,
+      "x": 343,
+      "y": 112,
       "width": 24,
       "height": 16
     },
     "ItemSlot4": {
-      "x": 4,
-      "y": 389,
+      "x": 12,
+      "y": 139,
       "width": 84,
       "height": 84
     },
     "ItemIcon4": {
-      "x": 5,
-      "y": 390,
+      "x": 13,
+      "y": 140,
       "width": 64,
       "height": 64
     },
     "ItemCount4": {
-      "x": 59,
-      "y": 454,
+      "x": 67,
+      "y": 204,
       "width": 24,
       "height": 16
     },
     "ItemSlot5": {
-      "x": 4,
-      "y": 481,
+      "x": 104,
+      "y": 139,
       "width": 84,
       "height": 84
     },
     "ItemIcon5": {
-      "x": 5,
-      "y": 482,
+      "x": 105,
+      "y": 140,
       "width": 64,
       "height": 64
     },
     "ItemCount5": {
-      "x": 59,
-      "y": 546,
+      "x": 159,
+      "y": 204,
       "width": 24,
       "height": 16
     },
     "Footer": {
       "x": 0,
-      "y": 257,
+      "y": 212,
       "width": 400,
-      "height": 43
+      "height": 88
     },
     "DetailPanel": {
       "x": 8,
-      "y": 265,
+      "y": 220,
       "width": 299,
-      "height": 27
+      "height": 72
     },
     "ItemName": {
       "x": 8,
-      "y": 265,
+      "y": 220,
       "width": 292,
-      "height": 8
+      "height": 20
     },
     "ItemDesc": {
       "x": 8,
-      "y": 272,
+      "y": 239,
       "width": 292,
-      "height": 21
+      "height": 54
     },
     "ActionBar": {
       "x": 307,
-      "y": 265,
+      "y": 220,
       "width": 85,
-      "height": 27
+      "height": 72
     },
     "UseButton": {
       "x": 307,
-      "y": 265,
+      "y": 220,
       "width": 85,
-      "height": 9
+      "height": 30
     },
     "DropButton": {
       "x": 307,
-      "y": 278,
+      "y": 256,
       "width": 85,
-      "height": 8
+      "height": 30
     }
   },
   "warnings": [

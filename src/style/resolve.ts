@@ -27,7 +27,7 @@ import type {
   UxmlDocument,
   Warning,
 } from '../model/types';
-import { implicitClassesOf } from '../controls/registry';
+import { implicitClassesOf, resolveControl, supportedControlNames } from '../controls/registry';
 import { THEME_UNITY_VERSION, THEME_USS } from '../controls/theme';
 import { parseUss } from '../parser/uss';
 import { attributeValueStart, parseDeclarationList } from '../parser/uss';
@@ -36,6 +36,7 @@ import {
   buildParentMap,
   matchesSelector,
   statesRequiredBy,
+  unityFragmentsIn,
   unsupportedFragment,
 } from './selector';
 import type { MatchContext } from './selector';
@@ -76,8 +77,36 @@ export interface ResolveOptions {
 
 export interface ResolveResult {
   styles: ReadonlyMap<NodeId, ComputedStyle>;
+  /**
+   * Style per control part, keyed by the owning element and then Unity's name
+   * for the part.
+   *
+   * Parts are resolved here rather than in the layout, because that is what
+   * lets author USS reach them: `#unity-content-container { flex-direction: row }`
+   * is how a real project lays out a scroll region's contents, and a part built
+   * after the cascade had already run could never receive it.
+   */
+  partStyles: ReadonlyMap<NodeId, ReadonlyMap<string, ComputedStyle>>;
   warnings: readonly Warning[];
 }
+
+/**
+ * What a selector is matched against: an element from the file, or a part a
+ * control builds for itself.
+ *
+ * A part is not given a NodeId. `NodeId` means "this is in the document", and
+ * a part is not — the same reason `StyleOrigin` has its own `builtin-theme`
+ * variant rather than pointing at an invented file.
+ */
+type Target =
+  | { readonly kind: 'element'; readonly node: ElementNode }
+  | {
+      readonly kind: 'part';
+      readonly owner: ElementNode;
+      readonly name: string;
+      /** Index in the owner's part chain; 0 is outermost. */
+      readonly depth: number;
+    };
 
 /**
  * Where a declaration sits in the cascade's outermost comparison.
@@ -153,7 +182,7 @@ function themeSelectorText(rule: Rule): string {
  */
 function buildStateMap(
   doc: UxmlDocument,
-  base: MatchContext,
+  base: MatchContext<Target>,
   options: ResolveOptions | undefined,
   warnings: Warning[],
 ): Map<ElementNode, ReadonlySet<string>> {
@@ -193,7 +222,7 @@ function buildStateMap(
     const set = new Set(global);
     if (disabled) set.add('disabled');
     for (const entry of parsed) {
-      if (entry.selectors.some((s) => matchesSelector(s, node, base))) {
+      if (entry.selectors.some((s) => matchesSelector<Target>(s, { kind: 'element', node }, base))) {
         for (const state of entry.states) set.add(state);
       }
     }
@@ -205,7 +234,7 @@ function buildStateMap(
 }
 
 interface Prepared {
-  ctx: MatchContext;
+  ctx: MatchContext<Target>;
   usable: FlatRule[];
   warnings: Warning[];
 }
@@ -261,19 +290,66 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
   const warnings: Warning[] = [];
 
   const NO_STATES: ReadonlySet<string> = new Set();
+
+  const writtenClasses = (node: ElementNode): string[] => {
+    const raw = node.attributes.find((a) => a.name === 'class')?.value;
+    return raw === undefined ? [] : raw.split(/\s+/).filter((c) => c.length > 0);
+  };
+  const attributeNamed = (node: ElementNode, name: string): string | undefined =>
+    node.attributes.find((a) => a.name === name)?.value;
+
   const shared = {
-    parentOf: (node: ElementNode) => parents.get(node) ?? null,
-    root: doc.root,
-    implicitClassesOf,
+    /**
+     * The rule the measurement forced.
+     *
+     * An element from the file gets its *file* parent, even when its layout
+     * parent is a part — `#Grid > .slot` reaches a slot inside a ScrollView in
+     * Unity, so parts are transparent here. Parts themselves follow the real
+     * chain: each sits inside the one before it, and the outermost inside its
+     * owner. That is the hierarchy the dumps show, so descendant selectors like
+     * `.panel #unity-content-viewport` behave as they do in Unity.
+     */
+    parentOf: (target: Target): Target | null => {
+      if (target.kind === 'element') {
+        const parent = parents.get(target.node) ?? null;
+        return parent === null ? null : { kind: 'element', node: parent };
+      }
+      if (target.depth === 0) return { kind: 'element', node: target.owner };
+      const chain = resolveControl(target.owner).spec.parts;
+      const outer = chain[target.depth - 1]!;
+      return { kind: 'part', owner: target.owner, name: outer.name, depth: target.depth - 1 };
+    },
+    isRoot: (target: Target): boolean =>
+      target.kind === 'element' && target.node === doc.root,
+    // Unity's parts are VisualElements, so a `VisualElement` rule reaches them.
+    // Not measured — `part-type-selector` is the case that will settle it.
+    typeNameOf: (target: Target): string =>
+      target.kind === 'element' ? target.node.name.local : 'VisualElement',
+    idOf: (target: Target): string | undefined =>
+      target.kind === 'element' ? attributeNamed(target.node, 'name') : target.name,
+    // Implicit classes are as real as written ones for matching: in Unity the
+    // element genuinely carries them, which is why `.unity-button` in author USS
+    // hits a plain `<ui:Button />`. Parts carry classes too in Unity, but which
+    // ones is unmeasured, so none are claimed here.
+    classesOf: (target: Target): readonly string[] =>
+      target.kind === 'element'
+        ? [...writtenClasses(target.node), ...implicitClassesOf(target.node)]
+        : [],
   };
 
   // Two contexts, and the order matters. `base` has no states at all and is what
   // the `states` keys are matched against; `ctx` carries the result and is what
   // the stylesheet is matched against. Using one context for both would let a
   // key like `Button:hover` turn itself on.
-  const base: MatchContext = { ...shared, statesOf: () => NO_STATES };
+  const base: MatchContext<Target> = { ...shared, statesOf: () => NO_STATES };
   const stateMap = buildStateMap(doc, base, options, warnings);
-  const ctx: MatchContext = { ...shared, statesOf: (node) => stateMap.get(node) ?? NO_STATES };
+  const ctx: MatchContext<Target> = {
+    ...shared,
+    // A part inherits its owner's states: `SetEnabled(false)` disables the whole
+    // subtree, and a part is inside it.
+    statesOf: (target) =>
+      stateMap.get(target.kind === 'element' ? target.node : target.owner) ?? NO_STATES,
+  };
 
   const usable: FlatRule[] = [];
   let reportedRoot = false;
@@ -331,8 +407,10 @@ function inlineDeclarations(doc: UxmlDocument, node: ElementNode): Declaration[]
  */
 function collectCandidates(
   doc: UxmlDocument,
-  node: ElementNode,
+  target: Target,
   prepared: Prepared,
+  /** Rules that matched something, for the unreachable-selector warning. */
+  matched?: Set<FlatRule>,
 ): Candidate[] {
   const out: Candidate[] = [];
   let order = 0;
@@ -347,6 +425,31 @@ function collectCandidates(
     out.push({ property, value, origin, rank, specificity, order: order++, winner: false });
   };
 
+  // A part's own declarations — what the control fixes about it — are control
+  // defaults, so they enter at the theme rank and lose to any author rule. That
+  // is the whole point of resolving parts here: `#unity-content-container` in a
+  // stylesheet has to be able to override `flex-direction` on the container.
+  // Specificity is irrelevant at this rank, so it is left at zero.
+  if (target.kind === 'part') {
+    const part = resolveControl(target.owner).spec.parts[target.depth];
+    for (const [property, value] of Object.entries(part?.style ?? {})) {
+      for (const [expanded, v] of expandShorthand(property, value)) {
+        push(
+          expanded,
+          v,
+          {
+            kind: 'builtin-theme',
+            selector: `#${target.name}`,
+            property: expanded,
+            unityVersion: THEME_UNITY_VERSION,
+          },
+          Rank.BuiltinTheme,
+          [0, 0, 0],
+        );
+      }
+    }
+  }
+
   for (const flat of prepared.usable) {
     // A rule contributes once however many of its selectors match, and it does
     // so at the specificity of the *most specific* one that matched — not the
@@ -355,7 +458,7 @@ function collectCandidates(
     let specificity: Specificity | null = null;
     let states: readonly string[] = [];
     for (const selector of flat.rule.selectors) {
-      if (!matchesSelector(selector, node, prepared.ctx)) continue;
+      if (!matchesSelector(selector, target, prepared.ctx)) continue;
       const candidate = specificityOf(selector);
       if (specificity === null || compareSpecificity(candidate, specificity) > 0) {
         specificity = candidate;
@@ -365,6 +468,7 @@ function collectCandidates(
       }
     }
     if (specificity === null) continue;
+    matched?.add(flat);
     flat.rule.declarations.forEach((decl, declIndex) => {
       for (const [property, value] of expandShorthand(decl.property, decl.value)) {
         // A theme declaration has no file and no span, so it gets an origin that
@@ -392,11 +496,15 @@ function collectCandidates(
     });
   }
 
-  inlineDeclarations(doc, node).forEach((decl, declIndex) => {
-    for (const [property, value] of expandShorthand(decl.property, decl.value)) {
-      push(property, value, { kind: 'inline', node: node.id, declIndex }, Rank.Author, INLINE_SPECIFICITY);
-    }
-  });
+  // Only elements have a style attribute; a part has no tag to write one on.
+  if (target.kind === 'element') {
+    const node = target.node;
+    inlineDeclarations(doc, node).forEach((decl, declIndex) => {
+      for (const [property, value] of expandShorthand(decl.property, decl.value)) {
+        push(property, value, { kind: 'inline', node: node.id, declIndex }, Rank.Author, INLINE_SPECIFICITY);
+      }
+    });
+  }
 
   return out;
 }
@@ -477,8 +585,24 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
   // something that did not happen.
   let themeApplied = false;
 
-  const visit = (node: ElementNode, inherited: ReadonlyMap<string, ComputedValue>): void => {
-    const candidates = collectCandidates(doc, node, prepared);
+  const partStyles = new Map<NodeId, Map<string, ComputedStyle>>();
+  /** Rules that reached something. What is left over drives the part warning. */
+  const matched = new Set<FlatRule>();
+
+  /**
+   * Purpose:      one target's computed style, plus what it hands to children.
+   * Deps/Effects: appends var() warnings; records theme use and rule matches.
+   *
+   * Shared by elements and parts on purpose. A part styled through a second
+   * code path would be a second cascade, and Step 5's own note about "a second
+   * set of USS bugs" applies to the resolver as much as to the layout.
+   */
+  const computeFor = (
+    target: Target,
+    inherited: ReadonlyMap<string, ComputedValue>,
+    nodeForWarnings: NodeId,
+  ): { computed: Map<string, ComputedValue>; forChildren: Map<string, ComputedValue> } => {
+    const candidates = collectCandidates(doc, target, prepared, matched);
     if (!themeApplied && candidates.some((c) => c.origin.kind === 'builtin-theme')) {
       themeApplied = true;
     }
@@ -503,26 +627,55 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
         warnings.push({
           kind: 'unsupported-property',
           message: `${property}: var() reference could not be resolved; declaration dropped`,
-          node: node.id,
+          node: nodeForWarnings,
         });
         continue;
       }
       computed.set(property, { value: substituted, origin: candidate.origin });
     }
 
-    styles.set(node.id, computed);
-
     // A direct declaration always beats an inherited one, so children are handed
-    // this element's final values rather than a merge of anything else.
+    // these final values rather than a merge of anything else.
     const forChildren = new Map<string, ComputedValue>();
     for (const [property, entry] of computed) {
       if (!isInherited(property)) continue;
       forChildren.set(property, {
         value: entry.value,
-        origin: { kind: 'inherited', from: node.id, origin: entry.origin },
+        origin: { kind: 'inherited', from: nodeForWarnings, origin: entry.origin },
       });
     }
-    for (const child of node.children) visit(child, forChildren);
+    return { computed, forChildren };
+  };
+
+  /**
+   * Purpose:      walk the document, resolving elements and their control parts.
+   * Ensures:      a part is resolved between its owner and the owner's children,
+   *               so inheritance flows owner -> parts -> children exactly as it
+   *               does through Unity's real hierarchy.
+   */
+  const visit = (node: ElementNode, inherited: ReadonlyMap<string, ComputedValue>): void => {
+    const self = computeFor({ kind: 'element', node }, inherited, node.id);
+    styles.set(node.id, self.computed);
+
+    // Children hang off the innermost part when the control builds any, so what
+    // they inherit has to come through the parts rather than around them.
+    let downstream = self.forChildren;
+    const chain = resolveControl(node).spec.parts;
+    if (chain.length > 0) {
+      const byName = new Map<string, ComputedStyle>();
+      chain.forEach((part, depth) => {
+        const resolved = computeFor(
+          { kind: 'part', owner: node, name: part.name, depth },
+          downstream,
+          node.id,
+        );
+        byName.set(part.name, resolved.computed);
+        downstream = resolved.forChildren;
+      });
+      partStyles.set(node.id, byName);
+    }
+
+    for (const child of node.children) visit(child, downstream);
   };
 
   visit(doc.root, new Map());
@@ -537,7 +690,27 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
     });
   }
 
-  return { styles, warnings };
+  // A rule aiming at a Unity-internal name that reached nothing is not an
+  // unused rule — it is a rule that could not work. Reported because the
+  // alternative is the silent loss rule 6 exists to prevent: with root A fixed
+  // this still happens for controls drawn as fallbacks, which have no parts at
+  // all, so `#unity-text-input { padding: 4px }` goes on doing nothing.
+  for (const flat of prepared.usable) {
+    if (flat.builtin === true || matched.has(flat)) continue;
+    const fragments = unityFragmentsIn(flat.rule.selectors);
+    if (fragments.length === 0) continue;
+    warnings.push({
+      kind: 'unsupported-selector',
+      message:
+        `${fragments.join(', ')} matched nothing. Those names belong to the elements a ` +
+        'control builds for itself, and only controls with a renderer of their own have ' +
+        `them — ${supportedControlNames().join(', ')}. Anything else is drawn as a plain ` +
+        'box and has no parts to style.',
+      at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
+    });
+  }
+
+  return { styles, partStyles, warnings };
 }
 
 /**
@@ -556,7 +729,7 @@ export function explainProperty(
   options?: ResolveOptions,
 ): Candidate[] {
   const prepared = prepare(doc, options);
-  const candidates = collectCandidates(doc, node, prepared).filter(
+  const candidates = collectCandidates(doc, { kind: 'element', node }, prepared).filter(
     (c) => c.property === property,
   );
   pickWinners(candidates);

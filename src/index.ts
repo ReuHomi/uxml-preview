@@ -238,7 +238,7 @@ export function render(
   });
   const measureText = options?.measureText ?? createDefaultMeasureText(ownerDocument);
 
-  const tree = layoutDocument(doc.root, resolved.styles, { size, measureText });
+  const tree = layoutDocument(doc.root, resolved.styles, resolved.partStyles, { size, measureText });
 
   // Yoga nodes are already allocated at this point, and `dispose` does not
   // exist until the result object below is built. Anything thrown in between

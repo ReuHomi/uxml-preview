@@ -61,7 +61,7 @@ export function runCase(
 ): CaseGeometry {
   const doc = parse(golden.uxml, golden.uss);
   const resolved = resolveStyles(doc);
-  const tree = layoutDocument(doc.root, resolved.styles, {
+  const tree = layoutDocument(doc.root, resolved.styles, resolved.partStyles, {
     size: panel,
     measureText: FIXED_MEASURE,
   });

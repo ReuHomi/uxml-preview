@@ -165,3 +165,98 @@ describe('the version warning', () => {
     expect(warnings.filter((w) => w.message.includes(THEME_UNITY_VERSION))).toHaveLength(1);
   });
 });
+
+/**
+ * Control parts in the cascade.
+ *
+ * A ScrollView is one tag that becomes four elements, and the three it adds are
+ * where a real project puts its grid rules. Those rules had nowhere to land
+ * until parts were resolved alongside elements, and the representative screen
+ * lost 56 of its 70 wrong values the moment they did.
+ */
+describe('parts', () => {
+  const SV = '<ui:ScrollView name="sv"><ui:VisualElement name="kid" /></ui:ScrollView>';
+
+  function partValue(d: UxmlDocument, owner: string, part: string, property: string): string | undefined {
+    const resolved = resolveStyles(d);
+    return resolved.partStyles.get(byName(d.root, owner).id)?.get(part)?.get(property)?.value;
+  }
+
+  it('lets author USS reach a part by name', () => {
+    const d = doc(SV, '#unity-content-container { flex-direction: row; }');
+    expect(partValue(d, 'sv', 'unity-content-container', 'flex-direction')).toBe('row');
+  });
+
+  // The part's own declarations are control defaults, so they sit at the theme
+  // rank and an author rule overrides them — the same rule as the Button margin.
+  it('lets an author rule override what the control fixed', () => {
+    expect(partValue(doc(SV), 'sv', 'unity-content-container', 'flex-shrink')).toBe('0');
+    const d = doc(SV, '#unity-content-container { flex-shrink: 1; }');
+    expect(partValue(d, 'sv', 'unity-content-container', 'flex-shrink')).toBe('1');
+  });
+
+  it('reaches a part through a descendant selector', () => {
+    const d = doc(
+      `<ui:VisualElement name="panel" class="panel">${SV}</ui:VisualElement>`,
+      '.panel #unity-content-viewport { opacity: 0.5; }',
+    );
+    expect(partValue(d, 'sv', 'unity-content-viewport', 'opacity')).toBe('0.5');
+  });
+
+  /**
+   * Measured, and it is why the cascade was not simply moved onto the visual
+   * tree. A slot inside a ScrollView is physically inside the content container,
+   * yet `#sv > .kid` reaches it in Unity — so an element from the file keeps its
+   * file parent, and parts are transparent to it.
+   */
+  it('keeps a file element a child of its file parent, not of a part', () => {
+    const d = doc(SV, '#sv > #kid { width: 99px; }');
+    expect(value(d, 'kid', 'width')).toBe('99px');
+  });
+
+  it('inherits through the parts, so children of a ScrollView still inherit', () => {
+    const d = doc(SV, '#sv { color: red; }');
+    expect(partValue(d, 'sv', 'unity-content-container', 'color')).toBe('red');
+    expect(value(d, 'kid', 'color')).toBe('red');
+  });
+
+  it('gives a control with no parts none', () => {
+    expect(resolveStyles(doc('<ui:Button name="b" text="x" />')).partStyles.size).toBe(0);
+  });
+});
+
+describe('the unreachable part-selector warning', () => {
+  const unity = (uxml: string, uss: string): string[] =>
+    resolveStyles(doc(uxml, uss))
+      .warnings.filter((w) => w.kind === 'unsupported-selector')
+      .map((w) => w.message);
+
+  // Root A fixed this for controls that have parts. Controls drawn as plain
+  // boxes still have none, so `#unity-text-input` goes on doing nothing — the
+  // same silent failure in a different control, which rule 6 forbids.
+  it('fires for a part name no control in the document builds', () => {
+    const messages = unity('<ui:TextField name="t" />', '#unity-text-input { width: 40px; }');
+    expect(messages).toHaveLength(1);
+    expect(messages[0]).toContain('#unity-text-input');
+    // Says why, not just that: the control is drawn as a plain box.
+    expect(messages[0]).toContain('plain box');
+  });
+
+  it('says nothing when the part is really there', () => {
+    expect(unity('<ui:ScrollView name="s" />', '#unity-content-container { width: 40px; }'))
+      .toHaveLength(0);
+  });
+
+  it('ignores ordinary selectors that happen to match nothing', () => {
+    expect(unity('<ui:VisualElement name="a" />', '#nonexistent { width: 40px; }')).toHaveLength(0);
+  });
+
+  it('covers unity- classes too, not just names', () => {
+    const messages = unity(
+      '<ui:VisualElement name="a" />',
+      '.unity-scroll-view__content-container { width: 40px; }',
+    );
+    expect(messages).toHaveLength(1);
+    expect(messages[0]).toContain('.unity-scroll-view__content-container');
+  });
+});

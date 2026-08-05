@@ -30,8 +30,8 @@ const SIZE = { width: 200, height: 100 };
 
 function build(body: string, uss = ''): { doc: UxmlDocument; tree: ReturnType<typeof layoutDocument> } {
   const doc = parse(`<ui:UXML xmlns:ui="UnityEngine.UIElements">${body}</ui:UXML>`, uss);
-  const { styles } = resolveStyles(doc);
-  return { doc, tree: layoutDocument(doc.root, styles, { size: SIZE, measureText }) };
+  const { styles, partStyles } = resolveStyles(doc);
+  return { doc, tree: layoutDocument(doc.root, styles, partStyles, { size: SIZE, measureText }) };
 }
 
 function named(node: ElementNode, name: string): ElementNode {

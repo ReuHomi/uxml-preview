@@ -177,6 +177,17 @@ const SIDES: ReadonlyArray<readonly [string, Edge]> = [
 export function layoutDocument(
   root: ElementNode,
   styles: ReadonlyMap<NodeId, ComputedStyle>,
+  /**
+   * Style per control part, from the cascade.
+   *
+   * Taken rather than computed. This module used to build part styles itself
+   * from the registry's fixed declarations, which meant author USS could never
+   * reach them — `#unity-content-container { flex-direction: row }` had nowhere
+   * to land, because the part did not exist until after the cascade had run.
+   * Resolving parts alongside elements is what fixes that, and computing them
+   * in two places would put the second cascade back.
+   */
+  partStyles: ReadonlyMap<NodeId, ReadonlyMap<string, ComputedStyle>>,
   options: LayoutOptions,
 ): LayoutTree {
   const yoga = engine;
@@ -195,31 +206,6 @@ export function layoutDocument(
   let disposed = false;
   /** Version warning for control parts, raised once per document. */
   let themeReported = false;
-
-  /**
-   * Purpose:      a part's fixed USS as a ComputedStyle the rest of the pipeline
-   *               already knows how to read.
-   * Ensures:      every value carries `builtin-theme` provenance — a part is not
-   *               in any file, so there is nowhere for an editor to jump to and
-   *               the origin has to say so rather than invent a location.
-   */
-  function partStyle(part: ControlPart): ComputedStyle {
-    const out = new Map<string, ComputedValue>();
-    for (const [property, value] of Object.entries(part.style)) {
-      for (const [expanded, v] of expandShorthand(property, value)) {
-        out.set(expanded, {
-          value: v,
-          origin: {
-            kind: 'builtin-theme',
-            selector: `#${part.name}`,
-            property: expanded,
-            unityVersion: THEME_UNITY_VERSION,
-          },
-        });
-      }
-    }
-    return out;
-  }
 
   const read = (style: ComputedStyle, property: string): string =>
     style.get(property)?.value ?? INITIAL[property] ?? '';
@@ -406,8 +392,12 @@ export function layoutDocument(
       }
       const chain: LayoutPart[] = [];
       const nodes: YogaNode[] = [];
+      const resolvedParts = partStyles.get(node.id);
       for (const part of spec.parts) {
-        const style = partStyle(part);
+        // Falls back to nothing rather than to the registry defaults: if the
+        // cascade did not resolve this part, styling it from a second source
+        // here is exactly the divergence this refactor removed.
+        const style: ComputedStyle = resolvedParts?.get(part.name) ?? new Map();
         const partNode = yoga!.Node.create();
         created++;
         liveNodes++;
