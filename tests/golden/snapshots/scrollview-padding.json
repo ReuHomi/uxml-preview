@@ -35,5 +35,7 @@
       "height": 30
     }
   },
-  "warnings": []
+  "warnings": [
+    "version-dependent: <ScrollView> is drawn with the implicit child elements Unity builds for it, and their geometry was measured on Unity 6000.0.40f1. Other versions may differ; see src/controls/theme.ts."
+  ]
 }

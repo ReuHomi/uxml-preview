@@ -193,6 +193,8 @@ export function layoutDocument(
   const partNodes = new Map<NodeId, YogaNode[]>();
   let created = 0;
   let disposed = false;
+  /** Version warning for control parts, raised once per document. */
+  let themeReported = false;
 
   /**
    * Purpose:      a part's fixed USS as a ComputedStyle the rest of the pipeline
@@ -385,6 +387,23 @@ export function layoutDocument(
     // ScrollView in the wrong place.
     let host = yg;
     if (spec.parts.length > 0) {
+      // A part's styling and the scrollbar width beside it are both measured on
+      // one Unity version, exactly like the Button margin — but neither goes
+      // through the cascade, so neither reached the warning the cascade raises.
+      // A ScrollView-only document was using version-specific geometry in
+      // silence, and a document that happened to contain a Button got the
+      // warning for an unrelated reason. Reported here, once, where it applies.
+      if (!themeReported) {
+        themeReported = true;
+        warnings.push({
+          kind: 'version-dependent',
+          message:
+            `<${node.name.local}> is drawn with the implicit child elements Unity ` +
+            `builds for it, and their geometry was measured on Unity ${THEME_UNITY_VERSION}. ` +
+            'Other versions may differ; see src/controls/theme.ts.',
+          node: node.id,
+        });
+      }
       const chain: LayoutPart[] = [];
       const nodes: YogaNode[] = [];
       for (const part of spec.parts) {
