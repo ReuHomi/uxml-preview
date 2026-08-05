@@ -48,6 +48,10 @@ const CONTROLS: Readonly<Record<string, ControlSpec>> = {
   VisualElement: { hasText: false, classes: [] },
   Label: { hasText: true, classes: ['unity-label'] },
   Button: { hasText: true, classes: ['unity-button'] },
+  // Image draws a texture, not text. Its picture reaches this renderer through
+  // `background-image` in USS, which `resolveAsset` can turn into something a
+  // browser will load; a texture assigned from C# has no path to follow here.
+  Image: { hasText: false, classes: ['unity-image'] },
 };
 
 /**

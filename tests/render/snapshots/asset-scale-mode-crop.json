@@ -1,0 +1,14 @@
+{
+  "elements": {
+    "asset-scale-mode-crop-box": {
+      "background-image": "url(\"data:,icon\")",
+      "background-position": "center center",
+      "background-position-x": "center",
+      "background-position-y": "center",
+      "background-repeat": "no-repeat",
+      "background-size": "cover",
+      "box-sizing": "border-box"
+    }
+  },
+  "warnings": []
+}

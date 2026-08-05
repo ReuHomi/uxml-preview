@@ -28,7 +28,7 @@ Phase가 진행되면서 갱신한다. 상세 매핑은 `uss-reference.md` 참�
 | `Foldout` | 폴백 | 위와 같다 |
 | `DropdownField` | 폴백 | 위와 같다 |
 | `ListView` | 폴백 | 미정 |
-| `Image` | 폴백 | `background-image`는 이미 동작한다. 전용 렌더러는 S1 Step 4 |
+| `Image` | 코드 작성 | 전용 렌더러 있음(`unity-image`). 그림은 USS `background-image`로 들어온다 — C#에서 할당한 텍스처는 프리뷰가 따라갈 경로가 없다. **유니티 미대조** |
 
 > **전용 렌더러가 없는 컨트롤은 `VisualElement`처럼 그려진다** (`폴백`).
 > 자기 스타일과 자식은 정상적으로 나오고, 그 컨트롤 고유의 모양(스크롤바, 입력 필드,
@@ -64,6 +64,7 @@ Phase가 진행되면서 갱신한다. 상세 매핑은 `uss-reference.md` 참�
 | `-unity-font-definition` | B | 코드 작성 | 경고만 남기고 브라우저 기본 폰트 사용 |
 | `-unity-font-style` | B | 코드 작성 | |
 | `-unity-text-align` | B | 코드 작성 | 세로+가로 조합. 텍스트 케이스는 비교 제외 |
+| `-unity-background-scale-mode` | A | 코드 작성 | `stretch-to-fill`→`100% 100%`, `scale-and-crop`→`cover`, `scale-to-fit`→`contain`. **매핑과 기본값 모두 유니티 미대조** — 좌표 덤프로는 잴 수 없고 Step 6 육안 대조에서 판정한다 |
 | `-unity-slice-*` | A | **미구현** | 경고만 남긴다 |
 | `-unity-background-image-tint-color` | A | **미구현** | CSS 대응이 없어 경고만 남긴다 |
 | `-unity-text-outline-*` | B | 미구현 | |

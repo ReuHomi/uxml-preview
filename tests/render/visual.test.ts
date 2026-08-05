@@ -47,7 +47,7 @@ beforeAll(async () => {
 describe('visual regression: the CSS we emit is stable', () => {
   for (const visual of VISUAL_CASES) {
     it(`${visual.name} — ${visual.question}`, () => {
-      const actual = runVisualCase(visual, visual.name.startsWith('asset-') ? () => null : undefined);
+      const actual = runVisualCase(visual);
       const path = join(SNAPSHOTS, `${visual.name}.json`);
 
       if (UPDATING || !existsSync(path)) {

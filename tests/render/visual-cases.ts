@@ -170,6 +170,85 @@ export const VISUAL_CASES: VisualCase[] = [
       '#asset-background-unresolved-box {\n' +
       '  background-image: url("project://database/Assets/missing.png");\n' +
       '}\n',
+    asset: { resolvesTo: null },
+  },
+
+  // --- -unity-background-scale-mode ----------------------------------------
+  //
+  // Expected values come from Unity's `ScaleMode`, not from reading our own
+  // output: fill the box ignoring aspect, cover and crop, or fit inside. CSS
+  // has a keyword for each, so the mapping is forced once the semantics are.
+  //
+  // **None of this is verified against Unity.** A layout dump reports
+  // rectangles, and which part of a texture lands inside a rectangle is not a
+  // rectangle. Judged by eye in Step 6; until then these detect our own drift
+  // and nothing more.
+  ...(
+    [
+      ['stretch', 'stretch-to-fill', 'fills the box, ignoring aspect ratio'],
+      ['crop', 'scale-and-crop', 'covers the box and crops the overflow'],
+      ['fit', 'scale-to-fit', 'fits inside the box, leaving empty space'],
+    ] as const
+  ).map(([short, mode, effect]) => ({
+    name: `asset-scale-mode-${short}`,
+    question: `Does -unity-background-scale-mode: ${mode} map to the CSS that ${effect}?`,
+    uxml: wrap(`  <ui:VisualElement name="asset-scale-mode-${short}-box" />`),
+    uss:
+      `#asset-scale-mode-${short}-box {\n` +
+      '  width: 100px;\n  height: 50px;\n' +
+      '  background-image: url("project://database/Assets/icon.png");\n' +
+      `  -unity-background-scale-mode: ${mode};\n` +
+      '}\n',
+    asset: { resolvesTo: 'data:,icon' },
+  })),
+  {
+    name: 'asset-scale-mode-default',
+    // The value that applies to every background image nobody wrote a mode for,
+    // so getting it wrong is quiet and widespread.
+    question: 'What scale mode applies when none is declared?',
+    uxml: wrap('  <ui:VisualElement name="asset-scale-mode-default-box" />'),
+    uss:
+      '#asset-scale-mode-default-box {\n  width: 100px;\n  height: 50px;\n' +
+      '  background-image: url("project://database/Assets/icon.png");\n}\n',
+    asset: { resolvesTo: 'data:,icon' },
+  },
+  {
+    name: 'asset-scale-mode-invalid',
+    question: 'Does a scale mode that is not a USS value warn rather than pass through?',
+    uxml: wrap('  <ui:VisualElement name="asset-scale-mode-invalid-box" />'),
+    uss:
+      '#asset-scale-mode-invalid-box {\n' +
+      '  background-image: url("project://database/Assets/icon.png");\n' +
+      '  -unity-background-scale-mode: cover;\n}\n',
+    asset: { resolvesTo: 'data:,icon' },
+  },
+  {
+    name: 'asset-background-size-wins',
+    // `background-size` is the CSS spelling and version-dependent in USS, but an
+    // author who wrote it meant it — it should not be silently overruled by the
+    // mode we derive.
+    question: 'Does an explicit background-size beat the derived scale mode?',
+    uxml: wrap('  <ui:VisualElement name="asset-background-size-wins-box" />'),
+    uss:
+      '#asset-background-size-wins-box {\n' +
+      '  background-image: url("project://database/Assets/icon.png");\n' +
+      '  -unity-background-scale-mode: scale-to-fit;\n' +
+      '  background-size: 50% 50%;\n}\n',
+    asset: { resolvesTo: 'data:,icon' },
+  },
+
+  // --- Image ----------------------------------------------------------------
+  {
+    name: 'image-control',
+    question:
+      'Does <ui:Image> render as a box with the unity-image class, taking its ' +
+      'picture from background-image?',
+    uxml: wrap('  <ui:Image name="image-control-icon" />'),
+    uss:
+      '.unity-image {\n  width: 40px;\n  height: 40px;\n}\n' +
+      '#image-control-icon {\n' +
+      '  background-image: url("project://database/Assets/icon.png");\n}\n',
+    asset: { resolvesTo: 'data:,icon' },
   },
 
   // --- pseudo-class states --------------------------------------------------

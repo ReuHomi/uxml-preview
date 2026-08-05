@@ -1,0 +1,14 @@
+{
+  "elements": {
+    "asset-scale-mode-fit-box": {
+      "background-image": "url(\"data:,icon\")",
+      "background-position": "center center",
+      "background-position-x": "center",
+      "background-position-y": "center",
+      "background-repeat": "no-repeat",
+      "background-size": "contain",
+      "box-sizing": "border-box"
+    }
+  },
+  "warnings": []
+}

@@ -42,7 +42,7 @@ DOM reproduces them is checked by an invariant of our own
 | `Foldout` | fallback | as above |
 | `DropdownField` | fallback | as above |
 | `ListView` | fallback | undecided |
-| `Image` | fallback | `background-image` already works; a dedicated renderer is S1 Step 4 |
+| `Image` | written | has its own renderer (`unity-image`). Its picture arrives through USS `background-image` — a texture assigned from C# leaves no path a preview can follow. **Not compared to Unity** |
 
 > **A control with no renderer of its own is drawn as a `VisualElement`**
 > (`fallback`). Its own styles and its children come out normally; what is
@@ -76,6 +76,7 @@ matched** ([`accuracy.en.md`](accuracy.en.md)).
 | `-unity-font-definition` | B | written | warns and falls back to the browser default font |
 | `-unity-font-style` | B | written | |
 | `-unity-text-align` | B | written | vertical+horizontal pair. Text cases are excluded from comparison |
+| `-unity-background-scale-mode` | A | written | `stretch-to-fill`→`100% 100%`, `scale-and-crop`→`cover`, `scale-to-fit`→`contain`. **Neither the mapping nor the default is compared to Unity** — a coordinate dump cannot see it; judged in the Step 6 eye check |
 | `-unity-slice-*` | A | **not implemented** | warning only |
 | `-unity-background-image-tint-color` | A | **not implemented** | no CSS equivalent; warning only |
 | `-unity-text-outline-*` | B | not implemented | |

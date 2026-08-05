@@ -283,6 +283,14 @@ describe('controls with no renderer', () => {
     expect(tree.warnings.filter((w) => w.kind === 'unsupported-control')).toHaveLength(0);
     tree.dispose();
   });
+
+  it('do not report Image, which has a renderer of its own', () => {
+    const { doc, tree } = build('<ui:Image name="i" />', '#i { width: 40px; height: 40px; }');
+    expect(tree.warnings.filter((w) => w.kind === 'unsupported-control')).toHaveLength(0);
+    // A box, not a text control: an Image draws a texture and has no caption.
+    expect(tree.boxes.get(named(doc.root, 'i').id)!.width).toBe(40);
+    tree.dispose();
+  });
 });
 
 describe('node ownership', () => {

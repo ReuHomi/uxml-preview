@@ -1,0 +1,16 @@
+{
+  "elements": {
+    "asset-background-size-wins-box": {
+      "background-image": "url(\"data:,icon\")",
+      "background-position": "center center",
+      "background-position-x": "center",
+      "background-position-y": "center",
+      "background-repeat": "no-repeat",
+      "background-size": "50% 50%",
+      "box-sizing": "border-box"
+    }
+  },
+  "warnings": [
+    "version-dependent: background-size depends on the Unity version; verify it in your project"
+  ]
+}

@@ -32,6 +32,11 @@ export interface VisualCase {
    * and judged against Unity by eye in S1 Step 6.
    */
   states?: Readonly<Record<string, readonly string[]>>;
+  /**
+   * How `resolveAsset` behaves for this case. Absent means no resolver at all,
+   * which is a third thing again — a host that never implemented the hook.
+   */
+  asset?: { resolvesTo: string | null };
 }
 
 export interface CaseVisuals {
@@ -79,10 +84,9 @@ function visualCss(el: HTMLElement): Record<string, string> {
  *               returning, so no Yoga nodes outlive the call.
  * Requires:     `loadLayoutEngine()` resolved, and a DOM (jsdom is fine).
  */
-export function runVisualCase(
-  visual: VisualCase,
-  resolveAsset?: (path: string) => string | null,
-): CaseVisuals {
+export function runVisualCase(visual: VisualCase): CaseVisuals {
+  const resolveAsset =
+    visual.asset === undefined ? undefined : () => visual.asset!.resolvesTo;
   const doc = parse(visual.uxml, visual.uss);
   const container = document.createElement('div');
   document.body.appendChild(container);

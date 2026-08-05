@@ -102,6 +102,13 @@ describe('where the defaults sit in the cascade', () => {
     const d = doc('<ui:ScrollView name="s" />', '.unity-button { color: red; }');
     expect(value(d, 's', 'color')).toBeUndefined();
   });
+
+  it('gives Image its own class, and not another control class', () => {
+    const d = doc('<ui:Image name="i" />', '.unity-image { color: red; }');
+    expect(value(d, 'i', 'color')).toBe('red');
+    expect(value(doc('<ui:Image name="i" />', '.unity-button { color: red; }'), 'i', 'color'))
+      .toBeUndefined();
+  });
 });
 
 describe('provenance', () => {
