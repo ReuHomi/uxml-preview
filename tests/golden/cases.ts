@@ -573,6 +573,48 @@ export const CASES: GoldenCase[] = [
       'Button:disabled {\n  width: 120px;\n}\n',
   },
 
+  // --- how far a state rule outranks an ordinary one ------------------------
+  //
+  // The representative screen settled that it *does*: Unity paints the disabled
+  // Drop button with `Button:disabled`'s colour even though `#DropButton` also
+  // matches, and by CSS specificity (1,0,0) beats (0,1,1). Measured from the
+  // screenshots by sampling pixels, not by eye.
+  //
+  // What that does not say is how far it goes, and guessing the rule from one
+  // observation is what `.unity-button` taught us not to do. These two ask the
+  // question as geometry so the coordinate dump answers it: 120 means the state
+  // rule won, 40 means it did not.
+  {
+    name: 'state-vs-id',
+    question: 'Does a `:disabled` rule beat an `#id` rule, which outranks it in CSS?',
+    uxml: wrap(
+      '  <ui:VisualElement name="svi-holder">\n' +
+        '    <ui:Button name="svi-btn" text="A" enabled="false" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#svi-holder {\n  align-items: flex-start;\n  width: 300px;\n  height: 80px;\n}\n' +
+      'Button {\n  height: 30px;\n  margin: 0;\n}\n' +
+      '#svi-btn {\n  width: 40px;\n}\n' +
+      'Button:disabled {\n  width: 120px;\n}\n',
+  },
+  {
+    name: 'state-vs-inline',
+    // The other end of the range. Inline styles beat every selector in USS, so
+    // if a state rule beats them too then states are not specificity at all but
+    // a separate stage of the cascade.
+    question: 'Does a `:disabled` rule beat an inline `style` attribute?',
+    uxml: wrap(
+      '  <ui:VisualElement name="svl-holder">\n' +
+        '    <ui:Button name="svl-btn" text="A" enabled="false" style="width: 40px;" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#svl-holder {\n  align-items: flex-start;\n  width: 300px;\n  height: 80px;\n}\n' +
+      'Button {\n  height: 30px;\n  margin: 0;\n}\n' +
+      'Button:disabled {\n  width: 120px;\n}\n',
+  },
+
   // --- the representative screen --------------------------------------------
   //
   // The S1 plan's §2 tree, written out as-is. It is deliberately not adjusted
