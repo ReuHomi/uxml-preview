@@ -210,7 +210,7 @@ Checked by comparing element geometry against the Unity Editor, case by case.
 Geometry rather than pixels: Unity draws text with its own font asset and a
 browser does not, so a pixel diff would measure the font more than the layout.
 
-Measured against Unity on 2026-08-02, over 18 cases and 61 elements:
+Measured against Unity on 2026-08-05, over 31 cases and 137 elements:
 
 | | |
 |---|---|

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- `package.json` description updated from 0.1.0's `242 of 244` to `532 of 548`.
+  npm still serves the 0.2.0 description as published; this only takes effect
+  on the next publish.
+
 ## 0.2.0 — 2026-08-06
 
 Five controls instead of three, a representative screen measured end to end
