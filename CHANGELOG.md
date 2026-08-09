@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 — Unreleased
+## 0.3.0 — 2026-08-09
 
 Four fixes the VSCode extension (`vscode-uxml-preview`) hit while consuming
 this package as a dependency — not speculative additions.
