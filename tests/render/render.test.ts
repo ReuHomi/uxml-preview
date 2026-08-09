@@ -28,7 +28,11 @@ function host(): HTMLElement {
   return el;
 }
 
-function draw(body: string, uss = '', resolveAsset?: (p: string) => string | null) {
+function draw(
+  body: string,
+  uss = '',
+  resolveAsset?: (p: string, form: 'url' | 'resource') => string | null,
+) {
   const doc = parse(`<ui:UXML xmlns:ui="UnityEngine.UIElements">${body}</ui:UXML>`, uss);
   const container = host();
   const result = render(doc, container, {
@@ -233,6 +237,30 @@ describe('assets', () => {
     const el = result.elements.get(named(doc.root, 'a').id)!;
     expect(el.style.backgroundImage).toContain('repeating-linear-gradient');
     expect(result.warnings.some((w) => w.kind === 'asset-unresolved')).toBe(true);
+    result.dispose();
+  });
+
+  // url() and resource() resolve differently — a path vs. Unity's Resources
+  // folder convention — so the hook must be told which one it is seeing.
+  // Quote and whitespace variants must not change what gets reported.
+  it.each([
+    ['url("project://database/Assets/x.png")', 'url', 'project://database/Assets/x.png'],
+    ["url('project://database/Assets/x.png')", 'url', 'project://database/Assets/x.png'],
+    ['url(project://database/Assets/x.png)', 'url', 'project://database/Assets/x.png'],
+    ['resource("Sprites/x")', 'resource', 'Sprites/x'],
+    ["resource( 'Sprites/x' )", 'resource', 'Sprites/x'],
+    ['resource(Sprites/x)', 'resource', 'Sprites/x'],
+  ] as const)('reports form %s for %s', (declaration, expectedForm, expectedPath) => {
+    const calls: Array<{ path: string; form: string }> = [];
+    const { result } = draw(
+      '<ui:VisualElement name="a" />',
+      `#a { background-image: ${declaration}; }`,
+      (path, form) => {
+        calls.push({ path, form });
+        return 'data:,ok';
+      },
+    );
+    expect(calls).toEqual([{ path: expectedPath, form: expectedForm }]);
     result.dispose();
   });
 });

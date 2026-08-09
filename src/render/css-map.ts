@@ -17,7 +17,16 @@ import type { ComputedStyle } from '../style/resolve';
 import { parseLength } from './values';
 
 export interface CssMapOptions {
-  resolveAsset?: ((path: string) => string | null) | undefined;
+  /**
+   * `form` tells `url("...")` apart from `resource("...")` — Unity resolves
+   * them differently: `url()` is a path (relative to the project or
+   * absolute), `resource()` names an asset inside a Resources folder by its
+   * Unity resource path (no extension). A host that ignores `form` and
+   * treats every path the same will resolve `resource("foo")` as a literal
+   * file path, which silently draws the wrong image whenever a same-named
+   * file happens to sit alongside it — or resolves nothing at all.
+   */
+  resolveAsset?: ((path: string, form: 'url' | 'resource') => string | null) | undefined;
 }
 
 export interface CssMapResult {
@@ -105,10 +114,10 @@ const SCALE_MODE: Readonly<Record<string, string>> = {
  */
 const DEFAULT_SCALE_MODE = 'stretch-to-fill';
 
-/** `url("project://...")` or `resource("...")` to the bare path. */
-function assetPath(value: string): string | null {
-  const match = /^(?:url|resource)\(\s*(["']?)(.*?)\1\s*\)$/.exec(value.trim());
-  return match === null ? null : match[2]!;
+/** `url("project://...")` or `resource("...")` to its form and bare path. */
+function assetPath(value: string): { form: 'url' | 'resource'; path: string } | null {
+  const match = /^(url|resource)\(\s*(["']?)(.*?)\2\s*\)$/.exec(value.trim());
+  return match === null ? null : { form: match[1] as 'url' | 'resource', path: match[3]! };
 }
 
 /**
@@ -236,11 +245,12 @@ export function toCss(
 
   const image = value('background-image');
   if (image !== undefined && image !== 'none') {
-    const path = assetPath(image);
-    if (path === null) {
+    const asset = assetPath(image);
+    if (asset === null) {
       warn('asset-unresolved', `background-image: cannot read "${image}" as an asset path`);
     } else {
-      const url = options.resolveAsset?.(path) ?? null;
+      const { form, path } = asset;
+      const url = options.resolveAsset?.(path, form) ?? null;
       if (url === null) {
         // A checkerboard rather than nothing: a missing image that leaves no
         // trace is indistinguishable from an element that was never drawn.

@@ -44,6 +44,8 @@ export type {
 } from './style/resolve';
 export type { Specificity } from './style/specificity';
 export { isInherited } from './style/properties';
+export { KNOWN_DIVERGENCES } from './known-divergences';
+export type { KnownDivergence } from './known-divergences';
 
 import { decodeEntities } from './parser/entities';
 import { parseUxml } from './parser/uxml';
@@ -195,8 +197,15 @@ export interface RenderOptions {
    * USS background images look like `url("project://database/Assets/foo.png")`
    * or `resource("foo")`. Browsers cannot load these, so the host application
    * must map them to real URLs. Return `null` to draw a placeholder instead.
+   *
+   * `form` says which of the two `path` came from — `'url'` is a path
+   * (project-relative or absolute), `'resource'` is a Unity Resources-folder
+   * name (no extension, resolved by Unity's own lookup rules). They are not
+   * interchangeable: a host that ignores `form` and resolves both as file
+   * paths will resolve `resource("foo")` against whatever happens to sit at
+   * that path — the wrong image, silently, if one exists there at all.
    */
-  resolveAsset?: (path: string) => string | null;
+  resolveAsset?: (path: string, form: 'url' | 'resource') => string | null;
 
   /** Panel size in pixels. Defaults to the container's client size. */
   size?: { width: number; height: number };
@@ -234,7 +243,8 @@ export interface RenderResult {
   /**
    * Everything the renderer could not honour: unsupported controls, properties,
    * selectors and units, plus unresolved assets. Distinct from
-   * `UxmlDocument.warnings`, which only covers malformed input.
+   * `UxmlDocument.warnings`, which covers malformed input and unresolved
+   * `<Style src="…">` / `@import` references rather than render-time support.
    */
   warnings: readonly Warning[];
   /** Painted element per model node. Lets a host map a click back to the tree. */

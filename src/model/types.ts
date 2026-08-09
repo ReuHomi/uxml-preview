@@ -264,7 +264,12 @@ export interface UxmlDocument {
    * own `source`, which is why the source text lives on the sheet.
    */
   sheets: StyleSheet[];
-  /** Parse-time only — malformed input. Support judgments happen downstream. */
+  /**
+   * Parse-time only — `'malformed'` (bad syntax) and `'import-unresolved'`
+   * (a `<Style src="…">` or `@import` that `resolveImport` could not read).
+   * Support judgments (unsupported controls/properties/selectors/units,
+   * unresolved assets) happen downstream, in `RenderResult.warnings`.
+   */
   warnings: Warning[];
 }
 

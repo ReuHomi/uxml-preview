@@ -16,18 +16,29 @@ export default defineConfig(({ command }) => ({
   root: command === 'serve' ? resolve(here, 'playground') : here,
   build: {
     lib: {
-      entry: resolve(here, 'src/index.ts'),
+      // `unity-project/index` is Node-only (uses `node:fs`) and ships on its
+      // own `exports` subpath so the main entry stays browser-safe.
+      entry: {
+        index: resolve(here, 'src/index.ts'),
+        'unity-project/index': resolve(here, 'src/unity-project/index.ts'),
+      },
       name: 'UxmlPreview',
-      fileName: 'index',
+      fileName: (_format, entryName) => `${entryName}.js`,
       formats: ['es'],
     },
     outDir: resolve(here, 'dist'),
     emptyOutDir: true,
     rollupOptions: {
-      // yoga-layout is a declared dependency, so consumers install it
-      // themselves. Bundling it inlines a base64 WebAssembly blob and would
-      // ship a second copy to anyone already using Yoga.
-      external: ['yoga-layout', 'yoga-layout/load'],
+      external: [
+        // yoga-layout is a declared dependency, so consumers install it
+        // themselves. Bundling it inlines a base64 WebAssembly blob and would
+        // ship a second copy to anyone already using Yoga.
+        'yoga-layout',
+        'yoga-layout/load',
+        // Node builtins used by unity-project/index.ts only.
+        'node:fs/promises',
+        'node:path',
+      ],
     },
   },
   // Declarations are a build artifact; generating them on every dev reload

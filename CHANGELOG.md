@@ -1,10 +1,48 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 — Unreleased
 
-- `package.json` description updated from 0.1.0's `242 of 244` to `532 of 548`.
-  npm still serves the 0.2.0 description as published; this only takes effect
-  on the next publish.
+Four fixes the VSCode extension (`vscode-uxml-preview`) hit while consuming
+this package as a dependency — not speculative additions.
+
+### Added
+
+- **`KNOWN_DIVERGENCES`** gives a host something to tell apart "a limit we
+  know about" from "a bug". Three entries, and the kinds carry the
+  distinction that matters. Font metrics move with the platform, so the
+  difference cannot be reproduced here at all. Unity's rule for a wrap
+  container's height is simply not specified, so there is nothing to match
+  yet. And the Yoga vendored in UI Toolkit resolves a main-axis percentage
+  against an indefinite parent differently from the one this package depends
+  on — that one reproduces perfectly every time; it just cannot be fixed
+  from inside this repository. The 1px case is deliberately absent: that is
+  the golden tests' judgement parameter, not a limit of the renderer, and a
+  host showing it would read as a defect.
+- **`uxml-preview/unity-project`**, a Node-only subpath exporting
+  `buildGuidIndex(projectRoot)`. Builds a GUID → absolute-path index from a
+  Unity project's `.meta` files, for the case where an asset reference's path
+  has gone stale but its GUID is still good. Skips `Library/`, `Temp/`,
+  `obj/`, `.git/`, and any `.meta` file it cannot read. Kept out of the main
+  entry point because it uses `node:fs` and the main entry must stay
+  browser-safe.
+
+### Changed
+
+- **`resolveAsset` now receives a second argument, `form: 'url' | 'resource'`**,
+  telling `url("...")` and `resource("...")` background-image references
+  apart. They resolve differently — `url()` is a path, `resource()` is a
+  Unity Resources-folder name — and a host that resolved both the same way
+  before this had no way to know which one it was looking at.
+  **Non-breaking**: existing `(path) => ...` implementations keep working
+  unchanged: `form` is an additional argument, not a replacement one.
+
+### Fixed
+
+- `UxmlDocument.warnings` and `RenderResult.warnings` doc comments corrected.
+  The former said it covers "malformed input" only; it also carries
+  `'import-unresolved'` for an unreadable `<Style src="…">` or `@import`. The
+  latter said it is distinct from the former on that same wrong premise.
+  Comment-only — no behavior changed.
 
 ## 0.2.0 — 2026-08-06
 
