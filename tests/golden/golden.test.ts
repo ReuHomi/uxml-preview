@@ -406,6 +406,62 @@ describe('accuracy: we match Unity', () => {
     }
   });
 
+  /**
+   * docs/accuracy.md's "이 수치가 덮는 컨트롤" table, mirrored here so it
+   * cannot silently drift the way it already had once. Classification order
+   * only matters if a case matches more than one tag — checked directly
+   * (see the same section in the doc): only `inventory` does, and it is
+   * pulled out first by name, so order is otherwise inert.
+   */
+  function computeControlCoverage(): Record<
+    'VisualElement only' | 'Label' | 'Button' | 'ScrollView' | 'screen',
+    number
+  > {
+    const counts = { 'VisualElement only': 0, Label: 0, Button: 0, ScrollView: 0, screen: 0 };
+    for (const golden of measured) {
+      if (golden.name === 'inventory') counts.screen++;
+      else if (/<ui:ScrollView/.test(golden.uxml)) counts.ScrollView++;
+      else if (/<ui:Button/.test(golden.uxml)) counts.Button++;
+      else if (/<ui:Label/.test(golden.uxml)) counts.Label++;
+      else counts['VisualElement only']++;
+    }
+    return counts;
+  }
+
+  /** Extracts every markdown table row containing all of `words`, and reads the first integer on it. */
+  function leadingCountInRowsContaining(text: string, words: string[]): number[] {
+    const out: number[] = [];
+    for (const rawLine of text.split('\n')) {
+      const line = rawLine.trim();
+      if (!line.startsWith('|')) continue;
+      if (!words.every((w) => line.includes(w))) continue;
+      const m = /(\d+)/.exec(line);
+      if (m !== null) out.push(Number(m[1]));
+    }
+    return out;
+  }
+
+  it('matches the control-coverage table published in docs/accuracy.md', () => {
+    const counts = computeControlCoverage();
+    const doc = readFileSync(ACCURACY_DOC, 'utf8');
+
+    const checks: Array<{ label: string; words: string[]; expected: number }> = [
+      { label: 'VisualElement only', words: ['`VisualElement`', '만'], expected: counts['VisualElement only'] },
+      { label: 'Label', words: ['`Label`', '포함'], expected: counts['Label'] },
+      { label: 'Button', words: ['`Button`', '포함'], expected: counts['Button'] },
+      { label: 'ScrollView', words: ['`ScrollView`', '포함'], expected: counts['ScrollView'] },
+      { label: 'representative screen', words: ['대표', '화면'], expected: counts['screen'] },
+    ];
+
+    for (const { label, words, expected } of checks) {
+      const found = leadingCountInRowsContaining(doc, words);
+      expect(found.length, `docs/accuracy.md has no "${label}" row — update the doc or the parser`).toBeGreaterThan(0);
+      for (const count of found) {
+        expect(count, `docs/accuracy.md's "${label}" row is stale`).toBe(expected);
+      }
+    }
+  });
+
   for (const golden of measured) {
     const path = join(UNITY, `${golden.name}.json`);
     const unity = readJson<UnityDump>(path);

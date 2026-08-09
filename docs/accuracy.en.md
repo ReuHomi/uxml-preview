@@ -23,13 +23,6 @@ by `tests/golden/golden.test.ts`'s `matches the figures published in
 docs/accuracy.md`; this English mirror is not separately guarded, so keep it
 in sync by hand when that test's numbers change.
 
-The "Which controls this covers" table below is **not** verified as part of
-this fix — its own row counts (17+1+6+5+1 = 30) never summed to its stated
-denominator (31) even before this update, so it was already wrong on its own
-terms. Recomputing it needs the original counting rule, which is not written
-down anywhere; guessing one risked replacing one wrong number with another,
-so it is left as-is and flagged here rather than silently "corrected."
-
 Tolerance 0.5px, kept deliberately tighter than the 1px the S1 plan allows:
 loosening it would hide a real 1px error in any of the other thirty cases.
 
@@ -60,14 +53,21 @@ in coordinates instead of colours.
 > byte** (20, 26, 27, 30, 32, 34). The dump harness is deterministic, which is
 > what lets a new number be attributed to the change rather than the environment.
 
-### Which controls this covers — it widened on 2026-08-05
+### Which controls this covers
+
+**Computed from `tests/golden/cases.ts`, on this rule**: the `inventory` case
+is classified as the representative screen. Each of the other 32 is classified
+by the first tag its UXML contains, checked in this order: `<ui:ScrollView`,
+then `<ui:Button`, then `<ui:Label`; anything matching none of the three is
+`VisualElement` only. Order does not affect the result — checked directly, only
+`inventory` contains more than one of the three tags.
 
 | Cases containing | Count |
 |---|---|
 | `VisualElement` only | 17 |
 | `Label` | 1 (`inherit-vs-direct`) |
-| `Button` | 6 |
-| `ScrollView` | 5 |
+| `Button` | 10 |
+| `ScrollView` | 4 |
 | the representative screen | 1 — all five plus Image |
 
 The previous figure (242/244) was 17 of 18 cases in that first row: it was, in
@@ -75,6 +75,10 @@ effect, `VisualElement` geometry, and **no `Button` had ever been compared**.
 Only one case with a `Label` is comparable because the other two depend on text
 measurement and are excluded. Control coverage is a different axis from value
 count, and it does not widen just because the value count does.
+
+This table's five numbers are checked by the same drift guard as the headline
+figures, but only in the Korean original (`accuracy.md`); keep this mirror in
+sync by hand.
 
 ### What this number covers, and what it does not
 

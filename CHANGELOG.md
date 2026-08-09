@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+### Docs
+
+- **`docs/accuracy.md`'s "which controls this covers" table now has a stated,
+  computed rule** instead of being left unverified. It never added up on its
+  own terms (17+1+6+5+1 = 30, not the stated 31) and the original counting
+  rule was never written down, so it is now defined explicitly — classify
+  `inventory` as the representative screen, then each other case by the first
+  of `<ui:ScrollView`, `<ui:Button`, `<ui:Label` its UXML contains, else
+  `VisualElement` only — and computed from `tests/golden/cases.ts` rather than
+  hand-counted. Updated numbers: `Button` 6→10, `ScrollView` 5→4 (`VisualElement`
+  only, `Label`, and the representative screen are unchanged). Mirrored into
+  `docs/accuracy.en.md`, which is not machine-checked.
+- **The drift guard now covers this table's five numbers too**, in
+  `docs/accuracy.md` only. Same shape as the three headline figures: recomputed
+  live and failing (not skipping) if it can't find a row to check. Confirmed by
+  breaking a count and by removing a row's label, both on purpose.
+
 ## 0.3.0 — 2026-08-09
 
 Four fixes the VSCode extension (`vscode-uxml-preview`) hit while consuming
