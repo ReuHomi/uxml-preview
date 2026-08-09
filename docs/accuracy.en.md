@@ -5,16 +5,30 @@
 **The document that answers "does it actually match Unity?" with numbers.**
 It is the first question anyone asks, and without an answer nobody uses this.
 
-## Current state (measured 2026-08-05)
+## Current state (measured 2026-08-06)
 
 | | |
 |---|---|
-| Cases | 34 (31 comparable, 3 dependent on text measurement) |
-| Unity ground truth available | **31 / 31** |
-| Elements compared | 137 (548 values = elements × x/y/width/height) |
-| **Cases matching** | **29 / 31** |
-| **Values matching** | **532 / 548 (97.1%)** |
+| Cases | 36 (33 comparable, 3 dependent on text measurement) |
+| Unity ground truth available | **33 / 33** |
+| Elements compared | 141 (564 values = elements × x/y/width/height) |
+| **Cases matching** | **31 / 33** |
+| **Values matching** | **548 / 564 (97.2%)** |
 | Known divergences | 16 values — **and they are four different things** |
+
+This table went stale once already (found 2026-08-09): two cases,
+`state-vs-id` and `state-vs-inline`, were merged without it being updated.
+The Korean original (`accuracy.md`) is now checked against a live recomputation
+by `tests/golden/golden.test.ts`'s `matches the figures published in
+docs/accuracy.md`; this English mirror is not separately guarded, so keep it
+in sync by hand when that test's numbers change.
+
+The "Which controls this covers" table below is **not** verified as part of
+this fix — its own row counts (17+1+6+5+1 = 30) never summed to its stated
+denominator (31) even before this update, so it was already wrong on its own
+terms. Recomputing it needs the original counting rule, which is not written
+down anywhere; guessing one risked replacing one wrong number with another,
+so it is left as-is and flagged here rather than silently "corrected."
 
 Tolerance 0.5px, kept deliberately tighter than the 1px the S1 plan allows:
 loosening it would hide a real 1px error in any of the other thirty cases.
@@ -64,7 +78,7 @@ count, and it does not widen just because the value count does.
 
 ### What this number covers, and what it does not
 
-**The 97.1% is measured at the coordinates Yoga produces.** The pipeline has
+**The 97.2% is measured at the coordinates Yoga produces.** The pipeline has
 four layers — parse, resolve styles, Yoga layout, DOM paint — and the comparison
 against Unity is of the third one's output. Whether the DOM actually drawn on
 screen reproduces those coordinates is **not** compared against Unity.

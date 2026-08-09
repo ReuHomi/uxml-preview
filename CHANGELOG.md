@@ -44,6 +44,31 @@ this package as a dependency — not speculative additions.
   latter said it is distinct from the former on that same wrong premise.
   Comment-only — no behavior changed.
 
+### Docs
+
+- **`docs/accuracy.md`'s published figures were stale**: two comparable cases
+  (`state-vs-id`, `state-vs-inline`) were merged after the doc's numbers were
+  last written, and nothing caught it. Recomputed from a live run rather than
+  trusted: **548 / 564 values (97.2%)**, **31 / 33 cases matching**, **33 / 33**
+  Unity baseline coverage — up from the stale 532/548, 29/31, 31/31. Mirrored
+  into `README.md` (both languages) and `docs/uss-vs-css.md`/`.ko.md`.
+  `docs/accuracy.en.md` was updated too but is not machine-checked (see next).
+- **Added a regression guard**: `tests/golden/golden.test.ts` now has
+  `matches the figures published in docs/accuracy.md`, which recomputes the
+  three headline numbers from the actual case set and fails if
+  `docs/accuracy.md` says anything else — including failing (not skipping) if
+  it cannot find a row to check, so the guard can't be silently defeated by a
+  table-format change. This is the third time this specific number went stale
+  publicly (`docs/accuracy.md` itself already records the first two); the doc
+  fix alone would only prevent a third, not a fourth.
+- Left unfixed and flagged in `docs/accuracy.md`/`accuracy.en.md`: the
+  "which controls this covers" breakdown table (`Button`/`ScrollView`/etc.
+  row counts) was already internally inconsistent before this change
+  (17+1+6+5+1 = 30, not the stated 31) and is not machine-checked. Recomputing
+  it requires a counting rule that is not written down anywhere; a guess
+  risked swapping one wrong number for another, so it was left alone and
+  called out inline instead.
+
 ## 0.2.0 — 2026-08-06
 
 Five controls instead of three, a representative screen measured end to end

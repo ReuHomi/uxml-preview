@@ -30,6 +30,7 @@ import type { CaseGeometry, Rect } from './harness';
 const HERE = fileURLToPath(new URL('.', import.meta.url));
 const SNAPSHOTS = join(HERE, 'snapshots');
 const UNITY = join(HERE, 'unity');
+const ACCURACY_DOC = join(HERE, '..', '..', 'docs', 'accuracy.md');
 
 /** Sub-pixel wobble from Yoga's point rounding is not a mismatch. */
 const TOLERANCE_PX = 0.5;
@@ -307,6 +308,102 @@ describe('accuracy: we match Unity', () => {
       [...new Set(nowProduced)],
       'these are produced now and should be compared, not excused',
     ).toEqual([]);
+  });
+
+  /**
+   * Purpose: the three headline numbers (docs/accuracy.md's "대외 유일 숫자"
+   * table and its "현재 상태" snapshot), computed from a live run instead of
+   * copied from memory — this is what the per-case tests below check
+   * one-by-one, aggregated.
+   */
+  function computeAccuracy(): {
+    matchingValues: number;
+    comparedValues: number;
+    fullyMatchingCases: number;
+    presentCases: number;
+  } {
+    let comparedValues = 0;
+    let matchingValues = 0;
+    let fullyMatchingCases = 0;
+    let presentCases = 0;
+
+    for (const golden of measured) {
+      const unity = readJson<UnityDump>(join(UNITY, `${golden.name}.json`));
+      if (unity === null) continue;
+      presentCases++;
+
+      const reproduced = Object.keys(unity.elements).filter(
+        (k) => !NOT_REPRODUCED.has(baseName(k)),
+      );
+      const ours = runCase(golden, unity.panel);
+      const mismatches = compare(ours, unity);
+
+      comparedValues += reproduced.length * 4;
+      matchingValues += reproduced.length * 4 - mismatches.length;
+      if (mismatches.length === 0) fullyMatchingCases++;
+    }
+
+    return { matchingValues, comparedValues, fullyMatchingCases, presentCases };
+  }
+
+  /**
+   * Extracts every markdown table row containing all of `words`, and reads
+   * the first `N / M` fraction on that row.
+   *
+   * Deliberately format-tolerant rather than tied to one table's column
+   * order: docs/accuracy.md states each of these three numbers twice, in two
+   * tables with the number and the label in opposite column order, and both
+   * must stay honest. Restricted to lines starting with `|` so prose that
+   * happens to mention the same words (there is exactly one such paragraph,
+   * about a past mis-citation) is never mistaken for a data row.
+   */
+  function fractionsInRowsContaining(text: string, words: string[]): Array<[number, number]> {
+    const out: Array<[number, number]> = [];
+    for (const rawLine of text.split('\n')) {
+      const line = rawLine.trim();
+      if (!line.startsWith('|')) continue;
+      if (!words.every((w) => line.includes(w))) continue;
+      const m = /(\d+)\s*\/\s*(\d+)/.exec(line);
+      if (m !== null) out.push([Number(m[1]), Number(m[2])]);
+    }
+    return out;
+  }
+
+  // This is the guard against the mistake docs/accuracy.md itself records
+  // happening twice already (18/18, then 31/31, both cited as accuracy
+  // instead of coverage) — except here the failure mode is the opposite one:
+  // the doc going stale after the case set grows, which is exactly what
+  // produced this test. A number this test cannot find in the doc is a
+  // format change the parser missed, and must fail, not pass by default.
+  it('matches the figures published in docs/accuracy.md', () => {
+    const stats = computeAccuracy();
+    const doc = readFileSync(ACCURACY_DOC, 'utf8');
+
+    const checks: Array<{ label: string; words: string[]; expected: [number, number] }> = [
+      {
+        label: '값 일치 (value match)',
+        words: ['값', '일치'],
+        expected: [stats.matchingValues, stats.comparedValues],
+      },
+      {
+        label: '케이스 일치 (case match)',
+        words: ['케이스', '일치'],
+        expected: [stats.fullyMatchingCases, stats.presentCases],
+      },
+      {
+        label: '기준값 확보 (baseline coverage)',
+        words: ['기준값', '확보'],
+        expected: [stats.presentCases, measured.length],
+      },
+    ];
+
+    for (const { label, words, expected } of checks) {
+      const found = fractionsInRowsContaining(doc, words);
+      expect(found.length, `docs/accuracy.md has no "${label}" row — update the doc or the parser`).toBeGreaterThan(0);
+      for (const fraction of found) {
+        expect(fraction, `docs/accuracy.md's "${label}" row is stale`).toEqual(expected);
+      }
+    }
   });
 
   for (const golden of measured) {
