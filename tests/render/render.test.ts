@@ -265,6 +265,106 @@ describe('assets', () => {
   });
 });
 
+describe('inline style asset URLs are entity-decoded', () => {
+  // A `<Style src>` path is already decoded before it reaches a host hook
+  // (src/index.ts). An inline `style="…"` attribute's declarations are parsed
+  // straight from the raw XML source (src/style/resolve.ts's
+  // `inlineDeclarations`), so a `background-image` written there still carries
+  // XML entities when it reaches `resolveAsset` — unlike the same URL written
+  // in a .uss file, which was never XML and has none to begin with. This is
+  // the asymmetry issue #2 names.
+  //
+  // The two real-corpus cases below are copied byte-for-byte (entities and
+  // all) from ReuHomi/vscode-uxml-preview's examples/external corpus at
+  // commit dbda387 — not constructed from the issue's illustrative example.
+
+  it('decodes &apos;/&amp; from an inline style (observed in MessageBox-template.uxml)', () => {
+    // examples/external/ui-toolkit-demos/Assets/Resources/UI/MessageBox/
+    // MessageBox-template.uxml, the "Icon" element's style attribute.
+    const calls: string[] = [];
+    const { result } = draw(
+      '<ui:VisualElement name="a" style="background-image: url(&apos;project://database/Assets/Sprites/Kenney/exclamation.png?fileID=21300000&amp;guid=280c9c4d95465894f891a7b62764c2af&amp;type=3#exclamation&apos;); width: 50px; height: 50px;" />',
+      '',
+      (path) => {
+        calls.push(path);
+        return 'data:,ok';
+      },
+    );
+    expect(calls).toEqual([
+      'project://database/Assets/Sprites/Kenney/exclamation.png?fileID=21300000&guid=280c9c4d95465894f891a7b62764c2af&type=3#exclamation',
+    ]);
+    result.dispose();
+  });
+
+  it('decodes &apos;/&amp; from an inline style (observed in MyGameUI.uxml)', () => {
+    // examples/external/ui-toolkit-demos/Assets/Resources/UI/Game/MyGameUI.uxml,
+    // the arrow icon's style attribute.
+    const calls: string[] = [];
+    const { result } = draw(
+      '<ui:VisualElement style="background-color: rgba(0, 0, 0, 0); background-image: url(&apos;project://database/Assets/Sprites/Kenney/arrowUp.png?fileID=21300000&amp;guid=8306f1437a3a7784f9f6fd0ae0167d61&amp;type=3#arrowUp&apos;); width: 50px; height: 50px;" name="a" />',
+      '',
+      (path) => {
+        calls.push(path);
+        return 'data:,ok';
+      },
+    );
+    expect(calls).toEqual([
+      'project://database/Assets/Sprites/Kenney/arrowUp.png?fileID=21300000&guid=8306f1437a3a7784f9f6fd0ae0167d61&type=3#arrowUp',
+    ]);
+    result.dispose();
+  });
+
+  // Not observed in the external corpus (every real sample used &apos;); this
+  // is the representative form decodeEntities also supports.
+  it('decodes &quot;-quoted url() from an inline style (representative, not observed in the corpus)', () => {
+    const calls: string[] = [];
+    const { result } = draw(
+      '<ui:VisualElement name="a" style="background-image: url(&quot;project://database/Assets/x.png&quot;);" />',
+      '',
+      (path) => {
+        calls.push(path);
+        return 'data:,ok';
+      },
+    );
+    expect(calls).toEqual(['project://database/Assets/x.png']);
+    result.dispose();
+  });
+
+  it('leaves a plain inline URL with no entities unchanged (regression)', () => {
+    const calls: string[] = [];
+    const { result } = draw(
+      '<ui:VisualElement name="a" style="background-image: url(&apos;project://database/Assets/plain.png&apos;);" />',
+      '',
+      (path) => {
+        calls.push(path);
+        return 'data:,ok';
+      },
+    );
+    expect(calls).toEqual(['project://database/Assets/plain.png']);
+    result.dispose();
+  });
+
+  // The completion condition: the same asset URL, one written inline and one
+  // written in USS, must reach resolveAsset as the same string. The USS side
+  // needs no entities — a .uss file is not XML — so the inline side's decoded
+  // output is checked against it rather than against an independently chosen
+  // "correct" answer.
+  it('inline style and an equivalent USS declaration reach resolveAsset with the same string', () => {
+    const calls: string[] = [];
+    const uxml =
+      '<ui:VisualElement name="a" style="background-image: url(&apos;project://database/Assets/x.png?fileID=1&amp;guid=abc&apos;);" />' +
+      '<ui:VisualElement name="b" />';
+    const uss = "#b { background-image: url('project://database/Assets/x.png?fileID=1&guid=abc'); }";
+    const { result } = draw(uxml, uss, (path) => {
+      calls.push(path);
+      return 'data:,ok';
+    });
+    expect(calls).toHaveLength(2);
+    expect(calls[0]).toBe(calls[1]);
+    result.dispose();
+  });
+});
+
 describe('lifecycle', () => {
   it('clears the container and frees Yoga nodes on dispose', () => {
     const before = liveNodeCount();

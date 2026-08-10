@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+### Fixed
+
+- **Inline `style="…"` asset URLs reach `resolveAsset` XML-entity-decoded**,
+  matching what a `<Style src>`-loaded `.uss` file's URLs already got (that
+  file was never XML, so it never had entities to decode; an inline attribute
+  is XML text and did). `background-image: url('…&guid=…')` written inline
+  used to reach the hook as `&apos;…&amp;guid=…&apos;` — wrapper quotes and
+  ampersands both literal — because `inlineDeclarations` (style/resolve.ts)
+  parses straight from the raw XML source. Fixed at `assetPath()`
+  (render/css-map.ts), immediately before the `url()`/`resource()` wrapper is
+  parsed and right before the value leaves the model for the hook — the same
+  point `<Style src>` and painted text already decode at, not at parse time
+  (decoding then would corrupt the byte-exact round-trip source slices).
+  Confirmed against two real URLs from the external corpus in
+  `ReuHomi/vscode-uxml-preview` (`examples/external`, commit `dbda387`) where
+  this caused `asset-unresolved` for 7 URLs across 2 files. Scope: only the
+  asset-URL value reaching `resolveAsset`; other inline-style property values
+  still carry undecoded entities in the model (unaffected here, since no
+  other current consumer inspects their text — `-unity-font-definition`'s
+  `resource(...)` value is only checked for presence, never read).
+
 ### Docs
 
 - **`docs/accuracy.md`'s "which controls this covers" table now has a stated,

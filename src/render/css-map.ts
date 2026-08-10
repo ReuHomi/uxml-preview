@@ -14,6 +14,7 @@
 
 import type { NodeId, Warning } from '../model/types';
 import type { ComputedStyle } from '../style/resolve';
+import { decodeEntities } from '../parser/entities';
 import { parseLength } from './values';
 
 export interface CssMapOptions {
@@ -114,9 +115,22 @@ const SCALE_MODE: Readonly<Record<string, string>> = {
  */
 const DEFAULT_SCALE_MODE = 'stretch-to-fill';
 
-/** `url("project://...")` or `resource("...")` to its form and bare path. */
+/**
+ * `url("project://...")` or `resource("...")` to its form and bare path.
+ *
+ * Deps/Effects: decodes XML entities before parsing the wrapper. A value from
+ * a `<Style src>`-loaded .uss file never has any (that file was never XML),
+ * but a value from an inline `style="…"` attribute is parsed straight from
+ * the raw XML source (`inlineDeclarations` in style/resolve.ts) and can still
+ * carry `&apos;`/`&amp;`/`&quot;`. Decoding after the regex would be too late:
+ * `&apos;` doesn't match `(["']?)`, so the quote wrapper would be read as part
+ * of the path instead of stripped from it.
+ */
 function assetPath(value: string): { form: 'url' | 'resource'; path: string } | null {
-  const match = /^(url|resource)\(\s*(["']?)(.*?)\2\s*\)$/.exec(value.trim());
+  // Must decode before this regex runs, not after: the quote group
+  // `(["']?)` matches a literal apostrophe, not the four characters
+  // `&apos;`, so an undecoded entity slips past it into the captured path.
+  const match = /^(url|resource)\(\s*(["']?)(.*?)\2\s*\)$/.exec(decodeEntities(value).trim());
   return match === null ? null : { form: match[1] as 'url' | 'resource', path: match[3]! };
 }
 

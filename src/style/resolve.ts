@@ -390,7 +390,20 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
   return { ctx, usable, warnings };
 }
 
-/** Declarations from the element's own `style` attribute, with absolute spans. */
+/**
+ * Declarations from the element's own `style` attribute, with absolute spans.
+ *
+ * Deps/Effects: slices `doc.source` directly rather than using `attr.value`,
+ * which is what keeps serialization byte-exact — this is XML attribute text,
+ * so a declaration value can still carry `&apos;`/`&amp;`/`&quot;` when a
+ * caller reads it. Safe today: the only consumer that reads a value's text
+ * rather than just checking for its presence is `background-image`, which
+ * decodes at `assetPath()` in render/css-map.ts. If a future consumer reads
+ * another declaration's string content — e.g. `-unity-font-definition`, once
+ * font asset resolution exists (see issue tracking that) — it must decode at
+ * its own point of use the same way, not here: decoding the whole value here
+ * would spend the round-trip guarantee this function exists to keep.
+ */
 function inlineDeclarations(doc: UxmlDocument, node: ElementNode): Declaration[] {
   const attr = node.attributes.find((a) => a.name === 'style');
   if (attr === undefined) return [];
