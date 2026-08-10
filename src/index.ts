@@ -80,8 +80,23 @@ export interface ParseOptions {
    * `project://database/Assets/UI/base.uss`, which only the host application
    * knows how to turn into file contents, and there is no reason for a host to
    * implement that lookup twice.
+   *
+   * `from` is the URL of the stylesheet containing this import — exactly the
+   * string this hook received as `url` when that containing sheet was itself
+   * resolved, unmodified. `null` for a `<Style src="…">` reference, which is
+   * not contained in any stylesheet. A relative `@import` cannot be resolved
+   * without this: `a.uss` importing `"b.uss"` means a path relative to `a.uss`,
+   * not to the UXML document, and there is no other way for the host to learn
+   * `a.uss`'s own URL at the point it resolves `b.uss`.
+   *
+   * Non-breaking: this is an added argument, not a replacement one, so an
+   * existing one-argument callback keeps working unchanged.
+   *
+   * A stylesheet imported by two different parents is only resolved once —
+   * `parse` deduplicates by URL to guard against import cycles — so only the
+   * first parent's `from` is ever seen for it.
    */
-  resolveImport?: (url: string) => string | null;
+  resolveImport?: (url: string, from: string | null) => string | null;
 }
 
 /**
@@ -113,7 +128,9 @@ export function parse(uxml: string, uss?: string, options?: ParseOptions): UxmlD
   // caller passed directly — so a host that supplies both keeps the last word.
   const referenced: Array<{ text: string; origin: string | null }> = [];
   for (const src of styleReferences(tree.root)) {
-    const text = options?.resolveImport?.(src) ?? null;
+    // Not contained in any stylesheet — this is the document naming its own
+    // stylesheet directly, not an @import.
+    const text = options?.resolveImport?.(src, null) ?? null;
     if (text === null) {
       warnings.push({
         kind: 'import-unresolved',
@@ -149,7 +166,11 @@ export function parse(uxml: string, uss?: string, options?: ParseOptions): UxmlD
         if (item.kind !== 'import') continue;
         if (seen.has(item.url)) continue;
         seen.add(item.url);
-        const text = options?.resolveImport?.(item.url) ?? null;
+        // `next.origin` is the exact string this sheet was itself resolved
+        // with as `url` (or null if it was the top-level `uss` argument, or
+        // came from `<Style src>` — neither is contained in a stylesheet) —
+        // never reconstructed, so it stays byte-identical for the host.
+        const text = options?.resolveImport?.(item.url, next.origin) ?? null;
         if (text === null) {
           warnings.push({
             kind: 'import-unresolved',

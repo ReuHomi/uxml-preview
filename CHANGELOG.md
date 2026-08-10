@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+### Changed
+
+- **`resolveImport` now receives a second argument, `from: string | null`** —
+  the URL of the stylesheet containing the import being resolved, `null` for
+  a `<Style src="…">` reference. Without it, a relative `@import` inside an
+  imported sheet was unresolvable in principle: `a.uss` importing `"b.uss"`
+  means a path relative to `a.uss`, and the host had no way to learn `a.uss`'s
+  own URL at the point it resolved `b.uss`. `from` is always the exact string
+  this hook received as `url` for the containing sheet, never reconstructed —
+  matters most for nested imports, where it is the immediate parent, not the
+  original sheet. **Non-breaking**: existing one-argument callbacks keep
+  working unchanged, same as `resolveAsset`'s `form` argument in 0.3.0.
+  **Known limitation, not addressed here**: a stylesheet imported by two
+  different parents is only ever resolved once (`parse`'s cycle guard
+  deduplicates by URL), so the hook only ever sees the first parent's `from`
+  for it — changing that would mean re-fetching and re-parsing the same sheet
+  per importer, which risks duplicate rules in the cascade.
+- With this, `resolveImport` joins `resolveAsset` at two positional arguments.
+  Per the "코어에 무언가를 더하기 전에" rule in CLAUDE.md, the next argument
+  either hook would need is the point to switch to an options object instead
+  of adding a third positional one.
+
 ### Fixed
 
 - **Inline `style="…"` asset URLs reach `resolveAsset` XML-entity-decoded**,
