@@ -1,0 +1,33 @@
+{
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "parent-a": {
+      "x": 0,
+      "y": 0,
+      "width": 200,
+      "height": 80
+    },
+    "target-a": {
+      "x": 0,
+      "y": 0,
+      "width": 80,
+      "height": 40
+    },
+    "parent-b": {
+      "x": 0,
+      "y": 80,
+      "width": 200,
+      "height": 80
+    },
+    "target-b": {
+      "x": 0,
+      "y": 80,
+      "width": 160,
+      "height": 40
+    }
+  },
+  "warnings": []
+}

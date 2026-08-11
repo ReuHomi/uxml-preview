@@ -194,6 +194,70 @@ export const CASES: GoldenCase[] = [
       'absolute-import-project/shared.uss': '.target {\n  width: 120px;\n}\n',
     },
   },
+  // Unity CLI 실측: raw Packages/...는 부모별로 해석되어 80/160.
+  {
+    name: 'absolute-import-packages',
+    question:
+      'Do target-a/target-b widths become 120/120 (Packages is one global sheet), ' +
+      '80/160 (resolved from each parent), 40/40 (not loaded), or another pair?',
+    uxml: wrap(
+      '  <ui:VisualElement name="parent-a">\n' +
+        '    <Style src="absolute-import-packages/a/main.uss" />\n' +
+        '    <ui:VisualElement name="target-a" class="target" />\n' +
+        '  </ui:VisualElement>\n' +
+        '  <ui:VisualElement name="parent-b">\n' +
+        '    <Style src="absolute-import-packages/b/other.uss" />\n' +
+        '    <ui:VisualElement name="target-b" class="target" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#parent-a, #parent-b {\n  align-items: flex-start;\n  width: 200px;\n  height: 80px;\n}\n' +
+      'VisualElement {\n  width: 40px;\n  height: 40px;\n}\n',
+    files: {
+      'absolute-import-packages/a/main.uss':
+        '@import url("Packages/com.uxml-preview.golden/shared.uss");\n',
+      'absolute-import-packages/b/other.uss':
+        '@import url("Packages/com.uxml-preview.golden/shared.uss");\n',
+      'absolute-import-packages/a/Packages/com.uxml-preview.golden/shared.uss':
+        '.target {\n  width: 80px;\n}\n',
+      'absolute-import-packages/b/Packages/com.uxml-preview.golden/shared.uss':
+        '.target {\n  width: 160px;\n}\n',
+      'Packages/com.uxml-preview.golden/package.json':
+        '{\n  "name": "com.uxml-preview.golden",\n  "version": "1.0.0",\n' +
+        '  "displayName": "uxml-preview Golden Fixture"\n}\n',
+      'Packages/com.uxml-preview.golden/shared.uss': '.target {\n  width: 120px;\n}\n',
+    },
+  },
+  // Unity CLI 실측: project://database/Packages/...는 전역 참조라 120/120.
+  {
+    name: 'absolute-import-package-project',
+    question:
+      'Do target-a/target-b widths become 120/120 (project:// Packages is one global sheet), ' +
+      '80/160 (resolved from each parent), 40/40 (not loaded), or another pair?',
+    uxml: wrap(
+      '  <ui:VisualElement name="parent-a">\n' +
+        '    <Style src="absolute-import-package-project/a/main.uss" />\n' +
+        '    <ui:VisualElement name="target-a" class="target" />\n' +
+        '  </ui:VisualElement>\n' +
+        '  <ui:VisualElement name="parent-b">\n' +
+        '    <Style src="absolute-import-package-project/b/other.uss" />\n' +
+        '    <ui:VisualElement name="target-b" class="target" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#parent-a, #parent-b {\n  align-items: flex-start;\n  width: 200px;\n  height: 80px;\n}\n' +
+      'VisualElement {\n  width: 40px;\n  height: 40px;\n}\n',
+    files: {
+      'absolute-import-package-project/a/main.uss':
+        '@import url("project://database/Packages/com.uxml-preview.golden/shared.uss");\n',
+      'absolute-import-package-project/b/other.uss':
+        '@import url("project://database/Packages/com.uxml-preview.golden/shared.uss");\n',
+      'Packages/com.uxml-preview.golden/package.json':
+        '{\n  "name": "com.uxml-preview.golden",\n  "version": "1.0.0",\n' +
+        '  "displayName": "uxml-preview Golden Fixture"\n}\n',
+      'Packages/com.uxml-preview.golden/shared.uss': '.target {\n  width: 120px;\n}\n',
+    },
+  },
 
   // --- layout basics ------------------------------------------------------
   {
