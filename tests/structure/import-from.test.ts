@@ -122,8 +122,12 @@ describe('resolveImport: from', () => {
     ]);
   });
 
-  it('loads and applies one project:// URL only once across different parents', () => {
-    const absolute = 'project://database/Assets/UI/shared.uss';
+  it.each([
+    'project://database/Assets/UI/shared.uss',
+    'project://database/Packages/com.example/shared.uss',
+    '/Assets/UI/shared.uss',
+    '/Packages/com.example/shared.uss',
+  ])('loads and applies one rooted URL only once across different parents: %s', (absolute) => {
     const { calls, resolveImport } = recordingResolver({
       'a.uss': `@import "${absolute}";`,
       'b.uss': `@import "${absolute}";`,
@@ -146,6 +150,26 @@ describe('resolveImport: from', () => {
     )!;
     expect(explainProperty(parsed, target, 'color').map((candidate) => candidate.value)).toEqual([
       'red',
+    ]);
+  });
+
+  it('still resolves a bare Packages URL once per parent', () => {
+    const relative = 'Packages/com.example/shared.uss';
+    const { calls, resolveImport } = recordingResolver({
+      'a.uss': `@import "${relative}";`,
+      'b.uss': `@import "${relative}";`,
+      [relative]: '.shared { color: red; }',
+    });
+    parse(
+      '<ui:UXML xmlns:ui="UnityEngine.UIElements">' +
+        '<Style src="a.uss" /><Style src="b.uss" />' +
+        '</ui:UXML>',
+      undefined,
+      { resolveImport },
+    );
+    expect(calls.filter((c) => c.url === relative)).toEqual([
+      { url: relative, from: 'a.uss' },
+      { url: relative, from: 'b.uss' },
     ]);
   });
 

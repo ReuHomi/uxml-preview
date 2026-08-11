@@ -73,7 +73,9 @@ export function runCase(
           resolveImport: (url, from) => {
             const projectPath = url.startsWith(PROJECT_DATABASE)
               ? url.slice(PROJECT_DATABASE.length)
-              : null;
+              : url.startsWith('/')
+                ? url.slice(1)
+                : null;
             const path = projectPath?.startsWith(CASE_ASSETS)
               ? projectPath.slice(CASE_ASSETS.length)
               : projectPath !== null

@@ -205,6 +205,8 @@ TypeScript (strict) / pnpm / Vite / Vitest / yoga-layout
   KNOWN_DIVERGENCES  — 셋 다 필요. 우회 불가(문서에만 있었음)
   buildGuidIndex     — 뷰어와 CLI 둘 다. 양쪽에 두면 두 개의 진실
   resolveAsset form  — 우회 시 조용히 틀림. 우회 비용이 무한대
+  절대 참조 판정    — 측정으로 확정. 경로 지식이 호스트에 있다는 경계를
+                      추론으로는 지켰으나 증거 앞에서 옮겼다
 
 ## 변경 범위
 

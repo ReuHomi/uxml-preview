@@ -93,8 +93,8 @@ export interface ParseOptions {
    * existing one-argument callback keeps working unchanged.
    *
    * Relative imports are deduplicated by `(url, from)`, so two parent sheets
-   * may resolve the same spelling to different files. `project://` URLs are
-   * globally unique and remain deduplicated by URL alone.
+   * may resolve the same spelling to different files. Root-fixed URLs —
+   * `project://…` or a path beginning with `/` — are deduplicated by URL alone.
    */
   resolveImport?: (url: string, from: string | null) => string | null;
 }
@@ -124,6 +124,13 @@ function styleReferences(
     styleReferences(child, out);
   }
   return out;
+}
+
+// Unity 6000.0.40f1: absolute-import-assets, absolute-import-project,
+// absolute-import-package-project, and absolute-import-rooted-packages all
+// load one global sheet across different parents.
+function isRootedImport(url: string): boolean {
+  return url.startsWith('project://') || url.startsWith('/');
 }
 
 export function parse(uxml: string, uss?: string, options?: ParseOptions): UxmlDocument {
@@ -180,11 +187,7 @@ export function parse(uxml: string, uss?: string, options?: ParseOptions): UxmlD
 
       for (const item of parsed.sheet.items) {
         if (item.kind !== 'import') continue;
-        // Only project:// is treated as globally unique here. /Assets/... and
-        // Packages/... are globally unique too, but recognizing them requires
-        // Unity path-system knowledge that currently lives in the host. Until
-        // that boundary changes, those forms may be loaded once per parent.
-        const importKey = item.url.startsWith('project://')
+        const importKey = isRootedImport(item.url)
           ? item.url
           : JSON.stringify([item.url, next.origin]);
         if (seenImports.has(importKey)) {

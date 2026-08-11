@@ -258,6 +258,40 @@ export const CASES: GoldenCase[] = [
       'Packages/com.uxml-preview.golden/shared.uss': '.target {\n  width: 120px;\n}\n',
     },
   },
+  // Unity CLI 실측: /Packages/...는 루트 고정 절대 참조라 120/120.
+  {
+    name: 'absolute-import-rooted-packages',
+    question:
+      'Do target-a/target-b widths become 120/120 (/Packages is root-fixed), ' +
+      '80/160 (Packages is special-cased), 40/40 (not loaded), or another pair?',
+    uxml: wrap(
+      '  <ui:VisualElement name="parent-a">\n' +
+        '    <Style src="absolute-import-rooted-packages/a/main.uss" />\n' +
+        '    <ui:VisualElement name="target-a" class="target" />\n' +
+        '  </ui:VisualElement>\n' +
+        '  <ui:VisualElement name="parent-b">\n' +
+        '    <Style src="absolute-import-rooted-packages/b/other.uss" />\n' +
+        '    <ui:VisualElement name="target-b" class="target" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#parent-a, #parent-b {\n  align-items: flex-start;\n  width: 200px;\n  height: 80px;\n}\n' +
+      'VisualElement {\n  width: 40px;\n  height: 40px;\n}\n',
+    files: {
+      'absolute-import-rooted-packages/a/main.uss':
+        '@import url("/Packages/com.uxml-preview.golden/shared.uss");\n',
+      'absolute-import-rooted-packages/b/other.uss':
+        '@import url("/Packages/com.uxml-preview.golden/shared.uss");\n',
+      'absolute-import-rooted-packages/a/Packages/com.uxml-preview.golden/shared.uss':
+        '.target {\n  width: 80px;\n}\n',
+      'absolute-import-rooted-packages/b/Packages/com.uxml-preview.golden/shared.uss':
+        '.target {\n  width: 160px;\n}\n',
+      'Packages/com.uxml-preview.golden/package.json':
+        '{\n  "name": "com.uxml-preview.golden",\n  "version": "1.0.0",\n' +
+        '  "displayName": "uxml-preview Golden Fixture"\n}\n',
+      'Packages/com.uxml-preview.golden/shared.uss': '.target {\n  width: 120px;\n}\n',
+    },
+  },
 
   // --- layout basics ------------------------------------------------------
   {
