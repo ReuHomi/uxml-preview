@@ -136,6 +136,64 @@ export const CASES: GoldenCase[] = [
       'style-subtree-scope/shared.uss': '.target {\n  width: 120px;\n}\n',
     },
   },
+  // Unity 6000.0.40f1 measured 120/120: /Assets resolves to one global sheet.
+  {
+    name: 'absolute-import-assets',
+    question:
+      'Do target-a/target-b widths become 120/120 (/Assets is one global sheet), ' +
+      '80/160 (resolved from each parent), 40/40 (not loaded), or another pair?',
+    uxml: wrap(
+      '  <ui:VisualElement name="parent-a">\n' +
+        '    <Style src="absolute-import-assets/a/main.uss" />\n' +
+        '    <ui:VisualElement name="target-a" class="target" />\n' +
+        '  </ui:VisualElement>\n' +
+        '  <ui:VisualElement name="parent-b">\n' +
+        '    <Style src="absolute-import-assets/b/other.uss" />\n' +
+        '    <ui:VisualElement name="target-b" class="target" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#parent-a, #parent-b {\n  align-items: flex-start;\n  width: 200px;\n  height: 80px;\n}\n' +
+      'VisualElement {\n  width: 40px;\n  height: 40px;\n}\n',
+    files: {
+      'absolute-import-assets/a/main.uss':
+        '@import url("/Assets/GoldenCases/absolute-import-assets/shared.uss");\n',
+      'absolute-import-assets/b/other.uss':
+        '@import url("/Assets/GoldenCases/absolute-import-assets/shared.uss");\n',
+      'absolute-import-assets/shared.uss': '.target {\n  width: 120px;\n}\n',
+      'absolute-import-assets/a/Assets/GoldenCases/absolute-import-assets/shared.uss':
+        '.target {\n  width: 80px;\n}\n',
+      'absolute-import-assets/b/Assets/GoldenCases/absolute-import-assets/shared.uss':
+        '.target {\n  width: 160px;\n}\n',
+    },
+  },
+  // Unity 6000.0.40f1 measured 120/120: project:// resolves to the same global sheet.
+  {
+    name: 'absolute-import-project',
+    question:
+      'Do target-a/target-b widths become 120/120 (project:// is one global sheet), ' +
+      '80/160 (resolved from each parent), 40/40 (not loaded), or another pair?',
+    uxml: wrap(
+      '  <ui:VisualElement name="parent-a">\n' +
+        '    <Style src="absolute-import-project/a/main.uss" />\n' +
+        '    <ui:VisualElement name="target-a" class="target" />\n' +
+        '  </ui:VisualElement>\n' +
+        '  <ui:VisualElement name="parent-b">\n' +
+        '    <Style src="absolute-import-project/b/other.uss" />\n' +
+        '    <ui:VisualElement name="target-b" class="target" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#parent-a, #parent-b {\n  align-items: flex-start;\n  width: 200px;\n  height: 80px;\n}\n' +
+      'VisualElement {\n  width: 40px;\n  height: 40px;\n}\n',
+    files: {
+      'absolute-import-project/a/main.uss':
+        '@import url("project://database/Assets/GoldenCases/absolute-import-project/shared.uss");\n',
+      'absolute-import-project/b/other.uss':
+        '@import url("project://database/Assets/GoldenCases/absolute-import-project/shared.uss");\n',
+      'absolute-import-project/shared.uss': '.target {\n  width: 120px;\n}\n',
+    },
+  },
 
   // --- layout basics ------------------------------------------------------
   {

@@ -10,6 +10,16 @@
 //   5. Copy the resulting *.json into tests/golden/unity/ in the repo.
 //   6. `pnpm test:golden`
 //
+// Command line
+//   Unity.exe -batchmode -projectPath <project> -executeMethod \
+//     UxmlPreview.Golden.UxmlLayoutDumpWindow.RunFromCommandLine \
+//     -goldenCaseFolder Assets/GoldenCases -goldenOutput <folder>
+//
+// Do not add -nographics or -quit. The dumper needs a graphics-backed
+// EditorWindow to lay out UI Toolkit and exits Unity itself when finished; both
+// flags are rejected before work starts. CLI exit is non-zero unless exactly
+// one JSON was written for every discovered UXML case.
+//
 // Why geometry and not a screenshot: Unity draws text with its own font asset
 // and a browser does not, so a pixel diff over any case containing text
 // measures the font rather than the layout. Numbers say where the boxes went.
@@ -44,8 +54,10 @@ namespace UxmlPreview.Golden
         private VisualElement _stage;
         private Label _status;
         private readonly List<string> _log = new List<string>();
+        private readonly HashSet<string> _writtenJson = new HashSet<string>();
         private string _dumpedAtUtc = "";
         private bool _exitWhenDone;
+        private int _expectedCaseCount;
 
         [System.Serializable]
         private sealed class EditorFontMetadata
@@ -83,6 +95,18 @@ namespace UxmlPreview.Golden
 
         public static void RunFromCommandLine()
         {
+            string[] args = System.Environment.GetCommandLineArgs();
+            string incompatible = args.FirstOrDefault(arg =>
+                arg.Equals("-nographics", System.StringComparison.OrdinalIgnoreCase) ||
+                arg.Equals("-quit", System.StringComparison.OrdinalIgnoreCase));
+            if (incompatible != null)
+            {
+                Debug.LogError($"[uxml-preview] {incompatible} is not supported: the golden " +
+                    "dumper needs a graphics-backed EditorWindow and exits Unity itself.");
+                EditorApplication.Exit(2);
+                return;
+            }
+
             string caseFolder = CommandLineValue("-goldenCaseFolder") ?? "Assets/GoldenCases";
             string outputFolder = CommandLineValue("-goldenOutput");
             if (string.IsNullOrWhiteSpace(outputFolder))
@@ -238,6 +262,8 @@ namespace UxmlPreview.Golden
 
             Directory.CreateDirectory(_outputFolder);
             _log.Clear();
+            _writtenJson.Clear();
+            _expectedCaseCount = files.Length;
             _dumpedAtUtc = System.DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture);
             ProcessNext(new Queue<string>(files));
         }
@@ -246,11 +272,16 @@ namespace UxmlPreview.Golden
         {
             if (remaining.Count == 0)
             {
-                Debug.Log("[uxml-preview] golden dump\n" + string.Join("\n", _log));
-                _status.text = $"Done. {_log.Count} cases written to {_outputFolder}";
+                bool complete = _writtenJson.Count == _expectedCaseCount;
+                string summary = $"{_writtenJson.Count}/{_expectedCaseCount} JSON files written " +
+                    $"to {_outputFolder}";
+                Debug.Log("[uxml-preview] golden dump\n" + string.Join("\n", _log) +
+                    "\n" + summary);
+                _status.text = complete ? $"Done. {summary}" : $"INCOMPLETE. {summary}";
                 if (_exitWhenDone)
                 {
-                    EditorApplication.Exit(0);
+                    if (!complete) Debug.LogError("[uxml-preview] incomplete golden dump: " + summary);
+                    EditorApplication.Exit(complete ? 0 : 3);
                     return;
                 }
                 EditorUtility.RevealInFinder(_outputFolder);
@@ -343,8 +374,9 @@ namespace UxmlPreview.Golden
             sb.Append(string.Join(",\n", entries));
             sb.Append("\n  }\n}\n");
 
-            File.WriteAllText(Path.Combine(_outputFolder, name + ".json"), sb.ToString(),
-                new UTF8Encoding(false));
+            string outputPath = Path.Combine(_outputFolder, name + ".json");
+            File.WriteAllText(outputPath, sb.ToString(), new UTF8Encoding(false));
+            _writtenJson.Add(Path.GetFullPath(outputPath));
             _log.Add($"{name}: {entries.Count} elements");
         }
 

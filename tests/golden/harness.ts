@@ -16,6 +16,8 @@ import { resolveStyles } from '../../src/style/resolve';
 import { PANEL } from './cases';
 import type { GoldenCase } from './cases';
 
+const PROJECT_CASES = 'project://database/Assets/GoldenCases/';
+
 /**
  * Half an em per character, one line per text run.
  *
@@ -67,8 +69,14 @@ export function runCase(
     golden.files === undefined
       ? undefined
       : {
-          resolveImport: (url, from) =>
-            golden.files?.[from === null ? url : posix.join(posix.dirname(from), url)] ?? null,
+          resolveImport: (url, from) => {
+            const path = url.startsWith(PROJECT_CASES)
+              ? url.slice(PROJECT_CASES.length)
+              : from === null
+                ? url
+                : posix.join(posix.dirname(from), url);
+            return golden.files?.[path] ?? null;
+          },
         },
   );
   const resolved = resolveStyles(doc);
