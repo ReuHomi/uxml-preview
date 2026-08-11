@@ -9,11 +9,11 @@ It is the first question anyone asks, and without an answer nobody uses this.
 
 | | |
 |---|---|
-| Cases | 37 (34 comparable, 3 dependent on text measurement) |
-| Unity ground truth available | **34 / 34** |
-| Elements compared | 145 (580 values = elements × x/y/width/height) |
-| **Cases matching** | **32 / 34** |
-| **Values matching** | **564 / 580 (97.2%)** |
+| Cases | 38 (35 comparable, 3 dependent on text measurement) |
+| Unity ground truth available | **35 / 35** |
+| Elements compared | 149 (596 values = elements × x/y/width/height) |
+| **Cases matching** | **33 / 35** |
+| **Values matching** | **580 / 596 (97.3%)** |
 | Known divergences | 16 values — **and they are four different things** |
 
 This table went stale once already (found 2026-08-09): two cases,
@@ -56,7 +56,7 @@ in coordinates instead of colours.
 ### Which controls this covers
 
 **Computed from `tests/golden/cases.ts`, on this rule**: the `inventory` case
-is classified as the representative screen. Each of the other 32 is classified
+is classified as the representative screen. Each of the other 34 is classified
 by the first tag its UXML contains, checked in this order: `<ui:ScrollView`,
 then `<ui:Button`, then `<ui:Label`; anything matching none of the three is
 `VisualElement` only. Order does not affect the result — checked directly, only
@@ -64,7 +64,7 @@ then `<ui:Button`, then `<ui:Label`; anything matching none of the three is
 
 | Cases containing | Count |
 |---|---|
-| `VisualElement` only | 17 |
+| `VisualElement` only | 19 |
 | `Label` | 1 (`inherit-vs-direct`) |
 | `Button` | 10 |
 | `ScrollView` | 4 |
@@ -82,7 +82,7 @@ sync by hand.
 
 ### What this number covers, and what it does not
 
-**The 97.2% is measured at the coordinates Yoga produces.** The pipeline has
+**The 97.3% is measured at the coordinates Yoga produces.** The pipeline has
 four layers — parse, resolve styles, Yoga layout, DOM paint — and the comparison
 against Unity is of the third one's output. Whether the DOM actually drawn on
 screen reproduces those coordinates is **not** compared against Unity.
@@ -168,6 +168,7 @@ Carried unasserted since Phases 1–4, all confirmed by this measurement.
 | A direct match always beats an inherited value | CLAUDE.md | `inherit-vs-direct` | **correct** |
 | Inline styles beat every selector | CLAUDE.md | `inline-override` | **correct** |
 | Percentages do not resolve without an explicit parent size | CLAUDE.md | `percent-without-parent-size` | **correct — we were wrong** |
+| `<Style>` applies only to its parent and descendants, not siblings | issue #4 measurement | `style-subtree-scope` | **correct — 120/40** |
 | Line height is `font-size * 1.2` | `src/render/measure.ts` | `text-size` | not settled (text excluded) |
 | `-unity-text-align` vertical mapping | `src/render/css-map.ts` | `text-align` | not settled (text excluded) |
 

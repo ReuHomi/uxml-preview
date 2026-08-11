@@ -1,0 +1,33 @@
+{
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "styled-parent": {
+      "x": 0,
+      "y": 0,
+      "width": 200,
+      "height": 80
+    },
+    "styled-target": {
+      "x": 0,
+      "y": 0,
+      "width": 120,
+      "height": 40
+    },
+    "plain-parent": {
+      "x": 0,
+      "y": 80,
+      "width": 200,
+      "height": 80
+    },
+    "plain-target": {
+      "x": 0,
+      "y": 80,
+      "width": 40,
+      "height": 40
+    }
+  },
+  "warnings": []
+}

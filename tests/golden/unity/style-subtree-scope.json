@@ -1,0 +1,10 @@
+{
+  "metadata": {"unityVersion":"6000.0.40f1","unityRevision":"6000.0.40f1 (157d81624ddf)","pixelsPerPoint":1.0,"editorFont":{"name":"(builtin)","size":12,"style":"Normal"},"systemFont":{"smoothing":"2","smoothingType":"2","smoothingGamma":"0","appliedDpi":"96"},"dumpedAtUtc":"2026-08-11T16:02:12.5870550Z"},
+  "panel": { "width": 400, "height": 300 },
+  "elements": {
+    "styled-parent": { "x": 0, "y": 0, "width": 200, "height": 80 },
+    "styled-target": { "x": 0, "y": 0, "width": 120, "height": 40 },
+    "plain-parent": { "x": 0, "y": 80, "width": 200, "height": 80 },
+    "plain-target": { "x": 0, "y": 80, "width": 40, "height": 40 }
+  }
+}

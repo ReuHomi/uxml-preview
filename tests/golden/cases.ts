@@ -114,6 +114,28 @@ export const CASES: GoldenCase[] = [
         '.target {\n  width: 160px;\n  height: 40px;\n}\n',
     },
   },
+  // Unity 6000.0.40f1 measured 120/40: <Style> applies to its parent's subtree.
+  {
+    name: 'style-subtree-scope',
+    question:
+      'Do styled-target/plain-target widths become 120/40 (<Style> is subtree-scoped), ' +
+      '120/120 (document-global), 40/40 (not loaded), or another pair (a third behavior)?',
+    uxml: wrap(
+      '  <ui:VisualElement name="styled-parent">\n' +
+        '    <Style src="style-subtree-scope/shared.uss" />\n' +
+        '    <ui:VisualElement name="styled-target" class="target" />\n' +
+        '  </ui:VisualElement>\n' +
+        '  <ui:VisualElement name="plain-parent">\n' +
+        '    <ui:VisualElement name="plain-target" class="target" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#styled-parent, #plain-parent {\n  align-items: flex-start;\n  width: 200px;\n  height: 80px;\n}\n' +
+      'VisualElement {\n  width: 40px;\n  height: 40px;\n}\n',
+    files: {
+      'style-subtree-scope/shared.uss': '.target {\n  width: 120px;\n}\n',
+    },
+  },
 
   // --- layout basics ------------------------------------------------------
   {
