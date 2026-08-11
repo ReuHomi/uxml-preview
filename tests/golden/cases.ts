@@ -20,6 +20,8 @@ export interface GoldenCase {
   question: string;
   uxml: string;
   uss: string;
+  /** Extra files emitted beside the case, keyed by path from the cases folder. */
+  files?: Readonly<Record<string, string>>;
   /** Layout depends on text measurement, so Unity will not agree exactly. */
   measuresText?: boolean;
 }
@@ -84,6 +86,33 @@ export const CASES: GoldenCase[] = [
     uss:
       '#top {\n  height: 40px;\n  margin-bottom: 20px;\n}\n' +
       '#bottom {\n  height: 40px;\n  margin-top: 30px;\n}\n',
+  },
+  // Unity 6000.0.40f1 measured 80/160: each parent loads its own relative import.
+  {
+    name: 'relative-import-ambiguity',
+    question:
+      'Do target-a/target-b widths become 80/160 (each parent loads its own theme.uss), ' +
+      'the same width (one theme.uss is reused), or another pair (a third behavior)?',
+    uxml: wrap(
+      '  <ui:VisualElement name="parent-a">\n' +
+        '    <Style src="relative-import-ambiguity/a/main.uss" />\n' +
+        '    <ui:VisualElement name="target-a" class="target" />\n' +
+        '  </ui:VisualElement>\n' +
+        '  <ui:VisualElement name="parent-b">\n' +
+        '    <Style src="relative-import-ambiguity/b/other.uss" />\n' +
+        '    <ui:VisualElement name="target-b" class="target" />\n' +
+        '  </ui:VisualElement>',
+    ),
+    uss:
+      '#parent-a, #parent-b {\n  align-items: flex-start;\n  width: 200px;\n  height: 80px;\n}\n',
+    files: {
+      'relative-import-ambiguity/a/main.uss': '@import url("theme.uss");\n',
+      'relative-import-ambiguity/a/theme.uss':
+        '.target {\n  width: 80px;\n  height: 40px;\n}\n',
+      'relative-import-ambiguity/b/other.uss': '@import url("theme.uss");\n',
+      'relative-import-ambiguity/b/theme.uss':
+        '.target {\n  width: 160px;\n  height: 40px;\n}\n',
+    },
   },
 
   // --- layout basics ------------------------------------------------------

@@ -47,7 +47,7 @@ directly in a web browser. It uses **Yoga** — the same layout engine Unity UI 
 itself uses — compiled to WebAssembly, so results match the Unity Editor rather than
 approximating it.
 
-Measured against Unity 6000.0.40f1: **548 of 564 element coordinates identical**
+Measured against Unity 6000.0.40f1: **564 of 580 element coordinates identical**
 across 33 layout cases, including a full working screen. Ten of the sixteen
 differences are font metrics rather than layout — a browser cannot measure
 Unity's font asset. All sixteen are named in
@@ -210,12 +210,12 @@ Checked by comparing element geometry against the Unity Editor, case by case.
 Geometry rather than pixels: Unity draws text with its own font asset and a
 browser does not, so a pixel diff would measure the font more than the layout.
 
-Measured against Unity on 2026-08-06, over 33 cases and 141 elements:
+Measured against Unity on 2026-08-12, over 34 cases and 145 elements:
 
 | | |
 |---|---|
-| Cases matching exactly | **31 / 33** |
-| Values within 0.5px | **548 / 564 (97.2%)** |
+| Cases matching exactly | **32 / 34** |
+| Values within 0.5px | **564 / 580 (97.2%)** |
 
 The sixteen divergences are four different things, and the distinction matters
 more than the ratio: **ten are text metrics**, three are 1px, two are a
@@ -246,7 +246,7 @@ as nested flex, and computed values have to be resolved to fixed numbers or
 calculated in C#.
 
 **How close is the output to Unity?**
-548 of 564 element coordinates identical against Unity 6000.0.40f1, across 33
+564 of 580 element coordinates identical against Unity 6000.0.40f1, across 34
 layout cases including a complete inventory screen. Geometry is compared rather
 than screenshots, because Unity draws text with its own font asset — which is
 also why ten of the sixteen differences are font metrics rather than layout.
@@ -280,8 +280,8 @@ Apache-2.0
 **Yoga**를 WebAssembly로 그대로 사용하기 때문에, 결과를 "비슷하게 흉내내는" 것이 아니라
 유니티 에디터와 일치시킵니다.
 
-Unity 6000.0.40f1과 대조한 결과, 실무형 화면을 포함한 레이아웃 케이스 33개에서
-**요소 좌표 564개 중 548개가 일치**합니다. 어긋난 16개 중 **10개는 레이아웃이 아니라
+Unity 6000.0.40f1과 대조한 결과, 실무형 화면을 포함한 레이아웃 케이스 34개에서
+**요소 좌표 580개 중 564개가 일치**합니다. 어긋난 16개 중 **10개는 레이아웃이 아니라
 폰트 메트릭** 차이입니다 — 브라우저는 유니티 폰트 에셋을 잴 수 없습니다.
 16개 전부 [`docs/accuracy.md`](docs/accuracy.md)에 이름과 사유를 적어뒀습니다.
 
@@ -414,8 +414,8 @@ pnpm build
 계산이 필요한 값은 고정값으로 풀거나 C#에서 계산해야 합니다.
 
 **유니티와 얼마나 같나요?**
-Unity 6000.0.40f1 기준, 인벤토리 화면 전체를 포함한 레이아웃 케이스 33개에서
-**요소 좌표 564개 중 548개 일치**입니다. 스크린샷이 아니라 좌표를 비교하는데,
+Unity 6000.0.40f1 기준, 인벤토리 화면 전체를 포함한 레이아웃 케이스 34개에서
+**요소 좌표 580개 중 564개 일치**입니다. 스크린샷이 아니라 좌표를 비교하는데,
 유니티가 자기 폰트 에셋으로 글자를 그리기 때문입니다 — 그리고 그 사실 때문에
 불일치 16개 중 **10개가 레이아웃이 아니라 폰트 메트릭**입니다. 전부
 [`docs/accuracy.md`](docs/accuracy.md)에 이름이 적혀 있습니다.

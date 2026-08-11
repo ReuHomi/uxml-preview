@@ -198,7 +198,7 @@ export interface Rule {
  */
 export type SheetItem =
   | { kind: 'rule'; rule: Rule }
-  | { kind: 'import'; url: string; span: Span }
+  | { kind: 'import'; url: string; span: Span; resolvedSheet?: number }
   | { kind: 'unknown'; span: Span };
 
 export interface StyleSheet {
@@ -264,6 +264,8 @@ export interface UxmlDocument {
    * own `source`, which is why the source text lives on the sheet.
    */
   sheets: StyleSheet[];
+  /** Stylesheet entry points and the element subtree each one is attached to. */
+  styleRoots?: Array<{ sheet: number; scope: NodeId }>;
   /**
    * Parse-time only — `'malformed'` (bad syntax) and `'import-unresolved'`
    * (a `<Style src="…">` or `@import` that `resolveImport` could not read).

@@ -6,6 +6,8 @@
  * that moves with the machine is not an accuracy figure.
  */
 
+import { posix } from 'node:path';
+
 import { parse } from '../../src/index';
 import { layoutDocument } from '../../src/layout/yoga';
 import type { MeasureText } from '../../src/layout/yoga';
@@ -59,7 +61,16 @@ export function runCase(
   golden: GoldenCase,
   panel: { width: number; height: number } = PANEL,
 ): CaseGeometry {
-  const doc = parse(golden.uxml, golden.uss);
+  const doc = parse(
+    golden.uxml,
+    golden.uss,
+    golden.files === undefined
+      ? undefined
+      : {
+          resolveImport: (url, from) =>
+            golden.files?.[from === null ? url : posix.join(posix.dirname(from), url)] ?? null,
+        },
+  );
   const resolved = resolveStyles(doc);
   const tree = layoutDocument(doc.root, resolved.styles, resolved.partStyles, {
     size: panel,

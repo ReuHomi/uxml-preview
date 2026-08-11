@@ -24,6 +24,11 @@ mkdirSync(outDir, { recursive: true });
 for (const golden of CASES) {
   writeFileSync(join(outDir, `${golden.name}.uxml`), golden.uxml, 'utf8');
   writeFileSync(join(outDir, `${golden.name}.uss`), golden.uss, 'utf8');
+  for (const [path, source] of Object.entries(golden.files ?? {})) {
+    const output = join(outDir, path);
+    mkdirSync(dirname(output), { recursive: true });
+    writeFileSync(output, source, 'utf8');
+  }
 }
 
 // Assets the cases reference by path. Unity has to import a real file, and the

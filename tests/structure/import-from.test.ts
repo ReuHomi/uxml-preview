@@ -13,6 +13,7 @@
 import { describe, it, expect } from 'vitest';
 
 import { parse } from '../../src/index';
+import { explainProperty } from '../../src/style/resolve';
 
 /** Records every `(url, from)` pair the hook was called with, in call order. */
 function recordingResolver(sheets: Record<string, string>) {
@@ -72,33 +73,97 @@ describe('resolveImport: from', () => {
     ]);
   });
 
-  // Pins current behaviour rather than an ideal one. `seen` (index.ts) exists
-  // to stop an import cycle from looping forever, and as a side effect a
-  // sheet imported by two different parents is only ever fetched once — so
-  // the hook is only called once, with the first parent's `from`. The second
-  // parent's import is silently deduplicated without ever calling the hook.
-  // This pins the actual behaviour, not the ideal one — changing it means
-  // re-fetching and re-parsing the same sheet text per importer, which risks
-  // duplicate rules in the cascade, a render-affecting change this task rules
-  // out. The same dedup key is also what issue #4 is about: 'shared.uss' here
-  // is an absolute-looking key with no relative ambiguity, so it doesn't hit
-  // that collision, but a relative filename reused under two different
-  // parents would.
-  it('calls the hook once for a sheet imported by two different parents, keyed on the first', () => {
+  it('resolves the same relative URL once per parent', () => {
     const { calls, resolveImport } = recordingResolver({
       'a.uss': '@import "shared.uss";',
       'b.uss': '@import "shared.uss";',
       'shared.uss': '.shared { color: red; }',
     });
-    parse(
+    const parsed = parse(
       '<ui:UXML xmlns:ui="UnityEngine.UIElements">' +
         '<Style src="a.uss" /><Style src="b.uss" />' +
         '</ui:UXML>',
       undefined,
       { resolveImport },
     );
-    const sharedCalls = calls.filter((c) => c.url === 'shared.uss');
-    expect(sharedCalls).toEqual([{ url: 'shared.uss', from: 'a.uss' }]);
+    expect(calls.filter((c) => c.url === 'shared.uss')).toEqual([
+      { url: 'shared.uss', from: 'a.uss' },
+      { url: 'shared.uss', from: 'b.uss' },
+    ]);
+    expect(parsed.warnings).toHaveLength(0);
+  });
+
+  it('still resolves the same relative URL only once for one parent', () => {
+    const { calls, resolveImport } = recordingResolver({
+      'a.uss': '@import "shared.uss";\n@import "shared.uss";',
+      'shared.uss': '.shared { color: red; }',
+    });
+    parse(
+      '<ui:UXML xmlns:ui="UnityEngine.UIElements"><Style src="a.uss" /></ui:UXML>',
+      undefined,
+      { resolveImport },
+    );
+    expect(calls.filter((c) => c.url === 'shared.uss')).toEqual([
+      { url: 'shared.uss', from: 'a.uss' },
+    ]);
+  });
+
+  it('does not retry one unresolved relative URL from the same parent', () => {
+    const { calls, resolveImport } = recordingResolver({
+      'a.uss': '@import "missing.uss";\n@import "missing.uss";',
+    });
+    parse(
+      '<ui:UXML xmlns:ui="UnityEngine.UIElements"><Style src="a.uss" /></ui:UXML>',
+      undefined,
+      { resolveImport },
+    );
+    expect(calls.filter((c) => c.url === 'missing.uss')).toEqual([
+      { url: 'missing.uss', from: 'a.uss' },
+    ]);
+  });
+
+  it('loads and applies one project:// URL only once across different parents', () => {
+    const absolute = 'project://database/Assets/UI/shared.uss';
+    const { calls, resolveImport } = recordingResolver({
+      'a.uss': `@import "${absolute}";`,
+      'b.uss': `@import "${absolute}";`,
+      [absolute]: '.shared { color: red; }',
+    });
+    const parsed = parse(
+      '<ui:UXML xmlns:ui="UnityEngine.UIElements">' +
+        '<Style src="a.uss" /><Style src="b.uss" />' +
+        '<ui:VisualElement name="target" class="shared" />' +
+        '</ui:UXML>',
+      undefined,
+      { resolveImport },
+    );
+    expect(calls.filter((c) => c.url === absolute)).toEqual([
+      { url: absolute, from: 'a.uss' },
+    ]);
+    expect(parsed.sheets.filter((sheet) => sheet.origin === absolute)).toHaveLength(1);
+    const target = parsed.root.children.find((child) =>
+      child.attributes.some((attribute) => attribute.name === 'name' && attribute.value === 'target'),
+    )!;
+    expect(explainProperty(parsed, target, 'color').map((candidate) => candidate.value)).toEqual([
+      'red',
+    ]);
+  });
+
+  it('still terminates a relative import cycle', () => {
+    const { calls, resolveImport } = recordingResolver({
+      'a.uss': '@import "b.uss";',
+      'b.uss': '@import "a.uss";',
+    });
+    parse(
+      '<ui:UXML xmlns:ui="UnityEngine.UIElements"><Style src="a.uss" /></ui:UXML>',
+      undefined,
+      { resolveImport },
+    );
+    expect(calls).toEqual([
+      { url: 'a.uss', from: null },
+      { url: 'b.uss', from: 'a.uss' },
+      { url: 'a.uss', from: 'b.uss' },
+    ]);
   });
 
   // `from` must be the exact string the previous call received as `url` —

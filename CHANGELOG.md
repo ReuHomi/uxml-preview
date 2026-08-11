@@ -4,6 +4,10 @@
 
 ### Changed
 
+- Relative `@import` requests are deduplicated by `(url, from)`, matching Unity's
+  parent-relative loading. `project://` imports remain globally deduplicated and
+  nested `<Style>` attachments now keep their Unity subtree scope.
+
 - **`resolveImport` now receives a second argument, `from: string | null`** —
   the URL of the stylesheet containing the import being resolved, `null` for
   a `<Style src="…">` reference. Without it, a relative `@import` inside an

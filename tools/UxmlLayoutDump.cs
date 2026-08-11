@@ -44,11 +44,68 @@ namespace UxmlPreview.Golden
         private VisualElement _stage;
         private Label _status;
         private readonly List<string> _log = new List<string>();
+        private string _dumpedAtUtc = "";
+        private bool _exitWhenDone;
+
+        [System.Serializable]
+        private sealed class EditorFontMetadata
+        {
+            public string name;
+            public int size;
+            public string style;
+        }
+
+        [System.Serializable]
+        private sealed class SystemFontMetadata
+        {
+            public string smoothing;
+            public string smoothingType;
+            public string smoothingGamma;
+            public string appliedDpi;
+        }
+
+        [System.Serializable]
+        private sealed class DumpMetadata
+        {
+            public string unityVersion;
+            public string unityRevision;
+            public float pixelsPerPoint;
+            public EditorFontMetadata editorFont;
+            public SystemFontMetadata systemFont;
+            public string dumpedAtUtc;
+        }
 
         [MenuItem("Tools/uxml-preview/Golden Case Dumper")]
         private static void Open()
         {
             GetWindow<UxmlLayoutDumpWindow>("Golden Dump").minSize = new Vector2(560, 260);
+        }
+
+        public static void RunFromCommandLine()
+        {
+            string caseFolder = CommandLineValue("-goldenCaseFolder") ?? "Assets/GoldenCases";
+            string outputFolder = CommandLineValue("-goldenOutput");
+            if (string.IsNullOrWhiteSpace(outputFolder))
+            {
+                throw new System.ArgumentException("Missing -goldenOutput <folder>");
+            }
+
+            var window = CreateInstance<UxmlLayoutDumpWindow>();
+            window._caseFolder = caseFolder;
+            window._outputFolder = Path.GetFullPath(outputFolder);
+            window._exitWhenDone = true;
+            window.Show();
+            EditorApplication.delayCall += window.StartDump;
+        }
+
+        private static string CommandLineValue(string name)
+        {
+            string[] args = System.Environment.GetCommandLineArgs();
+            for (int i = 0; i < args.Length - 1; i++)
+            {
+                if (args[i] == name) return args[i + 1];
+            }
+            return null;
         }
 
         private void CreateGUI()
@@ -159,7 +216,29 @@ namespace UxmlPreview.Golden
             _outputFolder = EditorUtility.OpenFolderPanel("Where to write the JSON", "", "");
             if (string.IsNullOrEmpty(_outputFolder)) return;
 
+            StartDump();
+        }
+
+        private void StartDump()
+        {
+            Refresh();
+            string[] files = FindCases();
+            if (files.Length == 0)
+            {
+                string message = $"No .uxml files found in {Path.GetFullPath(_caseFolder)}";
+                if (_exitWhenDone)
+                {
+                    Debug.LogError(message);
+                    EditorApplication.Exit(1);
+                    return;
+                }
+                EditorUtility.DisplayDialog("Golden Dump", message, "OK");
+                return;
+            }
+
+            Directory.CreateDirectory(_outputFolder);
             _log.Clear();
+            _dumpedAtUtc = System.DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture);
             ProcessNext(new Queue<string>(files));
         }
 
@@ -168,8 +247,13 @@ namespace UxmlPreview.Golden
             if (remaining.Count == 0)
             {
                 Debug.Log("[uxml-preview] golden dump\n" + string.Join("\n", _log));
-                EditorUtility.RevealInFinder(_outputFolder);
                 _status.text = $"Done. {_log.Count} cases written to {_outputFolder}";
+                if (_exitWhenDone)
+                {
+                    EditorApplication.Exit(0);
+                    return;
+                }
+                EditorUtility.RevealInFinder(_outputFolder);
                 return;
             }
 
@@ -250,6 +334,9 @@ namespace UxmlPreview.Golden
 
             var sb = new StringBuilder();
             sb.Append("{\n");
+            sb.Append("  \"metadata\": ");
+            sb.Append(JsonUtility.ToJson(ReadMetadata()));
+            sb.Append(",\n");
             sb.Append(string.Format(CultureInfo.InvariantCulture,
                 "  \"panel\": {{ \"width\": {0}, \"height\": {1} }},\n", PanelWidth, PanelHeight));
             sb.Append("  \"elements\": {\n");
@@ -260,6 +347,57 @@ namespace UxmlPreview.Golden
                 new UTF8Encoding(false));
             _log.Add($"{name}: {entries.Count} elements");
         }
+
+        private DumpMetadata ReadMetadata()
+        {
+            Font font = EditorStyles.label.font;
+            return new DumpMetadata
+            {
+                unityVersion = Application.unityVersion,
+                unityRevision = UnityEditorInternal.InternalEditorUtility.GetFullUnityVersion(),
+                pixelsPerPoint = EditorGUIUtility.pixelsPerPoint,
+                editorFont = new EditorFontMetadata
+                {
+                    name = font == null ? "(builtin)" : font.name,
+                    size = EditorStyles.label.fontSize,
+                    style = EditorStyles.label.fontStyle.ToString(),
+                },
+                systemFont = ReadSystemFontMetadata(),
+                dumpedAtUtc = _dumpedAtUtc,
+            };
+        }
+
+        private static SystemFontMetadata ReadSystemFontMetadata()
+        {
+#if UNITY_EDITOR_WIN
+            return new SystemFontMetadata
+            {
+                smoothing = RegistryValue(@"Control Panel\Desktop", "FontSmoothing"),
+                smoothingType = RegistryValue(@"Control Panel\Desktop", "FontSmoothingType"),
+                smoothingGamma = RegistryValue(@"Control Panel\Desktop", "FontSmoothingGamma"),
+                appliedDpi = RegistryValue(@"Control Panel\Desktop\WindowMetrics", "AppliedDPI"),
+            };
+#else
+            return new SystemFontMetadata
+            {
+                smoothing = "not exposed",
+                smoothingType = "not exposed",
+                smoothingGamma = "not exposed",
+                appliedDpi = "not exposed",
+            };
+#endif
+        }
+
+#if UNITY_EDITOR_WIN
+        private static string RegistryValue(string path, string name)
+        {
+            using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(path))
+            {
+                object value = key == null ? null : key.GetValue(name);
+                return value == null ? "(unset)" : value.ToString();
+            }
+        }
+#endif
 
         /// Walks `hierarchy`, the physical tree, and NOT `Children()`.
         ///

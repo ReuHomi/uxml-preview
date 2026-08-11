@@ -5,15 +5,15 @@
 **The document that answers "does it actually match Unity?" with numbers.**
 It is the first question anyone asks, and without an answer nobody uses this.
 
-## Current state (measured 2026-08-06)
+## Current state (measured 2026-08-12)
 
 | | |
 |---|---|
-| Cases | 36 (33 comparable, 3 dependent on text measurement) |
-| Unity ground truth available | **33 / 33** |
-| Elements compared | 141 (564 values = elements × x/y/width/height) |
-| **Cases matching** | **31 / 33** |
-| **Values matching** | **548 / 564 (97.2%)** |
+| Cases | 37 (34 comparable, 3 dependent on text measurement) |
+| Unity ground truth available | **34 / 34** |
+| Elements compared | 145 (580 values = elements × x/y/width/height) |
+| **Cases matching** | **32 / 34** |
+| **Values matching** | **564 / 580 (97.2%)** |
 | Known divergences | 16 values — **and they are four different things** |
 
 This table went stale once already (found 2026-08-09): two cases,

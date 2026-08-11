@@ -146,6 +146,8 @@ interface FlatRule {
   rule: Rule;
   sheet: number;
   item: number;
+  /** UXML subtree this author sheet is attached to. Absent for built-in rules. */
+  scope?: NodeId;
   /** From the built-in control defaults rather than from the user's files. */
   builtin?: boolean;
 }
@@ -255,23 +257,37 @@ function cascadeOrder(doc: UxmlDocument): FlatRule[] {
   // order. That is the whole reason Unity's own theme is overridable.
   out.push(...THEME_RULES);
 
-  const visited = new Set<number>();
-  const walk = (index: number): void => {
-    if (visited.has(index)) return;
-    visited.add(index);
+  const visited = new Map<NodeId, Set<number>>();
+  const walk = (index: number, scope: NodeId): void => {
+    const inScope = visited.get(scope) ?? new Set<number>();
+    if (inScope.has(index)) return;
+    inScope.add(index);
+    visited.set(scope, inScope);
     const sheet = doc.sheets[index];
     if (sheet === undefined) return;
     sheet.items.forEach((item, i) => {
       if (item.kind === 'rule') {
-        out.push({ rule: item.rule, sheet: index, item: i });
+        out.push({ rule: item.rule, sheet: index, item: i, scope });
       } else if (item.kind === 'import') {
-        const target = byOrigin.get(item.url);
-        if (target !== undefined) walk(target);
+        const target = item.resolvedSheet ?? byOrigin.get(item.url);
+        if (target !== undefined) walk(target, scope);
       }
     });
   };
-  walk(0);
+  const roots =
+    doc.styleRoots ??
+    (doc.sheets.length === 0 ? [] : [{ sheet: 0, scope: doc.root.id }]);
+  for (const root of roots) walk(root.sheet, root.scope);
   return out;
+}
+
+function isWithinScope(target: Target, scope: NodeId, ctx: MatchContext<Target>): boolean {
+  let current: Target | null = target;
+  while (current !== null) {
+    if (current.kind === 'element' && current.node.id === scope) return true;
+    current = ctx.parentOf(current);
+  }
+  return false;
 }
 
 function hasRootPseudo(rule: Rule): boolean {
@@ -464,6 +480,7 @@ function collectCandidates(
   }
 
   for (const flat of prepared.usable) {
+    if (flat.scope !== undefined && !isWithinScope(target, flat.scope, prepared.ctx)) continue;
     // A rule contributes once however many of its selectors match, and it does
     // so at the specificity of the *most specific* one that matched — not the
     // first in source order. `.a, #b { }` against an element carrying both has

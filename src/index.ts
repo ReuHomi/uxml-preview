@@ -92,9 +92,9 @@ export interface ParseOptions {
    * Non-breaking: this is an added argument, not a replacement one, so an
    * existing one-argument callback keeps working unchanged.
    *
-   * A stylesheet imported by two different parents is only resolved once —
-   * `parse` deduplicates by URL to guard against import cycles — so only the
-   * first parent's `from` is ever seen for it.
+   * Relative imports are deduplicated by `(url, from)`, so two parent sheets
+   * may resolve the same spelling to different files. `project://` URLs are
+   * globally unique and remain deduplicated by URL alone.
    */
   resolveImport?: (url: string, from: string | null) => string | null;
 }
@@ -108,14 +108,21 @@ export interface ParseOptions {
  * optional extra. Ignoring it silently was the reason a real project's UXML
  * rendered unstyled with nothing said about why.
  */
-function styleReferences(node: ElementNode, out: string[] = []): string[] {
-  if (node.name.local === 'Style') {
-    const src = node.attributes.find((a) => a.name === 'src')?.value;
-    // Decoded here, not stored decoded: the model keeps the raw text so the
-    // file round-trips, and the host needs the value the text stands for.
-    if (src !== undefined && src.length > 0) out.push(decodeEntities(src));
+function styleReferences(
+  node: ElementNode,
+  out: Array<{ url: string; scope: NodeId }> = [],
+): Array<{ url: string; scope: NodeId }> {
+  for (const child of node.children) {
+    if (child.name.local === 'Style') {
+      const src = child.attributes.find((a) => a.name === 'src')?.value;
+      // Decoded here, not stored decoded: the model keeps the raw text so the
+      // file round-trips, and the host needs the value the text stands for.
+      if (src !== undefined && src.length > 0) {
+        out.push({ url: decodeEntities(src), scope: node.id });
+      }
+    }
+    styleReferences(child, out);
   }
-  for (const child of node.children) styleReferences(child, out);
   return out;
 }
 
@@ -123,49 +130,69 @@ export function parse(uxml: string, uss?: string, options?: ParseOptions): UxmlD
   const tree = parseUxml(uxml);
   const warnings: Warning[] = [...tree.warnings];
   const sheets: StyleSheet[] = [];
+  const styleRoots: Array<{ sheet: number; scope: NodeId }> = [];
 
   // The document's own `<Style src="…">` sheets come first, then anything the
   // caller passed directly — so a host that supplies both keeps the last word.
-  const referenced: Array<{ text: string; origin: string | null }> = [];
-  for (const src of styleReferences(tree.root)) {
+  const referenced: Array<{ text: string; origin: string; scope: NodeId }> = [];
+  for (const { url, scope } of styleReferences(tree.root)) {
     // Not contained in any stylesheet — this is the document naming its own
     // stylesheet directly, not an @import.
-    const text = options?.resolveImport?.(src, null) ?? null;
+    const text = options?.resolveImport?.(url, null) ?? null;
     if (text === null) {
       warnings.push({
         kind: 'import-unresolved',
         message:
           options?.resolveImport === undefined
-            ? `<Style src="${src}"> was not loaded: pass resolveImport to read it, ` +
+            ? `<Style src="${url}"> was not loaded: pass resolveImport to read it, ` +
               'or pass the stylesheet text directly. Until then this document renders unstyled.'
-            : `<Style src="${src}"> could not be resolved`,
+            : `<Style src="${url}"> could not be resolved`,
         node: tree.root.id,
       });
       continue;
     }
-    referenced.push({ text, origin: src });
+    referenced.push({ text, origin: url, scope });
   }
 
   if (uss !== undefined || referenced.length > 0) {
-    // Imports are followed breadth-first. `seen` guards against a cycle, which
-    // would otherwise loop forever on a stylesheet that imports itself.
-    const seen = new Set<string>();
-    const queue: Array<{ text: string; origin: string | null }> = [
-      ...referenced,
-      ...(uss === undefined ? [] : [{ text: uss, origin: null }]),
-    ];
+    // Imports are followed breadth-first. Repeating the same resolution request
+    // is a cycle; the same relative spelling from a different parent is not.
+    const seenImports = new Map<string, number | null>();
+    const queue: Array<{ text: string; origin: string | null; sheet: number }> = [];
+    let nextSheet = 0;
+    for (const reference of referenced) {
+      const sheet = nextSheet++;
+      queue.push({ text: reference.text, origin: reference.origin, sheet });
+      styleRoots.push({ sheet, scope: reference.scope });
+    }
+    if (uss !== undefined) {
+      const sheet = nextSheet++;
+      queue.push({ text: uss, origin: null, sheet });
+      styleRoots.push({ sheet, scope: tree.root.id });
+    }
 
     while (queue.length > 0) {
       const next = queue.shift()!;
-      const index = sheets.length;
+      const index = next.sheet;
       const parsed = parseUss(next.text, next.origin, index);
       sheets.push(parsed.sheet);
       warnings.push(...parsed.warnings);
 
       for (const item of parsed.sheet.items) {
         if (item.kind !== 'import') continue;
-        if (seen.has(item.url)) continue;
-        seen.add(item.url);
+        // Only project:// is treated as globally unique here. /Assets/... and
+        // Packages/... are globally unique too, but recognizing them requires
+        // Unity path-system knowledge that currently lives in the host. Until
+        // that boundary changes, those forms may be loaded once per parent.
+        const importKey = item.url.startsWith('project://')
+          ? item.url
+          : JSON.stringify([item.url, next.origin]);
+        if (seenImports.has(importKey)) {
+          const seenSheet = seenImports.get(importKey);
+          if (seenSheet !== null && seenSheet !== undefined) item.resolvedSheet = seenSheet;
+          continue;
+        }
+        seenImports.set(importKey, null);
         // `next.origin` is the exact string this sheet was itself resolved
         // with as `url` (or null if it was the top-level `uss` argument, or
         // came from `<Style src>` — neither is contained in a stylesheet) —
@@ -182,12 +209,15 @@ export function parse(uxml: string, uss?: string, options?: ParseOptions): UxmlD
           });
           continue;
         }
-        queue.push({ text, origin: item.url });
+        const sheet = nextSheet++;
+        seenImports.set(importKey, sheet);
+        item.resolvedSheet = sheet;
+        queue.push({ text, origin: item.url, sheet });
       }
     }
   }
 
-  return { source: uxml, root: tree.root, sheets, warnings };
+  return { source: uxml, root: tree.root, sheets, styleRoots, warnings };
 }
 
 /**

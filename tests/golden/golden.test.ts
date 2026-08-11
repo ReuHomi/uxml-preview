@@ -77,6 +77,19 @@ describe('regression: our own output is stable', () => {
 });
 
 interface UnityDump {
+  metadata?: {
+    unityVersion: string;
+    unityRevision: string;
+    pixelsPerPoint: number;
+    editorFont: { name: string; size: number; style: string };
+    systemFont: {
+      smoothing: string;
+      smoothingType: string;
+      smoothingGamma: string;
+      appliedDpi: string;
+    };
+    dumpedAtUtc: string;
+  };
   panel: { width: number; height: number };
   elements: Record<string, Rect>;
 }
