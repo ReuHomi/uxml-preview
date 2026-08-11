@@ -233,8 +233,8 @@ The claims above are not from reading documentation. This repository lays out a
 set of cases twice — once in Unity, once in the browser through the same Yoga
 engine UI Toolkit uses — and compares every element's position and size.
 
-Against **Unity 6000.0.40f1**: **580 of 596 coordinates identical**, across 35
-cases and 149 elements. Of the sixteen that differ, ten are font metrics rather
+Against **Unity 6000.0.40f1**: **660 of 676 coordinates identical**, across 40
+cases and 169 elements. Of the sixteen that differ, ten are font metrics rather
 than a layout defect — both engines shrink the same box the same way and only
 the ruler differs — three are within 1px, two are a known `yoga-layout` version
 difference, and one is unresolved. All sixteen, and the failed attempts to

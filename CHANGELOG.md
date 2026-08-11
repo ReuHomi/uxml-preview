@@ -1,14 +1,25 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 — 2026-08-12
+
+### Added
+
+- The Unity golden dumper can run from the command line, records the Unity
+  revision, editor scale, accessible font settings, and timestamp beside each
+  measurement, rejects `-nographics` and `-quit` up front, and exits non-zero
+  unless it writes exactly one JSON file per discovered case.
 
 ### Changed
 
 - Relative `@import` requests are deduplicated by `(url, from)`, matching Unity's
-  parent-relative loading. `project://` imports remain globally deduplicated and
-  nested `<Style>` attachments now keep their Unity subtree scope.
+  parent-relative loading. Root-fixed imports (`project://…` or a path beginning
+  with `/`) are globally deduplicated, and nested `<Style>` attachments now keep
+  their Unity subtree scope. The rule comes from five Unity measurement cases,
+  including the otherwise surprising split between `Packages/...` (relative)
+  and `/Packages/...` (root-fixed).
 
-- **`resolveImport` now receives a second argument, `from: string | null`** —
+- **Issue #1: `resolveImport` now receives a second argument,
+  `from: string | null`** —
   the URL of the stylesheet containing the import being resolved, `null` for
   a `<Style src="…">` reference. Without it, a relative `@import` inside an
   imported sheet was unresolvable in principle: `a.uss` importing `"b.uss"`
@@ -18,11 +29,6 @@
   matters most for nested imports, where it is the immediate parent, not the
   original sheet. **Non-breaking**: existing one-argument callbacks keep
   working unchanged, same as `resolveAsset`'s `form` argument in 0.3.0.
-  **Known limitation, not addressed here**: a stylesheet imported by two
-  different parents is only ever resolved once (`parse`'s cycle guard
-  deduplicates by URL), so the hook only ever sees the first parent's `from`
-  for it — changing that would mean re-fetching and re-parsing the same sheet
-  per importer, which risks duplicate rules in the cascade.
 - With this, `resolveImport` joins `resolveAsset` at two positional arguments.
   Per the "코어에 무언가를 더하기 전에" rule in CLAUDE.md, the next argument
   either hook would need is the point to switch to an options object instead
@@ -30,7 +36,8 @@
 
 ### Fixed
 
-- **Inline `style="…"` asset URLs reach `resolveAsset` XML-entity-decoded**,
+- **Issue #2: inline `style="…"` asset URLs reach `resolveAsset`
+  XML-entity-decoded**,
   matching what a `<Style src>`-loaded `.uss` file's URLs already got (that
   file was never XML, so it never had entities to decode; an inline attribute
   is XML text and did). `background-image: url('…&guid=…')` written inline

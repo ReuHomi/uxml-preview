@@ -9,11 +9,11 @@ It is the first question anyone asks, and without an answer nobody uses this.
 
 | | |
 |---|---|
-| Cases | 38 (35 comparable, 3 dependent on text measurement) |
-| Unity ground truth available | **35 / 35** |
-| Elements compared | 149 (596 values = elements × x/y/width/height) |
-| **Cases matching** | **33 / 35** |
-| **Values matching** | **580 / 596 (97.3%)** |
+| Cases | 43 (40 comparable, 3 dependent on text measurement) |
+| Unity ground truth available | **40 / 40** |
+| Elements compared | 169 (676 values = elements × x/y/width/height) |
+| **Cases matching** | **38 / 40** |
+| **Values matching** | **660 / 676 (97.6%)** |
 | Known divergences | 16 values — **and they are four different things** |
 
 This table went stale once already (found 2026-08-09): two cases,
@@ -24,7 +24,7 @@ docs/accuracy.md`; this English mirror is not separately guarded, so keep it
 in sync by hand when that test's numbers change.
 
 Tolerance 0.5px, kept deliberately tighter than the 1px the S1 plan allows:
-loosening it would hide a real 1px error in any of the other thirty cases.
+loosening it would hide a real 1px error in another case.
 
 ### What the 16 divergences actually are
 
@@ -56,7 +56,7 @@ in coordinates instead of colours.
 ### Which controls this covers
 
 **Computed from `tests/golden/cases.ts`, on this rule**: the `inventory` case
-is classified as the representative screen. Each of the other 34 is classified
+is classified as the representative screen. Each of the other 39 is classified
 by the first tag its UXML contains, checked in this order: `<ui:ScrollView`,
 then `<ui:Button`, then `<ui:Label`; anything matching none of the three is
 `VisualElement` only. Order does not affect the result — checked directly, only
@@ -64,7 +64,7 @@ then `<ui:Button`, then `<ui:Label`; anything matching none of the three is
 
 | Cases containing | Count |
 |---|---|
-| `VisualElement` only | 19 |
+| `VisualElement` only | 24 |
 | `Label` | 1 (`inherit-vs-direct`) |
 | `Button` | 10 |
 | `ScrollView` | 4 |
@@ -82,7 +82,7 @@ sync by hand.
 
 ### What this number covers, and what it does not
 
-**The 97.3% is measured at the coordinates Yoga produces.** The pipeline has
+**The 97.6% is measured at the coordinates Yoga produces.** The pipeline has
 four layers — parse, resolve styles, Yoga layout, DOM paint — and the comparison
 against Unity is of the third one's output. Whether the DOM actually drawn on
 screen reproduces those coordinates is **not** compared against Unity.
