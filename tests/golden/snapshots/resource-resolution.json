@@ -1,0 +1,51 @@
+{
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "resource-probe-root": {
+      "x": 0,
+      "y": 0,
+      "width": 40,
+      "height": 30
+    },
+    "resource-probe-nested": {
+      "x": 0,
+      "y": 30,
+      "width": 40,
+      "height": 30
+    },
+    "resource-probe-extensionless": {
+      "x": 0,
+      "y": 60,
+      "width": 40,
+      "height": 30
+    },
+    "resource-probe-extensionful": {
+      "x": 0,
+      "y": 90,
+      "width": 40,
+      "height": 30
+    },
+    "resource-probe-duplicate": {
+      "x": 0,
+      "y": 120,
+      "width": 40,
+      "height": 30
+    },
+    "resource-probe-outside": {
+      "x": 0,
+      "y": 150,
+      "width": 40,
+      "height": 30
+    },
+    "resource-probe-builtin": {
+      "x": 0,
+      "y": 180,
+      "width": 40,
+      "height": 30
+    }
+  },
+  "warnings": []
+}

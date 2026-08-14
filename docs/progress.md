@@ -135,9 +135,29 @@ main 미병합·미푸시.
 | 2026-08-12 | 절대 import는 접두사 표가 아니라 루트 고정 규칙 | 추가한 `/Packages/...`가 Unity에서 120/120을 냈다. `project://...`이거나 `/`로 시작하면 전역, 앞에 아무것도 없는 `Packages/...`는 부모별이라는 한 규칙으로 다섯 측정값을 설명한다. 경로 지식을 호스트에 두던 경계는 추론으로 지켰지만 측정 증거 앞에서 코어로 옮겼다 |
 | 2026-08-12 | CLI 덤퍼는 `-nographics`·`-quit`을 거부하고 출력 개수를 검증 | 두 옵션은 exit 0·JSON 0으로 조용히 끝날 수 있다. 이제 시작 시 exit 2로 거부하고, 발견한 UXML 수와 생성한 고유 JSON 수가 다르면 exit 3으로 끝낸다 |
 | 2026-08-12 | 덤프 JSON이 좌표와 분리된 환경 메타데이터를 선택적으로 기록 | 세션 간 `inventory` 경계가 1px 이동했지만 과거 DPI·폰트 입력이 없었다. 기존 JSON 호환을 유지하면서 Unity 버전/리비전, DPI, 접근 가능한 폰트 설정, UTC 시각을 남긴다 |
+| 2026-08-15 | `resource()`는 좌표가 아니라 `resolvedStyle.backgroundImage`의 실제 에셋 경로로 측정 | 배경 이미지는 레이아웃을 바꾸지 않는다. Unity 6000.0.40f1 실측에서 어느 위치의 Resources가 검색되는지, 확장자 유무, 중복 승자, 외부 경로 실패 대체물, 에디터 내장 리소스를 한 케이스로 분리했다. 자원 기준값은 확보율에는 포함하되 좌표 정확도에는 섞지 않는다 |
 | 2026-08-05 | S1 계획서를 **본문 갱신형**으로, 이력은 결정 기록으로 | 개정 기록을 별도 파일로 두니 원본과 겹쳐서 어느 쪽이 진실인지 모호해졌다. 계획서는 항상 "현재 유효한 계획"이고 이력은 여기 남는다. 특히 기준 3 완화가 본문에 없으면 Step 6에서 원본만 읽고 "기준 3 미달"로 판정하게 된다 |
 
 ## 세션 로그
+
+### 2026-08-15
+
+- `resource-resolution` 골든을 먼저 만들고 판정 분기를 케이스 옆 README에 고정했다.
+  배경 로드 여부는 좌표에 나타나지 않아 덤퍼가 `resource-probe-*`의
+  `resolvedStyle.backgroundImage` 타입·이름·실제 `AssetDatabase` 경로를 별도 필드로
+  기록한다. 에디터 내장 대체물이 스킨에 따라 달라질 수 있어 dark/light도 메타데이터에
+  남긴다. 기존 JSON은 두 필드 없이 계속 읽힌다.
+- Unity 6000.0.40f1 (`157d81624ddf`) CLI가 44/44 JSON, exit 0을 세 번 냈고 최종 케이스
+  좌표는 각 40×30이었다. 자원 관측값은 앞선 두 실행과 동일했다. `Assets/Resources`와
+  `Assets/Sub/Resources`가 모두 검색됐고, 확장자 생략/포함이 모두 같은 Sprite를
+  가리켰다. 중복 이름은 이 프로젝트에서 `Assets/Resources` 쪽이 선택됐다.
+- Resources 밖 `Assets/GoldenCases/icon.png`는 로드되지 않았다. 로그가
+  `Image not found for path: GoldenCases/icon`을 남기고 dark-skin 내장
+  `d_console.warnicon`을 대체 배경으로 넣었다. `console.warnicon.png` 자체는
+  `Library/unity editor resources`에서 정상 해석됐다.
+- 좌표 정확도는 **660/676**, 좌표 케이스 일치는 **38/40** 그대로이고, 자원 관측 기준값을
+  포함한 확보율만 **41/41**로 갱신했다. 골든 89/89, 전체 401/401, typecheck, build 통과.
+  `src/`와 `resolveAsset` 변경은 없다.
 
 ### 2026-08-12
 

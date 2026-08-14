@@ -24,6 +24,8 @@ export interface GoldenCase {
   files?: Readonly<Record<string, string>>;
   /** Layout depends on text measurement, so Unity will not agree exactly. */
   measuresText?: boolean;
+  /** Measures resolved Unity resources, not coordinate accuracy. */
+  measuresResources?: boolean;
 }
 
 const wrap = (body: string): string =>
@@ -291,6 +293,64 @@ export const CASES: GoldenCase[] = [
         '  "displayName": "uxml-preview Golden Fixture"\n}\n',
       'Packages/com.uxml-preview.golden/shared.uss': '.target {\n  width: 120px;\n}\n',
     },
+  },
+  // Measurement setup and every discriminating outcome are emitted beside the
+  // case in resource-resolution/README.md. Background images do not affect box
+  // geometry, so tools/UxmlLayoutDump.cs records each probe's resolved asset.
+  {
+    name: 'resource-resolution',
+    question:
+      'Which Resources folders, extension spellings, duplicate, outside, and built-in ' +
+      'resource() references resolve? See resource-resolution/README.md for the verdict branches.',
+    uxml: wrap(
+      '  <ui:VisualElement name="resource-probe-root" />\n' +
+        '  <ui:VisualElement name="resource-probe-nested" />\n' +
+        '  <ui:VisualElement name="resource-probe-extensionless" />\n' +
+        '  <ui:VisualElement name="resource-probe-extensionful" />\n' +
+        '  <ui:VisualElement name="resource-probe-duplicate" />\n' +
+        '  <ui:VisualElement name="resource-probe-outside" />\n' +
+        '  <ui:VisualElement name="resource-probe-builtin" />',
+    ),
+    uss:
+      '#resource-probe-root, #resource-probe-nested, #resource-probe-extensionless,\n' +
+      '#resource-probe-extensionful, #resource-probe-duplicate, #resource-probe-outside,\n' +
+      '#resource-probe-builtin {\n  width: 40px;\n  height: 30px;\n}\n' +
+      '#resource-probe-root { background-image: resource("resource-root"); }\n' +
+      '#resource-probe-nested { background-image: resource("resource-nested"); }\n' +
+      '#resource-probe-extensionless { background-image: resource("resource-extension"); }\n' +
+      '#resource-probe-extensionful { background-image: resource("resource-extension.png"); }\n' +
+      '#resource-probe-duplicate { background-image: resource("resource-duplicate"); }\n' +
+      '#resource-probe-outside { background-image: resource("GoldenCases/icon"); }\n' +
+      '#resource-probe-builtin { background-image: resource("console.warnicon.png"); }\n',
+    files: {
+      'resource-resolution/README.md':
+        '# resource() resolution measurement\n\n' +
+        'Before dumping, copy `tests/golden/assets/icon.png` to all five project paths:\n\n' +
+        '- `Assets/Resources/resource-root.png`\n' +
+        '- `Assets/Sub/Resources/resource-nested.png`\n' +
+        '- `Assets/Resources/resource-extension.png`\n' +
+        '- `Assets/Resources/resource-duplicate.png`\n' +
+        '- `Assets/Sub/Resources/resource-duplicate.png`\n\n' +
+        '`pnpm golden:emit` already puts `icon.png` at `Assets/GoldenCases/icon.png`; ' +
+        'leave it outside every Resources folder.\n\n' +
+        '## What separates the answers\n\n' +
+        '1. Folder location: the two `assetPath` values naming `Assets/Resources` and ' +
+        '`Assets/Sub/Resources` mean both locations work. A missing or different path records ' +
+        'the narrower or third behavior.\n' +
+        '2. Extension: compare `resource-probe-extensionless` with ' +
+        '`resource-probe-extensionful`. Matching `assetPath` values mean both spellings work; one ' +
+        'missing/different identifies the accepted spelling, and another pair is a third behavior.\n' +
+        '3. Duplicate: `resource-probe-duplicate.assetPath` names the winning Resources folder. ' +
+        'Missing or any other path is a third behavior.\n' +
+        '4. Outside: an `assetPath` of `Assets/GoldenCases/icon.png` means the outside file loaded; ' +
+        'an empty or different resolved background records failure or a third behavior.\n' +
+        '5. Built-in: `resource-probe-builtin` resolving to `Library/unity editor resources` ' +
+        'means the editor built-in `console.warnicon.png` is accepted. ' +
+        'That exact spelling is used by Unity 6000.0.40f1\'s built-in ' +
+        '`com.unity.2d.sprite/Editor/UI/SpriteEditor/SpriteEditor.uss`. ' +
+        'The dump preserves type, object name, and asset path for any third behavior.\n',
+    },
+    measuresResources: true,
   },
 
   // --- layout basics ------------------------------------------------------

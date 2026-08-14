@@ -5,16 +5,20 @@
 **The document that answers "does it actually match Unity?" with numbers.**
 It is the first question anyone asks, and without an answer nobody uses this.
 
-## Current state (measured 2026-08-12)
+## Current state (coordinates measured 2026-08-12; resource() measured 2026-08-15)
 
 | | |
 |---|---|
-| Cases | 43 (40 comparable, 3 dependent on text measurement) |
-| Unity ground truth available | **40 / 40** |
+| Cases | 44 (40 coordinate comparisons, 1 resource observation, 3 dependent on text measurement) |
+| Unity ground truth available | **41 / 41** |
 | Elements compared | 169 (676 values = elements × x/y/width/height) |
 | **Cases matching** | **38 / 40** |
 | **Values matching** | **660 / 676 (97.6%)** |
 | Known divergences | 16 values — **and they are four different things** |
+
+`resource-resolution` measures Unity's resolved background object and asset
+path, not coordinate accuracy. It counts toward baseline coverage but not the
+660/676 matching values or the 38/40 coordinate cases.
 
 This table went stale once already (found 2026-08-09): two cases,
 `state-vs-id` and `state-vs-inline`, were merged without it being updated.

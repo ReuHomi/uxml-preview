@@ -81,6 +81,7 @@ interface UnityDump {
     unityVersion: string;
     unityRevision: string;
     pixelsPerPoint: number;
+    editorSkin?: string;
     editorFont: { name: string; size: number; style: string };
     systemFont: {
       smoothing: string;
@@ -92,6 +93,10 @@ interface UnityDump {
   };
   panel: { width: number; height: number };
   elements: Record<string, Rect>;
+  resources?: Record<
+    string,
+    { hasResolvedBackground: boolean; type: string; name: string; assetPath: string }
+  >;
 }
 
 interface Mismatch {
@@ -274,6 +279,7 @@ function compare(ours: CaseGeometry, unity: UnityDump): Mismatch[] {
 
 describe('accuracy: we match Unity', () => {
   const measured = CASES.filter((c) => c.measuresText !== true);
+  const coordinateCases = measured.filter((c) => c.measuresResources !== true);
 
   it('reports how much ground truth exists', () => {
     const present = measured.filter((c) => existsSync(join(UNITY, `${c.name}.json`)));
@@ -293,7 +299,7 @@ describe('accuracy: we match Unity', () => {
     // all, so that a green run is never mistaken for a verified one.
     console.info(
       `Unity ground-truth COVERAGE (not accuracy): ${present.length}/${measured.length} ` +
-        'comparable cases have a baseline' +
+        'measurement cases have a baseline' +
         (present.length === 0
           ? ' — run tools/UxmlLayoutDump.cs to produce it (see docs/accuracy.md)'
           : ''),
@@ -306,7 +312,7 @@ describe('accuracy: we match Unity', () => {
   // silently excuses nothing — or worse, excuses something real.
   it('only excuses parts Unity produces and we do not', () => {
     const inUnity = new Set<string>();
-    for (const golden of measured) {
+    for (const golden of coordinateCases) {
       const unity = readJson<UnityDump>(join(UNITY, `${golden.name}.json`));
       if (unity === null) continue;
       for (const key of Object.keys(unity.elements)) inUnity.add(baseName(key));
@@ -340,7 +346,7 @@ describe('accuracy: we match Unity', () => {
     let fullyMatchingCases = 0;
     let presentCases = 0;
 
-    for (const golden of measured) {
+    for (const golden of coordinateCases) {
       const unity = readJson<UnityDump>(join(UNITY, `${golden.name}.json`));
       if (unity === null) continue;
       presentCases++;
@@ -390,6 +396,9 @@ describe('accuracy: we match Unity', () => {
   // format change the parser missed, and must fail, not pass by default.
   it('matches the figures published in docs/accuracy.md', () => {
     const stats = computeAccuracy();
+    const baselinePresent = measured.filter((c) =>
+      existsSync(join(UNITY, `${c.name}.json`)),
+    ).length;
     const doc = readFileSync(ACCURACY_DOC, 'utf8');
 
     const checks: Array<{ label: string; words: string[]; expected: [number, number] }> = [
@@ -406,7 +415,7 @@ describe('accuracy: we match Unity', () => {
       {
         label: '기준값 확보 (baseline coverage)',
         words: ['기준값', '확보'],
-        expected: [stats.presentCases, measured.length],
+        expected: [baselinePresent, measured.length],
       },
     ];
 
@@ -431,7 +440,7 @@ describe('accuracy: we match Unity', () => {
     number
   > {
     const counts = { 'VisualElement only': 0, Label: 0, Button: 0, ScrollView: 0, screen: 0 };
-    for (const golden of measured) {
+    for (const golden of coordinateCases) {
       if (golden.name === 'inventory') counts.screen++;
       else if (/<ui:ScrollView/.test(golden.uxml)) counts.ScrollView++;
       else if (/<ui:Button/.test(golden.uxml)) counts.Button++;
@@ -475,7 +484,55 @@ describe('accuracy: we match Unity', () => {
     }
   });
 
-  for (const golden of measured) {
+  it('records Unity resource() resolution separately from coordinate accuracy', () => {
+    const unity = readJson<UnityDump>(join(UNITY, 'resource-resolution.json'));
+    expect(unity?.resources).toEqual({
+      'resource-probe-root': {
+        hasResolvedBackground: true,
+        type: 'Sprite',
+        name: 'resource-root_0',
+        assetPath: 'Assets/Resources/resource-root.png',
+      },
+      'resource-probe-nested': {
+        hasResolvedBackground: true,
+        type: 'Sprite',
+        name: 'resource-nested_0',
+        assetPath: 'Assets/Sub/Resources/resource-nested.png',
+      },
+      'resource-probe-extensionless': {
+        hasResolvedBackground: true,
+        type: 'Sprite',
+        name: 'resource-extension_0',
+        assetPath: 'Assets/Resources/resource-extension.png',
+      },
+      'resource-probe-extensionful': {
+        hasResolvedBackground: true,
+        type: 'Sprite',
+        name: 'resource-extension_0',
+        assetPath: 'Assets/Resources/resource-extension.png',
+      },
+      'resource-probe-duplicate': {
+        hasResolvedBackground: true,
+        type: 'Sprite',
+        name: 'resource-duplicate_0',
+        assetPath: 'Assets/Resources/resource-duplicate.png',
+      },
+      'resource-probe-outside': {
+        hasResolvedBackground: true,
+        type: 'Texture2D',
+        name: 'd_console.warnicon',
+        assetPath: 'Library/unity editor resources',
+      },
+      'resource-probe-builtin': {
+        hasResolvedBackground: true,
+        type: 'Texture2D',
+        name: 'console.warnicon',
+        assetPath: 'Library/unity editor resources',
+      },
+    });
+  });
+
+  for (const golden of coordinateCases) {
     const path = join(UNITY, `${golden.name}.json`);
     const unity = readJson<UnityDump>(path);
 

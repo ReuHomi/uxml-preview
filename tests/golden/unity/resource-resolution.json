@@ -1,0 +1,22 @@
+{
+  "metadata": {"unityVersion":"6000.0.40f1","unityRevision":"6000.0.40f1 (157d81624ddf)","pixelsPerPoint":1.0,"editorSkin":"dark","editorFont":{"name":"(builtin)","size":12,"style":"Normal"},"systemFont":{"smoothing":"2","smoothingType":"2","smoothingGamma":"0","appliedDpi":"96"},"dumpedAtUtc":"2026-08-14T16:02:04.8523302Z"},
+  "panel": { "width": 400, "height": 300 },
+  "elements": {
+    "resource-probe-root": { "x": 0, "y": 0, "width": 40, "height": 30 },
+    "resource-probe-nested": { "x": 0, "y": 30, "width": 40, "height": 30 },
+    "resource-probe-extensionless": { "x": 0, "y": 60, "width": 40, "height": 30 },
+    "resource-probe-extensionful": { "x": 0, "y": 90, "width": 40, "height": 30 },
+    "resource-probe-duplicate": { "x": 0, "y": 120, "width": 40, "height": 30 },
+    "resource-probe-outside": { "x": 0, "y": 150, "width": 40, "height": 30 },
+    "resource-probe-builtin": { "x": 0, "y": 180, "width": 40, "height": 30 }
+  },
+  "resources": {
+    "resource-probe-root": {"hasResolvedBackground":true,"type":"Sprite","name":"resource-root_0","assetPath":"Assets/Resources/resource-root.png"},
+    "resource-probe-nested": {"hasResolvedBackground":true,"type":"Sprite","name":"resource-nested_0","assetPath":"Assets/Sub/Resources/resource-nested.png"},
+    "resource-probe-extensionless": {"hasResolvedBackground":true,"type":"Sprite","name":"resource-extension_0","assetPath":"Assets/Resources/resource-extension.png"},
+    "resource-probe-extensionful": {"hasResolvedBackground":true,"type":"Sprite","name":"resource-extension_0","assetPath":"Assets/Resources/resource-extension.png"},
+    "resource-probe-duplicate": {"hasResolvedBackground":true,"type":"Sprite","name":"resource-duplicate_0","assetPath":"Assets/Resources/resource-duplicate.png"},
+    "resource-probe-outside": {"hasResolvedBackground":true,"type":"Texture2D","name":"d_console.warnicon","assetPath":"Library/unity editor resources"},
+    "resource-probe-builtin": {"hasResolvedBackground":true,"type":"Texture2D","name":"console.warnicon","assetPath":"Library/unity editor resources"}
+  }
+}

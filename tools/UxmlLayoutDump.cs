@@ -82,9 +82,19 @@ namespace UxmlPreview.Golden
             public string unityVersion;
             public string unityRevision;
             public float pixelsPerPoint;
+            public string editorSkin;
             public EditorFontMetadata editorFont;
             public SystemFontMetadata systemFont;
             public string dumpedAtUtc;
+        }
+
+        [System.Serializable]
+        private sealed class ResourceObservation
+        {
+            public bool hasResolvedBackground;
+            public string type;
+            public string name;
+            public string assetPath;
         }
 
         [MenuItem("Tools/uxml-preview/Golden Case Dumper")]
@@ -326,8 +336,9 @@ namespace UxmlPreview.Golden
         private void Write(string name)
         {
             var entries = new List<string>();
+            var resources = new List<string>();
             var seen = new List<string>();
-            Collect(_stage, _stage.worldBound, entries, seen);
+            Collect(_stage, _stage.worldBound, entries, resources, seen);
 
             if (entries.Count == 0)
             {
@@ -372,6 +383,9 @@ namespace UxmlPreview.Golden
                 "  \"panel\": {{ \"width\": {0}, \"height\": {1} }},\n", PanelWidth, PanelHeight));
             sb.Append("  \"elements\": {\n");
             sb.Append(string.Join(",\n", entries));
+            sb.Append("\n  },\n");
+            sb.Append("  \"resources\": {\n");
+            sb.Append(string.Join(",\n", resources));
             sb.Append("\n  }\n}\n");
 
             string outputPath = Path.Combine(_outputFolder, name + ".json");
@@ -388,6 +402,7 @@ namespace UxmlPreview.Golden
                 unityVersion = Application.unityVersion,
                 unityRevision = UnityEditorInternal.InternalEditorUtility.GetFullUnityVersion(),
                 pixelsPerPoint = EditorGUIUtility.pixelsPerPoint,
+                editorSkin = EditorGUIUtility.isProSkin ? "dark" : "light",
                 editorFont = new EditorFontMetadata
                 {
                     name = font == null ? "(builtin)" : font.name,
@@ -444,7 +459,7 @@ namespace UxmlPreview.Golden
         /// `hierarchy` has no such redirection. It is what decides where every
         /// child of a scroll region actually lands, so it is what gets measured.
         private static void Collect(VisualElement element, Rect origin, List<string> into,
-            List<string> seen)
+            List<string> resources, List<string> seen)
         {
             // Indexer rather than an enumerator: `hierarchy` exposes childCount
             // and [i] on every version this tool targets.
@@ -460,9 +475,30 @@ namespace UxmlPreview.Golden
                     into.Add(string.Format(CultureInfo.InvariantCulture,
                         "    \"{0}\": {{ \"x\": {1}, \"y\": {2}, \"width\": {3}, \"height\": {4} }}",
                         child.name, R(w.x - origin.x), R(w.y - origin.y), R(w.width), R(w.height)));
+
+                    if (child.name.StartsWith("resource-probe-", System.StringComparison.Ordinal))
+                    {
+                        UnityEngine.Object asset = BackgroundAsset(child.resolvedStyle.backgroundImage);
+                        var observation = new ResourceObservation
+                        {
+                            hasResolvedBackground = asset != null,
+                            type = asset == null ? "" : asset.GetType().Name,
+                            name = asset == null ? "" : asset.name,
+                            assetPath = asset == null ? "" : AssetDatabase.GetAssetPath(asset),
+                        };
+                        resources.Add($"    \"{child.name}\": {JsonUtility.ToJson(observation)}");
+                    }
                 }
-                Collect(child, origin, into, seen);
+                Collect(child, origin, into, resources, seen);
             }
+        }
+
+        private static UnityEngine.Object BackgroundAsset(Background background)
+        {
+            if (background.texture != null) return background.texture;
+            if (background.sprite != null) return background.sprite;
+            if (background.renderTexture != null) return background.renderTexture;
+            return background.vectorImage;
         }
 
         private static string R(float value)
