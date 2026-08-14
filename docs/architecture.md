@@ -145,15 +145,24 @@ DOMParser로는 성립하지 않는다.
 
 ```ts
 render(doc, el, {
-  resolveAsset: (path: string) => string | null
+  resolveAsset: (path: string, form: 'url' | 'resource') => string | null
 });
 ```
+
+`url()`은 호스트가 해석하는 에셋 경로지만, `resource()`는 Unity의 Resources 검색이다.
+Unity 6000.0.40f1 실측에서 Resources 폴더는 `Assets` 아래 어디에나 둘 수 있고 확장자는
+생략 가능했다. 에디터 내장 리소스도 해석될 수 있으므로, 파일 시스템만 가진 호스트는
+그 경우 `null`을 반환해야 한다. 둘을 같은 경로로 취급하면 우연히 존재하는 다른 파일을
+조용히 쓰게 된다.
 
 라이브러리 사용자가 자기 환경에 맞게 구현한다.
 리졸브 실패 시 플레이스홀더를 그리고 경고 목록에 담는다.
 
-`@import`도 같은 이유로 같은 모양의 훅을 쓴다 — `parse(uxml, uss, { resolveImport })`.
-경로가 `project://database/...` 형식이라 호스트만 파일 내용을 안다.
+`@import`도 같은 이유로 훅을 쓴다 —
+`parse(uxml, uss, { resolveImport: (url, from) => string | null })`.
+`from`은 즉시 포함한 스타일시트가 훅에 `url`로 넘겼던 정확한 문자열이며, `<Style src>`
+입구에서는 `null`이다. 따라서 호스트가 부모 상대 import를 해석할 수 있다. 경로가
+`project://database/...` 형식일 수 있어 호스트만 파일 내용을 안다.
 훅이 없거나 `null`을 반환하면 그 시트의 규칙은 참여하지 않고 경고가 남는다.
 
 ## 디렉토리

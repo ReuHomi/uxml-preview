@@ -30,12 +30,12 @@ DOM reproduces them is checked by an invariant of our own
 
 ## Controls
 
-| Type | v0.2 | Notes |
+| Type | v0.4.0 | Notes |
 |---|---|---|
 | `VisualElement` | verified | most golden cases are built from it |
 | `Label` | written | layout verified; **text measurement was never compared to Unity** |
-| `Button` | verified | six golden cases compared against Unity. Its label is **centred**, found by the eye check. Carries Unity's **default `margin: 1px 3px`** (`src/controls/theme.ts`); honours `:hover` and the other states |
-| `ScrollView` | verified | reproduces the **three implicit levels** (`unity-content-and-vertical-scroll-container` → `unity-content-viewport` → `unity-content-container`); three golden cases compared against Unity. The scrollbar's **width is reserved (13px) but nothing is drawn** — dragging, wheeling and scroll position are outside a static render |
+| `Button` | verified | ten golden cases compared against Unity. Its label is **centred**, found by the eye check. Carries Unity's **default `margin: 1px 3px`** (`src/controls/theme.ts`); honours `:hover` and the other states |
+| `ScrollView` | verified | reproduces the **three implicit levels** (`unity-content-and-vertical-scroll-container` → `unity-content-viewport` → `unity-content-container`); four golden cases compared against Unity. The scrollbar's **width is reserved (13px) but nothing is drawn** — dragging, wheeling and scroll position are outside a static render |
 | `TextField` | fallback | its `text` / `label` is not drawn |
 | `Toggle` | fallback | as above |
 | `Slider` / `SliderInt` | fallback | as above |
@@ -82,7 +82,7 @@ matched** ([`accuracy.en.md`](accuracy.en.md)).
 | `-unity-text-outline-*` | B | not implemented | |
 | translate / scale / rotate | A | written | |
 | transition | A | not implemented | kept whole rather than expanded |
-| background-image | A | written | needs the asset resolver; draws a placeholder on failure |
+| background-image | A | written | passes `url()`/`resource()` form to the resolver. `resource()` is a Resources lookup and editor built-ins cannot be resolved by a disk-only host; draws a placeholder on failure. Unity measurement: `accuracy.en.md` |
 | `var()` custom properties | A | written | covered by cascade tests, not compared to Unity |
 
 ## Not supported (C)

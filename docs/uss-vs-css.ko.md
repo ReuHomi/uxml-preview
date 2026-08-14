@@ -215,7 +215,11 @@ background-image: url("project://database/Assets/UI/panel.png");
 background-image: resource("panel");
 ```
 
-`https://` 이미지를 가리킬 방법이 없습니다. 에셋이 프로젝트 안에 있어야 합니다.
+`https://` 이미지를 가리킬 방법이 없습니다. `url()`은 프로젝트 에셋을 가리키고,
+`resource()`는 Unity Resources 검색을 합니다. Unity 6000.0.40f1 실측에서 이 검색은
+`Assets` 아래 어느 위치의 Resources 폴더도 찾고 확장자 생략도 받았습니다. 에디터 내장
+리소스도 찾을 수 있어 프로젝트 파일만 가진 호스트는 풀 수 없는 참조가 있습니다. 자세한
+근거는 [`accuracy.md`](accuracy.md)의 `resource-resolution` 관측 케이스입니다.
 
 ## 실제로 측정한 것
 

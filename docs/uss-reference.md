@@ -144,7 +144,7 @@ UXML 네임스페이스는 보통 `ui:` (`<ui:VisualElement>`). 프로젝트 관
 
 | CSS | USS | 등급 | 비고 |
 |---|---|---|---|
-| `background-image: url()` | 동일 (에셋 경로 또는 `resource()`) | A | 웹 URL 불가. 프로젝트 에셋으로 |
+| `background-image: url()` | 동일 (`url(...)` 또는 `resource(...)`) | A | 웹 URL 불가. 두 형식은 해석 규칙이 다름 |
 | `background-size` | 동일 (`cover`/`contain`) | A | 버전 확인 |
 | `background-position`, `background-repeat` | 동일 | A | 버전 확인 |
 | 다중 배경 (`,`로 나열) | — | C | 하나만. 요소를 겹쳐서 대체 |
@@ -152,8 +152,11 @@ UXML 네임스페이스는 보통 `ui:` (`<ui:VisualElement>`). 프로젝트 관
 | 9-slice 늘리기 | `-unity-slice-left/right/top/bottom` | A | CSS `border-image` 대응 |
 | 이미지 색조 | `-unity-background-image-tint-color` | A | CSS에 대응 없음. 유용함 |
 
-**이미지 경로**: `url("project://database/Assets/...")` 또는
-`resource("...")`. 프로젝트 관례를 따른다.
+**이미지 경로**: `url("project://database/Assets/...")`는 호스트가 푸는 에셋 경로다.
+`resource("...")`는 경로가 아니라 Unity Resources 검색이다. Unity 6000.0.40f1 실측에서
+Resources 폴더는 `Assets` 아래 어디에나 둘 수 있고 확장자는 생략 가능했다. 에디터 내장
+리소스도 `resource()`로 해석될 수 있어, 프로젝트 디스크만 보는 호스트에는 해석 불가한
+참조가 있다. 상세 측정은 [`accuracy.md`](accuracy.md)의 `resource-resolution` 케이스 참조.
 
 ---
 

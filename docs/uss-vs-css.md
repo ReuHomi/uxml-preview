@@ -224,8 +224,11 @@ background-image: url("project://database/Assets/UI/panel.png");
 background-image: resource("panel");
 ```
 
-There is no way to point at an `https://` image. Assets have to exist in the
-project.
+There is no way to point at an `https://` image. `url()` names a project asset;
+`resource()` uses Unity's Resources lookup instead. In Unity 6000.0.40f1 that
+lookup found folders anywhere below `Assets` and accepted an omitted extension;
+it can also find editor built-ins that a host with only project files cannot.
+See the `resource-resolution` observation in [`accuracy.en.md`](accuracy.en.md).
 
 ## What was actually measured
 

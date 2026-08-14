@@ -16,12 +16,12 @@ Phase가 진행되면서 갱신한다. 상세 매핑은 `uss-reference.md` 참�
 > 상태 표기: `코드 작성` = 코드는 있고 골든 테스트로 검증 안 됨,
 > `검증됨` = 유니티와 대조까지 끝남. Phase 5 전에는 `검증됨`이 하나도 없다.
 
-| 타입 | v0.2 | 비고 |
+| 타입 | v0.4.0 | 비고 |
 |---|---|---|
 | `VisualElement` | 검증됨 | 골든 케이스 대부분이 이걸로 짜여 있다 |
 | `Label` | 코드 작성 | 레이아웃은 검증됨. **텍스트 측정은 유니티와 대조하지 않았다** |
-| `Button` | 검증됨 | 골든 케이스 6개 유니티 대조 완료. 라벨은 **가운데 정렬**(육안 대조로 발견). 유니티의 **기본 여백 `margin: 1px 3px`**을 적용한다 (`src/controls/theme.ts`). `:hover` 등 상태 스타일 해석 지원 |
-| `ScrollView` | 검증됨 | **암묵 계층 3층**(`unity-content-and-vertical-scroll-container` → `unity-content-viewport` → `unity-content-container`)을 재현한다. 골든 케이스 3개 유니티 대조 완료. 스크롤바는 **폭(13px)만 예약**하고 그리지 않는다 — 드래그·휠·스크롤 위치는 정지 렌더 스코프 밖 |
+| `Button` | 검증됨 | 골든 케이스 10개 유니티 대조 완료. 라벨은 **가운데 정렬**(육안 대조로 발견). 유니티의 **기본 여백 `margin: 1px 3px`**을 적용한다 (`src/controls/theme.ts`). `:hover` 등 상태 스타일 해석 지원 |
+| `ScrollView` | 검증됨 | **암묵 계층 3층**(`unity-content-and-vertical-scroll-container` → `unity-content-viewport` → `unity-content-container`)을 재현한다. 골든 케이스 4개 유니티 대조 완료. 스크롤바는 **폭(13px)만 예약**하고 그리지 않는다 — 드래그·휠·스크롤 위치는 정지 렌더 스코프 밖 |
 | `TextField` | 폴백 | `text`·`label`이 그려지지 않는다 |
 | `Toggle` | 폴백 | 위와 같다 |
 | `Slider` / `SliderInt` | 폴백 | 위와 같다 |
@@ -70,7 +70,7 @@ Phase가 진행되면서 갱신한다. 상세 매핑은 `uss-reference.md` 참�
 | `-unity-text-outline-*` | B | 미구현 | |
 | translate / scale / rotate | A | 코드 작성 | |
 | transition | A | 미구현 | 값을 전개하지 않고 통째로 둔다 |
-| background-image | A | 코드 작성 | 에셋 리졸버 필요. 실패 시 플레이스홀더 |
+| background-image | A | 코드 작성 | `url()`/`resource()` 형식을 리졸버에 구분해 전달. `resource()`는 Resources 검색이며 에디터 내장 리소스는 디스크 호스트가 풀 수 없다; 실패 시 플레이스홀더. Unity 실측은 `accuracy.md` 참조 |
 | `var()` 커스텀 속성 | A | 코드 작성 | 캐스케이드 테스트로 확인, 유니티 대조는 안 함 |
 
 ## 미지원 (C)

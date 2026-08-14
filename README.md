@@ -25,12 +25,12 @@ stylesheet comes out wrong.</sub>
 npm install uxml-preview
 ```
 
-> **v0.2.0 — early release.** Five controls (`VisualElement`, `Label`, `Button`,
+> **v0.4.0 — early release.** Five controls (`VisualElement`, `Label`, `Button`,
 > `Image`, `ScrollView`), everything else drawn as a plain box with a warning,
 > and a support matrix that says plainly what has not been measured.
 > Read [what is not verified yet](#what-is-not-verified-yet) before relying on it.
 >
-> **v0.2.0 — 초기 릴리스입니다.** 컨트롤 5종(`VisualElement`, `Label`, `Button`,
+> **v0.4.0 — 초기 릴리스입니다.** 컨트롤 5종(`VisualElement`, `Label`, `Button`,
 > `Image`, `ScrollView`)이고, 나머지는 경고와 함께 일반 박스로 그립니다.
 > 검증되지 않은 부분은 지원 범위표에 그대로 적어뒀습니다. 쓰시기 전에
 > [아직 검증되지 않은 것](#아직-검증되지-않은-것)을 먼저 봐주세요.
@@ -99,7 +99,8 @@ That broken feedback loop is what this library fixes.
 | 5 | Golden tests against Unity | ✅ |
 | 6 | **v0.1 release** | ✅ |
 | 7 | **v0.2 — ScrollView, Image, states, a measured screen** | ✅ |
-| 8+ | Editing layer, tool integration | ⬜ |
+| 8 | **v0.3–0.4 — asset/import resolution semantics, Unity CLI measurement** | ✅ |
+| 9+ | Editing layer, tool integration | ⬜ |
 
 Full plan: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 
@@ -143,7 +144,8 @@ const doc = parse(uxmlText, ussText);
 
 // model → screen
 const view = render(doc, document.getElementById('preview'), {
-  resolveAsset: (path) => myAssetUrlFor(path),
+  resolveAsset: (path, form) =>
+    form === 'url' ? myAssetUrlFor(path) : myResourcesAssetUrlFor(path),
 
   // Pseudo-class states are explicit input, keyed by USS selector, so the same
   // call always draws the same picture. Per element, because real screens mix.
@@ -157,6 +159,17 @@ view.dispose();
 // model → text
 const { uxml, uss } = serialize(doc);
 ```
+
+`form` keeps `url()` and `resource()` distinct. `url()` is a host-defined asset
+path; `resource()` is Unity's Resources lookup, where the extension is optional
+and the folder may occur anywhere under `Assets`. Unity can also resolve editor
+built-ins that a disk-only host cannot, so return `null` rather than treating a
+resource name as an ordinary project path.
+
+For external stylesheets, `parse(uxml, uss, { resolveImport: (url, from) => ... })`
+passes the immediate containing stylesheet URL as `from` (`null` for `<Style src>`).
+Existing one-argument callbacks remain valid; a future third hook argument will
+use an options object instead.
 
 ### Playground
 
@@ -210,12 +223,14 @@ Checked by comparing element geometry against the Unity Editor, case by case.
 Geometry rather than pixels: Unity draws text with its own font asset and a
 browser does not, so a pixel diff would measure the font more than the layout.
 
-Measured against Unity on 2026-08-12, over 40 cases and 169 elements:
+Coordinates measured against Unity on 2026-08-12, over 40 layout cases and 169
+elements:
 
 | | |
 |---|---|
 | Cases matching exactly | **38 / 40** |
 | Values within 0.5px | **660 / 676 (97.6%)** |
+| Unity baselines recorded | **41 / 41** (40 coordinate cases + 1 resource observation) |
 
 The sixteen divergences are four different things, and the distinction matters
 more than the ratio: **ten are text metrics**, three are 1px, two are a
@@ -330,7 +345,8 @@ Unity 6000.0.40f1과 대조한 결과, 실무형 화면을 포함한 레이아�
 | 5 | 유니티 대조 골든 테스트 | ✅ |
 | 6 | **v0.1 공개** | ✅ |
 | 7 | **v0.2 — ScrollView·Image·상태, 대표 화면 대조** | ✅ |
-| 8+ | 편집 레이어, 도구 통합 | ⬜ |
+| 8 | **v0.3–0.4 — 에셋·import 해석 의미론, Unity CLI 계측** | ✅ |
+| 9+ | 편집 레이어, 도구 통합 | ⬜ |
 
 전체 계획: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 
@@ -395,6 +411,16 @@ pnpm build
 
 정확도 수치를 재현하려면 유니티가 필요합니다. 절차는
 [`docs/accuracy.md`](docs/accuracy.md)에 있습니다.
+
+### API
+
+`render` 옵션의 `resolveAsset(path, form)`에서 `form`은 `'url' | 'resource'`입니다.
+`url()`은 호스트의 에셋 경로이고 `resource()`는 Unity Resources 검색입니다. 후자는
+확장자 없이 쓸 수 있고 Resources 폴더가 `Assets` 아래 어디에나 있을 수 있으며, 에디터
+내장 리소스처럼 프로젝트 디스크만 보는 호스트가 풀 수 없는 값도 있으므로 그때는 `null`을
+반환해야 합니다. 외부 스타일시트는 `parse(uxml, uss, { resolveImport: (url, from) => ... })`
+로 읽고, `from`에는 바로 부모인 스타일시트 URL(`Style src` 입구에서는 `null`)이 옵니다.
+기존 한 인자 콜백은 계속 동작합니다.
 
 ### 이런 질문에 답합니다
 
