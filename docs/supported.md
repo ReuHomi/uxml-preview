@@ -16,7 +16,7 @@ Phase가 진행되면서 갱신한다. 상세 매핑은 `uss-reference.md` 참�
 > 상태 표기: `코드 작성` = 코드는 있고 골든 테스트로 검증 안 됨,
 > `검증됨` = 유니티와 대조까지 끝남. Phase 5 전에는 `검증됨`이 하나도 없다.
 
-| 타입 | v0.4.0 | 비고 |
+| 타입 | v0.5.0 | 비고 |
 |---|---|---|
 | `VisualElement` | 검증됨 | 골든 케이스 대부분이 이걸로 짜여 있다 |
 | `Label` | 코드 작성 | 레이아웃은 검증됨. **텍스트 측정은 유니티와 대조하지 않았다** |
@@ -39,6 +39,33 @@ Phase가 진행되면서 갱신한다. 상세 매핑은 `uss-reference.md` 참�
 > 틀린지 판단할 근거조차 주지 않는다.
 >
 > 파싱은 어느 쪽이든 성공하며, 왕복 시 유실되지 않는다.
+
+## Template / Instance
+
+| 요소 | v0.5.0 | 비고 |
+|---|---|---|
+| `<ui:Template name="…" src="…">` | 검증됨 | 선언을 읽고 `resolveImport(url, from)`을 재사용해 상대 경로를 해석한다. `project://…` 및 `/…`는 프로젝트 루트 기준이다. |
+| `<ui:Instance template="…">` | 검증됨 | 전개 시 불투명한 `TemplateContainer`를 만들고, Instance의 `name`·`class`·인라인 `style`을 그 컨테이너에 붙인다. 중첩 전개 상한은 32다. 템플릿 내부 `Style`은 해당 컨테이너 하위로만 스코프된다. |
+| `<AttributeOverrides>` | 검증됨 | `element-name`이 같은 **모든** 중복 대상의 일반 속성을 덮어쓴다. 없는 대상은 `override-target-missing`으로 실제 이름 목록과 함께 진단한다. `style` override는 대상 element-name과 style 값을 `override-style-ignored`로 보고한다. Unity가 import에서 무시하는 동작이며 프리뷰의 한계가 아니므로 적용하지 않는다. |
+| 순환 템플릿 | 미지원 | 전개하지 않고 fail-closed로 차단하며 경로 전체를 `template-cycle`로 보고한다. |
+| 슬롯 | 미지원 | **슬롯 — 6000.0.40f1에서 살아 있음을 실측 확인. 이번 범위 밖이며 `template-slot-unsupported` 진단으로 보고.** 슬롯 자식은 배치하지 않는다. |
+
+템플릿 `src`의 `Packages/...`는 선언 파일 기준 상대 경로로 처리되어 측정 케이스에서
+실패한다. `<projectRoot>/Packages/<name>/`에 실물 디렉터리가 있는 embedded package의
+UXML은 `project://database/Packages/...`로 해석된다(Unity 6000.0.40f1 실측).
+코어와 호스트는 `Library/PackageCache`를 탐색하지 않는다. 그 경로에만 있는
+레지스트리 패키지의 템플릿은 `package-path-not-searched`로 보고된다.
+
+이 기능은 `collectDependencies(source)`로 템플릿 선언의 의존 URL을 소스 순서대로
+미리 수집할 수 있다. `WarningKind` 공개 유니온은 기존 8종에서 **17종**이며,
+소비자는 분류기를 갱신해야 한다. 새 템플릿 진단은 다음 9종이다:
+`template-src-unresolved`, `template-not-declared`, `template-cycle`,
+`template-depth-exceeded`, `override-target-missing`, `duplicate-name-in-tree`,
+`package-path-not-searched`, `template-slot-unsupported`, `override-style-ignored`.
+
+이번 범위에는 런타임 `binding-path`, C# `makeItem`이 정하는 `ListView`/`TreeView`
+아이템 템플릿, 인스턴스별 개별 pseudo-state, 순환을 잘라 일부만 그리는 동작이
+포함되지 않는다. 템플릿 편집·자동 추출·UI Builder 재현도 뷰어 코어의 비목표다.
 
 ## USS 속성
 

@@ -12,7 +12,20 @@ export interface Example {
   name: string;
   uxml: string;
   uss: string;
+  files?: Record<string, string>;
   panel?: { width: number; height: number };
+}
+
+export function resolveExampleImport(
+  files: Readonly<Record<string, string>>,
+  url: string,
+  from: string | null,
+): string | null {
+  if (from !== null && from.includes('/')) {
+    const relative = files[`${from.slice(0, from.lastIndexOf('/') + 1)}${url}`];
+    if (relative !== undefined) return relative;
+  }
+  return files[url] ?? null;
 }
 
 /**
@@ -48,6 +61,59 @@ export function resolveAsset(path: string): string | null {
 const inventory = CASES.find((c) => c.name === 'inventory')!;
 
 export const EXAMPLES: Example[] = [
+  {
+    name: 'Templates: reusable slots and a caught override typo',
+    panel: { width: 640, height: 360 },
+    files: {
+      'ItemSlot.uxml': `<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:VisualElement class="item-slot">
+    <ui:Label name="item-name" text="Empty" class="item-name" />
+  </ui:VisualElement>
+</ui:UXML>
+`,
+    },
+    uxml: `<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:Template name="ItemSlot" src="ItemSlot.uxml" />
+  <ui:VisualElement class="inventory-demo">
+    <ui:Label text="Reusable inventory slots" class="demo-title" />
+    <ui:VisualElement class="slot-row">
+      <ui:Instance template="ItemSlot"><AttributeOverrides element-name="item-name" text="Potion" /></ui:Instance>
+      <ui:Instance template="ItemSlot"><AttributeOverrides element-name="item-name" text="Key" /></ui:Instance>
+      <ui:Instance template="ItemSlot"><AttributeOverrides element-name="item-name" text="Map" /></ui:Instance>
+      <!-- Intentional typo: the preview reports the requested and available names. -->
+      <ui:Instance template="ItemSlot"><AttributeOverrides element-name="item-naem" text="Torch" /></ui:Instance>
+    </ui:VisualElement>
+  </ui:VisualElement>
+</ui:UXML>
+`,
+    uss: `.inventory-demo {
+  padding: 24px;
+  background-color: rgb(31, 34, 42);
+}
+
+.demo-title {
+  margin-bottom: 14px;
+  color: rgb(232, 235, 242);
+  font-size: 18px;
+  -unity-font-style: bold;
+}
+
+.slot-row { flex-direction: row; }
+
+.item-slot {
+  width: 120px;
+  height: 84px;
+  margin-right: 10px;
+  padding: 10px;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(55, 61, 74);
+  border-radius: 6px;
+}
+
+.item-name { color: rgb(224, 228, 238); }
+`,
+  },
   {
     name: 'Representative screen (compared against Unity)',
     panel: PANEL,

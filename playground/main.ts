@@ -12,7 +12,7 @@
 
 import { loadLayoutEngine, parse, render, serialize } from '../src/index';
 import type { RenderResult, Warning } from '../src/index';
-import { EXAMPLES, resolveAsset } from './examples';
+import { EXAMPLES, resolveAsset, resolveExampleImport } from './examples';
 
 const uxmlEl = document.getElementById('uxml') as HTMLTextAreaElement;
 const ussEl = document.getElementById('uss') as HTMLTextAreaElement;
@@ -48,6 +48,7 @@ let result: RenderResult | null = null;
 interface SharedState {
   uxml: string;
   uss: string;
+  files?: Record<string, string>;
   w: number;
   h: number;
 }
@@ -70,9 +71,18 @@ function decodeState(text: string): SharedState | null {
     const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
     const parsed = JSON.parse(new TextDecoder().decode(bytes)) as Partial<SharedState>;
     if (typeof parsed.uxml !== 'string' || typeof parsed.uss !== 'string') return null;
+    const files = parsed.files;
+    const validFiles =
+      files !== undefined &&
+      files !== null &&
+      typeof files === 'object' &&
+      Object.values(files).every((value) => typeof value === 'string')
+        ? files
+        : undefined;
     return {
       uxml: parsed.uxml,
       uss: parsed.uss,
+      ...(validFiles === undefined ? {} : { files: validFiles }),
       w: Number(parsed.w) || 1280,
       h: Number(parsed.h) || 720,
     };
@@ -80,6 +90,8 @@ function decodeState(text: string): SharedState | null {
     return null;
   }
 }
+
+let activeFiles: Record<string, string> | undefined;
 
 function showWarnings(warnings: readonly Warning[]): void {
   warnEl.replaceChildren();
@@ -124,7 +136,14 @@ function update(): void {
 
   let roundTrip = '';
   try {
-    const doc = parse(uxmlEl.value, ussEl.value);
+    const files = activeFiles;
+    const doc = parse(
+      uxmlEl.value,
+      ussEl.value,
+      files === undefined
+        ? undefined
+        : { resolveImport: (url, from) => resolveExampleImport(files, url, from) },
+    );
     result = render(doc, panelEl, { size: panel, resolveAsset });
     showWarnings([...doc.warnings, ...result.warnings]);
 
@@ -200,6 +219,7 @@ presetEl.addEventListener('change', () => {
   if (example === undefined) return;
   uxmlEl.value = example.uxml;
   ussEl.value = example.uss;
+  activeFiles = example.files;
   if (example.panel !== undefined) {
     setPanel(example.panel.width, example.panel.height);
   } else {
@@ -234,6 +254,7 @@ shareEl.addEventListener('click', () => {
   url.hash = encodeState({
     uxml: uxmlEl.value,
     uss: ussEl.value,
+    ...(activeFiles === undefined ? {} : { files: activeFiles }),
     w: panel.width,
     h: panel.height,
   });
@@ -252,12 +273,14 @@ const shared = window.location.hash.length > 1 ? decodeState(window.location.has
 if (shared !== null) {
   uxmlEl.value = shared.uxml;
   ussEl.value = shared.uss;
+  activeFiles = shared.files;
   panel = { width: shared.w, height: shared.h };
   presetEl.value = '';
 } else {
   const first = EXAMPLES[0]!;
   uxmlEl.value = first.uxml;
   ussEl.value = first.uss;
+  activeFiles = first.files;
   if (first.panel !== undefined) panel = first.panel;
 }
 syncSizeInputs();

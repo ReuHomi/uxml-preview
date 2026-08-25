@@ -20,6 +20,65 @@ It is the first question anyone asks, and without an answer nobody uses this.
 path, not coordinate accuracy. It counts toward baseline coverage but not the
 660/676 matching values or the 38/40 coordinate cases.
 
+## Template / Instance expansion (separate cohort, Unity 6000.0.40f1)
+
+The base-control and template-expansion cohorts answer different questions and
+must not be added together. The base figure remains **660 / 676 (169 elements,
+v0.4.0)**.
+
+| Item | Template expansion cohort | Meaning |
+|---|---:|---|
+| Matching coordinate values | **200 / 220** | 55 elements × `x`/`y`/`width`/`height` |
+| Rendered cases | **11** | G3-1 through G3-10 and G3-12 |
+| Unity baselines available | **11 / 11** | Coverage of rendered baselines, not accuracy |
+| Divergences | **20** | (a) known font/text metrics 20 / (b) 1px 0 / (c) new cause 0 |
+
+G3-11 has no layout baseline: Unity's `CloneTree` raises a
+`StackOverflowException` for the cyclic template. The core blocks the same input
+fail-closed and reports `template-cycle`. It is not included in the 11 rendered
+cases or in the base-control figures.
+
+### The 20 template-expansion divergences — (a) / (b) / (c)
+
+`problems` and `lines` are units used by the external re-observation table; the
+table below counts only coordinate divergences in rendered template cases, and
+does not turn those two diagnostic units or empty-box matches into accuracy.
+
+| Unit | Definition |
+|---|---|
+| `problems` | Number of core failures observed |
+| `lines` | Number of diagnostic-panel lines emitted by core and host |
+
+| Case | Element | Axis | ours | Unity | Δ |
+|---|---|---|---:|---:|---:|
+| `G3-1` | `g31-label` | height | 12 | 15 | -3 |
+| `G3-2` | `g32-label#1` | height | 12 | 15 | -3 |
+| `G3-2` | `g32-label#2` | height | 12 | 15 | -3 |
+| `G3-2` | `g32-label#3` | height | 12 | 15 | -3 |
+| `G3-3` | `g33-label` | height | 12 | 15 | -3 |
+| `G3-4` | `g34-instance` | width | 140 | 145 | -5 |
+| `G3-4` | `g34-template-root` | width | 140 | 145 | -5 |
+| `G3-4` | `g34-template-root` | height | 20 | 25 | -5 |
+| `G3-4` | `g34-internal-label` | width | 140 | 145 | -5 |
+| `G3-4` | `g34-internal-label` | height | 20 | 25 | -5 |
+| `G3-4` | `g34-outside-label` | x | 140 | 145 | -5 |
+| `G3-4` | `g34-outside-label` | width | 150 | 140 | 10 |
+| `G3-5` | `g35-inherited-label` | height | 18 | 22 | -4 |
+| `G3-7` | `g37-deep-label` | height | 12 | 15 | -3 |
+| `G3-8` | `g38-instance` | height | 19 | 23 | -4 |
+| `G3-8` | `g38-template-root` | height | 19 | 23 | -4 |
+| `G3-8` | `g38-label` | height | 19 | 23 | -4 |
+| `G3-9` | `g39-duplicate#1` | height | 12 | 15 | -3 |
+| `G3-9` | `g39-duplicate#2` | y | 12 | 15 | -3 |
+| `G3-9` | `g39-duplicate#2` | height | 12 | 15 | -3 |
+
+The measured classification is **(a) 20 / (b) 0 / (c) 0**. Axis distribution is
+`height` 14, `width` 4, `x` 1, `y` 1. There are zero values with `|Δ| ≤ 1` and
+zero mismatches on fixed-size boxes without text, so neither the 1px allowance
+nor a new layout cause has a row. Every row matches the existing Unity Label
+font metric behavior: font-size 12 gives height 15, and 20 gives height 25;
+the harness uses `height = fontSize`.
+
 This table went stale once already (found 2026-08-09): two cases,
 `state-vs-id` and `state-vs-inline`, were merged without it being updated.
 The Korean original (`accuracy.md`) is now checked against a live recomputation

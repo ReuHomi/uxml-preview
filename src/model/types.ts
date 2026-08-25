@@ -72,6 +72,8 @@ export interface Attribute {
    */
   value: string;
   span: Span;
+  /** Render-only provenance for a cloned/overridden attribute. */
+  sourceDocument?: string | null;
 }
 
 /**
@@ -121,6 +123,23 @@ export interface ElementNode {
    * synthesized (copy a sibling's leading whitespace).
    */
   childrenDirty: boolean;
+
+  /**
+   * A render-only node synthesized while a template instance is expanded.
+   * Parsed nodes leave this absent; serialization never sees the derived tree.
+   */
+  derived?: {
+    kind: 'template-container';
+    /** The source `<ui:Instance>` that caused this container to exist. */
+    instance: NodeId;
+  };
+
+  /** URL of the UXML document that supplied a render-only clone. */
+  sourceDocument?: string | null;
+  /** URL that sourceDocument was resolved from, when it was relative. */
+  sourceDocumentFrom?: string | null;
+  /** Node id inside sourceDocument for a render-only clone. */
+  sourceNode?: NodeId;
 }
 
 // ---------------------------------------------------------------------------
@@ -209,6 +228,8 @@ export interface StyleSheet {
    * passed directly to `parse()`. Used in warning messages only.
    */
   origin: string | null;
+  /** Containing URL used to resolve origin in a derived template document. */
+  sourceDocumentFrom?: string | null;
   items: SheetItem[];
 }
 
@@ -224,7 +245,19 @@ export type WarningKind =
   | 'version-dependent'
   | 'asset-unresolved'
   | 'import-unresolved'
-  | 'malformed';
+  | 'malformed'
+  | 'template-src-unresolved'
+  | 'template-not-declared'
+  | 'template-cycle'
+  | 'template-depth-exceeded'
+  | 'override-target-missing'
+  | 'duplicate-name-in-tree'
+  | 'package-path-not-searched'
+  | 'template-slot-unsupported'
+  | 'override-style-ignored';
+
+/** A mapped type consumers can use for exhaustive warning classification. */
+export type WarningKindMap<T> = { [K in WarningKind]: T };
 
 /**
  * Never a thrown error. One unsupported property must not take down the render
@@ -236,6 +269,8 @@ export type WarningKind =
 export interface Warning {
   kind: WarningKind;
   message: string;
+  /** Document URL for a warning originating outside the entry UXML. */
+  sourceDocument?: string | null;
   /** Text location, when the warning has one. */
   at?: SourceRef;
   /** Element the warning is about, when it has one. Lets the UI highlight it. */
@@ -294,12 +329,22 @@ export interface UxmlDocument {
  * disagree with it.
  */
 export type StyleOrigin =
-  | { kind: 'inline'; node: NodeId; declIndex: number }
+  | {
+      kind: 'inline';
+      node: NodeId;
+      declIndex: number;
+      /** URL of the UXML/USS document that supplied this declaration. */
+      sourceDocument?: string | null;
+      sourceDocumentFrom?: string | null;
+    }
   | {
       kind: 'rule';
       sheet: number;
       item: number;
       declIndex: number;
+      /** URL of the stylesheet containing the declaration, when external. */
+      sourceDocument?: string | null;
+      sourceDocumentFrom?: string | null;
       /**
        * Pseudo-class states the matched selector required, e.g. `['hover']`.
        *

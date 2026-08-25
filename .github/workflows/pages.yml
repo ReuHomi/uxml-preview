@@ -27,6 +27,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm check:self-reference
       # The site is the demo people judge the library by, so it does not ship
       # unless the library it demonstrates actually passes.
       - run: pnpm typecheck

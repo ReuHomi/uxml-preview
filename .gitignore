@@ -12,6 +12,10 @@ tests/golden/output/
 # source of truth for the case set.
 tests/golden/cases/
 
+# emitted from tests/template/cases.ts by `pnpm template:emit`; Unity-only
+# measurement input, not another checked-in source of truth.
+tests/template/cases/
+
 .DS_Store
 Thumbs.db
 *.log

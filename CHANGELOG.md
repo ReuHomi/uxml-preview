@@ -1,5 +1,75 @@
 # Changelog
 
+## 0.5.0 — 2026-08-26
+
+### Known limitations
+
+- Slots are deliberately unsupported this release. **Slots — measured alive in
+  6000.0.40f1. Out of this release scope and reported with
+  `template-slot-unsupported`.** Slot children are not placed in an arbitrary
+  location.
+- A `style` AttributeOverride is reported as `override-style-ignored` and is not
+  applied, matching Unity's import behavior.
+- Runtime `binding-path`, C# `makeItem`-selected `ListView`/`TreeView` item
+  templates, per-instance pseudo-state control, cyclic-graph truncation,
+  template editing, automatic extraction, and UI Builder reproduction remain
+  outside the viewer-core scope.
+- The external 14-document sample is not broad template validation: only **1
+  document uses `<ui:Template>`**. Its former **31 → 0** figure counted
+  diagnostic lines — 1 Template declaration + 15 Instances + 15
+  AttributeOverrides — not 31 opened subtrees.
+- An embedded package UXML physically present at
+  `<projectRoot>/Packages/<name>/` resolves through
+  `project://database/Packages/...`, as measured in Unity 6000.0.40f1. The core
+  and host still do not search `Library/PackageCache`; a registry-package
+  template available only there reports `package-path-not-searched`.
+
+### Added
+
+- **Template / Instance expansion.** `<ui:Template>` declarations are resolved
+  through the existing `resolveImport(url, from)` host hook, and
+  `<ui:Instance>` expands to an opaque `TemplateContainer`. Instance `name`,
+  `class`, and inline `style` attach to that container; nested expansion is
+  capped at 32 levels.
+- `collectDependencies(source)` returns template `src` URLs in source order so a
+  synchronous host can prefetch the transitive input before rendering.
+- `WarningKindMap<T>` is exported so consumers can make their diagnostic
+  classifier exhaustive.
+- `AttributeOverrides` reaches every duplicate `element-name` target and reports
+  `override-target-missing` with the requested and available names when it finds
+  none. A `style` override reports `override-style-ignored` with the target name
+  and value; Unity ignores it during import, so it is not applied. Template source
+  provenance is kept separate from the derived render tree.
+- The public `WarningKind` union grows from **8 to 17**. Consumers must update
+  their warning classifiers. The nine new template diagnostics are:
+  `template-src-unresolved`, `template-not-declared`, `template-cycle`,
+  `template-depth-exceeded`, `override-target-missing`,
+  `duplicate-name-in-tree`, `package-path-not-searched`,
+  `template-slot-unsupported`, and `override-style-ignored`.
+
+### Changed
+
+- Template stylesheet attachments remain scoped to the generated
+  `TemplateContainer` subtree. `Packages/...` is declaring-document-relative;
+  an embedded package UXML physically present at
+  `<projectRoot>/Packages/<name>/` resolves through the project-root-fixed
+  `project://database/Packages/...` form, as measured in Unity 6000.0.40f1.
+  `Library/PackageCache` is not searched, so a registry-package template
+  available only there reports `package-path-not-searched`.
+- Cyclic templates fail closed with the complete cycle path. The source AST is
+  still round-tripped unchanged; expansion exists only in the render tree.
+
+### Verified
+
+- Unity 6000.0.40f1 template cohort: **200 / 220 coordinate values**, 55
+  elements, and 11 rendered cases with 11/11 rendered baselines. The 20
+  mismatches classify as (a) known font/text metrics 20, (b) 1px 0, and (c) new
+  cause 0; axes are height 14, width 4, x 1, y 1.
+- G3-11 has no layout baseline because Unity `CloneTree` overflows the stack on
+  the cyclic input; the preview reports `template-cycle` and fails closed.
+- This cohort is separate from the v0.4.0 base-control figure of **660 / 676**
+  for 169 elements. The figures are not combined.
+
 ## 0.4.0 — 2026-08-12
 
 ### Added

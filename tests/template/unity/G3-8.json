@@ -1,0 +1,170 @@
+{
+  "unityVersion": "6000.0.40f1",
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "g38-instance": {
+      "x": 0,
+      "y": 0,
+      "width": 400,
+      "height": 23
+    },
+    "g38-template-root": {
+      "x": 0,
+      "y": 0,
+      "width": 400,
+      "height": 23
+    },
+    "g38-label": {
+      "x": 0,
+      "y": 0,
+      "width": 400,
+      "height": 23
+    }
+  },
+  "observations": [
+    {
+      "path": "0",
+      "parentPath": "",
+      "name": "g38-instance",
+      "type": "UnityEngine.UIElements.TemplateContainer",
+      "classes": [],
+      "resolvedStyle": {
+        "flexGrow": 0,
+        "flexShrink": 1,
+        "flexBasis": 23,
+        "flexBasisKeyword": "Undefined",
+        "width": 400,
+        "height": 23,
+        "color": {
+          "r": 0.8235294222831726,
+          "g": 0.8235294222831726,
+          "b": 0.8235294222831726,
+          "a": 1
+        },
+        "backgroundColor": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0
+        },
+        "fontSize": 12,
+        "marginTop": 0,
+        "marginRight": 0,
+        "marginBottom": 0,
+        "marginLeft": 0,
+        "paddingTop": 0,
+        "paddingRight": 0,
+        "paddingBottom": 0,
+        "paddingLeft": 0,
+        "borderTopWidth": 0,
+        "borderRightWidth": 0,
+        "borderBottomWidth": 0,
+        "borderLeftWidth": 0
+      },
+      "text": "",
+      "enabled": true,
+      "enabledSelf": true,
+      "enabledInHierarchy": true,
+      "styleSheetPaths": []
+    },
+    {
+      "path": "0/0",
+      "parentPath": "0",
+      "name": "g38-template-root",
+      "type": "UnityEngine.UIElements.VisualElement",
+      "classes": [
+        "g38-template-root"
+      ],
+      "resolvedStyle": {
+        "flexGrow": 0,
+        "flexShrink": 1,
+        "flexBasis": 23,
+        "flexBasisKeyword": "Undefined",
+        "width": 400,
+        "height": 23,
+        "color": {
+          "r": 0.8235294222831726,
+          "g": 0.8235294222831726,
+          "b": 0.8235294222831726,
+          "a": 1
+        },
+        "backgroundColor": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0
+        },
+        "fontSize": 12,
+        "marginTop": 0,
+        "marginRight": 0,
+        "marginBottom": 0,
+        "marginLeft": 0,
+        "paddingTop": 0,
+        "paddingRight": 0,
+        "paddingBottom": 0,
+        "paddingLeft": 0,
+        "borderTopWidth": 0,
+        "borderRightWidth": 0,
+        "borderBottomWidth": 0,
+        "borderLeftWidth": 0
+      },
+      "text": "",
+      "enabled": true,
+      "enabledSelf": true,
+      "enabledInHierarchy": true,
+      "styleSheetPaths": []
+    },
+    {
+      "path": "0/0/0",
+      "parentPath": "0/0",
+      "name": "g38-label",
+      "type": "UnityEngine.UIElements.Label",
+      "classes": [
+        "unity-text-element",
+        "unity-label",
+        "g38-label"
+      ],
+      "resolvedStyle": {
+        "flexGrow": 0,
+        "flexShrink": 0,
+        "flexBasis": 23,
+        "flexBasisKeyword": "Undefined",
+        "width": 400,
+        "height": 23,
+        "color": {
+          "r": 0.11764705926179886,
+          "g": 0.11764705926179886,
+          "b": 0.11764705926179886,
+          "a": 1
+        },
+        "backgroundColor": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0
+        },
+        "fontSize": 19,
+        "marginTop": 0,
+        "marginRight": 0,
+        "marginBottom": 0,
+        "marginLeft": 0,
+        "paddingTop": 0,
+        "paddingRight": 2,
+        "paddingBottom": 0,
+        "paddingLeft": 1,
+        "borderTopWidth": 0,
+        "borderRightWidth": 0,
+        "borderBottomWidth": 0,
+        "borderLeftWidth": 0
+      },
+      "text": "override text",
+      "enabled": true,
+      "enabledSelf": true,
+      "enabledInHierarchy": true,
+      "styleSheetPaths": []
+    }
+  ]
+}

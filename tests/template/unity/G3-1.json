@@ -1,0 +1,309 @@
+{
+  "unityVersion": "6000.0.40f1",
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "g31-holder": {
+      "x": 0,
+      "y": 0,
+      "width": 260,
+      "height": 100
+    },
+    "g31-instance": {
+      "x": 0,
+      "y": 0,
+      "width": 260,
+      "height": 30
+    },
+    "g31-template-root": {
+      "x": 0,
+      "y": 0,
+      "width": 120,
+      "height": 30
+    },
+    "g31-label": {
+      "x": 0,
+      "y": 0,
+      "width": 120,
+      "height": 15
+    },
+    "g31-plain-baseline": {
+      "x": 0,
+      "y": 30,
+      "width": 120,
+      "height": 30
+    }
+  },
+  "observations": [
+    {
+      "path": "0",
+      "parentPath": "",
+      "name": "g31-holder",
+      "type": "UnityEngine.UIElements.VisualElement",
+      "classes": [
+        "g31-holder"
+      ],
+      "resolvedStyle": {
+        "flexGrow": 0,
+        "flexShrink": 1,
+        "flexBasis": 100,
+        "flexBasisKeyword": "Undefined",
+        "width": 260,
+        "height": 100,
+        "color": {
+          "r": 0.8235294222831726,
+          "g": 0.8235294222831726,
+          "b": 0.8235294222831726,
+          "a": 1
+        },
+        "backgroundColor": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0
+        },
+        "fontSize": 12,
+        "marginTop": 0,
+        "marginRight": 0,
+        "marginBottom": 0,
+        "marginLeft": 0,
+        "paddingTop": 0,
+        "paddingRight": 0,
+        "paddingBottom": 0,
+        "paddingLeft": 0,
+        "borderTopWidth": 0,
+        "borderRightWidth": 0,
+        "borderBottomWidth": 0,
+        "borderLeftWidth": 0
+      },
+      "text": "",
+      "enabled": true,
+      "enabledSelf": true,
+      "enabledInHierarchy": true,
+      "styleSheetPaths": [],
+      "matchedRules": [
+        {
+          "selector": "#g31-holder",
+          "source": "G3-1.uss:2",
+          "line": 2
+        }
+      ],
+      "matchedRulesError": ""
+    },
+    {
+      "path": "0/0",
+      "parentPath": "0",
+      "name": "g31-instance",
+      "type": "UnityEngine.UIElements.TemplateContainer",
+      "classes": [],
+      "resolvedStyle": {
+        "flexGrow": 0,
+        "flexShrink": 1,
+        "flexBasis": 30,
+        "flexBasisKeyword": "Undefined",
+        "width": 260,
+        "height": 30,
+        "color": {
+          "r": 0.8235294222831726,
+          "g": 0.8235294222831726,
+          "b": 0.8235294222831726,
+          "a": 1
+        },
+        "backgroundColor": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0
+        },
+        "fontSize": 12,
+        "marginTop": 0,
+        "marginRight": 0,
+        "marginBottom": 0,
+        "marginLeft": 0,
+        "paddingTop": 0,
+        "paddingRight": 0,
+        "paddingBottom": 0,
+        "paddingLeft": 0,
+        "borderTopWidth": 0,
+        "borderRightWidth": 0,
+        "borderBottomWidth": 0,
+        "borderLeftWidth": 0
+      },
+      "text": "",
+      "enabled": true,
+      "enabledSelf": true,
+      "enabledInHierarchy": true,
+      "styleSheetPaths": [],
+      "matchedRules": [],
+      "matchedRulesError": ""
+    },
+    {
+      "path": "0/0/0",
+      "parentPath": "0/0",
+      "name": "g31-template-root",
+      "type": "UnityEngine.UIElements.VisualElement",
+      "classes": [
+        "g31-template-root"
+      ],
+      "resolvedStyle": {
+        "flexGrow": 0,
+        "flexShrink": 1,
+        "flexBasis": 30,
+        "flexBasisKeyword": "Undefined",
+        "width": 120,
+        "height": 30,
+        "color": {
+          "r": 0.8235294222831726,
+          "g": 0.8235294222831726,
+          "b": 0.8235294222831726,
+          "a": 1
+        },
+        "backgroundColor": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0
+        },
+        "fontSize": 12,
+        "marginTop": 0,
+        "marginRight": 0,
+        "marginBottom": 0,
+        "marginLeft": 0,
+        "paddingTop": 0,
+        "paddingRight": 0,
+        "paddingBottom": 0,
+        "paddingLeft": 0,
+        "borderTopWidth": 0,
+        "borderRightWidth": 0,
+        "borderBottomWidth": 0,
+        "borderLeftWidth": 0
+      },
+      "text": "",
+      "enabled": true,
+      "enabledSelf": true,
+      "enabledInHierarchy": true,
+      "styleSheetPaths": [],
+      "matchedRules": [
+        {
+          "selector": ".g31-template-root",
+          "source": "G3-1.uss:7",
+          "line": 7
+        }
+      ],
+      "matchedRulesError": ""
+    },
+    {
+      "path": "0/0/0/0",
+      "parentPath": "0/0/0",
+      "name": "g31-label",
+      "type": "UnityEngine.UIElements.Label",
+      "classes": [
+        "unity-text-element",
+        "unity-label"
+      ],
+      "resolvedStyle": {
+        "flexGrow": 0,
+        "flexShrink": 0,
+        "flexBasis": 15,
+        "flexBasisKeyword": "Undefined",
+        "width": 120,
+        "height": 15,
+        "color": {
+          "r": 0.8235294222831726,
+          "g": 0.8235294222831726,
+          "b": 0.8235294222831726,
+          "a": 1
+        },
+        "backgroundColor": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0
+        },
+        "fontSize": 12,
+        "marginTop": 0,
+        "marginRight": 0,
+        "marginBottom": 0,
+        "marginLeft": 0,
+        "paddingTop": 0,
+        "paddingRight": 2,
+        "paddingBottom": 0,
+        "paddingLeft": 1,
+        "borderTopWidth": 0,
+        "borderRightWidth": 0,
+        "borderBottomWidth": 0,
+        "borderLeftWidth": 0
+      },
+      "text": "basic template",
+      "enabled": true,
+      "enabledSelf": true,
+      "enabledInHierarchy": true,
+      "styleSheetPaths": [],
+      "matchedRules": [
+        {
+          "selector": ".unity-label",
+          "source": "DefaultCommonDark_inter.uss:131",
+          "line": 131
+        }
+      ],
+      "matchedRulesError": ""
+    },
+    {
+      "path": "0/1",
+      "parentPath": "0",
+      "name": "g31-plain-baseline",
+      "type": "UnityEngine.UIElements.VisualElement",
+      "classes": [
+        "g31-plain-baseline"
+      ],
+      "resolvedStyle": {
+        "flexGrow": 0,
+        "flexShrink": 1,
+        "flexBasis": 30,
+        "flexBasisKeyword": "Undefined",
+        "width": 120,
+        "height": 30,
+        "color": {
+          "r": 0.8235294222831726,
+          "g": 0.8235294222831726,
+          "b": 0.8235294222831726,
+          "a": 1
+        },
+        "backgroundColor": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0
+        },
+        "fontSize": 12,
+        "marginTop": 0,
+        "marginRight": 0,
+        "marginBottom": 0,
+        "marginLeft": 0,
+        "paddingTop": 0,
+        "paddingRight": 0,
+        "paddingBottom": 0,
+        "paddingLeft": 0,
+        "borderTopWidth": 0,
+        "borderRightWidth": 0,
+        "borderBottomWidth": 0,
+        "borderLeftWidth": 0
+      },
+      "text": "",
+      "enabled": true,
+      "enabledSelf": true,
+      "enabledInHierarchy": true,
+      "styleSheetPaths": [],
+      "matchedRules": [
+        {
+          "selector": ".g31-plain-baseline",
+          "source": "G3-1.uss:7",
+          "line": 7
+        }
+      ],
+      "matchedRulesError": ""
+    }
+  ]
+}
