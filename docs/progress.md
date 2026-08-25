@@ -4,12 +4,11 @@
 
 ## 현재 위치
 
-**v0.5.0 릴리스 트리 확정 (2026-08-26).** 현재 브랜치
-`review/g3-adversarial`; npm 배포 전 사전 확인 단계다.
+**v0.5.0 배포 완료 (2026-08-26).** 현재 브랜치 `main`.
 
 | | |
 |---|---|
-| npm | `uxml-preview@0.4.0` 배포됨 · `0.5.0` 배포 준비 |
+| npm | `uxml-preview@0.5.0` 배포됨 |
 | 놀이터 | <https://reuhomi.github.io/uxml-preview/> |
 | 테스트 | Windows 코어 **458/458** |
 | 정확도 | 기본 컨트롤 **660/676 (169 elements)** · 템플릿 별도 코호트 **200/220 (55 elements)**, Unity 6000.0.40f1 대조 |
@@ -21,11 +20,10 @@
 
 ## 다음 할 일
 
-1. **0.5.0 배포** — npm publish, `v0.5.0` 태그, GitHub Release
-2. **sibling lock 갱신** — README/CHANGELOG 변경으로 재pack한 tarball의 새 integrity를
+1. **sibling lock 갱신** — README/CHANGELOG 변경으로 재pack한 tarball의 새 integrity를
    다음 트랙에서 반영
-3. **GitHub Pages 데모 갱신** — 이번 코어 배포 범위 밖이며 다음 트랙에서 진행
-4. **Template / Instance 후속** — `docs/backlog.md`의 0.5.0 R1 10항목
+2. **GitHub Pages 데모 갱신** — 이번 코어 배포 범위 밖이며 다음 트랙에서 진행
+3. **Template / Instance 후속** — `docs/backlog.md`의 0.5.0 R1 10항목
 
 **미결(0.1.0에서 이월):** 개발 문서를 비공개로 돌릴지. 결론 안 냄.
 
