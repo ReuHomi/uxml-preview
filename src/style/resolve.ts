@@ -277,6 +277,9 @@ function cascadeOrder(doc: UxmlDocument): FlatRule[] {
   const roots =
     doc.styleRoots ??
     (doc.sheets.length === 0 ? [] : [{ sheet: 0, scope: doc.root.id }]);
+  // Template sheets are intentionally appended after parent roots. G3-6
+  // matches Unity; equal-specificity parent-vs-template precedence is still
+  // unmeasured (C7). Reordering can flip color or padding without a geometry regression.
   for (const root of roots) walk(root.sheet, root.scope);
   return out;
 }
@@ -294,6 +297,11 @@ function hasRootPseudo(rule: Rule): boolean {
   return rule.selectors.some((s) =>
     s.parts.some((p) => p.simple.some((x) => x.kind === 'pseudo' && x.name === 'root')),
   );
+}
+
+function warningSource(doc: UxmlDocument, sheet: number): Pick<Warning, 'sourceDocument'> {
+  const sourceDocument = doc.sheets[sheet]?.origin;
+  return typeof sourceDocument === 'string' ? { sourceDocument } : {};
 }
 
 /**
@@ -386,6 +394,7 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
         kind: 'unsupported-selector',
         message: `"${bad}" is not supported in USS; the whole rule is ignored`,
         at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
+        ...warningSource(doc, flat.sheet),
       });
       continue;
     }
@@ -395,9 +404,10 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
         kind: 'version-dependent',
         message:
           ':root in USS names the element the stylesheet was applied to, not the ' +
-          'document root as in CSS. This preview matches it against the <ui:UXML> ' +
-          'element; verify against your Unity version.',
+          'document root as in CSS. Template stylesheets therefore match their ' +
+          'generated TemplateContainer.',
         at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
+        ...warningSource(doc, flat.sheet),
       });
     }
     usable.push(flat);
@@ -481,6 +491,17 @@ function collectCandidates(
 
   for (const flat of prepared.usable) {
     if (flat.scope !== undefined && !isWithinScope(target, flat.scope, prepared.ctx)) continue;
+    const ruleContext: MatchContext<Target> =
+      flat.scope === undefined
+        ? prepared.ctx
+        : {
+            ...prepared.ctx,
+            // Unity USS :root names the element this particular stylesheet is
+            // attached to. Template sheets are attached to each generated
+            // TemplateContainer, not to the entry document root.
+            isRoot: (candidate) =>
+              candidate.kind === 'element' && candidate.node.id === flat.scope,
+          };
     // A rule contributes once however many of its selectors match, and it does
     // so at the specificity of the *most specific* one that matched — not the
     // first in source order. `.a, #b { }` against an element carrying both has
@@ -488,7 +509,7 @@ function collectCandidates(
     let specificity: Specificity | null = null;
     let states: readonly string[] = [];
     for (const selector of flat.rule.selectors) {
-      if (!matchesSelector(selector, target, prepared.ctx)) continue;
+      if (!matchesSelector(selector, target, ruleContext)) continue;
       const candidate = specificityOf(selector);
       if (specificity === null || compareSpecificity(candidate, specificity) > 0) {
         specificity = candidate;
@@ -517,6 +538,13 @@ function collectCandidates(
                 sheet: flat.sheet,
                 item: flat.item,
                 declIndex,
+                ...(doc.sheets[flat.sheet]?.origin === null ||
+                doc.sheets[flat.sheet]?.origin === undefined
+                  ? {}
+                  : { sourceDocument: doc.sheets[flat.sheet]!.origin }),
+                ...(doc.sheets[flat.sheet]?.sourceDocumentFrom === undefined
+                  ? {}
+                  : { sourceDocumentFrom: doc.sheets[flat.sheet]!.sourceDocumentFrom }),
                 // Omitted rather than set to [] when unconditional, so the
                 // common case stays the shape it has always been.
                 ...(states.length > 0 ? { states } : {}),
@@ -531,7 +559,23 @@ function collectCandidates(
     const node = target.node;
     inlineDeclarations(doc, node).forEach((decl, declIndex) => {
       for (const [property, value] of expandShorthand(decl.property, decl.value)) {
-        push(property, value, { kind: 'inline', node: node.id, declIndex }, Rank.Author, INLINE_SPECIFICITY);
+        push(
+          property,
+          value,
+          {
+            kind: 'inline',
+            node: node.derived?.instance ?? node.sourceNode ?? node.id,
+            declIndex,
+            ...(typeof node.sourceDocument === 'string'
+              ? { sourceDocument: node.sourceDocument }
+              : {}),
+            ...(node.sourceDocumentFrom === undefined
+              ? {}
+              : { sourceDocumentFrom: node.sourceDocumentFrom }),
+          },
+          Rank.Author,
+          INLINE_SPECIFICITY,
+        );
       }
     });
   }
@@ -737,6 +781,7 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
         `them — ${supportedControlNames().join(', ')}. Anything else is drawn as a plain ` +
         'box and has no parts to style.',
       at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
+      ...warningSource(doc, flat.sheet),
     });
   }
 

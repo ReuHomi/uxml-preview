@@ -30,7 +30,7 @@ DOM reproduces them is checked by an invariant of our own
 
 ## Controls
 
-| Type | v0.4.0 | Notes |
+| Type | v0.5.0 | Notes |
 |---|---|---|
 | `VisualElement` | verified | most golden cases are built from it |
 | `Label` | written | layout verified; **text measurement was never compared to Unity** |
@@ -55,6 +55,36 @@ DOM reproduces them is checked by an invariant of our own
 >
 > Parsing succeeds either way, and **nothing is lost in a round trip** — the
 > playground's `round-trip: exact` indicator is that guarantee checked live.
+
+## Templates and instances
+
+| Element | v0.5.0 | Notes |
+|---|---|---|
+| `<ui:Template name="…" src="…">` | verified | Reads declarations and reuses `resolveImport(url, from)` for relative resolution. `project://…` and `/…` are project-root-fixed. |
+| `<ui:Instance template="…">` | verified | Expansion creates an opaque `TemplateContainer`; the Instance `name`, `class`, and inline `style` attach to that container. Nested expansion is capped at 32. A template `Style` is scoped to that container's subtree. |
+| `<AttributeOverrides>` | verified | Overrides ordinary attributes on **all** duplicate `element-name` targets. A missing target reports `override-target-missing` with the requested name and the names actually present. A `style` override reports the target element-name and style value as `override-style-ignored`. Unity ignores it during import; this is not a preview limitation, so it is not applied. |
+| Cyclic templates | not supported | Expansion is blocked fail-closed and the full path is reported as `template-cycle`. |
+| Slots | not supported | **Slots — measured alive in 6000.0.40f1. Out of this release scope and reported with `template-slot-unsupported`.** Slot children are not placed. |
+
+`Packages/...` in a template `src` is treated as relative to the declaring UXML
+and failed in the measured case. An embedded package UXML physically present at
+`<projectRoot>/Packages/<name>/` resolves through
+`project://database/Packages/...` (measured in Unity 6000.0.40f1). The core and
+host do not search `Library/PackageCache`; a registry-package template
+available only there reports `package-path-not-searched`.
+
+`collectDependencies(source)` provides the template dependency URLs in source
+order for host prefetching. The public `WarningKind` union grows from 8 to
+**17**; consumers must update their classifiers. The nine new template
+diagnostics are `template-src-unresolved`, `template-not-declared`,
+`template-cycle`, `template-depth-exceeded`, `override-target-missing`,
+`duplicate-name-in-tree`, `package-path-not-searched`, and
+`template-slot-unsupported`, and `override-style-ignored`.
+
+This scope excludes runtime `binding-path`, `ListView`/`TreeView` item templates
+selected by C# `makeItem`, per-instance pseudo-state control, and drawing a
+truncated cyclic graph. Template editing, automatic extraction, and UI Builder
+reproduction are also non-goals for the viewer core.
 
 ## USS properties
 

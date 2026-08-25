@@ -25,12 +25,12 @@ stylesheet comes out wrong.</sub>
 npm install uxml-preview
 ```
 
-> **v0.4.0 — early release.** Five controls (`VisualElement`, `Label`, `Button`,
+> **v0.5.0.** Five controls (`VisualElement`, `Label`, `Button`,
 > `Image`, `ScrollView`), everything else drawn as a plain box with a warning,
 > and a support matrix that says plainly what has not been measured.
 > Read [what is not verified yet](#what-is-not-verified-yet) before relying on it.
 >
-> **v0.4.0 — 초기 릴리스입니다.** 컨트롤 5종(`VisualElement`, `Label`, `Button`,
+> **v0.5.0.** 컨트롤 5종(`VisualElement`, `Label`, `Button`,
 > `Image`, `ScrollView`)이고, 나머지는 경고와 함께 일반 박스로 그립니다.
 > 검증되지 않은 부분은 지원 범위표에 그대로 적어뒀습니다. 쓰시기 전에
 > [아직 검증되지 않은 것](#아직-검증되지-않은-것)을 먼저 봐주세요.
@@ -52,6 +52,20 @@ across 40 layout cases, including a full working screen. Ten of the sixteen
 differences are font metrics rather than layout — a browser cannot measure
 Unity's font asset. All sixteen are named in
 [`docs/accuracy.en.md`](docs/accuracy.en.md).
+
+This changes what you can open: **you can now open real screens made by someone
+else**, including screens assembled from reusable UXML parts rather than one
+self-contained file. `<ui:Template>` declarations and `<ui:Instance>` elements
+are expanded for rendering. The template cohort is measured separately:
+**200 / 220 coordinate values across 55 elements and 11 rendered cases**; it is
+not added to the base 660/676 figure. Cycles fail closed with a diagnostic, and
+slots are measured as alive in Unity 6000.0.40f1 but remain out of scope and
+report `template-slot-unsupported`.
+
+This is not a claim that every external sample exercises templates: only **1 of
+14** external documents uses `<ui:Template>`. The reported 31 → 0 improvement
+there counts diagnostic lines (1 declaration + 15 instances + 15 overrides),
+not 31 opened subtrees.
 
 ```
 .uxml + .uss  →  parse  →  style resolve  →  Yoga layout  →  DOM paint
@@ -100,7 +114,8 @@ That broken feedback loop is what this library fixes.
 | 6 | **v0.1 release** | ✅ |
 | 7 | **v0.2 — ScrollView, Image, states, a measured screen** | ✅ |
 | 8 | **v0.3–0.4 — asset/import resolution semantics, Unity CLI measurement** | ✅ |
-| 9+ | Editing layer, tool integration | ⬜ |
+| 9 | **v0.5 — Template / Instance expansion and diagnostics** | ✅ |
+| 10+ | Editing layer, tool integration | ⬜ |
 
 Full plan: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 
@@ -109,6 +124,18 @@ Full plan: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 The support matrix is deliberately conservative — see
 [`docs/supported.en.md`](docs/supported.en.md) for the full table.
 
+- **Slots are not supported in v0.5.0.** They were measured alive in Unity
+  6000.0.40f1; slot children are not placed and `template-slot-unsupported` is
+  reported.
+- **A `style` AttributeOverride is not applied.** Unity ignores it during import,
+  and the preview reports `override-style-ignored` instead of drawing a plausible
+  but wrong result.
+- **`Library/PackageCache` is not searched.** Embedded package UXML physically
+  present under `<projectRoot>/Packages/<name>/` resolves through
+  `project://database/Packages/...`; a registry-package template available only
+  in the cache reports `package-path-not-searched`.
+- **The external 14-document sample contains only 1 template document.** Its
+  31 → 0 result counts diagnostic lines, not rendered template subtrees.
 - **Only geometry is compared automatically, and only as far as Yoga.** The
   figure above is measured at the coordinates the layout engine produces.
   Whether the painted DOM reproduces them is checked by an invariant of our own
@@ -166,10 +193,13 @@ and the folder may occur anywhere under `Assets`. Unity can also resolve editor
 built-ins that a disk-only host cannot, so return `null` rather than treating a
 resource name as an ordinary project path.
 
-For external stylesheets, `parse(uxml, uss, { resolveImport: (url, from) => ... })`
-passes the immediate containing stylesheet URL as `from` (`null` for `<Style src>`).
-Existing one-argument callbacks remain valid; a future third hook argument will
-use an options object instead.
+For external stylesheets and template `src` files,
+`parse(uxml, uss, { resolveImport: (url, from) => ... })` passes the immediate
+containing URL as `from`. Entry-UXML references receive `null`; nested stylesheet
+imports receive the containing stylesheet URL, and nested template dependencies
+receive the containing UXML URL. Existing one-argument callbacks remain valid; a future third hook
+argument will use an options object instead. `collectDependencies(source)` lists
+template dependency URLs in source order for host prefetching.
 
 ### Playground
 
@@ -279,6 +309,14 @@ back out unchanged. Their own styles and their children come out normally; only
 what makes that control look like itself is missing. One unfamiliar tag never
 takes down the rest of the screen, and nothing is silently dropped.
 
+**Are templates and instances rendered?**
+Yes. Template declarations resolve through the host import hook, instances become
+opaque `TemplateContainer` elements, and `AttributeOverrides` reach every
+duplicate target for ordinary attributes. A `style` AttributeOverride is reported
+as `override-style-ignored` because Unity ignores it during import. Slot children
+are intentionally not placed; the measured Unity slot behavior is reported as
+`template-slot-unsupported` in this release.
+
 ### License
 
 Apache-2.0
@@ -299,6 +337,18 @@ Unity 6000.0.40f1과 대조한 결과, 실무형 화면을 포함한 레이아�
 **요소 좌표 676개 중 660개가 일치**합니다. 어긋난 16개 중 **10개는 레이아웃이 아니라
 폰트 메트릭** 차이입니다 — 브라우저는 유니티 폰트 에셋을 잴 수 없습니다.
 16개 전부 [`docs/accuracy.md`](docs/accuracy.md)에 이름과 사유를 적어뒀습니다.
+
+이제 **남이 만든 실제 화면을 열 수 있게 됩니다.** 한 파일에 모든 내용을 넣은
+화면뿐 아니라 재사용 가능한 UXML 조각을 조립한 화면도 `<ui:Template>`과
+`<ui:Instance>`를 전개해 렌더링합니다. 템플릿 코호트는 기본 수치와 분리해
+**55 elements, 11개 렌더 케이스의 좌표 220개 중 200개**로 측정했으며
+660/676에 합산하지 않습니다. 순환은 진단과 함께 fail-closed로 막고, 슬롯은
+Unity 6000.0.40f1에서 살아 있음을 실측했지만 이번 범위 밖이라
+`template-slot-unsupported`로 보고합니다.
+
+외부 14개 표본 전체가 템플릿을 검증한 것은 아닙니다. 그중 `<ui:Template>`을
+쓰는 문서는 **1개**뿐이고, 보고된 31 → 0은 열린 서브트리 수가 아니라 진단
+줄 수(선언 1 + Instance 15 + override 15)입니다.
 
 ```
 .uxml + .uss  →  파싱  →  스타일 계산  →  Yoga 레이아웃  →  DOM 페인팅
@@ -346,7 +396,8 @@ Unity 6000.0.40f1과 대조한 결과, 실무형 화면을 포함한 레이아�
 | 6 | **v0.1 공개** | ✅ |
 | 7 | **v0.2 — ScrollView·Image·상태, 대표 화면 대조** | ✅ |
 | 8 | **v0.3–0.4 — 에셋·import 해석 의미론, Unity CLI 계측** | ✅ |
-| 9+ | 편집 레이어, 도구 통합 | ⬜ |
+| 9 | **v0.5 — Template / Instance 전개와 진단** | ✅ |
+| 10+ | 편집 레이어, 도구 통합 | ⬜ |
 
 전체 계획: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 
@@ -355,6 +406,17 @@ Unity 6000.0.40f1과 대조한 결과, 실무형 화면을 포함한 레이아�
 지원 범위는 일부러 보수적으로 적었습니다. 전체 표는
 [`docs/supported.md`](docs/supported.md)에 있습니다.
 
+- **v0.5.0은 슬롯을 지원하지 않습니다.** Unity 6000.0.40f1에서 살아 있음을
+  실측했지만 슬롯 자식은 배치하지 않고 `template-slot-unsupported`로 보고합니다
+- **`style` AttributeOverride는 적용하지 않습니다.** Unity가 import 과정에서
+  무시하는 동작을 따르며, 그럴듯하지만 틀린 결과 대신
+  `override-style-ignored`를 보고합니다
+- **`Library/PackageCache`는 탐색하지 않습니다.**
+  `<projectRoot>/Packages/<name>/`에 실물이 있는 embedded package UXML은
+  `project://database/Packages/...`로 해석하지만, 캐시에만 있는 레지스트리 패키지
+  템플릿은 `package-path-not-searched`로 보고합니다
+- **외부 14개 표본 중 템플릿 문서는 1개뿐입니다.** 31 → 0은 렌더된 템플릿
+  서브트리가 아니라 진단 줄 수입니다
 - **자동 대조는 좌표만, 그것도 Yoga 층까지입니다.** 위 수치는 레이아웃 엔진이 낸
   좌표를 잰 것입니다. 그려진 DOM이 그 좌표를 재현하는지는 유니티가 아니라 자체
   불변식 검사로 봅니다
@@ -418,9 +480,12 @@ pnpm build
 `url()`은 호스트의 에셋 경로이고 `resource()`는 Unity Resources 검색입니다. 후자는
 확장자 없이 쓸 수 있고 Resources 폴더가 `Assets` 아래 어디에나 있을 수 있으며, 에디터
 내장 리소스처럼 프로젝트 디스크만 보는 호스트가 풀 수 없는 값도 있으므로 그때는 `null`을
-반환해야 합니다. 외부 스타일시트는 `parse(uxml, uss, { resolveImport: (url, from) => ... })`
-로 읽고, `from`에는 바로 부모인 스타일시트 URL(`Style src` 입구에서는 `null`)이 옵니다.
-기존 한 인자 콜백은 계속 동작합니다.
+반환해야 합니다. 외부 스타일시트와 템플릿 `src`는
+`parse(uxml, uss, { resolveImport: (url, from) => ... })`로 읽습니다. 엔트리 UXML의
+참조는 `from: null`, 중첩 stylesheet import는 부모 stylesheet URL, 중첩 템플릿
+의존성은 부모 UXML URL을 받습니다. 기존 한 인자 콜백은 계속 동작합니다.
+`collectDependencies(source)`는 호스트가
+미리 가져올 템플릿 의존 URL을 소스 순서대로 돌려줍니다.
 
 ### 이런 질문에 답합니다
 
@@ -455,6 +520,13 @@ Unity 6000.0.40f1 기준, 인벤토리 화면 전체를 포함한 레이아웃 �
 일반 `VisualElement`처럼 그려지고, 경고로 보고되고, 저장하면 그대로 다시 나옵니다.
 자기 스타일과 자식은 정상적으로 나오며 그 컨트롤 고유의 모양만 빠집니다. 모르는 태그
 하나 때문에 화면 전체가 죽지 않고, 조용히 사라지는 것도 없습니다.
+
+**템플릿과 인스턴스도 렌더링하나요?**
+네. 템플릿 선언은 호스트 import 훅으로 해석하고, 인스턴스는 불투명한
+`TemplateContainer`로 전개하며, `AttributeOverrides`는 같은 이름의 모든 대상에
+일반 속성을 적용합니다. `style` AttributeOverride는 Unity가 import에서 무시하므로
+`override-style-ignored`로 보고하고 적용하지 않습니다. 슬롯 자식은 이번 릴리스에서
+배치하지 않고 `template-slot-unsupported` 진단으로 보고합니다.
 
 ### 라이선스
 

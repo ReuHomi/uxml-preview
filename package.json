@@ -1,6 +1,6 @@
 {
   "name": "uxml-preview",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Preview Unity UI Toolkit UXML/USS in a browser without the Unity Editor. Uses Yoga (WebAssembly), the same layout engine UI Toolkit uses: 660 of 676 element coordinates identical to Unity 6. Parses and writes files back byte-for-byte.",
   "keywords": [
     "unity",
@@ -69,9 +69,11 @@
     "test:roundtrip": "vitest run tests/roundtrip",
     "test:golden": "vitest run tests/golden --passWithNoTests",
     "golden:emit": "node --experimental-strip-types --no-warnings scripts/emit-golden-cases.mjs",
+    "template:emit": "node --experimental-strip-types --no-warnings scripts/emit-template-cases.mjs",
     "golden:update": "node scripts/update-golden.mjs",
+    "check:self-reference": "node scripts/check-self-reference.mjs",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run typecheck && npm run test && npm run build"
+    "prepublishOnly": "npm run check:self-reference && npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {
     "yoga-layout": "^3.2.1"

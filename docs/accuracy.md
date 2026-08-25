@@ -40,6 +40,64 @@
 케이스다. 좌표 정확도를 재는 케이스가 아니므로 기준값 확보율에는 포함하지만
 값 일치 660/676과 케이스 일치 38/40에는 섞지 않는다.
 
+## Template / Instance 전개 (별도 코호트, Unity 6000.0.40f1 측정)
+
+기본 컨트롤 세트와 템플릿 전개 세트는 서로 다른 질문을 답하므로 합산하지 않는다.
+기본 세트의 공개 수치는 **660 / 676 (169 elements, v0.4.0 시점)**으로
+그대로 유지한다.
+
+| 항목 | 템플릿 전개 세트 | 뜻 |
+|---|---:|---|
+| 좌표 대조 결과 | **200 / 220** | 55 elements × `x`/`y`/`width`/`height` |
+| 렌더된 케이스 | **11** | G3-1~G3-10, G3-12 |
+| Unity baseline coverage | **11 / 11** | 렌더된 케이스의 coverage이며 정확도가 아님 |
+| 불일치 | **20** | (a) 기존 폰트·텍스트 메트릭 20 / (b) 1px 0 / (c) 새 원인 0 |
+
+G3-11은 Unity `CloneTree`가 순환 템플릿에서 `StackOverflowException`을 내므로
+레이아웃 baseline이 없다. 코어는 같은 입력을 **fail-closed**로 차단하고
+`template-cycle` 진단을 남긴다. 이 행은 위 11개 렌더 케이스나 기본 컨트롤 수치에
+포함하지 않는다.
+
+### 템플릿 전개 불일치 20건 — (a) / (b) / (c) 분류
+
+`problems`와 `lines`는 외부 재관찰 표에서 쓰는 단위이며, 아래 골든 표는 렌더된
+템플릿 케이스의 좌표 불일치만 센다. 두 숫자나 빈 상자의 일치를 정확도에 합산하지
+않는다.
+
+| 단위 | 정의 |
+|---|---|
+| `problems` | 코어 실패가 발생한 횟수 |
+| `lines` | 코어·호스트가 진단 패널에 출력한 줄 수 |
+
+| Case | Element | Axis | ours | Unity | Δ |
+|---|---|---|---:|---:|---:|
+| `G3-1` | `g31-label` | height | 12 | 15 | -3 |
+| `G3-2` | `g32-label#1` | height | 12 | 15 | -3 |
+| `G3-2` | `g32-label#2` | height | 12 | 15 | -3 |
+| `G3-2` | `g32-label#3` | height | 12 | 15 | -3 |
+| `G3-3` | `g33-label` | height | 12 | 15 | -3 |
+| `G3-4` | `g34-instance` | width | 140 | 145 | -5 |
+| `G3-4` | `g34-template-root` | width | 140 | 145 | -5 |
+| `G3-4` | `g34-template-root` | height | 20 | 25 | -5 |
+| `G3-4` | `g34-internal-label` | width | 140 | 145 | -5 |
+| `G3-4` | `g34-internal-label` | height | 20 | 25 | -5 |
+| `G3-4` | `g34-outside-label` | x | 140 | 145 | -5 |
+| `G3-4` | `g34-outside-label` | width | 150 | 140 | 10 |
+| `G3-5` | `g35-inherited-label` | height | 18 | 22 | -4 |
+| `G3-7` | `g37-deep-label` | height | 12 | 15 | -3 |
+| `G3-8` | `g38-instance` | height | 19 | 23 | -4 |
+| `G3-8` | `g38-template-root` | height | 19 | 23 | -4 |
+| `G3-8` | `g38-label` | height | 19 | 23 | -4 |
+| `G3-9` | `g39-duplicate#1` | height | 12 | 15 | -3 |
+| `G3-9` | `g39-duplicate#2` | y | 12 | 15 | -3 |
+| `G3-9` | `g39-duplicate#2` | height | 12 | 15 | -3 |
+
+분류 결과는 **(a) 20 / (b) 0 / (c) 0**이며 축 분포는 `height` 14, `width` 4,
+`x` 1, `y` 1이다. `|Δ| ≤ 1`인 값은 0건이고, 텍스트 없는 고정 크기 상자의
+불일치도 0건이어서 1px 허용 오차나 새 레이아웃 원인으로 분류할 행이 없다.
+모든 행은 Unity Label의 font-size 12→height 15, 20→height 25라는 기존 폰트
+메트릭 차이와 일치한다. 현재 하네스는 `height = fontSize`로 계산한다.
+
 허용 오차 0.5px. **기준 2가 허용하는 1px보다 일부러 엄격하게 둔다** — 느슨하게 하면
 다른 케이스의 진짜 1px 오차가 숨는다.
 

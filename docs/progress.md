@@ -4,31 +4,28 @@
 
 ## 현재 위치
 
-**v0.4.0 배포 완료 (2026-08-12).** 현재 브랜치 `main`.
+**v0.5.0 릴리스 트리 확정 (2026-08-26).** 현재 브랜치
+`review/g3-adversarial`; npm 배포 전 사전 확인 단계다.
 
 | | |
 |---|---|
-| npm | `uxml-preview@0.4.0` 배포됨 |
+| npm | `uxml-preview@0.4.0` 배포됨 · `0.5.0` 배포 준비 |
 | 놀이터 | <https://reuhomi.github.io/uxml-preview/> |
-| 테스트 | **401개** |
-| 정확도 | Unity 6000.0.40f1 좌표 대조 **660/676 (40케이스)** — 불일치 16 중 10이 폰트 메트릭 |
+| 테스트 | Windows 코어 **458/458** |
+| 정확도 | 기본 컨트롤 **660/676 (169 elements)** · 템플릿 별도 코호트 **200/220 (55 elements)**, Unity 6000.0.40f1 대조 |
 | 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` (그 외는 폴백) |
-| 기준값 확보 | **41/41** (좌표 40 + `resource()` 관측 1, 정확도 아님) |
+| 템플릿 | `<ui:Template>` / `<ui:Instance>` 전개 완료. 슬롯은 실측 후 비지원 진단으로 고정 |
 
-성공 기준 5개 판정은 `docs/S1-renderer-capability.md` "판정" 절에 있다 —
-**1·5 통과, 3·4 부분 통과, 2 부분 통과.** 부분 통과의 내역이 숫자보다 중요하다.
+두 정확도 세트는 서로 다른 질문을 답하므로 합산하지 않는다. 자세한 판정과 20개
+템플릿 좌표 차이는 `docs/accuracy.md`에 있다.
 
 ## 다음 할 일
 
-1. **`resource()`를 쓰는 호스트 처리** — Unity 실측은 끝났지만, 에디터 내장 리소스는
-   프로젝트 디스크만 가진 호스트가 풀 수 없다. 코어 동작 변경은 별도 판단으로 둔다
-2. **미해결 2건**은 알려진 한계로 문서화돼 있다
-   - wrap된 content-container 높이 (유니티 규칙 미특정)
-   - 비활성 요소를 흐리게 보이는 경로 (유니티는 테마 차원, 우리는 없음)
-3. **S1.5 (VSCode 뷰어)** — `<Style src>`가 들어가 전제가 채워졌다. 흔한 경우엔
-   USS 탐색이 아예 불필요해지고, 탐색 휴리스틱은 `<Style src>`가 없는 파일용 폴백으로 내려간다
-4. **S2** — 생성 파일에 `<Style src>`를 써넣어야 자기완결이 된다. 없으면 유니티
-   개발자가 UI Builder로 열었을 때 스타일 없는 화면을 본다
+1. **0.5.0 배포** — npm publish, `v0.5.0` 태그, GitHub Release
+2. **sibling lock 갱신** — README/CHANGELOG 변경으로 재pack한 tarball의 새 integrity를
+   다음 트랙에서 반영
+3. **GitHub Pages 데모 갱신** — 이번 코어 배포 범위 밖이며 다음 트랙에서 진행
+4. **Template / Instance 후속** — `docs/backlog.md`의 0.5.0 R1 10항목
 
 **미결(0.1.0에서 이월):** 개발 문서를 비공개로 돌릴지. 결론 안 냄.
 
@@ -554,3 +551,31 @@ S1 전체(Step 1~6)를 한 세션에 끝냈다. 커밋 25개, 테스트 228 → 
   - 텍스트 측정을 유니티와 대조하지 않았다. 행 높이 `font-size * 1.2`는 추측이다
   - 시각 속성(색·테두리·모서리)은 좌표로 알 수 없다. `pixelmatch`가 쓰일 자리다
   - 다른 Unity 버전에서 재측정하면 `accuracy.md` 표를 덮어쓰지 말고 버전별로 나란히 둔다
+
+## 2026-08-25 — 0.5.0 Template / Instance 릴리스 후보 마감
+
+- Unity 6000.0.40f1에서 X3를 정식 embedded-package fixture로 재측정했다.
+  `project://database/Packages/com.uxml-preview.golden/g3-10-package.uxml`의
+  root와 child가 모두 생성됐다. 템플릿 세트는 11/11 케이스, 55 elements,
+  200/220 좌표 일치다. 20개 불일치는 (a) font/text metric 20, (b) 1px 0,
+  (c) 새 원인 0이다. 양쪽 0×0 가짜 일치는 0건이다.
+- `override-style-ignored`를 추가해 `WarningKind`를 17종으로 확장했다.
+  Unity가 style AttributeOverride를 무시한다는 실측 동작을 따르되 대상 이름,
+  무시한 값, 프리뷰 결함이 아니라는 설명을 진단에 남긴다. mutation 9/9 통과.
+- 실제 VS Code Extension Development Host에서 조립식 화면 9단계를 확인했다.
+  삭제·순환에서도 패널은 살아 있었고, 엔트리 `src` 수정 뒤 새 템플릿 경로도
+  감시됐다. rename 자체는 새 경로를 알 수 없고, 템플릿 내부
+  `unsupported-control`은 원본 파일명을 패널에 표시하지 않는다. 둘 다 R1이다.
+- Windows 전체 검증: 코어 458/458, sibling 121/121, 외부 UXML 14개 왕복,
+  코어/Pages/sibling build, 자기참조 게이트 통과. 코어 0.5.0 tarball을 만들고
+  sibling은 그 exact tarball로 검증했다.
+- 적대적 검토 파일 전체는 sibling checkout 의존과 폐기된 기대값 때문에 병합하지
+  않았다. 독립적인 중첩 control/ScrollView, nested `from`, depth 32/33 세 케이스만
+  정식 회귀로 남겼다.
+- probe 내용과 `.meta`는 제거했지만 실행 정책이 `Remove-Item`을 차단해 빈
+  `Assets/TemplateMeasureR02` 디렉터리와 Temp의 세 `unity.log`/빈 디렉터리는
+  자동 제거하지 못했다. 다음 사람이 같은 벽을 만나면 검증 프로젝트를 닫고 아래를
+  PowerShell에서 직접 실행한다. 정식 `Packages/com.uxml-preview.golden` fixture는
+  삭제하지 않는다.
+
+  `Remove-Item -LiteralPath 'C:\Users\leuho\Downloads\source\Unity-Programming-Essence-master\06\프리뷰 확인\Assets\TemplateMeasureR02','C:\Users\leuho\AppData\Local\Temp\uxml-preview-r02-20260825','C:\Users\leuho\AppData\Local\Temp\uxml-preview-r02b-20260825','C:\Users\leuho\AppData\Local\Temp\uxml-preview-r02c-20260825','C:\Users\leuho\AppData\Local\Temp\uxml-preview-r2-manual' -Recurse -Force`

@@ -147,6 +147,7 @@ export function isNonVisual(node: ElementNode): boolean {
  *               box rather than a control that failed to resolve.
  */
 export function resolveControl(node: ElementNode): ResolvedControl {
+  if (node.derived?.kind === 'template-container') return { spec: FALLBACK, fallback: false };
   const spec = CONTROLS[node.name.local];
   if (spec !== undefined) return { spec, fallback: false };
   if (isRoot(node)) return { spec: FALLBACK, fallback: false };

@@ -1,0 +1,474 @@
+{
+  "unityVersion": "6000.0.40f1",
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "g310-scroll": {
+      "x": 0,
+      "y": 0,
+      "width": 260,
+      "height": 100
+    },
+    "g310-instance": {
+      "x": 0,
+      "y": 0,
+      "width": 247,
+      "height": 204
+    },
+    "g310-template-root": {
+      "x": 0,
+      "y": 0,
+      "width": 220,
+      "height": 204
+    },
+    "g310-scroll-label": {
+      "x": 0,
+      "y": 0,
+      "width": 220,
+      "height": 24
+    },
+    "g310-tall-content": {
+      "x": 0,
+      "y": 24,
+      "width": 220,
+      "height": 180
+    },
+    "g310-package-instance": {
+      "x": 0,
+      "y": 100,
+      "width": 400,
+      "height": 40
+    },
+    "g310-package-root": {
+      "x": 0,
+      "y": 100,
+      "width": 80,
+      "height": 40
+    },
+    "g310-package-child": {
+      "x": 0,
+      "y": 100,
+      "width": 64,
+      "height": 36
+    }
+  },
+  "observations": [
+    {
+      "path": "0",
+      "parentPath": "",
+      "name": "g310-scroll",
+      "type": "UnityEngine.UIElements.ScrollView",
+      "classes": [
+        "unity-scroll-view",
+        "unity-scroll-view--scroll",
+        "unity-scroll-view--vertical",
+        "g310-scroll"
+      ],
+      "resolvedStyle": {
+        "flexGrow": 0,
+        "flexShrink": 1,
+        "flexBasis": 100,
+        "flexBasisKeyword": "Undefined",
+        "width": 260,
+        "height": 100,
+        "color": {
+          "r": 0.8235294222831726,
+          "g": 0.8235294222831726,
+          "b": 0.8235294222831726,
+          "a": 1
+        },
+        "backgroundColor": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0
+        },
+        "fontSize": 12,
+        "marginTop": 0,
+        "marginRight": 0,
+        "marginBottom": 0,
+        "marginLeft": 0,
+        "paddingTop": 0,
+        "paddingRight": 0,
+        "paddingBottom": 0,
+        "paddingLeft": 0,
+        "borderTopWidth": 0,
+        "borderRightWidth": 0,
+        "borderBottomWidth": 0,
+        "borderLeftWidth": 0
+      },
+      "text": "",
+      "enabled": true,
+      "enabledSelf": true,
+      "enabledInHierarchy": true,
+      "styleSheetPaths": [],
+      "matchedRules": [
+        {
+          "selector": ".unity-scroll-view",
+          "source": "DefaultCommonDark_inter.uss:649",
+          "line": 649
+        },
+        {
+          "selector": "#g310-scroll",
+          "source": "G3-10.uss:2",
+          "line": 2
+        }
+      ],
+      "matchedRulesError": ""
+    },
+    {
+      "path": "0/0/0/0/0",
+      "parentPath": "0/0/0/0",
+      "name": "g310-instance",
+      "type": "UnityEngine.UIElements.TemplateContainer",
+      "classes": [],
+      "resolvedStyle": {
+        "flexGrow": 0,
+        "flexShrink": 1,
+        "flexBasis": 204,
+        "flexBasisKeyword": "Undefined",
+        "width": 247,
+        "height": 204,
+        "color": {
+          "r": 0.8235294222831726,
+          "g": 0.8235294222831726,
+          "b": 0.8235294222831726,
+          "a": 1
+        },
+        "backgroundColor": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0
+        },
+        "fontSize": 12,
+        "marginTop": 0,
+        "marginRight": 0,
+        "marginBottom": 0,
+        "marginLeft": 0,
+        "paddingTop": 0,
+        "paddingRight": 0,
+        "paddingBottom": 0,
+        "paddingLeft": 0,
+        "borderTopWidth": 0,
+        "borderRightWidth": 0,
+        "borderBottomWidth": 0,
+        "borderLeftWidth": 0
+      },
+      "text": "",
+      "enabled": true,
+      "enabledSelf": true,
+      "enabledInHierarchy": true,
+      "styleSheetPaths": [],
+      "matchedRules": [],
+      "matchedRulesError": ""
+    },
+    {
+      "path": "0/0/0/0/0/0",
+      "parentPath": "0/0/0/0/0",
+      "name": "g310-template-root",
+      "type": "UnityEngine.UIElements.VisualElement",
+      "classes": [
+        "g310-template-root"
+      ],
+      "resolvedStyle": {
+        "flexGrow": 0,
+        "flexShrink": 1,
+        "flexBasis": 204,
+        "flexBasisKeyword": "Undefined",
+        "width": 220,
+        "height": 204,
+        "color": {
+          "r": 0.8235294222831726,
+          "g": 0.8235294222831726,
+          "b": 0.8235294222831726,
+          "a": 1
+        },
+        "backgroundColor": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0
+        },
+        "fontSize": 12,
+        "marginTop": 0,
+        "marginRight": 0,
+        "marginBottom": 0,
+        "marginLeft": 0,
+        "paddingTop": 0,
+        "paddingRight": 0,
+        "paddingBottom": 0,
+        "paddingLeft": 0,
+        "borderTopWidth": 0,
+        "borderRightWidth": 0,
+        "borderBottomWidth": 0,
+        "borderLeftWidth": 0
+      },
+      "text": "",
+      "enabled": true,
+      "enabledSelf": true,
+      "enabledInHierarchy": true,
+      "styleSheetPaths": [],
+      "matchedRules": [
+        {
+          "selector": ".g310-template-root",
+          "source": "G3-10.uss:6",
+          "line": 6
+        }
+      ],
+      "matchedRulesError": ""
+    },
+    {
+      "path": "0/0/0/0/0/0/0",
+      "parentPath": "0/0/0/0/0/0",
+      "name": "g310-scroll-label",
+      "type": "UnityEngine.UIElements.Label",
+      "classes": [
+        "unity-text-element",
+        "unity-label",
+        "g310-scroll-label"
+      ],
+      "resolvedStyle": {
+        "flexGrow": 0,
+        "flexShrink": 0,
+        "flexBasis": 24,
+        "flexBasisKeyword": "Undefined",
+        "width": 220,
+        "height": 24,
+        "color": {
+          "r": 0.8235294222831726,
+          "g": 0.8235294222831726,
+          "b": 0.8235294222831726,
+          "a": 1
+        },
+        "backgroundColor": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0
+        },
+        "fontSize": 12,
+        "marginTop": 0,
+        "marginRight": 0,
+        "marginBottom": 0,
+        "marginLeft": 0,
+        "paddingTop": 0,
+        "paddingRight": 2,
+        "paddingBottom": 0,
+        "paddingLeft": 1,
+        "borderTopWidth": 0,
+        "borderRightWidth": 0,
+        "borderBottomWidth": 0,
+        "borderLeftWidth": 0
+      },
+      "text": "scroll template",
+      "enabled": true,
+      "enabledSelf": true,
+      "enabledInHierarchy": true,
+      "styleSheetPaths": [],
+      "matchedRules": [
+        {
+          "selector": ".unity-label",
+          "source": "DefaultCommonDark_inter.uss:131",
+          "line": 131
+        },
+        {
+          "selector": ".g310-scroll-label",
+          "source": "G3-10.uss:9",
+          "line": 9
+        }
+      ],
+      "matchedRulesError": ""
+    },
+    {
+      "path": "0/0/0/0/0/0/1",
+      "parentPath": "0/0/0/0/0/0",
+      "name": "g310-tall-content",
+      "type": "UnityEngine.UIElements.VisualElement",
+      "classes": [],
+      "resolvedStyle": {
+        "flexGrow": 0,
+        "flexShrink": 1,
+        "flexBasis": 180,
+        "flexBasisKeyword": "Undefined",
+        "width": 220,
+        "height": 180,
+        "color": {
+          "r": 0.8235294222831726,
+          "g": 0.8235294222831726,
+          "b": 0.8235294222831726,
+          "a": 1
+        },
+        "backgroundColor": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0
+        },
+        "fontSize": 12,
+        "marginTop": 0,
+        "marginRight": 0,
+        "marginBottom": 0,
+        "marginLeft": 0,
+        "paddingTop": 0,
+        "paddingRight": 0,
+        "paddingBottom": 0,
+        "paddingLeft": 0,
+        "borderTopWidth": 0,
+        "borderRightWidth": 0,
+        "borderBottomWidth": 0,
+        "borderLeftWidth": 0
+      },
+      "text": "",
+      "enabled": true,
+      "enabledSelf": true,
+      "enabledInHierarchy": true,
+      "styleSheetPaths": [],
+      "matchedRules": [],
+      "matchedRulesError": ""
+    },
+    {
+      "path": "1",
+      "parentPath": "",
+      "name": "g310-package-instance",
+      "type": "UnityEngine.UIElements.TemplateContainer",
+      "classes": [],
+      "resolvedStyle": {
+        "flexGrow": 0,
+        "flexShrink": 1,
+        "flexBasis": 40,
+        "flexBasisKeyword": "Undefined",
+        "width": 400,
+        "height": 40,
+        "color": {
+          "r": 0.8235294222831726,
+          "g": 0.8235294222831726,
+          "b": 0.8235294222831726,
+          "a": 1
+        },
+        "backgroundColor": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0
+        },
+        "fontSize": 12,
+        "marginTop": 0,
+        "marginRight": 0,
+        "marginBottom": 0,
+        "marginLeft": 0,
+        "paddingTop": 0,
+        "paddingRight": 0,
+        "paddingBottom": 0,
+        "paddingLeft": 0,
+        "borderTopWidth": 0,
+        "borderRightWidth": 0,
+        "borderBottomWidth": 0,
+        "borderLeftWidth": 0
+      },
+      "text": "",
+      "enabled": true,
+      "enabledSelf": true,
+      "enabledInHierarchy": true,
+      "styleSheetPaths": [],
+      "matchedRules": [],
+      "matchedRulesError": ""
+    },
+    {
+      "path": "1/0",
+      "parentPath": "1",
+      "name": "g310-package-root",
+      "type": "UnityEngine.UIElements.VisualElement",
+      "classes": [],
+      "resolvedStyle": {
+        "flexGrow": 0,
+        "flexShrink": 1,
+        "flexBasis": 40,
+        "flexBasisKeyword": "Undefined",
+        "width": 80,
+        "height": 40,
+        "color": {
+          "r": 0.8235294222831726,
+          "g": 0.8235294222831726,
+          "b": 0.8235294222831726,
+          "a": 1
+        },
+        "backgroundColor": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0
+        },
+        "fontSize": 12,
+        "marginTop": 0,
+        "marginRight": 0,
+        "marginBottom": 0,
+        "marginLeft": 0,
+        "paddingTop": 0,
+        "paddingRight": 0,
+        "paddingBottom": 0,
+        "paddingLeft": 0,
+        "borderTopWidth": 0,
+        "borderRightWidth": 0,
+        "borderBottomWidth": 0,
+        "borderLeftWidth": 0
+      },
+      "text": "",
+      "enabled": true,
+      "enabledSelf": true,
+      "enabledInHierarchy": true,
+      "styleSheetPaths": [],
+      "matchedRules": [],
+      "matchedRulesError": ""
+    },
+    {
+      "path": "1/0/0",
+      "parentPath": "1/0",
+      "name": "g310-package-child",
+      "type": "UnityEngine.UIElements.VisualElement",
+      "classes": [],
+      "resolvedStyle": {
+        "flexGrow": 0,
+        "flexShrink": 1,
+        "flexBasis": 36,
+        "flexBasisKeyword": "Undefined",
+        "width": 64,
+        "height": 36,
+        "color": {
+          "r": 0.8235294222831726,
+          "g": 0.8235294222831726,
+          "b": 0.8235294222831726,
+          "a": 1
+        },
+        "backgroundColor": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0
+        },
+        "fontSize": 12,
+        "marginTop": 0,
+        "marginRight": 0,
+        "marginBottom": 0,
+        "marginLeft": 0,
+        "paddingTop": 0,
+        "paddingRight": 0,
+        "paddingBottom": 0,
+        "paddingLeft": 0,
+        "borderTopWidth": 0,
+        "borderRightWidth": 0,
+        "borderBottomWidth": 0,
+        "borderLeftWidth": 0
+      },
+      "text": "",
+      "enabled": true,
+      "enabledSelf": true,
+      "enabledInHierarchy": true,
+      "styleSheetPaths": [],
+      "matchedRules": [],
+      "matchedRulesError": ""
+    }
+  ]
+}

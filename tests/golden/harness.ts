@@ -8,7 +8,7 @@
 
 import { posix } from 'node:path';
 
-import { parse } from '../../src/index';
+import { expandTemplates, parse } from '../../src/index';
 import { layoutDocument } from '../../src/layout/yoga';
 import type { MeasureText } from '../../src/layout/yoga';
 import type { ElementNode } from '../../src/model/types';
@@ -64,7 +64,7 @@ export function runCase(
   golden: GoldenCase,
   panel: { width: number; height: number } = PANEL,
 ): CaseGeometry {
-  const doc = parse(
+  const parsed = parse(
     golden.uxml,
     golden.uss,
     golden.files === undefined
@@ -87,6 +87,8 @@ export function runCase(
           },
         },
   );
+  const expansion = expandTemplates(parsed);
+  const doc = expansion.document;
   const resolved = resolveStyles(doc);
   const tree = layoutDocument(doc.root, resolved.styles, resolved.partStyles, {
     size: panel,
@@ -144,7 +146,7 @@ export function runCase(
     };
   }
 
-  const warnings = [...doc.warnings, ...resolved.warnings, ...tree.warnings].map(
+  const warnings = [...expansion.warnings, ...doc.warnings, ...resolved.warnings, ...tree.warnings].map(
     (w) => `${w.kind}: ${w.message}`,
   );
 

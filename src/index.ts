@@ -23,12 +23,24 @@ export type {
   SheetItem,
   StyleSheet,
   WarningKind,
+  WarningKindMap,
   Warning,
   UxmlDocument,
   StyleOrigin,
 } from './model/types';
 
 import type { ElementNode, NodeId, StyleSheet, UxmlDocument, Warning } from './model/types';
+import {
+  expandTemplates,
+  registerTemplateParser,
+  rememberTemplateResolver,
+} from './template/expand';
+export { collectDependencies, expandTemplates } from './template/expand';
+export type { TemplateExpansion, TemplateResolver } from './template/expand';
+
+registerTemplateParser((source, resolver) =>
+  resolver === undefined ? parse(source) : parse(source, undefined, { resolveImport: resolver }),
+);
 export { loadLayoutEngine, isLayoutEngineReady, liveNodeCount } from './layout/yoga';
 export type { LayoutBox, MeasureText, TextContext, TextMetrics } from './layout/yoga';
 export { createDefaultMeasureText } from './render/measure';
@@ -220,7 +232,9 @@ export function parse(uxml: string, uss?: string, options?: ParseOptions): UxmlD
     }
   }
 
-  return { source: uxml, root: tree.root, sheets, styleRoots, warnings };
+  const document = { source: uxml, root: tree.root, sheets, styleRoots, warnings };
+  rememberTemplateResolver(document, options?.resolveImport);
+  return document;
 }
 
 /**
@@ -341,13 +355,18 @@ export function render(
     height: container.clientHeight,
   };
 
-  const resolved = resolveStyles(doc, {
+  const expanded = expandTemplates(doc);
+  const renderDocument = expanded.document;
+  const resolved = resolveStyles(renderDocument, {
     ...(options?.activeStates === undefined ? {} : { activeStates: options.activeStates }),
     ...(options?.states === undefined ? {} : { states: options.states }),
   });
   const measureText = options?.measureText ?? createDefaultMeasureText(ownerDocument);
 
-  const tree = layoutDocument(doc.root, resolved.styles, resolved.partStyles, { size, measureText });
+  const tree = layoutDocument(renderDocument.root, resolved.styles, resolved.partStyles, {
+    size,
+    measureText,
+  });
 
   // Yoga nodes are already allocated at this point, and `dispose` does not
   // exist until the result object below is built. Anything thrown in between
@@ -355,7 +374,7 @@ export function render(
   // keystroke, so it would strand one per character typed.
   let painted;
   try {
-    painted = paint(doc.root, tree.boxes, tree.parts, resolved.styles, container, {
+    painted = paint(renderDocument.root, tree.boxes, tree.parts, resolved.styles, container, {
       document: ownerDocument,
       resolveAsset: options?.resolveAsset,
     });
@@ -366,7 +385,7 @@ export function render(
 
   let disposed = false;
   return {
-    warnings: [...resolved.warnings, ...tree.warnings, ...painted.warnings],
+    warnings: [...expanded.warnings, ...resolved.warnings, ...tree.warnings, ...painted.warnings],
     elements: painted.elements,
     boxes: tree.boxes,
     dispose(): void {

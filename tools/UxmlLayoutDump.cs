@@ -28,10 +28,12 @@
 // at exactly that size, so nobody has to keep two numbers in sync.
 
 #if UNITY_EDITOR
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -95,6 +97,67 @@ namespace UxmlPreview.Golden
             public string type;
             public string name;
             public string assetPath;
+        }
+
+        [System.Serializable]
+        private sealed class ColorObservation
+        {
+            public float r;
+            public float g;
+            public float b;
+            public float a;
+        }
+
+        [System.Serializable]
+        private sealed class ResolvedStyleObservation
+        {
+            public float flexGrow;
+            public float flexShrink;
+            public float flexBasis;
+            public string flexBasisKeyword;
+            public float width;
+            public float height;
+            public ColorObservation color;
+            public ColorObservation backgroundColor;
+            public float fontSize;
+            public float marginTop;
+            public float marginRight;
+            public float marginBottom;
+            public float marginLeft;
+            public float paddingTop;
+            public float paddingRight;
+            public float paddingBottom;
+            public float paddingLeft;
+            public float borderTopWidth;
+            public float borderRightWidth;
+            public float borderBottomWidth;
+            public float borderLeftWidth;
+        }
+
+        [System.Serializable]
+        private sealed class ElementObservation
+        {
+            public string path;
+            public string parentPath;
+            public string name;
+            public string type;
+            public string[] classes;
+            public ResolvedStyleObservation resolvedStyle;
+            public string text;
+            public bool enabled;
+            public bool enabledSelf;
+            public bool enabledInHierarchy;
+            public string[] styleSheetPaths;
+            public MatchedRuleObservation[] matchedRules;
+            public string matchedRulesError;
+        }
+
+        [System.Serializable]
+        private sealed class MatchedRuleObservation
+        {
+            public string selector;
+            public string source;
+            public int line;
         }
 
         [MenuItem("Tools/uxml-preview/Golden Case Dumper")]
@@ -339,6 +402,8 @@ namespace UxmlPreview.Golden
             var resources = new List<string>();
             var seen = new List<string>();
             Collect(_stage, _stage.worldBound, entries, resources, seen);
+            var observations = new List<ElementObservation>();
+            CollectObservations(_stage, observations);
 
             if (entries.Count == 0)
             {
@@ -386,7 +451,15 @@ namespace UxmlPreview.Golden
             sb.Append("\n  },\n");
             sb.Append("  \"resources\": {\n");
             sb.Append(string.Join(",\n", resources));
-            sb.Append("\n  }\n}\n");
+            sb.Append("\n  },\n");
+            sb.Append("  \"observations\": [\n");
+            for (int i = 0; i < observations.Count; i++)
+            {
+                if (i > 0) sb.Append(",\n");
+                sb.Append("    ");
+                sb.Append(JsonUtility.ToJson(observations[i]));
+            }
+            sb.Append("\n  ]\n}\n");
 
             string outputPath = Path.Combine(_outputFolder, name + ".json");
             File.WriteAllText(outputPath, sb.ToString(), new UTF8Encoding(false));
@@ -491,6 +564,206 @@ namespace UxmlPreview.Golden
                 }
                 Collect(child, origin, into, resources, seen);
             }
+        }
+
+        private static void CollectObservations(VisualElement element,
+            List<ElementObservation> observations)
+        {
+            for (int i = 0; i < element.hierarchy.childCount; i++)
+            {
+                VisualElement child = element.hierarchy[i];
+                string path = i.ToString(CultureInfo.InvariantCulture);
+                CollectObservation(child, observations, path, "");
+            }
+        }
+
+        private static void CollectObservation(VisualElement element,
+            List<ElementObservation> observations, string path, string parentPath)
+        {
+            IResolvedStyle style = element.resolvedStyle;
+            Color color = style.color;
+            var styleSheetPaths = new string[element.styleSheets.count];
+            for (int i = 0; i < styleSheetPaths.Length; i++)
+            {
+                StyleSheet sheet = element.styleSheets[i];
+                styleSheetPaths[i] = sheet == null ? "" : AssetDatabase.GetAssetPath(sheet);
+            }
+
+            var textElement = element as TextElement;
+            string matchedRulesError;
+            MatchedRuleObservation[] matchedRules = ReadMatchedRules(element, out matchedRulesError);
+            observations.Add(new ElementObservation
+            {
+                path = path,
+                parentPath = parentPath,
+                name = element.name ?? "",
+                type = element.GetType().FullName ?? element.GetType().Name,
+                classes = element.GetClasses().ToArray(),
+                resolvedStyle = new ResolvedStyleObservation
+                {
+                    flexGrow = style.flexGrow,
+                    flexShrink = style.flexShrink,
+                    flexBasis = style.flexBasis.value,
+                    flexBasisKeyword = style.flexBasis.keyword.ToString(),
+                    width = style.width,
+                    height = style.height,
+                    color = new ColorObservation
+                    {
+                        r = color.r,
+                        g = color.g,
+                        b = color.b,
+                        a = color.a,
+                    },
+                    backgroundColor = new ColorObservation
+                    {
+                        r = style.backgroundColor.r,
+                        g = style.backgroundColor.g,
+                        b = style.backgroundColor.b,
+                        a = style.backgroundColor.a,
+                    },
+                    fontSize = style.fontSize,
+                    marginTop = style.marginTop,
+                    marginRight = style.marginRight,
+                    marginBottom = style.marginBottom,
+                    marginLeft = style.marginLeft,
+                    paddingTop = style.paddingTop,
+                    paddingRight = style.paddingRight,
+                    paddingBottom = style.paddingBottom,
+                    paddingLeft = style.paddingLeft,
+                    borderTopWidth = style.borderTopWidth,
+                    borderRightWidth = style.borderRightWidth,
+                    borderBottomWidth = style.borderBottomWidth,
+                    borderLeftWidth = style.borderLeftWidth,
+                },
+                text = textElement == null ? "" : textElement.text ?? "",
+                enabled = element.enabledInHierarchy,
+                enabledSelf = element.enabledSelf,
+                enabledInHierarchy = element.enabledInHierarchy,
+                styleSheetPaths = styleSheetPaths,
+                matchedRules = matchedRules,
+                matchedRulesError = matchedRulesError,
+            });
+
+            for (int i = 0; i < element.hierarchy.childCount; i++)
+            {
+                VisualElement child = element.hierarchy[i];
+                string childPath = path + "/" + i.ToString(CultureInfo.InvariantCulture);
+                CollectObservation(child, observations, childPath, path);
+            }
+        }
+
+        private static MatchedRuleObservation[] ReadMatchedRules(VisualElement element,
+            out string error)
+        {
+            error = "";
+            try
+            {
+                string[] extractorNames =
+                {
+                    "UnityEngine.UIElements.MatchedRulesExtractor",
+                    "UnityEditor.UIElements.Debugger.MatchedRulesExtractor",
+                };
+                System.Type extractorType = System.AppDomain.CurrentDomain.GetAssemblies()
+                    .SelectMany(assembly => extractorNames.Select(name =>
+                        assembly.GetType(name, false)))
+                    .FirstOrDefault(type => type != null);
+                if (extractorType == null)
+                    throw new System.MissingMemberException("MatchedRulesExtractor type");
+
+                ConstructorInfo[] constructors = extractorType.GetConstructors(
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                ConstructorInfo constructor = constructors.FirstOrDefault(
+                    candidate => candidate.GetParameters().Length == 1) ??
+                    constructors.FirstOrDefault(candidate => candidate.GetParameters().Length == 0);
+                if (constructor == null)
+                    throw new System.MissingMemberException("MatchedRulesExtractor constructor");
+                var pathOf = new System.Func<StyleSheet, string>(AssetDatabase.GetAssetPath);
+                object extractor = constructor.GetParameters().Length == 1
+                    ? constructor.Invoke(new object[] { pathOf })
+                    : constructor.Invoke(new object[0]);
+                MethodInfo find = extractorType.GetMethod("FindMatchingRules",
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (find == null)
+                    throw new System.MissingMemberException("FindMatchingRules method");
+                find.Invoke(extractor, new object[] { element });
+
+                var rules = Member(extractor, "selectedElementRules") as IEnumerable;
+                if (rules == null)
+                    throw new System.MissingMemberException("selectedElementRules field");
+
+                var result = new List<MatchedRuleObservation>();
+                foreach (object rule in rules)
+                {
+                    object record = Member(rule, "matchRecord");
+                    object complex = Member(record, "complexSelector");
+                    result.Add(new MatchedRuleObservation
+                    {
+                        selector = SelectorText(complex),
+                        source = System.Convert.ToString(Member(rule, "displayPath"),
+                            CultureInfo.InvariantCulture) ?? "",
+                        line = System.Convert.ToInt32(Member(rule, "lineNumber"),
+                            CultureInfo.InvariantCulture),
+                    });
+                }
+                return result.ToArray();
+            }
+            catch (System.Exception exception)
+            {
+                error = exception.GetBaseException().GetType().Name + ": " +
+                    exception.GetBaseException().Message;
+                return new MatchedRuleObservation[0];
+            }
+        }
+
+        private static object Member(object value, string name)
+        {
+            if (value == null) throw new System.NullReferenceException(name);
+            System.Type type = value.GetType();
+            FieldInfo field = type.GetField(name,
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (field != null) return field.GetValue(value);
+            PropertyInfo property = type.GetProperty(name,
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (property != null) return property.GetValue(value);
+            throw new System.MissingMemberException(type.FullName + "." + name);
+        }
+
+        private static string SelectorText(object complexSelector)
+        {
+            var text = new StringBuilder();
+            var selectors = Member(complexSelector, "selectors") as IEnumerable;
+            if (selectors == null)
+                throw new System.MissingMemberException("complex selector list");
+
+            bool firstSelector = true;
+            foreach (object selector in selectors)
+            {
+                if (!firstSelector)
+                {
+                    string relationship = System.Convert.ToString(
+                        Member(selector, "previousRelationship"),
+                        CultureInfo.InvariantCulture) ?? "";
+                    text.Append(relationship == "Child" ? " > " : " ");
+                }
+                firstSelector = false;
+
+                var parts = Member(selector, "parts") as IEnumerable;
+                if (parts == null) throw new System.MissingMemberException("selector parts");
+                foreach (object part in parts)
+                {
+                    string kind = System.Convert.ToString(Member(part, "type"),
+                        CultureInfo.InvariantCulture) ?? "";
+                    string value = System.Convert.ToString(Member(part, "value"),
+                        CultureInfo.InvariantCulture) ?? "";
+                    if (kind == "Class") text.Append('.');
+                    else if (kind == "ID") text.Append('#');
+                    else if (kind == "PseudoClass" || kind == "RecursivePseudoClass")
+                        text.Append(':');
+                    else if (kind == "Wildcard") text.Append('*');
+                    text.Append(value);
+                }
+            }
+            return text.ToString();
         }
 
         private static UnityEngine.Object BackgroundAsset(Background background)
