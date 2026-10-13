@@ -1,8 +1,27 @@
 # Changelog
 
-## 0.5.1 — unreleased
+## 0.5.1 — 2026-10-13
+
+A cleanup release: nothing drawn changes except where a Unity dump said it was
+wrong, and things that used to be dropped without a word are now said.
 
 ### Behavior changes
+
+- **More warnings.** Raised where there used to be silence: undocumented property
+  names, documented properties this preview does not draw, state pseudo-classes
+  Unity never sets (`:selected`, `:first-child`, made-up names), `@media` and
+  `@keyframes` blocks, and `display` values other than `flex`/`none`. A screen
+  that passed silently in 0.5.0 may now list warnings; it is drawn the same.
+- **`reason` and `subject` on `Warning`.** Both optional, both **open sets** —
+  give unknown values a `default` branch. `WarningKind` does not grow and no
+  field was removed. See "For consumers" below.
+- **`engines.node` is `>=22`** (was `>=18`). CI and Pages already ran on 22.
+- A `background-image` that is not an asset reference (`linear-gradient()`)
+  is `unsupported-property` with `reason: 'not-uss'`, no longer
+  `asset-unresolved`, so a host stops looking for a file that cannot exist.
+- Warning text says what the renderer did; facts about Unity moved to
+  `reason`/`subject`. No message points at a source file any more.
+  `:root` keeps `kind: 'version-dependent'` but has `reason: 'matches-unity'`.
 
 - **Every USS property now has one handling path.** Whether a property exists,
   inherits and is drawn is read from a registry transcribed from Unity's USS
@@ -43,6 +62,34 @@
   `isInherited()` returns `true` for them, and `resolveStyles()` hands them to
   descendants with an `inherited` origin. Nothing drawn changes: none of the
   five is drawn by this preview.
+
+### Added
+
+- `WarningReason`, `WarningSubject` types.
+- `USS_STATES` (and `UssState`): the seven states Unity sets, from Unity's
+  pseudo-class page — without `:root` and `:selected`.
+- `TEMPLATE_DEPTH_LIMIT` (32): how deep template expansion goes, for hosts
+  that prefetch template files.
+
+### For consumers
+
+- **Read `subject`, not the message.** The failed URL is `subject.url`, the
+  asset path `subject.path` (with `form`), a refused states key `subject.key`,
+  a property `subject.property`/`value`. Seven message texts consumers match
+  on today are kept byte for byte in this release, but are not an API.
+- **Use `reason` to separate the author's mistakes from the tool's limits.**
+  `not-uss` and `invalid-value` are the author's; `not-rendered` is this
+  preview's; `version-dependent` needs checking; `matches-unity` is not a
+  defect. Failing a screen on every `unsupported-property` would now fail
+  valid USS this preview merely does not draw.
+- Replace copied constants with `USS_STATES` and `TEMPLATE_DEPTH_LIMIT`.
+
+### Deferred to 0.6.0
+
+`:enabled` applied automatically, `states` key warnings, the unused
+`unsupported-unit` kind, and value-level checks (`hsl()`, `cubic-bezier()`,
+`space-evenly`, `linear-gradient()` per Unity version, USS-only `cursor`
+values). Listed in `docs/backlog.md`.
 
 ## 0.5.0 — 2026-08-26
 

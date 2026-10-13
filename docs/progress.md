@@ -4,13 +4,14 @@
 
 ## 현재 위치
 
-**v0.5.0 배포 완료 (2026-08-26).** 현재 브랜치 `main`.
+**v0.5.1 배포 직전 (2026-10-13).** 브랜치 `release/0.5.1`, PR·태그·npm 배포 전.
 
 | | |
 |---|---|
-| npm | `uxml-preview@0.5.0` 배포됨 |
+| npm | `uxml-preview@0.5.0` 배포됨. 0.5.1은 커밋까지 완료, 미배포 |
 | 놀이터 | <https://reuhomi.github.io/uxml-preview/> |
-| 테스트 | Windows 코어 **458/458** |
+| 테스트 | Windows 코어 **737/737** |
+| 속성 | Unity 공식표 102개 전부 등록표(`src/style/registry.ts`)에 하나의 처리 경로. 경고 없이 버려지는 공식표 속성 0 |
 | 정확도 | 기본 컨트롤 **660/676 (169 elements)** · 템플릿 별도 코호트 **200/220 (55 elements)**, Unity 6000.0.40f1 대조 |
 | 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` (그 외는 폴백) |
 | 템플릿 | `<ui:Template>` / `<ui:Instance>` 전개 완료. 슬롯은 실측 후 비지원 진단으로 고정 |
@@ -20,6 +21,8 @@
 
 ## 다음 할 일
 
+0. **0.5.1 배포** — PR 검토, 태그, `npm publish`. 이어서 스킬 0.2.1(경고 채널을 `reason`으로)과
+   확장 0.3.1(`subject`로 경로 연결, `USS_STATES`·`TEMPLATE_DEPTH_LIMIT` 사용)
 1. **sibling lock 갱신** — README/CHANGELOG 변경으로 재pack한 tarball의 새 integrity를
    다음 트랙에서 반영
 2. **GitHub Pages 데모 갱신** — 이번 코어 배포 범위 밖이며 다음 트랙에서 진행
@@ -132,6 +135,11 @@
 | 2026-08-12 | 덤프 JSON이 좌표와 분리된 환경 메타데이터를 선택적으로 기록 | 세션 간 `inventory` 경계가 1px 이동했지만 과거 DPI·폰트 입력이 없었다. 기존 JSON 호환을 유지하면서 Unity 버전/리비전, DPI, 접근 가능한 폰트 설정, UTC 시각을 남긴다 |
 | 2026-08-15 | `resource()`는 좌표가 아니라 `resolvedStyle.backgroundImage`의 실제 에셋 경로로 측정 | 배경 이미지는 레이아웃을 바꾸지 않는다. Unity 6000.0.40f1 실측에서 어느 위치의 Resources가 검색되는지, 확장자 유무, 중복 승자, 외부 경로 실패 대체물, 에디터 내장 리소스를 한 케이스로 분리했다. 자원 기준값은 확보율에는 포함하되 좌표 정확도에는 섞지 않는다 |
 | 2026-08-05 | S1 계획서를 **본문 갱신형**으로, 이력은 결정 기록으로 | 개정 기록을 별도 파일로 두니 원본과 겹쳐서 어느 쪽이 진실인지 모호해졌다. 계획서는 항상 "현재 유효한 계획"이고 이력은 여기 남는다. 특히 기준 3 완화가 본문에 없으면 Step 6에서 원본만 읽고 "기준 3 미달"로 판정하게 된다 |
+| 2026-10-13 | USS 속성 목록을 Unity 공식표에서 옮긴 등록표 하나로 (`src/style/registry.ts`, 95/99/102행) | 손으로 쓴 목록 셋(상속·미지원·버전 의존)이 서로 어긋나 `text-shadow` 상속 누락, `filter`를 USS 아님으로, `gap`을 버전 의존으로 잘못 말하고 있었다. `handling` 열만 이 렌더러의 사실이고, 그건 속성 시험지 테스트가 실제로 렌더해서 판정한다 |
+| 2026-10-13 | Warning에 `reason`·`subject` 추가, 둘 다 열린 집합 (D1·D2) | 소비자가 문구를 파싱하고 있었다. `WarningKind`는 확장의 `assertNever` 때문에 늘리면 깨지므로 늘리지 않고, 새 필드는 처음부터 default 분기를 요구한다 |
+| 2026-10-13 | 속성 경고는 선언당 한 번, `at` 포함. 매칭 없는 규칙도 경고, 상속값은 경고하지 않음 (D3) | 요소 단위 경고는 상속 속성 하나가 자손 수만큼 늘었고(폰트 하나에 5건) 위치가 없었다 |
+| 2026-10-13 | `<Bindings>`·`<ui:Columns>`를 비시각 요소로. `<ui:Column>` 이름은 계속 센다 | 6000.0.40f1·6000.3.25f1 CLI 덤프에서 둘 다 계층에 없고 형제 좌표가 y=20(우리는 13). Column 이름은 Unity가 헤더 열에 붙이므로 이름으로는 존재한다. 근거 덤프는 골든이 아니라 `tests/layout/unity/`에 둬서 공개 정확도 수치의 코호트를 바꾸지 않았다 |
+| 2026-10-13 | 커밋 메시지에 사용자 계정(`Signed-off-by: ReuHomi`)을 명시 | 사용자 요청. 이후 증빙용. author/committer만으로는 부족하다고 판단 |
 
 ## 세션 로그
 
@@ -577,3 +585,23 @@ S1 전체(Step 1~6)를 한 세션에 끝냈다. 커밋 25개, 테스트 228 → 
   삭제하지 않는다.
 
   `Remove-Item -LiteralPath 'C:\Users\leuho\Downloads\source\Unity-Programming-Essence-master\06\프리뷰 확인\Assets\TemplateMeasureR02','C:\Users\leuho\AppData\Local\Temp\uxml-preview-r02-20260825','C:\Users\leuho\AppData\Local\Temp\uxml-preview-r02b-20260825','C:\Users\leuho\AppData\Local\Temp\uxml-preview-r02c-20260825','C:\Users\leuho\AppData\Local\Temp\uxml-preview-r2-manual' -Recurse -Force`
+
+## 2026-10-13 — 0.5.1 정리 릴리스
+
+- 사전 검사 보고 후 구현. 원칙은 "그려지는 결과는 바꾸지 않고, 말하지 않던 것을 말하게 한다".
+  예외는 덤프로 확정된 비시각 요소 하나.
+- Unity 공식 USS 속성표(6000.0/6.3/6.6)를 내려받아 파싱해 등록표를 만들었다. 숫자 95/99/102가
+  테스트로 고정돼 있다. 속성 시험지가 102행 전부를 두 장면에 렌더해 `handling`을 판정한다.
+  시험지가 `overflow`를 `layout`이라 적은 것을 반증했다 — Yoga에 넘기지만 이 Yoga 버전에서
+  상자를 움직이지 않는다. `paint`로 기록했다.
+- 기존 경고 지점 전부에 `reason`/`subject`를 채웠고, 소비자 둘이 읽는 문구 7개는
+  `tests/render/consumer-contract.test.ts`로 고정했다. 문구 변경 커밋에서도 그대로다.
+- 예측(사전 검사 6절)대로 문구 변경으로 바뀐 스냅샷은 18개 + scale-mode 1개, 판정 변경으로 바뀐
+  것은 3개였고 전부 경고 문자열만 바뀌었다. 골든 좌표·정확도 660/676·200/220·드리프트 가드 불변.
+- 덤퍼를 Unity CLI로 직접 돌렸다(scratchpad의 빈 프로젝트 두 개). 6.3.25f1에서도 컴파일·실행됨.
+- 변이 확인: 커밋마다 판정을 하나씩 되돌려 실패를 봤다. 한 번 헛돈 테스트가 있었다 — 바인딩 안내
+  "문서당 한 번"이 프로브 파일로는 갈리지 않았다(두 번째 `<Bindings>`가 텍스트 Label 안이라
+  레이아웃이 내려가지 않음). 도달 가능한 `<Bindings>` 둘을 둔 문서를 추가해서 갈랐다.
+- 0.6.0으로 넘긴 항목은 `docs/backlog.md` "0.6.0 — 0.5.1이 넘긴 항목".
+- 사용자 요청으로 이 브랜치 커밋 전부에 `Signed-off-by: ReuHomi`를 붙였다(로컬 브랜치라 rebase로
+  재작성, 백업 브랜치 `backup/0.5.1-before-signoff`).

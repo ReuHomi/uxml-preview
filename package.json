@@ -1,6 +1,6 @@
 {
   "name": "uxml-preview",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Preview Unity UI Toolkit UXML/USS in a browser without the Unity Editor. Uses Yoga (WebAssembly), the same layout engine UI Toolkit uses: 660 of 676 element coordinates identical to Unity 6. Parses and writes files back byte-for-byte.",
   "keywords": [
     "unity",
@@ -46,7 +46,7 @@
   ],
   "sideEffects": false,
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "publishConfig": {
     "access": "public"
