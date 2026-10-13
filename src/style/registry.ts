@@ -169,3 +169,89 @@ const BY_NAME = new Map(USS_PROPERTIES.map((p) => [p.name, p]));
 export function ussProperty(name: string): UssProperty | undefined {
   return BY_NAME.get(name);
 }
+
+/**
+ * CSS names an author porting a stylesheet reaches for, and the USS
+ * properties that do the same job.
+ *
+ * Chosen, not exhaustive. The first six are the renamed rows of CLAUDE.md's
+ * "이름이 다른 속성" table and docs/uss-reference.md; the rest are CSS
+ * shorthands or per-axis splits whose every part USS has under another name.
+ * A CSS property with no USS counterpart (`z-index`, `box-shadow`, `gap`) is
+ * deliberately absent — offering a replacement there would invent one.
+ */
+export const CSS_REPLACEMENTS: Readonly<Record<string, readonly string[]>> = {
+  'font-family': ['-unity-font-definition'],
+  'font-weight': ['-unity-font-style'],
+  'font-style': ['-unity-font-style'],
+  'text-align': ['-unity-text-align'],
+  transform: ['translate', 'rotate', 'scale'],
+  'border-image': ['-unity-slice-left', '-unity-slice-top', '-unity-slice-right', '-unity-slice-bottom'],
+  'vertical-align': ['-unity-text-align'],
+  font: ['font-size', '-unity-font-definition', '-unity-font-style'],
+  inset: ['top', 'right', 'bottom', 'left'],
+  'overflow-x': ['overflow'],
+  'overflow-y': ['overflow'],
+};
+
+/** What this preview did instead, for the properties where "not drawn" says too little. */
+const NOT_RENDERED_TEXT: Readonly<Record<string, string>> = {
+  'aspect-ratio': 'not applied to layout by this preview',
+  '-unity-font': 'font not loaded by this preview; the browser default is used',
+  '-unity-font-definition': 'font not loaded by this preview; the browser default is used',
+  transition: 'not animated by this preview',
+  'transition-delay': 'not animated by this preview',
+  'transition-duration': 'not animated by this preview',
+  'transition-property': 'not animated by this preview',
+  'transition-timing-function': 'not animated by this preview',
+  'animation-play-state': 'not animated by this preview',
+  '-unity-animation-clip': 'not animated by this preview',
+};
+
+/** `"6000.3"` -> `"Unity 6.3+"`. */
+function versionLabel(version: UssVersion): string {
+  return `Unity 6.${version.slice('6000.'.length)}+`;
+}
+
+export interface PropertyWarning {
+  message: string;
+  reason: 'not-uss' | 'not-rendered';
+  subject: {
+    kind: 'property';
+    property: string;
+    value: string;
+    since?: string;
+    replacements?: readonly string[];
+  };
+}
+
+/**
+ * Purpose:      what a declaration warrants by its property name alone.
+ * Ensures:      null for custom properties and for anything this renderer
+ *               reads; a value-level problem is the reader's to report.
+ *
+ * Judged per declaration rather than per element, so a rule matching a
+ * hundred elements — or matching none — says it once, and an inherited value
+ * never says it again on every descendant.
+ */
+export function propertyWarning(property: string, value: string): PropertyWarning | null {
+  if (property.startsWith('--')) return null;
+  const known = ussProperty(property);
+  if (known === undefined) {
+    const replacements = CSS_REPLACEMENTS[property];
+    return {
+      message:
+        `${property}: not a USS property; ignored` +
+        (replacements === undefined ? '' : `; USS uses ${replacements.join(', ')}`),
+      reason: 'not-uss',
+      subject: { kind: 'property', property, value, ...(replacements === undefined ? {} : { replacements }) },
+    };
+  }
+  if (known.handling !== 'none') return null;
+  const label = known.since === '6000.0' ? '' : ` (${versionLabel(known.since)})`;
+  return {
+    message: `${property}${label}: ${NOT_RENDERED_TEXT[property] ?? 'not drawn by this preview'}`,
+    reason: 'not-rendered',
+    subject: { kind: 'property', property, value, since: known.since },
+  };
+}

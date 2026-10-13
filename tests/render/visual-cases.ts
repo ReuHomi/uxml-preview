@@ -149,7 +149,12 @@ export const VISUAL_CASES: VisualCase[] = [
   },
   {
     name: 'visual-warnings-version-dependent',
-    question: 'Do gap, aspect-ratio and word-break warn as version-dependent rather than emit silently?',
+    // Renamed in meaning, not in file: gap and word-break are in no Unity
+    // version's USS reference, and aspect-ratio is a 6.3 property this preview
+    // does not lay out. The case name stays so its history stays readable.
+    question:
+      'Do gap and word-break warn as not USS, and aspect-ratio as a Unity 6.3+ property ' +
+      'this preview does not lay out, rather than emit silently?',
     uxml: wrap('  <ui:VisualElement name="visual-warnings-version-dependent-box" />'),
     uss:
       '#visual-warnings-version-dependent-box {\n' +

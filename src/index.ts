@@ -66,7 +66,7 @@ import { parseUxml } from './parser/uxml';
 import { parseUss } from './parser/uss';
 import { serializeUxml } from './serializer/uxml';
 import { serializeUss } from './serializer/uss';
-import { resolveStyles } from './style/resolve';
+import { declarationLocator, resolveStyles } from './style/resolve';
 import { layoutDocument } from './layout/yoga';
 import type { LayoutBox, MeasureText } from './layout/yoga';
 import { createDefaultMeasureText } from './render/measure';
@@ -348,6 +348,24 @@ export interface RenderResult {
  *               what lets this function stay synchronous, which the playground
  *               and the golden tests both want.
  */
+/**
+ * Purpose:      one warning per written declaration, not one per element it
+ *               reached.
+ * Ensures:      only warnings that carry a location are merged, and the first
+ *               (in document order) is kept. A warning without `at` has
+ *               nothing to tell two occurrences apart by, so it is left alone.
+ */
+function oncePerDeclaration(warnings: readonly Warning[]): Warning[] {
+  const seen = new Set<string>();
+  return warnings.filter((w) => {
+    if (w.at === undefined) return true;
+    const key = JSON.stringify([w.kind, w.message, w.sourceDocument ?? null, w.at]);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export function render(
   doc: UxmlDocument,
   container: HTMLElement,
@@ -366,10 +384,12 @@ export function render(
     ...(options?.states === undefined ? {} : { states: options.states }),
   });
   const measureText = options?.measureText ?? createDefaultMeasureText(ownerDocument);
+  const locate = declarationLocator(renderDocument);
 
   const tree = layoutDocument(renderDocument.root, resolved.styles, resolved.partStyles, {
     size,
     measureText,
+    locate,
   });
 
   // Yoga nodes are already allocated at this point, and `dispose` does not
@@ -381,6 +401,7 @@ export function render(
     painted = paint(renderDocument.root, tree.boxes, tree.parts, resolved.styles, container, {
       document: ownerDocument,
       resolveAsset: options?.resolveAsset,
+      locate,
     });
   } catch (error) {
     tree.dispose();
@@ -389,7 +410,12 @@ export function render(
 
   let disposed = false;
   return {
-    warnings: [...expanded.warnings, ...resolved.warnings, ...tree.warnings, ...painted.warnings],
+    warnings: oncePerDeclaration([
+      ...expanded.warnings,
+      ...resolved.warnings,
+      ...tree.warnings,
+      ...painted.warnings,
+    ]),
     elements: painted.elements,
     boxes: tree.boxes,
     dispose(): void {

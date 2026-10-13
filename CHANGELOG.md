@@ -4,6 +4,29 @@
 
 ### Behavior changes
 
+- **Every USS property now has one handling path.** Whether a property exists,
+  inherits and is drawn is read from a registry transcribed from Unity's USS
+  property reference (95/99/102 rows for 6000.0/6.3/6.6, checked 2026-10-13).
+  New `unsupported-property` warnings where there used to be silence:
+  - 24 documented properties this preview does not draw (`text-shadow`,
+    `transition*`, `-unity-text-outline*`, `-unity-font`, `all`, ...) —
+    `reason: 'not-rendered'`; properties newer than 6000.0 say so
+    (`filter (Unity 6.3+)`).
+  - any name Unity does not document (`font-family`, `colour`, `transform`,
+    `-unity-foo`, ...) — `reason: 'not-uss'`, with the USS properties to
+    write instead in `subject.replacements` for eleven common CSS names.
+- **Corrected warnings.** `filter`/`backdrop-filter` are USS since 6.3/6.6
+  and are reported as not drawn rather than as non-USS. `gap`, `row-gap`,
+  `column-gap`, `overflow-wrap` and `word-break` are in no Unity version
+  and are reported as not USS rather than version-dependent.
+  `background-size`/`-position`/`-repeat` are in 6000.0 and no longer warn.
+  `aspect-ratio` is reported as a 6.3+ property this preview does not lay out.
+- **One warning per declaration.** Property warnings are raised once where
+  the declaration is written, with `at` — including in rules that match
+  nothing — instead of once per element the value reached. An inherited
+  value is never reported again on descendants. Value-level warnings
+  (`width: 2em`, an unresolved image) also collapse to one per declaration.
+  A consumer counting occurrences will count fewer.
 - Inheritance now follows Unity's USS reference table. Five properties that
   Unity marks inherited and this package did not now inherit:
   `text-shadow`, `-unity-editor-text-rendering-mode`, `-unity-text-generator`,

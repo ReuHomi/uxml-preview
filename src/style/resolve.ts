@@ -32,6 +32,7 @@ import { THEME_UNITY_VERSION, THEME_USS } from '../controls/theme';
 import { parseUss } from '../parser/uss';
 import { attributeValueStart, parseDeclarationList } from '../parser/uss';
 import { expandShorthand, isInherited } from './properties';
+import { propertyWarning } from './registry';
 import {
   buildParentMap,
   matchesSelector,
@@ -425,6 +426,29 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
     usable.push(flat);
   }
 
+  // Every author declaration is judged by its name once, where it is written —
+  // including in rules that match nothing, which can still be wrong. A sheet
+  // attached to several template scopes appears once per scope above, so rules
+  // are deduplicated by position. Rules dropped for their selector are not
+  // judged: the whole rule was already reported.
+  const judged = new Set<string>();
+  for (const flat of usable) {
+    if (flat.builtin === true) continue;
+    const key = `${flat.sheet}:${flat.item}`;
+    if (judged.has(key)) continue;
+    judged.add(key);
+    for (const decl of flat.rule.declarations) {
+      const found = propertyWarning(decl.property, decl.value);
+      if (found === null) continue;
+      warnings.push({
+        kind: 'unsupported-property',
+        ...found,
+        at: { in: 'uss', sheet: flat.sheet, span: decl.span },
+        ...warningSource(doc, flat.sheet),
+      });
+    }
+  }
+
   return { ctx, usable, warnings };
 }
 
@@ -448,6 +472,41 @@ function inlineDeclarations(doc: UxmlDocument, node: ElementNode): Declaration[]
   const start = attributeValueStart(attr);
   if (start === null) return [];
   return parseDeclarationList(doc.source, start, start + attr.value.length);
+}
+
+/** Where a computed value was written, as warning fields. */
+export type DeclarationLocator = (origin: StyleOrigin) => Pick<Warning, 'at' | 'sourceDocument'>;
+
+/**
+ * Purpose:      turn a computed value's origin back into the text it came from,
+ *               so a value-level warning points at one declaration.
+ * Ensures:      empty for inherited and built-in values — an inherited value is
+ *               reported where it was declared, not on every descendant — and
+ *               for a template's inline style, which names its file instead.
+ */
+export function declarationLocator(doc: UxmlDocument): DeclarationLocator {
+  let written: Map<NodeId, ElementNode> | null = null;
+  const index = (node: ElementNode, into: Map<NodeId, ElementNode>): Map<NodeId, ElementNode> => {
+    if (typeof node.sourceDocument !== 'string') into.set(node.derived?.instance ?? node.id, node);
+    for (const child of node.children) index(child, into);
+    return into;
+  };
+  return (origin) => {
+    if (origin.kind === 'rule') {
+      const item = doc.sheets[origin.sheet]?.items[origin.item];
+      const decl = item?.kind === 'rule' ? item.rule.declarations[origin.declIndex] : undefined;
+      if (decl === undefined) return {};
+      return { at: { in: 'uss', sheet: origin.sheet, span: decl.span }, ...warningSource(doc, origin.sheet) };
+    }
+    if (origin.kind === 'inline') {
+      if (typeof origin.sourceDocument === 'string') return { sourceDocument: origin.sourceDocument };
+      written ??= index(doc.root, new Map());
+      const node = written.get(origin.node);
+      const decl = node === undefined ? undefined : inlineDeclarations(doc, node)[origin.declIndex];
+      return decl === undefined ? {} : { at: { in: 'uxml', span: decl.span } };
+    }
+    return {};
+  };
 }
 
 /**
@@ -741,7 +800,33 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
    *               so inheritance flows owner -> parts -> children exactly as it
    *               does through Unity's real hierarchy.
    */
+  /** Inline declarations already judged, keyed by where they were written. */
+  const judgedInline = new Set<string>();
+  const judgeInline = (node: ElementNode): void => {
+    const written = node.derived?.instance ?? node.sourceNode ?? node.id;
+    const template = typeof node.sourceDocument === 'string' ? node.sourceDocument : null;
+    inlineDeclarations(doc, node).forEach((decl, declIndex) => {
+      const found = propertyWarning(decl.property, decl.value);
+      if (found === null) return;
+      // Two instances of one template share the declaration they came from.
+      const key = `${node.sourceDocument ?? ''}#${written}#${declIndex}`;
+      if (judgedInline.has(key)) return;
+      judgedInline.add(key);
+      warnings.push({
+        kind: 'unsupported-property',
+        ...found,
+        node: node.id,
+        // A span is only meaningful in the entry document's own text; a
+        // template's declaration names its file instead.
+        ...(template !== null
+          ? { sourceDocument: template }
+          : { at: { in: 'uxml' as const, span: decl.span } }),
+      });
+    });
+  };
+
   const visit = (node: ElementNode, inherited: ReadonlyMap<string, ComputedValue>): void => {
+    judgeInline(node);
     const self = computeFor({ kind: 'element', node }, inherited, node.id);
     styles.set(node.id, self.computed);
 

@@ -26,7 +26,7 @@ import { isNonVisual, resolveControl } from '../controls/registry';
 import type { ControlPart } from '../controls/registry';
 import { THEME_UNITY_VERSION, verticalScrollbarWidth } from '../controls/theme';
 import { expandShorthand } from '../style/properties';
-import type { ComputedValue } from '../style/resolve';
+import type { ComputedValue, DeclarationLocator } from '../style/resolve';
 import { INITIAL, parseLength, parseNumber } from '../render/values';
 import type { Length } from '../render/values';
 
@@ -89,6 +89,8 @@ export interface LayoutOptions {
    * accuracy if the measurement shifts underneath it.
    */
   measureText: MeasureText;
+  /** Points a value-level warning at the declaration it came from. */
+  locate?: DeclarationLocator;
 }
 
 /**
@@ -214,8 +216,17 @@ export function layoutDocument(
     message: string,
     node: ElementNode,
     detail: Pick<Warning, 'reason' | 'subject'>,
+    from?: ComputedValue,
   ): void {
-    warnings.push({ kind: 'unsupported-property', message, node: node.id, ...detail });
+    // Reported where it was declared, never again on each descendant.
+    if (from?.origin.kind === 'inherited') return;
+    warnings.push({
+      kind: 'unsupported-property',
+      message,
+      node: node.id,
+      ...detail,
+      ...(from === undefined ? {} : (options.locate?.(from.origin) ?? {})),
+    });
   }
 
   function length(style: ComputedStyle, property: string, node: ElementNode): Length | null {
@@ -223,10 +234,15 @@ export function layoutDocument(
     if (text === '') return null;
     const { length: parsed, problem, reason } = parseLength(text);
     if (problem !== undefined) {
-      warn(`${property}: ${problem}`, node, {
-        ...(reason === undefined ? {} : { reason }),
-        subject: { kind: 'property', property, value: text },
-      });
+      warn(
+        `${property}: ${problem}`,
+        node,
+        {
+          ...(reason === undefined ? {} : { reason }),
+          subject: { kind: 'property', property, value: text },
+        },
+        style.get(property),
+      );
     }
     return parsed;
   }
@@ -274,7 +290,7 @@ export function layoutDocument(
       warn(`position: ${position} is not supported in USS; treated as relative`, node, {
         reason: 'not-uss',
         subject: { kind: 'property', property: 'position', value: position },
-      });
+      }, style.get('position'));
     }
     yg.setPositionType(
       position === 'absolute' ? PositionType.Absolute : PositionType.Relative,
@@ -287,7 +303,7 @@ export function layoutDocument(
       warn(`overflow: ${overflow} needs a ScrollView element in USS`, node, {
         reason: 'not-uss',
         subject: { kind: 'property', property: 'overflow', value: overflow },
-      });
+      }, style.get('overflow'));
     }
 
     yg.setWidth(dimension(length(style, 'width', node)));

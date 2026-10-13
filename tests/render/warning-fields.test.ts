@@ -236,3 +236,79 @@ describe('templates', () => {
     expect(only(warnings, 'template-cycle').reason).toBe('invalid-value');
   });
 });
+
+describe('one warning per declaration', () => {
+  const at = (w: Warning): unknown => w.at;
+
+  it('a rule matching many elements, or none, reports each declaration once, where it is written', () => {
+    const uss = '.x { filter: blur(2px); }\n.unused { gap: 4px; }';
+    const warnings = warningsOf(
+      '<ui:VisualElement class="x" /><ui:VisualElement class="x" /><ui:VisualElement class="x" />',
+      uss,
+    ).filter((w) => w.kind === 'unsupported-property');
+    expect(warnings.map((w) => w.subject)).toEqual([
+      { kind: 'property', property: 'filter', value: 'blur(2px)', since: '6000.3' },
+      { kind: 'property', property: 'gap', value: '4px' },
+    ]);
+    expect(warnings.map(at)).toEqual([
+      { in: 'uss', sheet: 0, span: { start: uss.indexOf('filter'), end: uss.indexOf(';') } },
+      { in: 'uss', sheet: 0, span: { start: uss.indexOf('gap'), end: uss.lastIndexOf(';') } },
+    ]);
+  });
+
+  it('an inherited property is reported where it is declared, not on every descendant', () => {
+    const warnings = warningsOf(
+      '<ui:VisualElement name="r"><ui:Label text="a" /><ui:VisualElement><ui:Label text="b" /></ui:VisualElement></ui:VisualElement>',
+      '#r { -unity-font-definition: resource("f"); -unity-font-style: heavy; }',
+    ).filter((w) => w.kind === 'unsupported-property');
+    expect(warnings.map((w) => w.subject?.kind === 'property' && w.subject.property)).toEqual([
+      '-unity-font-definition',
+      '-unity-font-style',
+    ]);
+  });
+
+  it('a value problem reached by many elements is reported once, at its declaration', () => {
+    const uss = '.x { width: 2em; }';
+    const warnings = warningsOf('<ui:VisualElement class="x" /><ui:VisualElement class="x" />', uss).filter(
+      (w) => w.kind === 'unsupported-property',
+    );
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]!.at).toEqual({ in: 'uss', sheet: 0, span: { start: 5, end: uss.indexOf(';') } });
+  });
+
+  it('an inline declaration points into the UXML text', () => {
+    const body = '<ui:VisualElement style="width: 10px; z-index: 3" />';
+    const source = uxml(body);
+    const w = only(warningsOf(body), 'unsupported-property');
+    expect(w.reason).toBe('not-uss');
+    expect(w.at).toEqual({ in: 'uxml', span: { start: source.indexOf('z-index'), end: source.indexOf('3"') + 1 } });
+  });
+
+  it('two instances of one template report its inline declaration once, by file', () => {
+    const doc = parse(
+      uxml('<ui:Template name="Card" src="card.uxml" /><ui:Instance template="Card" /><ui:Instance template="Card" />'),
+      undefined,
+      { resolveImport: (url) => (url === 'card.uxml' ? uxml('<ui:VisualElement style="z-index: 1" />') : null) },
+    );
+    const container = document.createElement('div');
+    const result = render(doc, container, {
+      size: { width: 400, height: 300 },
+      measureText: () => ({ width: 0, height: 0 }),
+    });
+    const warnings = result.warnings.filter((w) => w.kind === 'unsupported-property');
+    result.dispose();
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]!.sourceDocument).toBe('card.uxml');
+    expect(warnings[0]!.at).toBeUndefined();
+  });
+
+  it('says what USS calls a renamed CSS property', () => {
+    const w = only(warningsOf('<ui:Label text="x" style="font-family: Arial" />'), 'unsupported-property');
+    expect(w.subject).toEqual({
+      kind: 'property',
+      property: 'font-family',
+      value: 'Arial',
+      replacements: ['-unity-font-definition'],
+    });
+  });
+});

@@ -13,7 +13,7 @@
  */
 
 import type { NodeId, Warning } from '../model/types';
-import type { ComputedStyle } from '../style/resolve';
+import type { ComputedStyle, DeclarationLocator } from '../style/resolve';
 import { decodeEntities } from '../parser/entities';
 import { parseLength } from './values';
 
@@ -28,44 +28,14 @@ export interface CssMapOptions {
    * file happens to sit alongside it — or resolves nothing at all.
    */
   resolveAsset?: ((path: string, form: 'url' | 'resource') => string | null) | undefined;
+  /** Points a value-level warning at the declaration it came from. */
+  locate?: DeclarationLocator | undefined;
 }
 
 export interface CssMapResult {
   declarations: Record<string, string>;
   warnings: Warning[];
 }
-
-/** Properties that exist in CSS but not in USS. Reported, never translated. */
-const NOT_IN_USS = new Set([
-  'box-shadow',
-  'filter',
-  'backdrop-filter',
-  'mix-blend-mode',
-  'background-blend-mode',
-  'clip-path',
-  'mask',
-  'outline',
-  'line-height',
-  'text-transform',
-  'text-decoration',
-  'z-index',
-  'float',
-  'clear',
-  'border-style',
-]);
-
-/** Supported by some Unity versions and not others. Passed through, and flagged. */
-const VERSION_DEPENDENT = new Set([
-  'gap',
-  'row-gap',
-  'column-gap',
-  'aspect-ratio',
-  'background-size',
-  'background-position',
-  'background-repeat',
-  'overflow-wrap',
-  'word-break',
-]);
 
 const SIDES = ['top', 'right', 'bottom', 'left'] as const;
 
@@ -149,12 +119,32 @@ export function toCss(
   const warnings: Warning[] = [];
   const value = (property: string): string | undefined => style.get(property)?.value;
 
+  /**
+   * Value-level only. Whether a property is USS at all, or drawn at all, is
+   * judged once per declaration in the cascade (style/registry.ts), never here
+   * per element.
+   */
   const warn = (
     kind: Warning['kind'],
     message: string,
     detail: Pick<Warning, 'reason' | 'subject'> = {},
   ): void => {
-    warnings.push({ kind, message, node, ...detail });
+    const property =
+      detail.subject?.kind === 'property'
+        ? detail.subject.property
+        : detail.subject?.kind === 'asset'
+          ? 'background-image'
+          : undefined;
+    const from = property === undefined ? undefined : style.get(property);
+    // Reported where it was declared, never again on each descendant.
+    if (from?.origin.kind === 'inherited') return;
+    warnings.push({
+      kind,
+      message,
+      node,
+      ...detail,
+      ...(from === undefined ? {} : (options.locate?.(from.origin) ?? {})),
+    });
   };
   const about = (property: string, v = value(property)): Pick<Warning, 'subject'> => ({
     subject: { kind: 'property', property, ...(v === undefined ? {} : { value: v }) },
@@ -162,21 +152,6 @@ export function toCss(
 
   // USS sizes are always border-box, declaration or not.
   out['box-sizing'] = 'border-box';
-
-  for (const [property] of style) {
-    if (NOT_IN_USS.has(property)) {
-      warn('unsupported-property', `${property} does not exist in USS and is ignored`, {
-        reason: 'not-uss',
-        ...about(property),
-      });
-    } else if (VERSION_DEPENDENT.has(property)) {
-      warn(
-        'version-dependent',
-        `${property} depends on the Unity version; verify it in your project`,
-        { reason: 'version-dependent', ...about(property) },
-      );
-    }
-  }
 
   const passthrough = [
     'background-color',
@@ -300,9 +275,10 @@ export function toCss(
         out['background-repeat'] = value('background-repeat') ?? 'no-repeat';
         out['background-position'] = value('background-position') ?? 'center';
 
-        // `background-size` is the CSS name and exists in some Unity versions;
-        // `-unity-background-scale-mode` is the USS one. An author who wrote the
-        // CSS name meant it, so it wins over the mode we derive.
+        // `background-size` is a USS property since 6000.0 (Unity's reference
+        // table), and `-unity-background-scale-mode` the older spelling of the
+        // same idea. An explicit size wins over the mode we derive; which one
+        // Unity lets win when both are written is unmeasured.
         const declared = value('background-size');
         const mode = value('-unity-background-scale-mode') ?? DEFAULT_SCALE_MODE;
         const mapped = SCALE_MODE[mode];
@@ -317,28 +293,6 @@ export function toCss(
         out['background-size'] = declared ?? mapped ?? SCALE_MODE[DEFAULT_SCALE_MODE]!;
       }
     }
-  }
-
-  if (value('-unity-background-image-tint-color') !== undefined) {
-    warn(
-      'unsupported-property',
-      '-unity-background-image-tint-color has no CSS equivalent and is not drawn',
-      { reason: 'not-rendered', ...about('-unity-background-image-tint-color') },
-    );
-  }
-  const slice = SIDES.map((s) => `-unity-slice-${s}`).find((p) => value(p) !== undefined);
-  if (slice !== undefined) {
-    warn('unsupported-property', '-unity-slice-* (9-slice) is not drawn in this preview', {
-      reason: 'not-rendered',
-      ...about(slice),
-    });
-  }
-  if (value('-unity-font-definition') !== undefined) {
-    warn(
-      'unsupported-property',
-      '-unity-font-definition names a Unity font asset; the browser default is used',
-      { reason: 'not-rendered', ...about('-unity-font-definition') },
-    );
   }
 
   return { declarations: out, warnings };

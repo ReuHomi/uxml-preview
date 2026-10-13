@@ -325,22 +325,8 @@ describe('property sheet: each documented property does what the registry says',
     expect(Object.keys(SAMPLES).sort()).toEqual(USS_PROPERTIES.map((p) => p.name).sort());
   });
 
-  // Rows whose expectation the renderer does not meet yet.
-  const PENDING = new Set([
-    ...USS_PROPERTIES.filter((p) => p.handling === 'none').map((p) => p.name),
-    // Warned as version-dependent although the 6000.0 table already has them.
-    'background-position',
-    'background-repeat',
-    'background-size',
-  ]);
-
   for (const property of USS_PROPERTIES) {
-    const name = `${property.name} (${property.handling})`;
-    if (PENDING.has(property.name)) {
-      it.todo(name);
-      continue;
-    }
-    it(name, () => {
+    it(`${property.name} (${property.handling})`, () => {
       // The second scene's warnings are counted too, but a declaration is
       // reported once per scene, so each scene contributes at most one.
       const outcome = tryDeclaration(property.name, SAMPLES[property.name]!);
@@ -370,14 +356,7 @@ describe('property sheet: each documented property does what the registry says',
   }
 
   for (const entry of NOT_USS) {
-    const name = `${entry.name} is reported as not USS`;
-    // Not met yet: nothing reports an undocumented name as such.
-    const pending = true;
-    if (pending) {
-      it.todo(name);
-      continue;
-    }
-    it(name, () => {
+    it(`${entry.name} is reported as not USS`, () => {
       const outcome = tryDeclaration(entry.name, { value: entry.value });
       expect(outcome.movedBoxes || outcome.changedCss).toBe(false);
       const warnings = aboutProperty(outcome.added, entry.name);

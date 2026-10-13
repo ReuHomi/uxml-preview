@@ -5,9 +5,9 @@
     }
   },
   "warnings": [
-    "unsupported-property: box-shadow does not exist in USS and is ignored",
-    "unsupported-property: outline does not exist in USS and is ignored",
-    "unsupported-property: text-transform does not exist in USS and is ignored",
-    "unsupported-property: border-style does not exist in USS and is ignored"
+    "unsupported-property: box-shadow: not a USS property; ignored",
+    "unsupported-property: outline: not a USS property; ignored",
+    "unsupported-property: text-transform: not a USS property; ignored",
+    "unsupported-property: border-style: not a USS property; ignored"
   ]
 }
