@@ -260,7 +260,9 @@ export const CSS_REPLACEMENTS: Readonly<Record<string, readonly string[]>> = {
  * "UI Toolkit development status and next milestones – November 2025",
  * https://discussions.unity.com/t/ui-toolkit-development-status-and-next-milestones-november-2025/1698009
  * The post names no version. Unity 6.7 as the target is second-hand (a forum
- * reply), and the 6.7 alpha manual did not list them when checked (2026-10-13).
+ * reply). The Unity 6.7 beta USS property reference table, read on 2026-10-13
+ * (126 rows), has no gradient, box-shadow or blur property — it adds other
+ * things instead, recorded in docs/backlog.md under the 6.7 LTS review.
  *
  * So until a Unity reference table lists them, `box-shadow` stays an
  * undocumented name (not-uss) and `linear-gradient()` in `background-image`

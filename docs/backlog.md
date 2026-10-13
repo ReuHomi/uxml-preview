@@ -125,3 +125,30 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
   요소를 하나도 가리키지 않고(규칙 선언 경고는 `at`만 있음), 261건은 첫 요소 하나만
   가리킨다(값 수준 경고를 선언당 하나로 합칠 때). 소비자가 "어떤 요소가 영향을 받는가"를
   알 수 없다. 후보: `Warning`에 `nodes?: NodeId[]`를 더하거나, 요소별 조회 API
+
+## 6.7 LTS 출시 시 재검토
+
+기준 Unity 버전은 6.3 LTS이고, 등록표(`src/style/registry.ts`)는 6.6까지의 공식 표를
+담는다. Unity 6.7은 지원하지 않는다. 아래는 **6.7 베타 기준** 관찰이며, 6.7 LTS가 나오면
+정식 표로 다시 확인한 뒤 등록할지 정한다 (2026-10-13 결정).
+
+- 출처: <https://docs.unity.com/en-us/engine/6000.7/manual/uitoolkits/uielements/uie-uss/properties/reference>
+  (페이지 표기 "Unity 6.7 Beta", 확인 2026-10-13, 126행 — 6.6 표 102행 대비 24개 추가)
+- 추가된 24개 (모두 상속 안 됨):
+  - 간격: `gap`, `row-gap`, `column-gap`
+  - 겹침: `z-index`
+  - CSS Grid (설명상 `display: grid`일 때만 적용): `grid-auto-columns`, `grid-auto-flow`,
+    `grid-auto-rows`, `grid-column`, `grid-column-end`, `grid-column-start`, `grid-row`,
+    `grid-row-end`, `grid-row-start`, `grid-template-columns`, `grid-template-rows`,
+    `justify-items`, `justify-self`
+  - 애니메이션: `animation`, `animation-delay`, `animation-direction`, `animation-duration`,
+    `animation-iteration-count`, `animation-name`
+  - 기타: `-unity-curvature`
+- 재검토할 때 함께 볼 것
+  - 0.5.1은 이 이름들을 `not-uss`로 보고한다. 기준(6.3 LTS)에서는 맞는 판정이다
+  - CLAUDE.md의 "`z-index`가 없다", "`display: grid` 없음", "`@keyframes`가 없다" 원칙
+    (현재 "Unity 6.6까지" 한정). 렌더러의 겹침 규칙(형제 순서)은 그대로다
+  - 그라디언트·그림자·블러는 6.7 베타 표에도 없다. 개발 중이라는 출처는
+    "UI Toolkit development status and next milestones – November 2025"
+    (<https://discussions.unity.com/t/ui-toolkit-development-status-and-next-milestones-november-2025/1698009>,
+    버전 명시 없음)
