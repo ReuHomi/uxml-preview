@@ -21,6 +21,15 @@
   and are reported as not USS rather than version-dependent.
   `background-size`/`-position`/`-repeat` are in 6000.0 and no longer warn.
   `aspect-ratio` is reported as a 6.3+ property this preview does not lay out.
+- **`<Bindings>` and `<ui:Columns>` are no longer laid out.** The only
+  change in this release that moves anything drawn, and it moves it to where
+  Unity puts it: dumps on 6000.0.40f1 and 6000.3.25f1 show neither element in
+  the visual hierarchy, while the preview drew each as a zero-height box that
+  shifted `space-between`/`space-around` siblings. Their two
+  `unsupported-control` warnings are replaced by one notice per document
+  that data bindings are not evaluated (`reason: 'not-rendered'`). A
+  `<ui:Column>`'s name still counts toward `duplicate-name-in-tree`, because
+  Unity gives it to the header column it builds.
 - **One warning per declaration.** Property warnings are raised once where
   the declaration is written, with `at` — including in rules that match
   nothing — instead of once per element the value reached. An inherited

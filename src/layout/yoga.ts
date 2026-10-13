@@ -350,8 +350,23 @@ export function layoutDocument(
     );
   }
 
+  /** The bindings notice is about the document, so it is raised once. */
+  let bindingsReported = false;
+
   function build(node: ElementNode, parent: YogaNode | null): void {
-    if (isNonVisual(node)) return;
+    if (isNonVisual(node)) {
+      if (node.name.local === 'Bindings' && !bindingsReported) {
+        bindingsReported = true;
+        warnings.push({
+          kind: 'unsupported-control',
+          message: 'Data bindings are not evaluated in this preview; bound values show as written',
+          node: node.id,
+          reason: 'not-rendered',
+          subject: { kind: 'control', type: 'Bindings' },
+        });
+      }
+      return;
+    }
     const style = styles.get(node.id) ?? new Map();
     const yg = yoga!.Node.create();
     created++;
@@ -386,7 +401,7 @@ export function layoutDocument(
     if (drawsText) {
       // Yoga refuses to measure a node that has children, and would not ask for
       // an intrinsic size anyway. Text wins; dropping it silently would be worse.
-      if (node.children.length > 0) {
+      if (node.children.some((child) => !isNonVisual(child))) {
         warn(
           `<${node.name.local}> has both a text attribute and children; children are not drawn`,
           node,

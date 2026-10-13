@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <!-- Does an element named nv-col-a / nv-col-b appear in "elements"?
+       Do the observations contain a type named Columns or Column? -->
+  <ui:MultiColumnListView name="nv-mclv" style="width: 200px; height: 100px;">
+    <ui:Columns>
+      <ui:Column name="nv-col-a" title="A" width="80" />
+      <ui:Column name="nv-col-b" title="B" width="80" />
+    </ui:Columns>
+  </ui:MultiColumnListView>
+  <ui:VisualElement name="nv-after" style="width: 200px; height: 20px;" />
+</ui:UXML>

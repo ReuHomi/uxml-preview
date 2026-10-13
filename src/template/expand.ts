@@ -9,6 +9,7 @@
  * need to avoid a cache miss during render.
  */
 
+import { isNonVisual } from '../controls/registry';
 import { decodeEntities } from '../parser/entities';
 import { parseUxml } from '../parser/uxml';
 import type {
@@ -307,7 +308,7 @@ function reportSlots(
 }
 
 function collectNames(node: ElementNode, names: Map<string, number>): void {
-  if (node.name.local !== 'Style' && node.name.local !== 'Template' && node.name.local !== 'AttributeOverrides') {
+  if (!isNonVisual(node)) {
     const name = decodedAttribute(node, 'name');
     if (name !== undefined && name.length > 0) names.set(name, (names.get(name) ?? 0) + 1);
   }

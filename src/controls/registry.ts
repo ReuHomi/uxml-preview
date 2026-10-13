@@ -126,15 +126,24 @@ const FALLBACK: ControlSpec = { hasText: false, classes: [], parts: [] };
 export const ROOT_LOCAL_NAME = 'UXML';
 
 /**
- * Elements that carry instructions rather than pixels.
+ * Elements that carry instructions rather than pixels: never laid out, never
+ * drawn, and their own `name` never counts as an element's name.
  *
- * `<Style src="…">` is how a UXML names its stylesheet, and UI Builder writes
- * one into the file the moment you attach a USS — so it is the normal shape of
- * a real document, not an optional flourish. It is not a control: drawing it as
- * a fallback box would add a phantom element to the layout and report it as an
- * unsupported control, which points at the wrong problem entirely.
+ * - `<Style src="…">` names a stylesheet. UI Builder writes one the moment a
+ *   USS is attached, so it is the normal shape of a real document.
+ * - `<ui:Template>` and `<AttributeOverrides>` are consumed by template
+ *   expansion (template/expand.ts) and never reach the render tree.
+ * - `<Bindings>` (holding `<ui:DataBinding>`) and a MultiColumnListView's
+ *   `<ui:Columns>` are data for Unity. **Measured**, on 6000.0.40f1 and
+ *   6000.3.25f1: neither appears in the visual hierarchy, and a
+ *   `space-around` sibling lands as if they were not written
+ *   (tests/layout/nonvisual.test.ts). Drawing them as fallback boxes moved
+ *   those siblings.
+ *
+ * Their children are skipped with them. A `<ui:Column>`'s own name still
+ * counts, because Unity gives it to the header column it builds.
  */
-const NON_VISUAL = new Set(['Style']);
+const NON_VISUAL = new Set(['Style', 'Template', 'AttributeOverrides', 'Bindings', 'Columns']);
 
 export function isNonVisual(node: ElementNode): boolean {
   return NON_VISUAL.has(node.name.local);
