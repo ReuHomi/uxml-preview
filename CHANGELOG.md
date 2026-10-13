@@ -82,6 +82,14 @@ wrong, and things that used to be dropped without a word are now said.
   preview's; `version-dependent` needs checking; `matches-unity` is not a
   defect. Failing a screen on every `unsupported-property` would now fail
   valid USS this preview merely does not draw.
+- **A `not-rendered` warning with `subject.affectsLayout: true` means this
+  preview's coordinates may differ from Unity's.** In that case, do not treat
+  a coordinate-based finding (zero size, overflow) as settled. `affectsLayout`
+  comes from a new registry column judging what each property can do in Unity
+  (box or pixels), kept apart from what this preview does with it.
+  `subject.applied: 'paint'` marks a property drawn here but not laid out as
+  Unity would (`letter-spacing`, `word-spacing`: drawn, left out of text
+  measurement), which now raises a `not-rendered` warning of its own.
 - Replace copied constants with `USS_STATES` and `TEMPLATE_DEPTH_LIMIT`.
 
 ### Deferred to 0.6.0

@@ -167,4 +167,9 @@ render(doc, el, { states: { '#UseButton': ['hover'], '#DropButton': ['disabled']
 - 속성 경고는 **선언마다 한 번**, 그 선언의 위치(`at`)와 함께 나온다. 아무 요소에도
   매칭되지 않는 규칙의 선언도 경고한다. 상속으로 내려온 값에는 경고하지 않는다.
 - `subject.replacements`: 자주 틀리는 CSS 이름 11개에 대해 대신 쓸 USS 속성.
+- `subject.affectsLayout` (`not-rendered` 속성 경고): Unity에서 그 속성이 박스 크기·위치를
+  바꿀 수 있는가. `true`면 미리보기 좌표가 Unity와 다를 수 있으니 크기 0·넘침 같은 좌표 판정을
+  확정 결과로 다루지 않는다. 판정과 근거(추론 여부 포함)는 등록표의 `unity`·`basis`·`inferred` 열.
+- `subject.applied: 'paint'`: 그리기에는 반영했지만 Unity처럼 배치하지는 않았다
+  (`letter-spacing`, `word-spacing` — 글자 측정에서 빠짐).
 - 문구가 소비자 계약인 7개(`tests/render/consumer-contract.test.ts`)는 바이트 단위로 유지한다.

@@ -264,7 +264,7 @@ describe('one warning per declaration', () => {
       uss,
     ).filter((w) => w.kind === 'unsupported-property');
     expect(warnings.map((w) => w.subject)).toEqual([
-      { kind: 'property', property: 'filter', value: 'blur(2px)', since: '6000.3' },
+      { kind: 'property', property: 'filter', value: 'blur(2px)', since: '6000.3', affectsLayout: false },
       { kind: 'property', property: 'gap', value: '4px' },
     ]);
     expect(warnings.map(at)).toEqual([

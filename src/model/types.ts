@@ -298,6 +298,19 @@ export type WarningSubject =
       since?: string;
       /** USS properties to write instead, for a CSS name USS spells differently. */
       replacements?: readonly string[];
+      /**
+       * On a `not-rendered` warning: whether the property can change a box's size
+       * or position in Unity. When true, this preview's coordinates may differ
+       * from Unity's — do not treat a coordinate-based finding (zero size,
+       * overflow) as settled.
+       */
+      affectsLayout?: boolean;
+      /**
+       * On a `not-rendered` warning: the part this preview did apply, when it
+       * applied some. `'paint'` means drawn, but not laid out as Unity would —
+       * `letter-spacing` is drawn and left out of text measurement.
+       */
+      applied?: 'paint';
     }
   | {
       kind: 'selector';

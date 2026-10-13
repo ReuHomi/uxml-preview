@@ -196,5 +196,12 @@ Every warning carries `reason` and `subject` where one applies. Read those, not
 - Property warnings are raised **once per declaration**, with its `at`, including in
   rules that match nothing. Inherited values are never reported again.
 - `subject.replacements` names the USS properties to write for 11 common CSS names.
+- `subject.affectsLayout` (on a `not-rendered` property warning): whether the
+  property can change a box's size or position in Unity. When `true`, the
+  preview's coordinates may differ from Unity's, so a coordinate-based finding
+  (zero size, overflow) is not settled. The judgement and its basis, marked when
+  inferred, are the registry's `unity`, `basis` and `inferred` columns.
+- `subject.applied: 'paint'`: drawn, but not laid out as Unity would
+  (`letter-spacing`, `word-spacing` — left out of text measurement).
 - Seven message texts shipped consumers match on are kept byte for byte
   (`tests/render/consumer-contract.test.ts`).

@@ -27,13 +27,59 @@ export type UssVersion = '6000.0' | '6000.3' | '6000.6';
 
 export type Handling = 'layout' | 'paint' | 'none';
 
+/** What a property can change in Unity: a box's size or position, only pixels, or nothing in a settled frame. */
+export type UnityEffect = 'layout' | 'paint' | 'none';
+
 export interface UssProperty {
   readonly name: string;
   readonly since: UssVersion;
   /** Unity's "Inherited" column. */
   readonly inherited: boolean;
+  /** What THIS renderer does with it. Observed; see the header. */
   readonly handling: Handling;
+  /**
+   * What it can do IN UNITY — a different question from `handling`, and the
+   * two must not be read for each other. Where they disagree (`unity: 'layout'`
+   * with `handling` other than `'layout'`), this preview's coordinates can
+   * differ from Unity's whenever the property is written.
+   */
+  readonly unity: UnityEffect;
+  /** Why `unity` is what it is, in one line. */
+  readonly basis: string;
+  /** True when `basis` is reasoning rather than a Unity statement or a measurement. */
+  readonly inferred: boolean;
 }
+
+/**
+ * The reasons behind the `unity` column, shared by rows that rest on the same
+ * argument. Keys ending in `Inferred` are reasoning, not documentation or
+ * measurement, and are reported as such (`UssProperty.inferred`): each is a
+ * candidate for a Unity dump before it is relied on.
+ */
+const BASIS = {
+  yoga: 'A flexbox style input of Yoga, which UI Toolkit lays out with (CLAUDE.md rule 1); many are compared in the golden set',
+  box: 'Margin, padding and border widths are part of the box Yoga sizes and places',
+  aspectRatio: 'Yoga sizes a box from aspect-ratio, which Unity passes through from 6.3',
+  all: 'Resets every property at once, layout properties included',
+  textSize: 'Font size sets the measured size of an auto-sized text element',
+  textMeasureInferred: 'Changes glyph metrics or spacing, which feed the text measurement that sizes an auto-sized text element',
+  autoSizeInferred: 'Fits the text to the element box rather than the box to the text',
+  renderingModeInferred: 'Chooses how glyphs are rasterised in the Editor, not how they are measured',
+  ellipsisInferred: 'Truncates text inside a box that is already sized',
+  textAlign: 'Places text inside its box; the box does not move (the Step 6 eye check saw it only by looking)',
+  textEffectInferred: 'Draws around glyphs that are already placed',
+  colour: 'Colour and corner rounding of a box that is already placed',
+  visibility: 'Hidden elements keep their space; only display: none removes it',
+  transform: 'Transforms apply after layout and do not move siblings (Unity Manual, USS transform)',
+  background: 'Draws inside the box; a VisualElement is not sized by its background',
+  overflowInferred: 'Clips descendants; with this Yoga version hidden never moved a box (property sheet), and Unity runs Yoga too',
+  clipBoxInferred: 'Chooses the clipping rectangle, not any box',
+  effectInferred: 'Post-processes pixels that are already drawn',
+  cursor: 'Pointer appearance only; nothing is drawn or laid out',
+  timeInferred: 'Changes values over time; a settled frame, which is what this preview draws, is unaffected',
+} as const;
+
+type BasisKey = keyof typeof BASIS;
 
 export const USS_PROPERTY_SOURCE = {
   checked: '2026-10-13',
@@ -46,122 +92,134 @@ export const USS_PROPERTY_SOURCE = {
   counts: { '6000.0': 95, '6000.3': 99, '6000.6': 102 },
 } as const;
 
-type Row = readonly [name: string, since: UssVersion, inherited: boolean, handling: Handling];
+type Row = readonly [
+  name: string,
+  since: UssVersion,
+  inherited: boolean,
+  handling: Handling,
+  unity: UnityEffect,
+  basis: BasisKey,
+];
 
 // Order and spelling follow the 6000.6 table.
 const ROWS: readonly Row[] = [
-  ['align-content', '6000.0', false, 'layout'],
-  ['align-items', '6000.0', false, 'layout'],
-  ['align-self', '6000.0', false, 'layout'],
-  ['all', '6000.0', false, 'none'],
-  ['animation-play-state', '6000.6', false, 'none'],
-  ['aspect-ratio', '6000.3', false, 'none'],
-  ['backdrop-filter', '6000.6', false, 'none'],
-  ['background-color', '6000.0', false, 'paint'],
-  ['background-image', '6000.0', false, 'paint'],
-  ['background-position', '6000.0', false, 'paint'],
-  ['background-position-x', '6000.0', false, 'none'],
-  ['background-position-y', '6000.0', false, 'none'],
-  ['background-repeat', '6000.0', false, 'paint'],
-  ['background-size', '6000.0', false, 'paint'],
-  ['border-bottom-color', '6000.0', false, 'paint'],
-  ['border-bottom-left-radius', '6000.0', false, 'paint'],
-  ['border-bottom-right-radius', '6000.0', false, 'paint'],
-  ['border-bottom-width', '6000.0', false, 'layout'],
-  ['border-color', '6000.0', false, 'paint'],
-  ['border-left-color', '6000.0', false, 'paint'],
-  ['border-left-width', '6000.0', false, 'layout'],
-  ['border-radius', '6000.0', false, 'paint'],
-  ['border-right-color', '6000.0', false, 'paint'],
-  ['border-right-width', '6000.0', false, 'layout'],
-  ['border-top-color', '6000.0', false, 'paint'],
-  ['border-top-left-radius', '6000.0', false, 'paint'],
-  ['border-top-right-radius', '6000.0', false, 'paint'],
-  ['border-top-width', '6000.0', false, 'layout'],
-  ['border-width', '6000.0', false, 'layout'],
-  ['bottom', '6000.0', false, 'layout'],
-  ['color', '6000.0', true, 'paint'],
-  ['cursor', '6000.0', false, 'paint'],
-  ['display', '6000.0', false, 'layout'],
-  ['filter', '6000.3', false, 'none'],
-  ['flex', '6000.0', false, 'layout'],
-  ['flex-basis', '6000.0', false, 'layout'],
-  ['flex-direction', '6000.0', false, 'layout'],
-  ['flex-grow', '6000.0', false, 'layout'],
-  ['flex-shrink', '6000.0', false, 'layout'],
-  ['flex-wrap', '6000.0', false, 'layout'],
-  ['font-size', '6000.0', true, 'layout'],
-  ['height', '6000.0', false, 'layout'],
-  ['justify-content', '6000.0', false, 'layout'],
-  ['left', '6000.0', false, 'layout'],
-  ['letter-spacing', '6000.0', true, 'paint'],
-  ['margin', '6000.0', false, 'layout'],
-  ['margin-bottom', '6000.0', false, 'layout'],
-  ['margin-left', '6000.0', false, 'layout'],
-  ['margin-right', '6000.0', false, 'layout'],
-  ['margin-top', '6000.0', false, 'layout'],
-  ['max-height', '6000.0', false, 'layout'],
-  ['max-width', '6000.0', false, 'layout'],
-  ['min-height', '6000.0', false, 'layout'],
-  ['min-width', '6000.0', false, 'layout'],
-  ['opacity', '6000.0', false, 'paint'],
+  ['align-content', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['align-items', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['align-self', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['all', '6000.0', false, 'none', 'layout', 'all'],
+  ['animation-play-state', '6000.6', false, 'none', 'none', 'timeInferred'],
+  ['aspect-ratio', '6000.3', false, 'none', 'layout', 'aspectRatio'],
+  ['backdrop-filter', '6000.6', false, 'none', 'paint', 'effectInferred'],
+  ['background-color', '6000.0', false, 'paint', 'paint', 'colour'],
+  ['background-image', '6000.0', false, 'paint', 'paint', 'background'],
+  ['background-position', '6000.0', false, 'paint', 'paint', 'background'],
+  ['background-position-x', '6000.0', false, 'none', 'paint', 'background'],
+  ['background-position-y', '6000.0', false, 'none', 'paint', 'background'],
+  ['background-repeat', '6000.0', false, 'paint', 'paint', 'background'],
+  ['background-size', '6000.0', false, 'paint', 'paint', 'background'],
+  ['border-bottom-color', '6000.0', false, 'paint', 'paint', 'colour'],
+  ['border-bottom-left-radius', '6000.0', false, 'paint', 'paint', 'colour'],
+  ['border-bottom-right-radius', '6000.0', false, 'paint', 'paint', 'colour'],
+  ['border-bottom-width', '6000.0', false, 'layout', 'layout', 'box'],
+  ['border-color', '6000.0', false, 'paint', 'paint', 'colour'],
+  ['border-left-color', '6000.0', false, 'paint', 'paint', 'colour'],
+  ['border-left-width', '6000.0', false, 'layout', 'layout', 'box'],
+  ['border-radius', '6000.0', false, 'paint', 'paint', 'colour'],
+  ['border-right-color', '6000.0', false, 'paint', 'paint', 'colour'],
+  ['border-right-width', '6000.0', false, 'layout', 'layout', 'box'],
+  ['border-top-color', '6000.0', false, 'paint', 'paint', 'colour'],
+  ['border-top-left-radius', '6000.0', false, 'paint', 'paint', 'colour'],
+  ['border-top-right-radius', '6000.0', false, 'paint', 'paint', 'colour'],
+  ['border-top-width', '6000.0', false, 'layout', 'layout', 'box'],
+  ['border-width', '6000.0', false, 'layout', 'layout', 'box'],
+  ['bottom', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['color', '6000.0', true, 'paint', 'paint', 'colour'],
+  ['cursor', '6000.0', false, 'paint', 'none', 'cursor'],
+  ['display', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['filter', '6000.3', false, 'none', 'paint', 'effectInferred'],
+  ['flex', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['flex-basis', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['flex-direction', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['flex-grow', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['flex-shrink', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['flex-wrap', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['font-size', '6000.0', true, 'layout', 'layout', 'textSize'],
+  ['height', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['justify-content', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['left', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['letter-spacing', '6000.0', true, 'paint', 'layout', 'textMeasureInferred'],
+  ['margin', '6000.0', false, 'layout', 'layout', 'box'],
+  ['margin-bottom', '6000.0', false, 'layout', 'layout', 'box'],
+  ['margin-left', '6000.0', false, 'layout', 'layout', 'box'],
+  ['margin-right', '6000.0', false, 'layout', 'layout', 'box'],
+  ['margin-top', '6000.0', false, 'layout', 'layout', 'box'],
+  ['max-height', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['max-width', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['min-height', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['min-width', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['opacity', '6000.0', false, 'paint', 'paint', 'colour'],
   // Yoga is told about `hidden`, but at this Yoga version it never moves a box;
   // what shows is the clipping, which is the CSS mapping's.
-  ['overflow', '6000.0', false, 'paint'],
-  ['padding', '6000.0', false, 'layout'],
-  ['padding-bottom', '6000.0', false, 'layout'],
-  ['padding-left', '6000.0', false, 'layout'],
-  ['padding-right', '6000.0', false, 'layout'],
-  ['padding-top', '6000.0', false, 'layout'],
-  ['position', '6000.0', false, 'layout'],
-  ['right', '6000.0', false, 'layout'],
-  ['rotate', '6000.0', false, 'paint'],
-  ['scale', '6000.0', false, 'paint'],
-  ['text-overflow', '6000.0', false, 'paint'],
-  ['text-shadow', '6000.0', true, 'none'],
-  ['top', '6000.0', false, 'layout'],
-  ['transform-origin', '6000.0', false, 'paint'],
-  ['transition', '6000.0', false, 'none'],
-  ['transition-delay', '6000.0', false, 'none'],
-  ['transition-duration', '6000.0', false, 'none'],
-  ['transition-property', '6000.0', false, 'none'],
-  ['transition-timing-function', '6000.0', false, 'none'],
-  ['translate', '6000.0', false, 'paint'],
-  ['-unity-animation-clip', '6000.6', false, 'none'],
-  ['-unity-background-image-tint-color', '6000.0', false, 'none'],
-  ['-unity-background-scale-mode', '6000.0', false, 'paint'],
-  ['-unity-editor-text-rendering-mode', '6000.0', true, 'none'],
-  ['-unity-font', '6000.0', true, 'none'],
-  ['-unity-font-definition', '6000.0', true, 'none'],
-  ['-unity-font-style', '6000.0', true, 'layout'],
-  ['-unity-material', '6000.3', true, 'none'],
-  ['-unity-overflow-clip-box', '6000.0', false, 'none'],
-  ['-unity-paragraph-spacing', '6000.0', true, 'none'],
-  ['-unity-slice-bottom', '6000.0', false, 'none'],
-  ['-unity-slice-left', '6000.0', false, 'none'],
-  ['-unity-slice-right', '6000.0', false, 'none'],
-  ['-unity-slice-scale', '6000.0', false, 'none'],
-  ['-unity-slice-top', '6000.0', false, 'none'],
-  ['-unity-slice-type', '6000.0', false, 'none'],
-  ['-unity-text-align', '6000.0', true, 'paint'],
-  ['-unity-text-auto-size', '6000.3', true, 'none'],
-  ['-unity-text-generator', '6000.0', true, 'none'],
-  ['-unity-text-outline', '6000.0', false, 'none'],
-  ['-unity-text-outline-color', '6000.0', true, 'none'],
-  ['-unity-text-outline-width', '6000.0', true, 'none'],
-  ['-unity-text-overflow-position', '6000.0', false, 'none'],
-  ['visibility', '6000.0', true, 'paint'],
-  ['white-space', '6000.0', true, 'layout'],
-  ['width', '6000.0', false, 'layout'],
-  ['word-spacing', '6000.0', true, 'paint'],
+  ['overflow', '6000.0', false, 'paint', 'paint', 'overflowInferred'],
+  ['padding', '6000.0', false, 'layout', 'layout', 'box'],
+  ['padding-bottom', '6000.0', false, 'layout', 'layout', 'box'],
+  ['padding-left', '6000.0', false, 'layout', 'layout', 'box'],
+  ['padding-right', '6000.0', false, 'layout', 'layout', 'box'],
+  ['padding-top', '6000.0', false, 'layout', 'layout', 'box'],
+  ['position', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['right', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['rotate', '6000.0', false, 'paint', 'paint', 'transform'],
+  ['scale', '6000.0', false, 'paint', 'paint', 'transform'],
+  ['text-overflow', '6000.0', false, 'paint', 'paint', 'ellipsisInferred'],
+  ['text-shadow', '6000.0', true, 'none', 'paint', 'textEffectInferred'],
+  ['top', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['transform-origin', '6000.0', false, 'paint', 'paint', 'transform'],
+  ['transition', '6000.0', false, 'none', 'none', 'timeInferred'],
+  ['transition-delay', '6000.0', false, 'none', 'none', 'timeInferred'],
+  ['transition-duration', '6000.0', false, 'none', 'none', 'timeInferred'],
+  ['transition-property', '6000.0', false, 'none', 'none', 'timeInferred'],
+  ['transition-timing-function', '6000.0', false, 'none', 'none', 'timeInferred'],
+  ['translate', '6000.0', false, 'paint', 'paint', 'transform'],
+  ['-unity-animation-clip', '6000.6', false, 'none', 'none', 'timeInferred'],
+  ['-unity-background-image-tint-color', '6000.0', false, 'none', 'paint', 'background'],
+  ['-unity-background-scale-mode', '6000.0', false, 'paint', 'paint', 'background'],
+  ['-unity-editor-text-rendering-mode', '6000.0', true, 'none', 'paint', 'renderingModeInferred'],
+  ['-unity-font', '6000.0', true, 'none', 'layout', 'textMeasureInferred'],
+  ['-unity-font-definition', '6000.0', true, 'none', 'layout', 'textMeasureInferred'],
+  ['-unity-font-style', '6000.0', true, 'layout', 'layout', 'textMeasureInferred'],
+  ['-unity-material', '6000.3', true, 'none', 'paint', 'effectInferred'],
+  ['-unity-overflow-clip-box', '6000.0', false, 'none', 'paint', 'clipBoxInferred'],
+  ['-unity-paragraph-spacing', '6000.0', true, 'none', 'layout', 'textMeasureInferred'],
+  ['-unity-slice-bottom', '6000.0', false, 'none', 'paint', 'background'],
+  ['-unity-slice-left', '6000.0', false, 'none', 'paint', 'background'],
+  ['-unity-slice-right', '6000.0', false, 'none', 'paint', 'background'],
+  ['-unity-slice-scale', '6000.0', false, 'none', 'paint', 'background'],
+  ['-unity-slice-top', '6000.0', false, 'none', 'paint', 'background'],
+  ['-unity-slice-type', '6000.0', false, 'none', 'paint', 'background'],
+  ['-unity-text-align', '6000.0', true, 'paint', 'paint', 'textAlign'],
+  ['-unity-text-auto-size', '6000.3', true, 'none', 'paint', 'autoSizeInferred'],
+  ['-unity-text-generator', '6000.0', true, 'none', 'layout', 'textMeasureInferred'],
+  ['-unity-text-outline', '6000.0', false, 'none', 'paint', 'textEffectInferred'],
+  ['-unity-text-outline-color', '6000.0', true, 'none', 'paint', 'textEffectInferred'],
+  ['-unity-text-outline-width', '6000.0', true, 'none', 'paint', 'textEffectInferred'],
+  ['-unity-text-overflow-position', '6000.0', false, 'none', 'paint', 'ellipsisInferred'],
+  ['visibility', '6000.0', true, 'paint', 'paint', 'visibility'],
+  ['white-space', '6000.0', true, 'layout', 'layout', 'textMeasureInferred'],
+  ['width', '6000.0', false, 'layout', 'layout', 'yoga'],
+  ['word-spacing', '6000.0', true, 'paint', 'layout', 'textMeasureInferred'],
 ];
 
-export const USS_PROPERTIES: readonly UssProperty[] = ROWS.map(([name, since, inherited, handling]) => ({
-  name,
-  since,
-  inherited,
-  handling,
-}));
+export const USS_PROPERTIES: readonly UssProperty[] = ROWS.map(
+  ([name, since, inherited, handling, unity, basis]) => ({
+    name,
+    since,
+    inherited,
+    handling,
+    unity,
+    basis: BASIS[basis],
+    inferred: basis.endsWith('Inferred'),
+  }),
+);
 
 const BY_NAME = new Map(USS_PROPERTIES.map((p) => [p.name, p]));
 
@@ -222,6 +280,8 @@ export interface PropertyWarning {
     value: string;
     since?: string;
     replacements?: readonly string[];
+    affectsLayout?: boolean;
+    applied?: 'paint';
   };
 }
 
@@ -247,12 +307,23 @@ export function propertyWarning(property: string, value: string): PropertyWarnin
       subject: { kind: 'property', property, value, ...(replacements === undefined ? {} : { replacements }) },
     };
   }
-  if (known.handling !== 'none') return null;
+  const affectsLayout = known.unity === 'layout';
   const label = known.since === '6000.0' ? '' : ` (${versionLabel(known.since)})`;
+  // Drawn, but what it does to layout in Unity is not reproduced: the picture
+  // looks right while the boxes may not be. Said, because a consumer judging
+  // coordinates (collapsed, overflowing) must know they are not Unity's here.
+  if (known.handling === 'paint' && affectsLayout) {
+    return {
+      message: `${property}${label}: drawn, but left out of text measurement by this preview`,
+      reason: 'not-rendered',
+      subject: { kind: 'property', property, value, since: known.since, affectsLayout, applied: 'paint' },
+    };
+  }
+  if (known.handling !== 'none') return null;
   return {
     message: `${property}${label}: ${NOT_RENDERED_TEXT[property] ?? 'not drawn by this preview'}`,
     reason: 'not-rendered',
-    subject: { kind: 'property', property, value, since: known.since },
+    subject: { kind: 'property', property, value, since: known.since, affectsLayout },
   };
 }
 

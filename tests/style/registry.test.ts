@@ -84,6 +84,46 @@ describe('registry data', () => {
     expect(style.has('transition')).toBe(false);
   });
 
+  // What can change a box in Unity, typed from the reasoning in each row's
+  // basis rather than read back from the registry.
+  const UNITY_LAYOUT = [
+    'align-content', 'align-items', 'align-self', 'display', 'flex', 'flex-basis', 'flex-direction',
+    'flex-grow', 'flex-shrink', 'flex-wrap', 'justify-content', 'position', 'width', 'height',
+    'min-width', 'min-height', 'max-width', 'max-height', 'top', 'right', 'bottom', 'left',
+    'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
+    'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
+    'border-width', 'border-top-width', 'border-right-width', 'border-bottom-width', 'border-left-width',
+    'aspect-ratio', 'all', 'font-size', 'white-space', '-unity-font-style', 'letter-spacing',
+    'word-spacing', '-unity-font', '-unity-font-definition', '-unity-paragraph-spacing',
+    '-unity-text-generator',
+  ];
+  const NOT_IN_A_SETTLED_FRAME = [
+    'cursor', 'transition', 'transition-delay', 'transition-duration', 'transition-property',
+    'transition-timing-function', 'animation-play-state', '-unity-animation-clip',
+  ];
+
+  it('says which properties can move a box in Unity', () => {
+    expect(USS_PROPERTIES.filter((p) => p.unity === 'layout').map((p) => p.name).sort()).toEqual(
+      [...UNITY_LAYOUT].sort(),
+    );
+    expect(USS_PROPERTIES.filter((p) => p.unity === 'none').map((p) => p.name).sort()).toEqual(
+      [...NOT_IN_A_SETTLED_FRAME].sort(),
+    );
+  });
+
+  it('never lays out what Unity would not, and gives every judgement a reason', () => {
+    expect(USS_PROPERTIES.filter((p) => p.handling === 'layout' && p.unity !== 'layout')).toEqual([]);
+    expect(USS_PROPERTIES.filter((p) => p.basis.length === 0)).toEqual([]);
+  });
+
+  it('marks the text-measurement judgements as inference, since no dump has measured them', () => {
+    for (const name of ['letter-spacing', 'word-spacing', '-unity-font', '-unity-font-definition',
+      '-unity-paragraph-spacing', '-unity-text-auto-size', '-unity-text-generator', 'text-overflow']) {
+      expect(ussProperty(name)?.inferred, name).toBe(true);
+    }
+    expect(ussProperty('aspect-ratio')?.inferred).toBe(false);
+  });
+
   it('knows nothing about custom properties, which still inherit', () => {
     expect(ussProperty('--token')).toBeUndefined();
     expect(isInherited('--token')).toBe(true);
@@ -95,10 +135,7 @@ describe('registry data', () => {
 // ---------------------------------------------------------------------------
 
 /** Read through the structured fields without depending on their exact type yet. */
-type Structured = Warning & {
-  reason?: string;
-  subject?: { kind: string; property?: string; replacements?: readonly string[]; since?: string };
-};
+type Structured = Warning;
 
 interface Sample {
   value: string;
@@ -320,6 +357,8 @@ function tryDeclaration(property: string, sample: Sample): Outcome {
 const aboutProperty = (warnings: readonly Structured[], property: string): Structured[] =>
   warnings.filter((w) => w.subject?.kind === 'property' && w.subject.property === property);
 
+const propertySubject = (w: Structured) => (w.subject?.kind === 'property' ? w.subject : undefined);
+
 describe('property sheet: each documented property does what the registry says', () => {
   it('has a sample for every row and nothing else', () => {
     expect(Object.keys(SAMPLES).sort()).toEqual(USS_PROPERTIES.map((p) => p.name).sort());
@@ -335,18 +374,32 @@ describe('property sheet: each documented property does what the registry says',
           expect(outcome.added, 'a property the layout reads raises no warning').toEqual([]);
           expect(outcome.movedBoxes, 'and moves a box').toBe(true);
           break;
-        case 'paint':
-          expect(outcome.added, 'a property the painter reads raises no warning').toEqual([]);
+        case 'paint': {
           expect(outcome.changedCss, 'it changes what is painted').toBe(true);
           expect(outcome.movedBoxes, 'and never moves a box').toBe(false);
+          if (property.unity !== 'layout') {
+            expect(outcome.added, 'a property the painter fully reads raises no warning').toEqual([]);
+            break;
+          }
+          // Drawn, but what it does to layout in Unity is not reproduced.
+          const partial = aboutProperty(outcome.added, property.name);
+          expect(outcome.added).toEqual(partial);
+          expect(partial, 'it says so, once per scene').toHaveLength(2);
+          expect(partial.every((w) => w.reason === 'not-rendered')).toBe(true);
+          expect(partial.map((w) => propertySubject(w)?.applied)).toEqual(['paint', 'paint']);
+          expect(partial.map((w) => propertySubject(w)?.affectsLayout)).toEqual([true, true]);
           break;
+        }
         case 'none': {
           expect(outcome.movedBoxes || outcome.changedCss, 'nothing reads it').toBe(false);
           const warnings = aboutProperty(outcome.added, property.name);
           expect(warnings, 'and it says so, once per scene').toHaveLength(2);
           expect(warnings.every((w) => w.kind === 'unsupported-property')).toBe(true);
           expect(warnings.every((w) => w.reason === 'not-rendered')).toBe(true);
-          expect(warnings.map((w) => w.subject?.since)).toEqual([property.since, property.since]);
+          expect(warnings.map((w) => propertySubject(w)?.since)).toEqual([property.since, property.since]);
+          const affects = property.unity === 'layout';
+          expect(warnings.map((w) => propertySubject(w)?.affectsLayout), 'and whether Unity would move a box').toEqual([affects, affects]);
+          expect(warnings.map((w) => propertySubject(w)?.applied)).toEqual([undefined, undefined]);
           // Only a property newer than the oldest table says so in its text.
           expect(warnings[0]!.message.includes('Unity 6.')).toBe(property.since !== '6000.0');
           break;
@@ -362,7 +415,7 @@ describe('property sheet: each documented property does what the registry says',
       const warnings = aboutProperty(outcome.added, entry.name);
       expect(warnings).toHaveLength(2);
       expect(warnings.every((w) => w.kind === 'unsupported-property' && w.reason === 'not-uss')).toBe(true);
-      expect(warnings[0]!.subject?.replacements).toEqual(entry.replacements);
+      expect(propertySubject(warnings[0]!)?.replacements).toEqual(entry.replacements);
     });
   }
 
