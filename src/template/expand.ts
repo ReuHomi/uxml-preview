@@ -63,7 +63,16 @@ export interface TemplateExpansion {
   warnings: readonly Warning[];
 }
 
-const MAX_TEMPLATE_DEPTH = 32;
+/**
+ * How deeply `<ui:Instance>` may nest before expansion stops with
+ * `template-depth-exceeded`.
+ *
+ * Exported so a host that prefetches template files can walk exactly as deep
+ * as the core will expand, instead of copying the number and drifting (the
+ * VS Code extension's prefetch used 16 while the core went to 32). Not a
+ * Unity limit — a bound on this renderer's work.
+ */
+export const TEMPLATE_DEPTH_LIMIT = 32;
 
 interface TemplateDeclaration {
   name: string;
@@ -619,12 +628,12 @@ function expandInstance(
     );
     return container;
   }
-  if (depth >= MAX_TEMPLATE_DEPTH) {
+  if (depth >= TEMPLATE_DEPTH_LIMIT) {
     reportSlots(instance, slotChildren, null, sourceDocument, context);
     addWarning(
       context.warnings,
       'template-depth-exceeded',
-      `Template expansion exceeded the depth limit ${MAX_TEMPLATE_DEPTH}: ${[
+      `Template expansion exceeded the depth limit ${TEMPLATE_DEPTH_LIMIT}: ${[
         ...context.stack,
         pathEntry,
       ].map((entry) => entry.label).join(' -> ')}`,

@@ -37,7 +37,7 @@ import {
   registerTemplateParser,
   rememberTemplateResolver,
 } from './template/expand';
-export { collectDependencies, expandTemplates } from './template/expand';
+export { collectDependencies, expandTemplates, TEMPLATE_DEPTH_LIMIT } from './template/expand';
 export type { TemplateExpansion, TemplateResolver } from './template/expand';
 
 registerTemplateParser((source, resolver) =>
@@ -58,6 +58,8 @@ export type {
 } from './style/resolve';
 export type { Specificity } from './style/specificity';
 export { isInherited } from './style/properties';
+export { USS_STATES } from './style/registry';
+export type { UssState } from './style/registry';
 export { KNOWN_DIVERGENCES } from './known-divergences';
 export type { KnownDivergence } from './known-divergences';
 

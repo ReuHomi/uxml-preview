@@ -255,3 +255,17 @@ export function propertyWarning(property: string, value: string): PropertyWarnin
     subject: { kind: 'property', property, value, since: known.since },
   };
 }
+
+/**
+ * The pseudo-class states a Unity element can be in — what `states` and
+ * `activeStates` accept and what a USS state selector can match.
+ *
+ * From Unity's "USS selectors: Pseudo-classes" page (checked 2026-10-13):
+ * https://docs.unity3d.com/Manual/UIE-USS-Selectors-Pseudo-Classes.html
+ * `:root` is excluded because it names a place in the tree, not a state.
+ * `:selected` is excluded because that page says USS does not support it
+ * ("Use :checked instead"). Exported so consumers stop keeping their own copy.
+ */
+export const USS_STATES = ['hover', 'active', 'inactive', 'focus', 'disabled', 'enabled', 'checked'] as const;
+
+export type UssState = (typeof USS_STATES)[number];
