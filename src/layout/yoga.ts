@@ -210,15 +210,24 @@ export function layoutDocument(
   const read = (style: ComputedStyle, property: string): string =>
     style.get(property)?.value ?? INITIAL[property] ?? '';
 
-  function warn(message: string, node: ElementNode): void {
-    warnings.push({ kind: 'unsupported-property', message, node: node.id });
+  function warn(
+    message: string,
+    node: ElementNode,
+    detail: Pick<Warning, 'reason' | 'subject'>,
+  ): void {
+    warnings.push({ kind: 'unsupported-property', message, node: node.id, ...detail });
   }
 
   function length(style: ComputedStyle, property: string, node: ElementNode): Length | null {
     const text = read(style, property);
     if (text === '') return null;
-    const { length: parsed, problem } = parseLength(text);
-    if (problem !== undefined) warn(`${property}: ${problem}`, node);
+    const { length: parsed, problem, reason } = parseLength(text);
+    if (problem !== undefined) {
+      warn(`${property}: ${problem}`, node, {
+        ...(reason === undefined ? {} : { reason }),
+        subject: { kind: 'property', property, value: text },
+      });
+    }
     return parsed;
   }
 
@@ -262,7 +271,10 @@ export function layoutDocument(
 
     const position = read(style, 'position');
     if (position === 'fixed' || position === 'sticky') {
-      warn(`position: ${position} is not supported in USS; treated as relative`, node);
+      warn(`position: ${position} is not supported in USS; treated as relative`, node, {
+        reason: 'not-uss',
+        subject: { kind: 'property', property: 'position', value: position },
+      });
     }
     yg.setPositionType(
       position === 'absolute' ? PositionType.Absolute : PositionType.Relative,
@@ -272,7 +284,10 @@ export function layoutDocument(
     const overflow = read(style, 'overflow');
     if (overflow === 'hidden') yg.setOverflow(Overflow.Hidden);
     else if (overflow === 'auto' || overflow === 'scroll') {
-      warn(`overflow: ${overflow} needs a ScrollView element in USS`, node);
+      warn(`overflow: ${overflow} needs a ScrollView element in USS`, node, {
+        reason: 'not-uss',
+        subject: { kind: 'property', property: 'overflow', value: overflow },
+      });
     }
 
     yg.setWidth(dimension(length(style, 'width', node)));
@@ -340,6 +355,8 @@ export function layoutDocument(
             : `; its ${captions.join(' and ')} attribute${captions.length > 1 ? 's are' : ' is'} ` +
               'not drawn, because Unity draws that through a child element'),
         node: node.id,
+        reason: 'not-rendered',
+        subject: { kind: 'control', type: node.name.local },
       });
     }
 
@@ -350,6 +367,7 @@ export function layoutDocument(
         warn(
           `<${node.name.local}> has both a text attribute and children; children are not drawn`,
           node,
+          { reason: 'not-rendered', subject: { kind: 'control', type: node.name.local } },
         );
       }
       const fontSize = length(style, 'font-size', node);
@@ -393,6 +411,8 @@ export function layoutDocument(
             `builds for it, and their geometry was measured on Unity ${THEME_UNITY_VERSION}. ` +
             'Other versions may differ; see src/controls/theme.ts.',
           node: node.id,
+          reason: 'version-dependent',
+          subject: { kind: 'control', type: node.name.local },
         });
       }
       const chain: LayoutPart[] = [];

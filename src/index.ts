@@ -24,6 +24,8 @@ export type {
   StyleSheet,
   WarningKind,
   WarningKindMap,
+  WarningReason,
+  WarningSubject,
   Warning,
   UxmlDocument,
   StyleOrigin,
@@ -167,6 +169,7 @@ export function parse(uxml: string, uss?: string, options?: ParseOptions): UxmlD
               'or pass the stylesheet text directly. Until then this document renders unstyled.'
             : `<Style src="${url}"> could not be resolved`,
         node: tree.root.id,
+        subject: { kind: 'import', url, from: null },
       });
       continue;
     }
@@ -221,6 +224,7 @@ export function parse(uxml: string, uss?: string, options?: ParseOptions): UxmlD
                 ? `@import "${item.url}" was not loaded: pass resolveImport to read it`
                 : `@import "${item.url}" could not be resolved`,
             at: { in: 'uss', sheet: index, span: item.span },
+            subject: { kind: 'import', url: item.url, from: next.origin },
           });
           continue;
         }

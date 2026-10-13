@@ -199,6 +199,8 @@ function buildStateMap(
       warnings.push({
         kind: 'unsupported-selector',
         message: `states key "${key}" is not a usable USS selector; it is ignored`,
+        reason: 'not-uss',
+        subject: { kind: 'states-key', key },
       });
       continue;
     }
@@ -299,6 +301,12 @@ function hasRootPseudo(rule: Rule): boolean {
   );
 }
 
+/** The selector group as the author wrote it. */
+function selectorText(doc: UxmlDocument, flat: FlatRule): string {
+  const span = flat.rule.selectorSpan;
+  return doc.sheets[flat.sheet]?.source.slice(span.start, span.end) ?? '';
+}
+
 function warningSource(doc: UxmlDocument, sheet: number): Pick<Warning, 'sourceDocument'> {
   const sourceDocument = doc.sheets[sheet]?.origin;
   return typeof sourceDocument === 'string' ? { sourceDocument } : {};
@@ -394,6 +402,8 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
         kind: 'unsupported-selector',
         message: `"${bad}" is not supported in USS; the whole rule is ignored`,
         at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
+        reason: 'not-uss',
+        subject: { kind: 'selector', selector: selectorText(doc, flat), fragment: bad },
         ...warningSource(doc, flat.sheet),
       });
       continue;
@@ -407,6 +417,8 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
           'document root as in CSS. Template stylesheets therefore match their ' +
           'generated TemplateContainer.',
         at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
+        reason: 'version-dependent',
+        subject: { kind: 'selector', selector: selectorText(doc, flat), fragment: ':root' },
         ...warningSource(doc, flat.sheet),
       });
     }
@@ -702,6 +714,8 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
           kind: 'unsupported-property',
           message: `${property}: var() reference could not be resolved; declaration dropped`,
           node: nodeForWarnings,
+          reason: 'invalid-value',
+          subject: { kind: 'property', property, value: candidate.value },
         });
         continue;
       }
@@ -761,6 +775,7 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
         `Unity's control defaults were applied, as measured on ${THEME_UNITY_VERSION} ` +
         '(Unity ships these as a theme stylesheet). Other versions may use different ' +
         'values; see src/controls/theme.ts.',
+      reason: 'version-dependent',
     });
   }
 
@@ -781,6 +796,8 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
         `them — ${supportedControlNames().join(', ')}. Anything else is drawn as a plain ` +
         'box and has no parts to style.',
       at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
+      reason: 'not-rendered',
+      subject: { kind: 'selector', selector: selectorText(doc, flat), fragment: fragments.join(', ') },
       ...warningSource(doc, flat.sheet),
     });
   }

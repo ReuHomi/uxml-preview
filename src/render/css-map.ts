@@ -149,20 +149,31 @@ export function toCss(
   const warnings: Warning[] = [];
   const value = (property: string): string | undefined => style.get(property)?.value;
 
-  const warn = (kind: Warning['kind'], message: string): void => {
-    warnings.push({ kind, message, node });
+  const warn = (
+    kind: Warning['kind'],
+    message: string,
+    detail: Pick<Warning, 'reason' | 'subject'> = {},
+  ): void => {
+    warnings.push({ kind, message, node, ...detail });
   };
+  const about = (property: string, v = value(property)): Pick<Warning, 'subject'> => ({
+    subject: { kind: 'property', property, ...(v === undefined ? {} : { value: v }) },
+  });
 
   // USS sizes are always border-box, declaration or not.
   out['box-sizing'] = 'border-box';
 
   for (const [property] of style) {
     if (NOT_IN_USS.has(property)) {
-      warn('unsupported-property', `${property} does not exist in USS and is ignored`);
+      warn('unsupported-property', `${property} does not exist in USS and is ignored`, {
+        reason: 'not-uss',
+        ...about(property),
+      });
     } else if (VERSION_DEPENDENT.has(property)) {
       warn(
         'version-dependent',
         `${property} depends on the Unity version; verify it in your project`,
+        { reason: 'version-dependent', ...about(property) },
       );
     }
   }
@@ -199,6 +210,7 @@ export function toCss(
         warn(
           'unsupported-property',
           `border-${side}-width: ${problem ?? `"${width}" is not a pixel length`}; ignored`,
+          { reason: 'invalid-value', ...about(`border-${side}-width`) },
         );
       } else {
         out[`border-${side}-width`] = `${length.value}px`;
@@ -227,7 +239,10 @@ export function toCss(
   if (fontStyle !== undefined) {
     const mapped = FONT_STYLE[fontStyle];
     if (mapped === undefined) {
-      warn('unsupported-property', `-unity-font-style: ${fontStyle} is not a USS value`);
+      warn('unsupported-property', `-unity-font-style: ${fontStyle} is not a USS value`, {
+        reason: 'invalid-value',
+        ...about('-unity-font-style'),
+      });
     } else {
       out['font-weight'] = mapped.weight;
       out['font-style'] = mapped.style;
@@ -241,7 +256,10 @@ export function toCss(
     const alignItems = VERTICAL[vertical ?? ''];
     const justify = HORIZONTAL[horizontal ?? ''];
     if (alignItems === undefined || justify === undefined) {
-      warn('unsupported-property', `-unity-text-align: ${align} is not a USS value`);
+      warn('unsupported-property', `-unity-text-align: ${align} is not a USS value`, {
+        reason: 'invalid-value',
+        ...about('-unity-text-align'),
+      });
     } else {
       out['align-items'] = alignItems;
       out['justify-content'] = justify;
@@ -261,7 +279,10 @@ export function toCss(
   if (image !== undefined && image !== 'none') {
     const asset = assetPath(image);
     if (asset === null) {
-      warn('asset-unresolved', `background-image: cannot read "${image}" as an asset path`);
+      warn('asset-unresolved', `background-image: cannot read "${image}" as an asset path`, {
+        reason: 'invalid-value',
+        ...about('background-image'),
+      });
     } else {
       const { form, path } = asset;
       const url = options.resolveAsset?.(path, form) ?? null;
@@ -271,7 +292,9 @@ export function toCss(
         out['background-image'] =
           'repeating-linear-gradient(45deg, rgba(255,0,255,0.35) 0 6px, ' +
           'rgba(0,0,0,0) 6px 12px)';
-        warn('asset-unresolved', `background-image: "${path}" was not resolved`);
+        warn('asset-unresolved', `background-image: "${path}" was not resolved`, {
+          subject: { kind: 'asset', path, form },
+        });
       } else {
         out['background-image'] = `url("${url}")`;
         out['background-repeat'] = value('background-repeat') ?? 'no-repeat';
@@ -288,6 +311,7 @@ export function toCss(
             'unsupported-property',
             `-unity-background-scale-mode: ${mode} is not a USS value; ` +
               `expected one of ${Object.keys(SCALE_MODE).join(', ')}`,
+            { reason: 'invalid-value', ...about('-unity-background-scale-mode', mode) },
           );
         }
         out['background-size'] = declared ?? mapped ?? SCALE_MODE[DEFAULT_SCALE_MODE]!;
@@ -299,15 +323,21 @@ export function toCss(
     warn(
       'unsupported-property',
       '-unity-background-image-tint-color has no CSS equivalent and is not drawn',
+      { reason: 'not-rendered', ...about('-unity-background-image-tint-color') },
     );
   }
-  if (SIDES.some((s) => value(`-unity-slice-${s}`) !== undefined)) {
-    warn('unsupported-property', '-unity-slice-* (9-slice) is not drawn in this preview');
+  const slice = SIDES.map((s) => `-unity-slice-${s}`).find((p) => value(p) !== undefined);
+  if (slice !== undefined) {
+    warn('unsupported-property', '-unity-slice-* (9-slice) is not drawn in this preview', {
+      reason: 'not-rendered',
+      ...about(slice),
+    });
   }
   if (value('-unity-font-definition') !== undefined) {
     warn(
       'unsupported-property',
       '-unity-font-definition names a Unity font asset; the browser default is used',
+      { reason: 'not-rendered', ...about('-unity-font-definition') },
     );
   }
 

@@ -134,12 +134,14 @@ function addWarning(
   message: string,
   node?: ElementNode,
   sourceDocument?: string,
+  detail: Pick<Warning, 'reason' | 'subject'> = {},
 ): void {
   warnings.push({
     kind,
     message,
     ...(node === undefined ? {} : { node: node.id }),
     ...(sourceDocument === undefined ? {} : { sourceDocument }),
+    ...detail,
   });
 }
 
@@ -291,6 +293,7 @@ function reportSlots(
     }; children not placed: ${children.length === 0 ? '(none)' : descriptors(children).join(', ')}`,
     instance,
     sourceDocument,
+    { reason: 'not-rendered' },
   );
 }
 
@@ -327,6 +330,10 @@ function applyOverrides(
         `AttributeOverrides style for element-name "${requested ?? '(missing)'}" was ignored with value "${ignoredStyle}"; Unity ignores style AttributeOverrides, so this matches Unity and is not a preview limitation.`,
         override,
         sourceDocument ?? undefined,
+        {
+          reason: 'matches-unity',
+          ...(requested === undefined ? {} : { subject: { kind: 'name', name: requested } }),
+        },
       );
     }
     if (requested === undefined || requested.length === 0) continue;
@@ -342,6 +349,7 @@ function applyOverrides(
         }`,
         override,
         sourceDocument ?? undefined,
+        { reason: 'invalid-value', subject: { kind: 'name', name: requested } },
       );
       continue;
     }
@@ -407,6 +415,7 @@ function loadTemplate(
       }; attempted resolveImport("${declaration.src}", ${from === null ? 'null' : `"${from}"`}); internal filesystem search paths: none`,
       declaration.node,
       from ?? undefined,
+      { subject: { kind: 'import', url: declaration.src, from } },
     );
     if (packagePath(declaration.src)) {
       addWarning(
@@ -415,6 +424,7 @@ function loadTemplate(
         `Template src "${declaration.src}" was unresolved; the resolver returned no source and the core does not independently search Unity Packages/Library/PackageCache paths`,
         declaration.node,
         from ?? undefined,
+        { reason: 'not-rendered', subject: { kind: 'import', url: declaration.src, from } },
       );
     }
     return null;
@@ -579,6 +589,10 @@ function expandInstance(
       `Instance${templateName === undefined ? '' : ` template "${templateName}"`} has no matching Template declaration`,
       instance,
       sourceDocument,
+      {
+        reason: 'invalid-value',
+        ...(templateName === undefined ? {} : { subject: { kind: 'name', name: templateName } }),
+      },
     );
     return container;
   }
@@ -601,6 +615,7 @@ function expandInstance(
       `Template cycle detected: ${path}`,
       instance,
       sourceDocument,
+      { reason: 'invalid-value' },
     );
     return container;
   }
@@ -615,6 +630,7 @@ function expandInstance(
       ].map((entry) => entry.label).join(' -> ')}`,
       instance,
       sourceDocument,
+      { reason: 'not-rendered' },
     );
     return container;
   }
@@ -710,6 +726,9 @@ export function expandTemplates(document: UxmlDocument): TemplateExpansion {
         context.warnings,
         'duplicate-name-in-tree',
         `name "${name}" occurs ${count} times after template expansion`,
+        undefined,
+        undefined,
+        { reason: 'matches-unity', subject: { kind: 'name', name } },
       );
     }
   }

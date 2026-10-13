@@ -79,6 +79,8 @@ export interface LengthResult {
   length: Length | null;
   /** Set when the text names a unit USS does not support, or uses calc(). */
   problem?: string;
+  /** Set with `problem`: USS lacks the syntax, or the value is simply unreadable. */
+  reason?: 'not-uss' | 'invalid-value';
 }
 
 /**
@@ -89,26 +91,28 @@ export interface LengthResult {
  */
 export function parseLength(text: string): LengthResult {
   const value = text.trim();
-  if (value === '') return { length: null, problem: 'empty value' };
+  if (value === '') return { length: null, problem: 'empty value', reason: 'invalid-value' };
   if (value === 'auto') return { length: { kind: 'auto' } };
   if (value === 'none') return { length: { kind: 'none' } };
   if (value === 'initial') return { length: { kind: 'auto' } };
 
   if (value.startsWith('calc(')) {
-    return { length: null, problem: 'calc() is not supported in USS' };
+    return { length: null, problem: 'calc() is not supported in USS', reason: 'not-uss' };
   }
 
   const match = /^(-?(?:\d+\.?\d*|\.\d+))([a-z%]*)$/i.exec(value);
-  if (match === null) return { length: null, problem: `cannot read "${value}" as a length` };
+  if (match === null) {
+    return { length: null, problem: `cannot read "${value}" as a length`, reason: 'invalid-value' };
+  }
 
   const number = Number(match[1]);
   const unit = match[2]!.toLowerCase();
   if (unit === '' || unit === 'px') return { length: { kind: 'px', value: number } };
   if (unit === '%') return { length: { kind: 'percent', value: number } };
   if (UNSUPPORTED_UNITS.includes(unit)) {
-    return { length: null, problem: `"${unit}" is not a USS unit` };
+    return { length: null, problem: `"${unit}" is not a USS unit`, reason: 'not-uss' };
   }
-  return { length: null, problem: `unknown unit "${unit}"` };
+  return { length: null, problem: `unknown unit "${unit}"`, reason: 'invalid-value' };
 }
 
 /** Bare numbers such as `flex-grow: 1`. Returns null when it is not one. */
