@@ -252,6 +252,23 @@ export const CSS_REPLACEMENTS: Readonly<Record<string, readonly string[]>> = {
   'overflow-y': ['overflow'],
 };
 
+/*
+ * Candidates to move to version-dependent, not yet facts.
+ *
+ * Unity's UI Toolkit team lists gradients, drop shadows and blur or
+ * backdrop-style effects through standard USS properties as in development:
+ * "UI Toolkit development status and next milestones – November 2025",
+ * https://discussions.unity.com/t/ui-toolkit-development-status-and-next-milestones-november-2025/1698009
+ * The post names no version. Unity 6.7 as the target is second-hand (a forum
+ * reply), and the 6.7 alpha manual did not list them when checked (2026-10-13).
+ *
+ * So until a Unity reference table lists them, `box-shadow` stays an
+ * undocumented name (not-uss) and `linear-gradient()` in `background-image`
+ * stays a value that is not an asset reference (not-uss, render/css-map.ts).
+ * When a table does, the property becomes a row here with its `since`, and the
+ * gradient value moves to a version-dependent value check (docs/backlog.md).
+ */
+
 /** What this preview did instead, for the properties where "not drawn" says too little. */
 const NOT_RENDERED_TEXT: Readonly<Record<string, string>> = {
   'aspect-ratio': 'not applied to layout by this preview',
