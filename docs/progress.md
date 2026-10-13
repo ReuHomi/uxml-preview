@@ -4,13 +4,13 @@
 
 ## 현재 위치
 
-**v0.5.1 배포 직전 (2026-10-13).** 브랜치 `release/0.5.1`, PR·태그·npm 배포 전.
+**v0.5.1 배포 완료 (2026-10-13).** 현재 브랜치 `main`. 기준 Unity 버전 6.3 LTS.
 
 | | |
 |---|---|
-| npm | `uxml-preview@0.5.0` 배포됨. 0.5.1은 커밋까지 완료, 미배포 |
+| npm | `uxml-preview@0.5.1` 배포됨 (`latest`). PR #6 머지 `a095b8e`, 태그 `v0.5.1` |
 | 놀이터 | <https://reuhomi.github.io/uxml-preview/> |
-| 테스트 | Windows 코어 **737/737** |
+| 테스트 | 코어 **742 통과 · 1 건너뜀**(기준선 생성 모드), Windows 로컬 + CI ubuntu/windows |
 | 속성 | Unity 공식표 102개 전부 등록표(`src/style/registry.ts`)에 하나의 처리 경로. 경고 없이 버려지는 공식표 속성 0 |
 | 정확도 | 기본 컨트롤 **660/676 (169 elements)** · 템플릿 별도 코호트 **200/220 (55 elements)**, Unity 6000.0.40f1 대조 |
 | 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` (그 외는 폴백) |
@@ -21,7 +21,7 @@
 
 ## 다음 할 일
 
-0. **0.5.1 배포** — PR 검토, 태그, `npm publish`. 이어서 스킬 0.2.1(경고 채널을 `reason`으로)과
+0. **소비자 갱신** — 스킬 0.2.1(경고 채널을 `reason`으로)과
    확장 0.3.1(`subject`로 경로 연결, `USS_STATES`·`TEMPLATE_DEPTH_LIMIT` 사용)
 1. **sibling lock 갱신** — README/CHANGELOG 변경으로 재pack한 tarball의 새 integrity를
    다음 트랙에서 반영
@@ -605,3 +605,5 @@ S1 전체(Step 1~6)를 한 세션에 끝냈다. 커밋 25개, 테스트 228 → 
 - 0.6.0으로 넘긴 항목은 `docs/backlog.md` "0.6.0 — 0.5.1이 넘긴 항목".
 - 사용자 요청으로 이 브랜치 커밋 전부에 `Signed-off-by: ReuHomi`를 붙였다(로컬 브랜치라 rebase로
   재작성, 백업 브랜치 `backup/0.5.1-before-signoff`).
+- (배포) PR #6을 CI 2/2 통과 후 머지(`a095b8e`), 태그 `v0.5.1`, npm `0.5.1`이 `latest`.
+  `npm publish`는 2단계 인증 일회용 코드가 필요해 사용자가 직접 실행했다.
