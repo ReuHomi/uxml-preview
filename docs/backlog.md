@@ -120,3 +120,8 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 - [0.6.0] `letter-spacing`/`word-spacing`이 그려지지만 글자 측정에 들어가지 않음
 - [0.6.0] `background-position-x/-y` 그리기, scale-mode와 `background-*`를 함께 쓸 때
   어느 쪽이 이기는지 — 육안 대조 필요 (docs/visual-check.md)
+- [0.6.0] **선언 단위 경고가 영향받는 요소를 잃었다.** 0.5.0 대비 차등 검사
+  (`tests/regression/warning-diff.test.ts`)에서 병합된 776건 중 515건은 0.5.1 경고가
+  요소를 하나도 가리키지 않고(규칙 선언 경고는 `at`만 있음), 261건은 첫 요소 하나만
+  가리킨다(값 수준 경고를 선언당 하나로 합칠 때). 소비자가 "어떤 요소가 영향을 받는가"를
+  알 수 없다. 후보: `Warning`에 `nodes?: NodeId[]`를 더하거나, 요소별 조회 API

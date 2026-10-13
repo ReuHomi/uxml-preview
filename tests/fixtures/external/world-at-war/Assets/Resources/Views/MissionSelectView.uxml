@@ -1,0 +1,59 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Template name="MenuButton" src="project://database/Assets/UI%20Toolkit/Templates/MenuButton.uxml?fileID=9197481963319205126&amp;guid=de1c3954180d90644aae80ddbae80341&amp;type=3#MenuButton"/>
+    <Style src="project://database/Assets/UI%20Toolkit/Styles/core.uss?fileID=7433441132597879392&amp;guid=7ddee200e3647634fad40c422ee9bf29&amp;type=3#core"/>
+    <Style src="project://database/Assets/UI%20Toolkit/Styles/screens.uss?fileID=7433441132597879392&amp;guid=1f8ac92c17485ff4fa150022e05ca083&amp;type=3#screens"/>
+    <ui:VisualElement name="mission-select-view" class="view-root">
+        <ui:VisualElement name="mission-list-ctr" class="mission-list-ctr" style="width: 15%;">
+            <ui:Instance template="MenuButton" name="semperfi-btn" class="mission-btn">
+                <AttributeOverrides element-name="btn" text="Semper Fi"/>
+            </ui:Instance>
+            <ui:Instance template="MenuButton" name="little-resistance-btn" class="mission-btn">
+                <AttributeOverrides element-name="btn" text="Little Resistance"/>
+            </ui:Instance>
+            <ui:Instance template="MenuButton" name="hard-landing-btn" class="mission-btn">
+                <AttributeOverrides element-name="btn" text="Hard Landing"/>
+            </ui:Instance>
+            <ui:Instance template="MenuButton" name="vendetta-btn" class="mission-btn">
+                <AttributeOverrides element-name="btn" text="Vendetta"/>
+            </ui:Instance>
+            <ui:Instance template="MenuButton" name="their-land-their-blood-btn" class="mission-btn">
+                <AttributeOverrides element-name="btn" text="Their Land, Their Blood"/>
+            </ui:Instance>
+            <ui:Instance template="MenuButton" name="burn-em-out-btn" class="mission-btn">
+                <AttributeOverrides element-name="btn" text="Burn &apos;Em Out"/>
+            </ui:Instance>
+            <ui:Instance template="MenuButton" name="relentless-btn" class="mission-btn">
+                <AttributeOverrides element-name="btn" text="Relentless"/>
+            </ui:Instance>
+            <ui:Instance template="MenuButton" name="blood-and-iron-btn" class="mission-btn">
+                <AttributeOverrides element-name="btn" text="Blood &amp; Iron"/>
+            </ui:Instance>
+            <ui:Instance template="MenuButton" name="ring-of-steel-btn" class="mission-btn">
+                <AttributeOverrides element-name="btn" text="Ring of Steel"/>
+            </ui:Instance>
+            <ui:Instance template="MenuButton" name="eviction-btn" class="mission-btn">
+                <AttributeOverrides element-name="btn" text="Eviction"/>
+            </ui:Instance>
+            <ui:Instance template="MenuButton" name="black-cats-btn" class="mission-btn">
+                <AttributeOverrides element-name="btn" text="Black Cats"/>
+            </ui:Instance>
+            <ui:Instance template="MenuButton" name="blowtorch-and-corkscrew-btn" class="mission-btn">
+                <AttributeOverrides element-name="btn" text="Blowtorch &amp; Corkscrew"/>
+            </ui:Instance>
+            <ui:Instance template="MenuButton" name="breaking-point-btn" class="mission-btn">
+                <AttributeOverrides element-name="btn" text="Breaking Point"/>
+            </ui:Instance>
+            <ui:Instance template="MenuButton" name="heart-of-the-reich-btn" class="mission-btn">
+                <AttributeOverrides element-name="btn" text="Heart of the Reich"/>
+            </ui:Instance>
+            <ui:Instance template="MenuButton" name="downfall-btn" class="mission-btn">
+                <AttributeOverrides element-name="btn" text="Downfall"/>
+            </ui:Instance>
+        </ui:VisualElement>
+        <ui:VisualElement name="mission-detail-ctr" class="mission-detail-ctr" style="justify-content: flex-start; padding-top: 5%; align-items: flex-start; padding-left: 20%; padding-right: 5%;">
+            <ui:Image name="mission-thumbnail" source="project://database/Assets/Resources/Thumbnails/SemperFi.png?fileID=21300000&amp;guid=81dd87122cfb34c47aeca6284d4c7f81&amp;type=3#SemperFi" scale-mode="ScaleAndCrop" class="mission-thumbnail" style="border-top-left-radius: 8px; border-top-right-radius: 8px; border-bottom-right-radius: 8px; border-bottom-left-radius: 8px; border-top-width: 4px; border-right-width: 4px; border-bottom-width: 4px; border-left-width: 4px; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0);"/>
+            <ui:Label text="Mission Name" name="mission-header" class="font-arsenal-bold mission-header" style="color: rgba(255, 182, 0, 0.784); padding-top: 2%; font-size: 35px;"/>
+            <ui:Label text="Mission Description" name="mission-description" class="font-archivo-regular text-shadow-dark mission-description" style="font-size: 28px;"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

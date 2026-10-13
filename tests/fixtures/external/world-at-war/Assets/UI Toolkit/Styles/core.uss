@@ -1,0 +1,52 @@
+:root {
+    --color-text-primary: rgba(255, 255, 255, 0.784);
+    --color-text-dim: rgba(241, 241, 241, 0.443);
+    --color-text-dark: rgb(27, 27, 27);
+    --color-text-accent: rgba(233, 141, 30, 0.784);
+    --color-text-heading: rgba(255, 255, 255, 0.898);
+    --color-text-bright: rgba(255, 255, 255, 0.886);
+    --color-text-version: rgba(255, 255, 255, 0.247);
+    --color-text-slider: rgb(77, 77, 77);
+    --color-bg-black: rgb(0, 0, 0);
+    --color-bg-video: rgb(6, 6, 6);
+    --color-bg-dark: rgb(28, 30, 31);
+    --color-transparent: rgba(0, 0, 0, 0);
+    --color-overlay-dark: rgba(0, 0, 0, 0.784);
+    --color-overlay-medium: rgba(0, 0, 0, 0.373);
+    --color-overlay-light: rgba(0, 0, 0, 0.392);
+    --color-tint-greenish: rgba(125, 143, 138, 0.808);
+    --color-tint-greenish-dim: rgba(125, 143, 138, 0.184);
+    --color-border-light: rgba(165, 165, 165, 0.098);
+}
+
+.fill-absolute {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.font-arsenal-bold {
+    -unity-font-definition: url("project://database/Assets/Fonts/Arsenal/Arsenal-Bold.ttf?fileID=12800000&guid=9c872447a0b9af84f973cb50eaa86eec&type=3#Arsenal-Bold");
+}
+
+.font-archivo-regular {
+    -unity-font-definition: url("project://database/Assets/Fonts/Archivo/static/Archivo-Regular.ttf?fileID=12800000&guid=5b2662ca440aaf7439976170c771c4dd&type=3#Archivo-Regular");
+}
+
+.font-archivo-semibold {
+    -unity-font-definition: url("project://database/Assets/Fonts/Archivo/static/Archivo-SemiBold.ttf?fileID=12800000&guid=71cfd6c208cff9a4986a5d7469330800&type=3#Archivo-SemiBold");
+}
+
+.font-archivo-medium {
+    -unity-font-definition: url("project://database/Assets/Fonts/Archivo/static/Archivo-Medium.ttf?fileID=12800000&guid=d091803073719d2458f5903cb95b1eb3&type=3#Archivo-Medium");
+}
+
+.font-dmsans-thin {
+    -unity-font-definition: url("project://database/Assets/Fonts/DM_Sans/static/DMSans-Thin.ttf?fileID=12800000&guid=31514fa0a2c82c74baa8d9ac6f93512f&type=3#DMSans-Thin");
+}
+
+.text-shadow-dark {
+    text-shadow: 2px 2px 0 rgb(27, 27, 27);
+}
+
+

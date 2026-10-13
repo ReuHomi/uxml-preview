@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Resources/UI/Game/MyGameUI.uss?fileID=7433441132597879392&amp;guid=c724d844c163027489bf0d339d45ddea&amp;type=3#MyGameUI" />
+    <ui:VisualElement name="Canvas" class="canvas">
+        <ui:VisualElement name="LeftMenu" class="left-menu">
+            <MySpecialButton focusable="true" rotation="0" my-special-type="Itsy" style="width: 150px; height: 150px; margin-top: 5%; background-color: rgba(88, 88, 88, 0); background-image: url(&apos;project://database/Assets/Sprites/Kenney/yellow_panel.png?fileID=21300000&amp;guid=1ade0b38cb081974eafce2e390fa791a&amp;type=3#yellow_panel&apos;); -unity-slice-left: 7; -unity-slice-top: 7; -unity-slice-right: 7; -unity-slice-bottom: 7;">
+                <ui:VisualElement name="Icon" class="icon" style="background-image: url(&apos;project://database/Assets/Sprites/match3.png?fileID=21300000&amp;guid=f9d372b380a6f7f4ca5bc227d1db3936&amp;type=3#match3&apos;);" />
+            </MySpecialButton>
+            <ui:VisualElement style="background-color: rgba(0, 0, 0, 0); background-image: url(&apos;project://database/Assets/Sprites/Kenney/arrowUp.png?fileID=21300000&amp;guid=8306f1437a3a7784f9f6fd0ae0167d61&amp;type=3#arrowUp&apos;); width: 50px; height: 50px;" />
+            <ui:Label text="CLICK THIS BUTTON" display-tooltip-when-elided="true" style="-unity-font-definition: resource(&apos;UI/Fonts/Google/Ubuntu/Ubuntu-Regular SDF&apos;); font-size: 24px; color: rgba(255, 255, 255, 255);" />
+        </ui:VisualElement>
+        <ui:VisualElement name="GameViewport" class="game-viewport" />
+    </ui:VisualElement>
+</ui:UXML>
