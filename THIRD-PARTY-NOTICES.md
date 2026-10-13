@@ -53,3 +53,10 @@ SOFTWARE.
 Vite, Vitest, TypeScript, jsdom, pixelmatch and pngjs are development
 dependencies. They are not redistributed in either artifact above, so they carry
 no notice obligation here.
+
+## Test fixtures in the source repository
+
+`tests/fixtures/external/` holds UXML and USS files from six open-source Unity
+projects (MIT, and one Unlicense), used only as test input. They are not in the
+npm package or the site. Each source's licence file sits in its folder, and
+`tests/fixtures/external/README.md` lists the origins.

@@ -5,9 +5,9 @@
     }
   },
   "warnings": [
-    "unsupported-property: box-shadow does not exist in USS and is ignored",
-    "unsupported-property: outline does not exist in USS and is ignored",
-    "unsupported-property: text-transform does not exist in USS and is ignored",
-    "unsupported-property: border-style does not exist in USS and is ignored"
+    "unsupported-property: box-shadow: not in the USS property reference up to Unity 6.6; ignored",
+    "unsupported-property: outline: not in the USS property reference up to Unity 6.6; ignored",
+    "unsupported-property: text-transform: not in the USS property reference up to Unity 6.6; ignored",
+    "unsupported-property: border-style: not in the USS property reference up to Unity 6.6; ignored"
   ]
 }

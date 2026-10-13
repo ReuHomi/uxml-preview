@@ -26,7 +26,7 @@ import { isNonVisual, resolveControl } from '../controls/registry';
 import type { ControlPart } from '../controls/registry';
 import { THEME_UNITY_VERSION, verticalScrollbarWidth } from '../controls/theme';
 import { expandShorthand } from '../style/properties';
-import type { ComputedValue } from '../style/resolve';
+import type { ComputedValue, DeclarationLocator } from '../style/resolve';
 import { INITIAL, parseLength, parseNumber } from '../render/values';
 import type { Length } from '../render/values';
 
@@ -89,6 +89,8 @@ export interface LayoutOptions {
    * accuracy if the measurement shifts underneath it.
    */
   measureText: MeasureText;
+  /** Points a value-level warning at the declaration it came from. */
+  locate?: DeclarationLocator;
 }
 
 /**
@@ -210,15 +212,38 @@ export function layoutDocument(
   const read = (style: ComputedStyle, property: string): string =>
     style.get(property)?.value ?? INITIAL[property] ?? '';
 
-  function warn(message: string, node: ElementNode): void {
-    warnings.push({ kind: 'unsupported-property', message, node: node.id });
+  function warn(
+    message: string,
+    node: ElementNode,
+    detail: Pick<Warning, 'reason' | 'subject'>,
+    from?: ComputedValue,
+  ): void {
+    // Reported where it was declared, never again on each descendant.
+    if (from?.origin.kind === 'inherited') return;
+    warnings.push({
+      kind: 'unsupported-property',
+      message,
+      node: node.id,
+      ...detail,
+      ...(from === undefined ? {} : (options.locate?.(from.origin) ?? {})),
+    });
   }
 
   function length(style: ComputedStyle, property: string, node: ElementNode): Length | null {
     const text = read(style, property);
     if (text === '') return null;
-    const { length: parsed, problem } = parseLength(text);
-    if (problem !== undefined) warn(`${property}: ${problem}`, node);
+    const { length: parsed, problem, reason } = parseLength(text);
+    if (problem !== undefined) {
+      warn(
+        `${property}: ${problem}`,
+        node,
+        {
+          ...(reason === undefined ? {} : { reason }),
+          subject: { kind: 'property', property, value: text },
+        },
+        style.get(property),
+      );
+    }
     return parsed;
   }
 
@@ -262,17 +287,31 @@ export function layoutDocument(
 
     const position = read(style, 'position');
     if (position === 'fixed' || position === 'sticky') {
-      warn(`position: ${position} is not supported in USS; treated as relative`, node);
+      warn(`position: ${position} treated as relative`, node, {
+        reason: 'not-uss',
+        subject: { kind: 'property', property: 'position', value: position },
+      }, style.get('position'));
     }
     yg.setPositionType(
       position === 'absolute' ? PositionType.Absolute : PositionType.Relative,
     );
 
-    if (read(style, 'display') === 'none') yg.setDisplay(Display.None);
+    const display = read(style, 'display');
+    if (display === 'none') yg.setDisplay(Display.None);
+    else if (display !== 'flex' && display !== 'initial') {
+      // USS has flex and none; anything else is laid out as flex, as before.
+      warn(`display: ${display} laid out as flex`, node, {
+        reason: 'invalid-value',
+        subject: { kind: 'property', property: 'display', value: display },
+      }, style.get('display'));
+    }
     const overflow = read(style, 'overflow');
     if (overflow === 'hidden') yg.setOverflow(Overflow.Hidden);
     else if (overflow === 'auto' || overflow === 'scroll') {
-      warn(`overflow: ${overflow} needs a ScrollView element in USS`, node);
+      warn(`overflow: ${overflow} ignored; nothing scrolls`, node, {
+        reason: 'not-uss',
+        subject: { kind: 'property', property: 'overflow', value: overflow },
+      }, style.get('overflow'));
     }
 
     yg.setWidth(dimension(length(style, 'width', node)));
@@ -311,8 +350,23 @@ export function layoutDocument(
     );
   }
 
+  /** The bindings notice is about the document, so it is raised once. */
+  let bindingsReported = false;
+
   function build(node: ElementNode, parent: YogaNode | null): void {
-    if (isNonVisual(node)) return;
+    if (isNonVisual(node)) {
+      if (node.name.local === 'Bindings' && !bindingsReported) {
+        bindingsReported = true;
+        warnings.push({
+          kind: 'unsupported-control',
+          message: 'Data bindings are not evaluated in this preview; bound values show as written',
+          node: node.id,
+          reason: 'not-rendered',
+          subject: { kind: 'control', type: 'Bindings' },
+        });
+      }
+      return;
+    }
     const style = styles.get(node.id) ?? new Map();
     const yg = yoga!.Node.create();
     created++;
@@ -337,19 +391,21 @@ export function layoutDocument(
           `plain VisualElement` +
           (captions.length === 0
             ? ''
-            : `; its ${captions.join(' and ')} attribute${captions.length > 1 ? 's are' : ' is'} ` +
-              'not drawn, because Unity draws that through a child element'),
+            : `; its ${captions.join(' and ')} attribute${captions.length > 1 ? 's are' : ' is'} not drawn`),
         node: node.id,
+        reason: 'not-rendered',
+        subject: { kind: 'control', type: node.name.local },
       });
     }
 
     if (drawsText) {
       // Yoga refuses to measure a node that has children, and would not ask for
       // an intrinsic size anyway. Text wins; dropping it silently would be worse.
-      if (node.children.length > 0) {
+      if (node.children.some((child) => !isNonVisual(child))) {
         warn(
           `<${node.name.local}> has both a text attribute and children; children are not drawn`,
           node,
+          { reason: 'not-rendered', subject: { kind: 'control', type: node.name.local } },
         );
       }
       const fontSize = length(style, 'font-size', node);
@@ -388,11 +444,10 @@ export function layoutDocument(
         themeReported = true;
         warnings.push({
           kind: 'version-dependent',
-          message:
-            `<${node.name.local}> is drawn with the implicit child elements Unity ` +
-            `builds for it, and their geometry was measured on Unity ${THEME_UNITY_VERSION}. ` +
-            'Other versions may differ; see src/controls/theme.ts.',
+          message: `<${node.name.local}> drawn with built-in child elements measured on Unity ${THEME_UNITY_VERSION}`,
           node: node.id,
+          reason: 'version-dependent',
+          subject: { kind: 'control', type: node.name.local },
         });
       }
       const chain: LayoutPart[] = [];

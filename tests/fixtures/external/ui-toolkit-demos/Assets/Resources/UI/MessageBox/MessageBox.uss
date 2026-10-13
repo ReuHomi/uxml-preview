@@ -1,0 +1,83 @@
+.messageBoxCaption {
+    -unity-slice-left: 5;
+    -unity-slice-top: 5;
+    -unity-slice-right: 5;
+    -unity-slice-bottom: 7;
+    background-image: url('project://database/Assets/Sprites/Kenney/UI%20Base%20Pack/PNG/blue_button00.png?fileID=21300000&guid=f8b7e5f52fd44734ab5f169e51ead460&type=3#blue_button00');
+    padding-bottom: 10px;
+    padding-right: 0;
+    padding-left: 10px;
+    justify-content: space-around;
+    width: 89.5%;
+    height: 100%;
+    color: rgba(255, 255, 255, 255);
+    font-size: 30px;
+    -unity-text-align: middle-left;
+    -unity-font-definition: resource('UI/Fonts/Google/Ubuntu/Ubuntu-Medium SDF');
+    margin-left: 0;
+    margin-right: 0.5%;
+    margin-top: 0;
+    margin-bottom: 0;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 255);
+}
+
+.messageBoxButton {
+    background-image: url('project://database/Assets/Sprites/Kenney/UI%20Base%20Pack/PNG/red_button12.png?fileID=21300000&guid=6113cb892aaf33446ade4f22d0df61aa&type=3#red_button12');
+    background-color: rgba(188, 188, 188, 0);
+    -unity-slice-left: 5;
+    -unity-slice-top: 5;
+    -unity-slice-right: 5;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    -unity-slice-bottom: 7;
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    color: rgba(255, 255, 255, 255);
+    font-size: 28px;
+    -unity-text-align: middle-left;
+    -unity-font-definition: resource('UI/Fonts/Google/Ubuntu/Ubuntu-Medium SDF');
+}
+
+Button:hover {
+    -unity-background-image-tint-color: rgb(223, 126, 48);
+}
+
+.messageBoxText {
+    white-space: normal;
+    width: 90%;
+    height: 100%;
+    padding-left: 5px;
+    color: rgba(255, 255, 255, 255);
+    font-size: 24px;
+    -unity-text-align: middle-left;
+    -unity-font-definition: resource('UI/Fonts/Google/Ubuntu/Ubuntu-Medium SDF');
+}
+
+.hideButton {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    width: 0;
+    height: 0;
+}

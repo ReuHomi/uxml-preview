@@ -32,6 +32,7 @@ import { THEME_UNITY_VERSION, THEME_USS } from '../controls/theme';
 import { parseUss } from '../parser/uss';
 import { attributeValueStart, parseDeclarationList } from '../parser/uss';
 import { expandShorthand, isInherited } from './properties';
+import { propertyWarning, USS_STATES } from './registry';
 import {
   buildParentMap,
   matchesSelector,
@@ -199,6 +200,8 @@ function buildStateMap(
       warnings.push({
         kind: 'unsupported-selector',
         message: `states key "${key}" is not a usable USS selector; it is ignored`,
+        reason: 'not-uss',
+        subject: { kind: 'states-key', key },
       });
       continue;
     }
@@ -299,6 +302,12 @@ function hasRootPseudo(rule: Rule): boolean {
   );
 }
 
+/** The selector group as the author wrote it. */
+function selectorText(doc: UxmlDocument, flat: FlatRule): string {
+  const span = flat.rule.selectorSpan;
+  return doc.sheets[flat.sheet]?.source.slice(span.start, span.end) ?? '';
+}
+
 function warningSource(doc: UxmlDocument, sheet: number): Pick<Warning, 'sourceDocument'> {
   const sourceDocument = doc.sheets[sheet]?.origin;
   return typeof sourceDocument === 'string' ? { sourceDocument } : {};
@@ -392,8 +401,10 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
       // Reported once per rule rather than once per element it might have hit.
       warnings.push({
         kind: 'unsupported-selector',
-        message: `"${bad}" is not supported in USS; the whole rule is ignored`,
+        message: `"${bad}": the whole rule is ignored`,
         at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
+        reason: 'not-uss',
+        subject: { kind: 'selector', selector: selectorText(doc, flat), fragment: bad },
         ...warningSource(doc, flat.sheet),
       });
       continue;
@@ -402,16 +413,82 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
       reportedRoot = true;
       warnings.push({
         kind: 'version-dependent',
+        // Not a version difference: USS :root means something else than CSS
+        // :root, and this preview does what Unity does. Kept as a warning so
+        // an author porting CSS is told; the kind stays for compatibility.
         message:
-          ':root in USS names the element the stylesheet was applied to, not the ' +
-          'document root as in CSS. Template stylesheets therefore match their ' +
-          'generated TemplateContainer.',
+          ':root matched the element this stylesheet is attached to — the document ' +
+          'root, or the TemplateContainer of a template',
         at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
+        reason: 'matches-unity',
+        subject: { kind: 'selector', selector: selectorText(doc, flat), fragment: ':root' },
         ...warningSource(doc, flat.sheet),
       });
     }
     usable.push(flat);
   }
+
+  // Every author declaration is judged by its name once, where it is written —
+  // including in rules that match nothing, which can still be wrong. A sheet
+  // attached to several template scopes appears once per scope above, so rules
+  // are deduplicated by position. Rules dropped for their selector are not
+  // judged: the whole rule was already reported.
+  const judged = new Set<string>();
+  for (const flat of usable) {
+    if (flat.builtin === true) continue;
+    const key = `${flat.sheet}:${flat.item}`;
+    if (judged.has(key)) continue;
+    judged.add(key);
+    // A state Unity never sets makes its selector unmatchable in Unity and
+    // here alike; the rule still runs, so nothing drawn changes.
+    const unknownStates = new Set<string>();
+    for (const selector of flat.rule.selectors) {
+      for (const part of selector.parts) {
+        for (const simple of part.simple) {
+          if (simple.kind !== 'pseudo' || simple.name === 'root') continue;
+          if (!(USS_STATES as readonly string[]).includes(simple.name)) unknownStates.add(simple.name);
+        }
+      }
+    }
+    for (const name of unknownStates) {
+      warnings.push({
+        kind: 'unsupported-selector',
+        message: `":${name}": never matches; Unity sets no such state`,
+        at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
+        ...warningSource(doc, flat.sheet),
+        reason: 'not-uss',
+        subject: { kind: 'selector', selector: selectorText(doc, flat), fragment: `:${name}` },
+      });
+    }
+    for (const decl of flat.rule.declarations) {
+      const found = propertyWarning(decl.property, decl.value);
+      if (found === null) continue;
+      warnings.push({
+        kind: 'unsupported-property',
+        ...found,
+        at: { in: 'uss', sheet: flat.sheet, span: decl.span },
+        ...warningSource(doc, flat.sheet),
+      });
+    }
+  }
+
+  // At-rule blocks the parser keeps verbatim (`@media`, `@keyframes`, ...).
+  // `@import` is modelled, and one without a path is already malformed.
+  doc.sheets.forEach((sheet, index) => {
+    for (const item of sheet.items) {
+      if (item.kind !== 'unknown') continue;
+      const name = /^@([A-Za-z][\w-]*)/.exec(sheet.source.slice(item.span.start, item.span.end))?.[1];
+      if (name === undefined || name === 'import') continue;
+      warnings.push({
+        kind: 'unsupported-selector',
+        message: `@${name}: block ignored`,
+        at: { in: 'uss', sheet: index, span: item.span },
+        ...warningSource(doc, index),
+        reason: 'not-uss',
+        subject: { kind: 'at-rule', name },
+      });
+    }
+  });
 
   return { ctx, usable, warnings };
 }
@@ -436,6 +513,41 @@ function inlineDeclarations(doc: UxmlDocument, node: ElementNode): Declaration[]
   const start = attributeValueStart(attr);
   if (start === null) return [];
   return parseDeclarationList(doc.source, start, start + attr.value.length);
+}
+
+/** Where a computed value was written, as warning fields. */
+export type DeclarationLocator = (origin: StyleOrigin) => Pick<Warning, 'at' | 'sourceDocument'>;
+
+/**
+ * Purpose:      turn a computed value's origin back into the text it came from,
+ *               so a value-level warning points at one declaration.
+ * Ensures:      empty for inherited and built-in values — an inherited value is
+ *               reported where it was declared, not on every descendant — and
+ *               for a template's inline style, which names its file instead.
+ */
+export function declarationLocator(doc: UxmlDocument): DeclarationLocator {
+  let written: Map<NodeId, ElementNode> | null = null;
+  const index = (node: ElementNode, into: Map<NodeId, ElementNode>): Map<NodeId, ElementNode> => {
+    if (typeof node.sourceDocument !== 'string') into.set(node.derived?.instance ?? node.id, node);
+    for (const child of node.children) index(child, into);
+    return into;
+  };
+  return (origin) => {
+    if (origin.kind === 'rule') {
+      const item = doc.sheets[origin.sheet]?.items[origin.item];
+      const decl = item?.kind === 'rule' ? item.rule.declarations[origin.declIndex] : undefined;
+      if (decl === undefined) return {};
+      return { at: { in: 'uss', sheet: origin.sheet, span: decl.span }, ...warningSource(doc, origin.sheet) };
+    }
+    if (origin.kind === 'inline') {
+      if (typeof origin.sourceDocument === 'string') return { sourceDocument: origin.sourceDocument };
+      written ??= index(doc.root, new Map());
+      const node = written.get(origin.node);
+      const decl = node === undefined ? undefined : inlineDeclarations(doc, node)[origin.declIndex];
+      return decl === undefined ? {} : { at: { in: 'uxml', span: decl.span } };
+    }
+    return {};
+  };
 }
 
 /**
@@ -702,6 +814,8 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
           kind: 'unsupported-property',
           message: `${property}: var() reference could not be resolved; declaration dropped`,
           node: nodeForWarnings,
+          reason: 'invalid-value',
+          subject: { kind: 'property', property, value: candidate.value },
         });
         continue;
       }
@@ -727,7 +841,33 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
    *               so inheritance flows owner -> parts -> children exactly as it
    *               does through Unity's real hierarchy.
    */
+  /** Inline declarations already judged, keyed by where they were written. */
+  const judgedInline = new Set<string>();
+  const judgeInline = (node: ElementNode): void => {
+    const written = node.derived?.instance ?? node.sourceNode ?? node.id;
+    const template = typeof node.sourceDocument === 'string' ? node.sourceDocument : null;
+    inlineDeclarations(doc, node).forEach((decl, declIndex) => {
+      const found = propertyWarning(decl.property, decl.value);
+      if (found === null) return;
+      // Two instances of one template share the declaration they came from.
+      const key = `${node.sourceDocument ?? ''}#${written}#${declIndex}`;
+      if (judgedInline.has(key)) return;
+      judgedInline.add(key);
+      warnings.push({
+        kind: 'unsupported-property',
+        ...found,
+        node: node.id,
+        // A span is only meaningful in the entry document's own text; a
+        // template's declaration names its file instead.
+        ...(template !== null
+          ? { sourceDocument: template }
+          : { at: { in: 'uxml' as const, span: decl.span } }),
+      });
+    });
+  };
+
   const visit = (node: ElementNode, inherited: ReadonlyMap<string, ComputedValue>): void => {
+    judgeInline(node);
     const self = computeFor({ kind: 'element', node }, inherited, node.id);
     styles.set(node.id, self.computed);
 
@@ -757,10 +897,8 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
   if (themeApplied) {
     warnings.push({
       kind: 'version-dependent',
-      message:
-        `Unity's control defaults were applied, as measured on ${THEME_UNITY_VERSION} ` +
-        '(Unity ships these as a theme stylesheet). Other versions may use different ' +
-        'values; see src/controls/theme.ts.',
+      message: `Built-in control defaults applied, as measured on Unity ${THEME_UNITY_VERSION}`,
+      reason: 'version-dependent',
     });
   }
 
@@ -776,11 +914,11 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
     warnings.push({
       kind: 'unsupported-selector',
       message:
-        `${fragments.join(', ')} matched nothing. Those names belong to the elements a ` +
-        'control builds for itself, and only controls with a renderer of their own have ' +
-        `them — ${supportedControlNames().join(', ')}. Anything else is drawn as a plain ` +
-        'box and has no parts to style.',
+        `${fragments.join(', ')} matched nothing; only ${supportedControlNames().join(', ')} ` +
+        'are drawn with the parts these names refer to',
       at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
+      reason: 'not-rendered',
+      subject: { kind: 'selector', selector: selectorText(doc, flat), fragment: fragments.join(', ') },
       ...warningSource(doc, flat.sheet),
     });
   }

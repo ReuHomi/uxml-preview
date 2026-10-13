@@ -25,12 +25,12 @@ stylesheet comes out wrong.</sub>
 npm install uxml-preview
 ```
 
-> **v0.5.0.** Five controls (`VisualElement`, `Label`, `Button`,
+> **v0.5.1.** Five controls (`VisualElement`, `Label`, `Button`,
 > `Image`, `ScrollView`), everything else drawn as a plain box with a warning,
 > and a support matrix that says plainly what has not been measured.
 > Read [what is not verified yet](#what-is-not-verified-yet) before relying on it.
 >
-> **v0.5.0.** 컨트롤 5종(`VisualElement`, `Label`, `Button`,
+> **v0.5.1.** 컨트롤 5종(`VisualElement`, `Label`, `Button`,
 > `Image`, `ScrollView`)이고, 나머지는 경고와 함께 일반 박스로 그립니다.
 > 검증되지 않은 부분은 지원 범위표에 그대로 적어뒀습니다. 쓰시기 전에
 > [아직 검증되지 않은 것](#아직-검증되지-않은-것)을 먼저 봐주세요.
@@ -124,7 +124,7 @@ Full plan: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 The support matrix is deliberately conservative — see
 [`docs/supported.en.md`](docs/supported.en.md) for the full table.
 
-- **Slots are not supported in v0.5.0.** They were measured alive in Unity
+- **Slots are not supported in v0.5.1.** They were measured alive in Unity
   6000.0.40f1; slot children are not placed and `template-slot-unsupported` is
   reported.
 - **A `style` AttributeOverride is not applied.** Unity ignores it during import,
@@ -406,7 +406,7 @@ Unity 6000.0.40f1에서 살아 있음을 실측했지만 이번 범위 밖이라
 지원 범위는 일부러 보수적으로 적었습니다. 전체 표는
 [`docs/supported.md`](docs/supported.md)에 있습니다.
 
-- **v0.5.0은 슬롯을 지원하지 않습니다.** Unity 6000.0.40f1에서 살아 있음을
+- **v0.5.1은 슬롯을 지원하지 않습니다.** Unity 6000.0.40f1에서 살아 있음을
   실측했지만 슬롯 자식은 배치하지 않고 `template-slot-unsupported`로 보고합니다
 - **`style` AttributeOverride는 적용하지 않습니다.** Unity가 import 과정에서
   무시하는 동작을 따르며, 그럴듯하지만 틀린 결과 대신

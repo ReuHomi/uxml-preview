@@ -13,7 +13,7 @@
  */
 
 import type { NodeId, Warning } from '../model/types';
-import type { ComputedStyle } from '../style/resolve';
+import type { ComputedStyle, DeclarationLocator } from '../style/resolve';
 import { decodeEntities } from '../parser/entities';
 import { parseLength } from './values';
 
@@ -28,44 +28,14 @@ export interface CssMapOptions {
    * file happens to sit alongside it — or resolves nothing at all.
    */
   resolveAsset?: ((path: string, form: 'url' | 'resource') => string | null) | undefined;
+  /** Points a value-level warning at the declaration it came from. */
+  locate?: DeclarationLocator | undefined;
 }
 
 export interface CssMapResult {
   declarations: Record<string, string>;
   warnings: Warning[];
 }
-
-/** Properties that exist in CSS but not in USS. Reported, never translated. */
-const NOT_IN_USS = new Set([
-  'box-shadow',
-  'filter',
-  'backdrop-filter',
-  'mix-blend-mode',
-  'background-blend-mode',
-  'clip-path',
-  'mask',
-  'outline',
-  'line-height',
-  'text-transform',
-  'text-decoration',
-  'z-index',
-  'float',
-  'clear',
-  'border-style',
-]);
-
-/** Supported by some Unity versions and not others. Passed through, and flagged. */
-const VERSION_DEPENDENT = new Set([
-  'gap',
-  'row-gap',
-  'column-gap',
-  'aspect-ratio',
-  'background-size',
-  'background-position',
-  'background-repeat',
-  'overflow-wrap',
-  'word-break',
-]);
 
 const SIDES = ['top', 'right', 'bottom', 'left'] as const;
 
@@ -149,23 +119,39 @@ export function toCss(
   const warnings: Warning[] = [];
   const value = (property: string): string | undefined => style.get(property)?.value;
 
-  const warn = (kind: Warning['kind'], message: string): void => {
-    warnings.push({ kind, message, node });
+  /**
+   * Value-level only. Whether a property is USS at all, or drawn at all, is
+   * judged once per declaration in the cascade (style/registry.ts), never here
+   * per element.
+   */
+  const warn = (
+    kind: Warning['kind'],
+    message: string,
+    detail: Pick<Warning, 'reason' | 'subject'> = {},
+  ): void => {
+    const property =
+      detail.subject?.kind === 'property'
+        ? detail.subject.property
+        : detail.subject?.kind === 'asset'
+          ? 'background-image'
+          : undefined;
+    const from = property === undefined ? undefined : style.get(property);
+    // Reported where it was declared, never again on each descendant.
+    if (from?.origin.kind === 'inherited') return;
+    warnings.push({
+      kind,
+      message,
+      node,
+      ...detail,
+      ...(from === undefined ? {} : (options.locate?.(from.origin) ?? {})),
+    });
   };
+  const about = (property: string, v = value(property)): Pick<Warning, 'subject'> => ({
+    subject: { kind: 'property', property, ...(v === undefined ? {} : { value: v }) },
+  });
 
   // USS sizes are always border-box, declaration or not.
   out['box-sizing'] = 'border-box';
-
-  for (const [property] of style) {
-    if (NOT_IN_USS.has(property)) {
-      warn('unsupported-property', `${property} does not exist in USS and is ignored`);
-    } else if (VERSION_DEPENDENT.has(property)) {
-      warn(
-        'version-dependent',
-        `${property} depends on the Unity version; verify it in your project`,
-      );
-    }
-  }
 
   const passthrough = [
     'background-color',
@@ -199,6 +185,7 @@ export function toCss(
         warn(
           'unsupported-property',
           `border-${side}-width: ${problem ?? `"${width}" is not a pixel length`}; ignored`,
+          { reason: 'invalid-value', ...about(`border-${side}-width`) },
         );
       } else {
         out[`border-${side}-width`] = `${length.value}px`;
@@ -227,7 +214,10 @@ export function toCss(
   if (fontStyle !== undefined) {
     const mapped = FONT_STYLE[fontStyle];
     if (mapped === undefined) {
-      warn('unsupported-property', `-unity-font-style: ${fontStyle} is not a USS value`);
+      warn('unsupported-property', `-unity-font-style: "${fontStyle}" ignored`, {
+        reason: 'invalid-value',
+        ...about('-unity-font-style'),
+      });
     } else {
       out['font-weight'] = mapped.weight;
       out['font-style'] = mapped.style;
@@ -241,7 +231,10 @@ export function toCss(
     const alignItems = VERTICAL[vertical ?? ''];
     const justify = HORIZONTAL[horizontal ?? ''];
     if (alignItems === undefined || justify === undefined) {
-      warn('unsupported-property', `-unity-text-align: ${align} is not a USS value`);
+      warn('unsupported-property', `-unity-text-align: "${align}" ignored`, {
+        reason: 'invalid-value',
+        ...about('-unity-text-align'),
+      });
     } else {
       out['align-items'] = alignItems;
       out['justify-content'] = justify;
@@ -261,7 +254,15 @@ export function toCss(
   if (image !== undefined && image !== 'none') {
     const asset = assetPath(image);
     if (asset === null) {
-      warn('asset-unresolved', `background-image: cannot read "${image}" as an asset path`);
+      // Not an asset this host failed to find — `linear-gradient()` and the
+      // like are not asset references at all, so asset-unresolved would send
+      // the host looking for a file that does not exist. Gradients are a
+      // candidate to become version-dependent once a Unity reference lists
+      // them; see the note above CSS_REPLACEMENTS in style/registry.ts.
+      warn('unsupported-property', `background-image: "${image}" is not an asset reference; ignored`, {
+        reason: 'not-uss',
+        ...about('background-image'),
+      });
     } else {
       const { form, path } = asset;
       const url = options.resolveAsset?.(path, form) ?? null;
@@ -271,44 +272,32 @@ export function toCss(
         out['background-image'] =
           'repeating-linear-gradient(45deg, rgba(255,0,255,0.35) 0 6px, ' +
           'rgba(0,0,0,0) 6px 12px)';
-        warn('asset-unresolved', `background-image: "${path}" was not resolved`);
+        warn('asset-unresolved', `background-image: "${path}" was not resolved`, {
+          subject: { kind: 'asset', path, form },
+        });
       } else {
         out['background-image'] = `url("${url}")`;
         out['background-repeat'] = value('background-repeat') ?? 'no-repeat';
         out['background-position'] = value('background-position') ?? 'center';
 
-        // `background-size` is the CSS name and exists in some Unity versions;
-        // `-unity-background-scale-mode` is the USS one. An author who wrote the
-        // CSS name meant it, so it wins over the mode we derive.
+        // `background-size` is a USS property since 6000.0 (Unity's reference
+        // table), and `-unity-background-scale-mode` the older spelling of the
+        // same idea. An explicit size wins over the mode we derive; which one
+        // Unity lets win when both are written is unmeasured.
         const declared = value('background-size');
         const mode = value('-unity-background-scale-mode') ?? DEFAULT_SCALE_MODE;
         const mapped = SCALE_MODE[mode];
         if (mapped === undefined) {
           warn(
             'unsupported-property',
-            `-unity-background-scale-mode: ${mode} is not a USS value; ` +
+            `-unity-background-scale-mode: "${mode}" ignored; ` +
               `expected one of ${Object.keys(SCALE_MODE).join(', ')}`,
+            { reason: 'invalid-value', ...about('-unity-background-scale-mode', mode) },
           );
         }
         out['background-size'] = declared ?? mapped ?? SCALE_MODE[DEFAULT_SCALE_MODE]!;
       }
     }
-  }
-
-  if (value('-unity-background-image-tint-color') !== undefined) {
-    warn(
-      'unsupported-property',
-      '-unity-background-image-tint-color has no CSS equivalent and is not drawn',
-    );
-  }
-  if (SIDES.some((s) => value(`-unity-slice-${s}`) !== undefined)) {
-    warn('unsupported-property', '-unity-slice-* (9-slice) is not drawn in this preview');
-  }
-  if (value('-unity-font-definition') !== undefined) {
-    warn(
-      'unsupported-property',
-      '-unity-font-definition names a Unity font asset; the browser default is used',
-    );
   }
 
   return { declarations: out, warnings };

@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <!-- space-around: a 0-height sibling changes where nv-a / nv-b land.
+       Bindings absent from layout: nv-a y=20, nv-b y=80.
+       Bindings a 0-height VisualElement: nv-a y=13.33, nv-b y=86.67. -->
+  <ui:VisualElement name="nv-root" style="width: 200px; height: 120px; justify-content: space-around;">
+    <ui:VisualElement name="nv-a" style="height: 20px;" />
+    <Bindings>
+      <ui:DataBinding property="style.opacity" data-source-path="opacity" binding-mode="ToTarget" />
+    </Bindings>
+    <ui:VisualElement name="nv-b" style="height: 20px;" />
+  </ui:VisualElement>
+  <ui:Label name="nv-label" text="Label with binding" style="position: absolute; left: 0; top: 150px;">
+    <Bindings>
+      <ui:DataBinding property="text" data-source-path="title" binding-mode="ToTarget" />
+    </Bindings>
+  </ui:Label>
+</ui:UXML>

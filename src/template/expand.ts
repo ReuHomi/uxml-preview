@@ -9,6 +9,7 @@
  * need to avoid a cache miss during render.
  */
 
+import { isNonVisual } from '../controls/registry';
 import { decodeEntities } from '../parser/entities';
 import { parseUxml } from '../parser/uxml';
 import type {
@@ -63,7 +64,16 @@ export interface TemplateExpansion {
   warnings: readonly Warning[];
 }
 
-const MAX_TEMPLATE_DEPTH = 32;
+/**
+ * How deeply `<ui:Instance>` may nest before expansion stops with
+ * `template-depth-exceeded`.
+ *
+ * Exported so a host that prefetches template files can walk exactly as deep
+ * as the core will expand, instead of copying the number and drifting (the
+ * VS Code extension's prefetch used 16 while the core went to 32). Not a
+ * Unity limit — a bound on this renderer's work.
+ */
+export const TEMPLATE_DEPTH_LIMIT = 32;
 
 interface TemplateDeclaration {
   name: string;
@@ -134,12 +144,14 @@ function addWarning(
   message: string,
   node?: ElementNode,
   sourceDocument?: string,
+  detail: Pick<Warning, 'reason' | 'subject'> = {},
 ): void {
   warnings.push({
     kind,
     message,
     ...(node === undefined ? {} : { node: node.id }),
     ...(sourceDocument === undefined ? {} : { sourceDocument }),
+    ...detail,
   });
 }
 
@@ -291,11 +303,12 @@ function reportSlots(
     }; children not placed: ${children.length === 0 ? '(none)' : descriptors(children).join(', ')}`,
     instance,
     sourceDocument,
+    { reason: 'not-rendered' },
   );
 }
 
 function collectNames(node: ElementNode, names: Map<string, number>): void {
-  if (node.name.local !== 'Style' && node.name.local !== 'Template' && node.name.local !== 'AttributeOverrides') {
+  if (!isNonVisual(node)) {
     const name = decodedAttribute(node, 'name');
     if (name !== undefined && name.length > 0) names.set(name, (names.get(name) ?? 0) + 1);
   }
@@ -324,9 +337,13 @@ function applyOverrides(
       addWarning(
         context.warnings,
         'override-style-ignored',
-        `AttributeOverrides style for element-name "${requested ?? '(missing)'}" was ignored with value "${ignoredStyle}"; Unity ignores style AttributeOverrides, so this matches Unity and is not a preview limitation.`,
+        `AttributeOverrides style for element-name "${requested ?? '(missing)'}" was ignored with value "${ignoredStyle}"`,
         override,
         sourceDocument ?? undefined,
+        {
+          reason: 'matches-unity',
+          ...(requested === undefined ? {} : { subject: { kind: 'name', name: requested } }),
+        },
       );
     }
     if (requested === undefined || requested.length === 0) continue;
@@ -342,6 +359,7 @@ function applyOverrides(
         }`,
         override,
         sourceDocument ?? undefined,
+        { reason: 'invalid-value', subject: { kind: 'name', name: requested } },
       );
       continue;
     }
@@ -407,6 +425,7 @@ function loadTemplate(
       }; attempted resolveImport("${declaration.src}", ${from === null ? 'null' : `"${from}"`}); internal filesystem search paths: none`,
       declaration.node,
       from ?? undefined,
+      { subject: { kind: 'import', url: declaration.src, from } },
     );
     if (packagePath(declaration.src)) {
       addWarning(
@@ -415,6 +434,7 @@ function loadTemplate(
         `Template src "${declaration.src}" was unresolved; the resolver returned no source and the core does not independently search Unity Packages/Library/PackageCache paths`,
         declaration.node,
         from ?? undefined,
+        { reason: 'not-rendered', subject: { kind: 'import', url: declaration.src, from } },
       );
     }
     return null;
@@ -579,6 +599,10 @@ function expandInstance(
       `Instance${templateName === undefined ? '' : ` template "${templateName}"`} has no matching Template declaration`,
       instance,
       sourceDocument,
+      {
+        reason: 'invalid-value',
+        ...(templateName === undefined ? {} : { subject: { kind: 'name', name: templateName } }),
+      },
     );
     return container;
   }
@@ -601,20 +625,22 @@ function expandInstance(
       `Template cycle detected: ${path}`,
       instance,
       sourceDocument,
+      { reason: 'invalid-value' },
     );
     return container;
   }
-  if (depth >= MAX_TEMPLATE_DEPTH) {
+  if (depth >= TEMPLATE_DEPTH_LIMIT) {
     reportSlots(instance, slotChildren, null, sourceDocument, context);
     addWarning(
       context.warnings,
       'template-depth-exceeded',
-      `Template expansion exceeded the depth limit ${MAX_TEMPLATE_DEPTH}: ${[
+      `Template expansion exceeded the depth limit ${TEMPLATE_DEPTH_LIMIT}: ${[
         ...context.stack,
         pathEntry,
       ].map((entry) => entry.label).join(' -> ')}`,
       instance,
       sourceDocument,
+      { reason: 'not-rendered' },
     );
     return container;
   }
@@ -710,6 +736,9 @@ export function expandTemplates(document: UxmlDocument): TemplateExpansion {
         context.warnings,
         'duplicate-name-in-tree',
         `name "${name}" occurs ${count} times after template expansion`,
+        undefined,
+        undefined,
+        { reason: 'matches-unity', subject: { kind: 'name', name } },
       );
     }
   }

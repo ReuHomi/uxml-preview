@@ -55,6 +55,27 @@ function round(value: number): number {
   return Math.round(value * 10) / 10;
 }
 
+/** How a case's `files` answer `resolveImport`, the way Unity's paths resolve. */
+export function caseResolver(
+  files: Readonly<Record<string, string>>,
+): (url: string, from: string | null) => string | null {
+  return (url, from) => {
+    const projectPath = url.startsWith(PROJECT_DATABASE)
+      ? url.slice(PROJECT_DATABASE.length)
+      : url.startsWith('/')
+        ? url.slice(1)
+        : null;
+    const path = projectPath?.startsWith(CASE_ASSETS)
+      ? projectPath.slice(CASE_ASSETS.length)
+      : projectPath !== null
+        ? projectPath
+      : from === null
+        ? url
+        : posix.join(posix.dirname(from), url);
+    return files[path] ?? null;
+  };
+}
+
 /**
  * Purpose:      lay a case out and return its geometry by element name.
  * Deps/Effects: allocates Yoga nodes and frees them before returning.
@@ -67,25 +88,7 @@ export function runCase(
   const parsed = parse(
     golden.uxml,
     golden.uss,
-    golden.files === undefined
-      ? undefined
-      : {
-          resolveImport: (url, from) => {
-            const projectPath = url.startsWith(PROJECT_DATABASE)
-              ? url.slice(PROJECT_DATABASE.length)
-              : url.startsWith('/')
-                ? url.slice(1)
-                : null;
-            const path = projectPath?.startsWith(CASE_ASSETS)
-              ? projectPath.slice(CASE_ASSETS.length)
-              : projectPath !== null
-                ? projectPath
-              : from === null
-                ? url
-                : posix.join(posix.dirname(from), url);
-            return golden.files?.[path] ?? null;
-          },
-        },
+    golden.files === undefined ? undefined : { resolveImport: caseResolver(golden.files) },
   );
   const expansion = expandTemplates(parsed);
   const doc = expansion.document;

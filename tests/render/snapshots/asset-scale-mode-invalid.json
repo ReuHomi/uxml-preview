@@ -11,6 +11,6 @@
     }
   },
   "warnings": [
-    "unsupported-property: -unity-background-scale-mode: cover is not a USS value; expected one of stretch-to-fill, scale-and-crop, scale-to-fit"
+    "unsupported-property: -unity-background-scale-mode: \"cover\" ignored; expected one of stretch-to-fill, scale-and-crop, scale-to-fit"
   ]
 }

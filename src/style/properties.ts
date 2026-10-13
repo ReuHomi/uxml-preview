@@ -7,28 +7,17 @@
  * first.
  */
 
+import { USS_PROPERTIES } from './registry';
+
 /**
  * Properties a child picks up from its parent when it declares nothing itself.
  *
- * Version-dependent. UI Toolkit has widened this list across releases, so treat
- * it as the one place to correct rather than something to rediscover in the
- * renderer. Anything absent here simply does not inherit.
+ * Unity's "Inherited" column, read from the registry rather than kept here: a
+ * hand-kept copy had lost `text-shadow` and four others. Properties added in a
+ * later Unity version inherit regardless of which version the author targets —
+ * the preview cannot know, and none of them is drawn.
  */
-const INHERITED = new Set([
-  'color',
-  'font-size',
-  'letter-spacing',
-  'word-spacing',
-  'visibility',
-  'white-space',
-  '-unity-font',
-  '-unity-font-definition',
-  '-unity-font-style',
-  '-unity-paragraph-spacing',
-  '-unity-text-align',
-  '-unity-text-outline-color',
-  '-unity-text-outline-width',
-]);
+const INHERITED = new Set(USS_PROPERTIES.filter((p) => p.inherited).map((p) => p.name));
 
 export function isInherited(property: string): boolean {
   // Custom properties inherit, which is what makes the design-token pattern

@@ -1,0 +1,25 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Resources/UI/MessageBox/MessageBox.uss?fileID=7433441132597879392&amp;guid=a618b323ea6bad749a35460388fc452a&amp;type=3#MessageBox" />
+    <ui:VisualElement name="Background" style="width: 100%; height: 100%; position: absolute; left: 0; top: 0; background-color: rgba(0, 0, 0, 0.65);">
+        <ui:VisualElement name="MessageBox" style="height: 600px; width: 700px; min-width: 400px; background-color: rgba(0, 0, 0, 0); position: absolute; left: 10px; top: 10px; visibility: visible;">
+            <ui:VisualElement name="CaptionPanel" style="width: 100%; height: 10%; flex-direction: row; padding-bottom: 2px;">
+                <ui:Label name="CaptionLabel" text="Caption Text" class="messageBoxCaption" />
+                <ui:Button display-tooltip-when-elided="true" name="CloseButton" style="width: 10%; height: 100%; background-color: rgba(88, 88, 88, 0); background-image: url(&apos;project://database/Assets/Sprites/Kenney/UI%20Base%20Pack/PNG/red_button04.png?fileID=21300000&amp;guid=4611df19bbb95be438e64066fa72336a&amp;type=3#red_button04&apos;); margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; -unity-slice-left: 4; -unity-slice-top: 4; -unity-slice-right: 4; -unity-slice-bottom: 7; align-items: center; justify-content: center;">
+                    <ui:VisualElement name="CloseIcon" style="width: 40px; height: 40px; margin-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; background-image: url(&apos;project://database/Assets/Sprites/Kenney/UI%20Base%20Pack/PNG/red_boxCross.png?fileID=21300000&amp;guid=a84b8b82edd3ab24f944bd8a6ad686da&amp;type=3#red_boxCross&apos;); -unity-slice-left: 6; -unity-slice-top: 5; -unity-slice-right: 6; -unity-slice-bottom: 5;" />
+                </ui:Button>
+            </ui:VisualElement>
+            <ui:VisualElement name="ContentPanel" style="width: 100%; height: 90%; background-color: rgba(0, 0, 0, 0); background-image: url(&apos;project://database/Assets/Sprites/Kenney/UI%20Base%20Pack/PNG/blue_panel.png?fileID=21300000&amp;guid=301d8fb6fc2a4bc4693e54cfe3183ced&amp;type=3#blue_panel&apos;); -unity-slice-left: 17; -unity-slice-top: 17; -unity-slice-right: 17; -unity-slice-bottom: 28;">
+                <ui:VisualElement name="Upper" style="width: 100%; height: 85%; flex-direction: row; padding-left: 5%; padding-right: 5%; padding-top: 5%; padding-bottom: 3%;">
+                    <ui:VisualElement name="IconPanel" style="width: 10%; height: 100%; align-items: center; justify-content: center;">
+                        <ui:VisualElement name="Icon" style="background-image: url(&apos;project://database/Assets/Sprites/Kenney/exclamation.png?fileID=21300000&amp;guid=280c9c4d95465894f891a7b62764c2af&amp;type=3#exclamation&apos;); width: 50px; height: 50px;" />
+                    </ui:VisualElement>
+                    <ui:Label text="Message Text" display-tooltip-when-elided="true" name="TextLabel" class="messageBoxText" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Lower" style="width: 100%; height: 15%; flex-direction: row; justify-content: flex-end; padding-right: 1%; padding-bottom: 1%; padding-top: 1%;">
+                    <ui:Button text="Ok" display-tooltip-when-elided="true" name="OkButton" class="messageBoxButton" />
+                    <ui:Button text="Cancel" display-tooltip-when-elided="true" name="CancelButton" class="messageBoxButton" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

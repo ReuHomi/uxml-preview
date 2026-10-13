@@ -10,7 +10,5 @@
       "box-sizing": "border-box"
     }
   },
-  "warnings": [
-    "version-dependent: background-size depends on the Unity version; verify it in your project"
-  ]
+  "warnings": []
 }

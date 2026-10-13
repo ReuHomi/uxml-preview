@@ -5,8 +5,8 @@
     }
   },
   "warnings": [
-    "version-dependent: gap depends on the Unity version; verify it in your project",
-    "version-dependent: aspect-ratio depends on the Unity version; verify it in your project",
-    "version-dependent: word-break depends on the Unity version; verify it in your project"
+    "unsupported-property: gap: not in the USS property reference up to Unity 6.6; ignored",
+    "unsupported-property: aspect-ratio (Unity 6.3+): not applied to layout by this preview",
+    "unsupported-property: word-break: not in the USS property reference up to Unity 6.6; ignored"
   ]
 }

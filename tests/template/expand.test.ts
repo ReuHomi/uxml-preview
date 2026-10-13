@@ -272,8 +272,9 @@ describe('render-only template expansion', () => {
     const warning = expanded.warnings.find((item) => String(item.kind) === 'override-style-ignored');
     expect(warning?.message).toContain('element-name "title"');
     expect(warning?.message).toContain('color: rgb(220, 30, 30);');
-    expect(warning?.message).toContain('Unity ignores style AttributeOverrides');
-    expect(warning?.message).toContain('not a preview limitation');
+    // Unity ignores it too, so it is not a preview limitation — said by the
+    // reason rather than in prose.
+    expect(warning?.reason).toBe('matches-unity');
   });
 
   it('omits slot children and emits a diagnostic with definitions and descriptors', () => {

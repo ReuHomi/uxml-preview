@@ -260,6 +260,79 @@ export type WarningKind =
 export type WarningKindMap<T> = { [K in WarningKind]: T };
 
 /**
+ * Why a support warning was raised — what a consumer acts on instead of the
+ * message text.
+ *
+ *   - `not-uss`           the author wrote something USS does not have
+ *   - `not-rendered`      valid USS/UXML this preview does not draw or apply
+ *   - `invalid-value`     a valid name with a value or target that cannot work
+ *   - `version-dependent` the result depends on the Unity version
+ *   - `matches-unity`     ignored, and Unity ignores it too; not a defect
+ *
+ * **An open set.** New reasons may be added in a minor release, so a consumer
+ * must give unknown values a default branch rather than an exhaustive switch.
+ * Absent when none applies, e.g. malformed text or a file the host could not
+ * resolve.
+ */
+export type WarningReason =
+  | 'not-uss'
+  | 'not-rendered'
+  | 'invalid-value'
+  | 'version-dependent'
+  | 'matches-unity';
+
+/**
+ * What a warning is about, as data, so a consumer never has to parse it back
+ * out of `message`.
+ *
+ * **An open set**, like `WarningReason`: new variants may be added in a minor
+ * release, so switch on `kind` with a default branch.
+ */
+export type WarningSubject =
+  | {
+      kind: 'property';
+      property: string;
+      /** As written, before `var()` substitution where the warning is about the declaration. */
+      value?: string;
+      /** First Unity version whose USS reference lists the property, e.g. `"6000.3"`. */
+      since?: string;
+      /** USS properties to write instead, for a CSS name USS spells differently. */
+      replacements?: readonly string[];
+      /**
+       * On a `not-rendered` warning: whether the property can change a box's size
+       * or position in Unity. When true, this preview's coordinates may differ
+       * from Unity's — do not treat a coordinate-based finding (zero size,
+       * overflow) as settled.
+       */
+      affectsLayout?: boolean;
+      /**
+       * On a `not-rendered` warning: the part this preview did apply, when it
+       * applied some. `'paint'` means drawn, but not laid out as Unity would —
+       * `letter-spacing` is drawn and left out of text measurement.
+       */
+      applied?: 'paint';
+    }
+  | {
+      kind: 'selector';
+      /** The selector text as written. */
+      selector: string;
+      /** The part of it the warning is about, when narrower than the whole. */
+      fragment?: string;
+    }
+  | { kind: 'states-key'; key: string }
+  | { kind: 'asset'; path: string; form: 'url' | 'resource' }
+  | {
+      kind: 'import';
+      /** Exactly the string the resolver hook was (or would have been) called with. */
+      url: string;
+      from: string | null;
+    }
+  | { kind: 'control'; type: string }
+  | { kind: 'name'; name: string }
+  /** An at-rule block, without the `@`. */
+  | { kind: 'at-rule'; name: string };
+
+/**
  * Never a thrown error. One unsupported property must not take down the render
  * (see CLAUDE.md rule 6).
  *
@@ -268,6 +341,10 @@ export type WarningKindMap<T> = { [K in WarningKind]: T };
  */
 export interface Warning {
   kind: WarningKind;
+  /**
+   * For people. Read `reason` and `subject` instead; the text may be
+   * reworded in any release.
+   */
   message: string;
   /** Document URL for a warning originating outside the entry UXML. */
   sourceDocument?: string | null;
@@ -275,6 +352,8 @@ export interface Warning {
   at?: SourceRef;
   /** Element the warning is about, when it has one. Lets the UI highlight it. */
   node?: NodeId;
+  reason?: WarningReason;
+  subject?: WarningSubject;
 }
 
 // ---------------------------------------------------------------------------

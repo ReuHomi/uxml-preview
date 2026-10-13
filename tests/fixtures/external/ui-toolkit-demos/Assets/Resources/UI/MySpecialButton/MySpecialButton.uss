@@ -1,0 +1,44 @@
+.rotate-button {
+    background-color: rgba(0, 0, 0, 0);
+    background-image: url('project://database/Assets/Sprites/Kenney/return_flipped.png?fileID=2800000&guid=4bfd8678db860634aa3b17314f75ce2e&type=3#return_flipped');
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    position: absolute;
+    flex-grow: 1;
+    left: 83%; 
+    bottom: 83%; 
+    top: 3%; 
+    right: 3%;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
+#RotateButton:hover {
+    -unity-background-image-tint-color: rgb(33, 15, 255);
+}
+
+.my-special-button {
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.content-container {
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+}

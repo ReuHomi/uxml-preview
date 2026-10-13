@@ -1,5 +1,106 @@
 # Changelog
 
+## 0.5.1 — 2026-10-13
+
+A cleanup release: nothing drawn changes except where a Unity dump said it was
+wrong, and things that used to be dropped without a word are now said.
+
+### Behavior changes
+
+- **More warnings.** Raised where there used to be silence: undocumented property
+  names, documented properties this preview does not draw, state pseudo-classes
+  Unity's pseudo-class page does not list (`:selected`, `:first-child`, made-up names), `@media` and
+  `@keyframes` blocks, and `display` values other than `flex`/`none`. A screen
+  that passed silently in 0.5.0 may now list warnings; it is drawn the same.
+- **`reason` and `subject` on `Warning`.** Both optional, both **open sets** —
+  give unknown values a `default` branch. `WarningKind` does not grow and no
+  field was removed. See "For consumers" below.
+- **`engines.node` is `>=22`** (was `>=18`). CI and Pages already ran on 22.
+- A `background-image` that is not an asset reference (`linear-gradient()`)
+  is `unsupported-property` with `reason: 'not-uss'`, no longer
+  `asset-unresolved`, so a host stops looking for a file that cannot exist.
+- Warning text says what the renderer did; facts about Unity moved to
+  `reason`/`subject`. No message points at a source file any more.
+  `:root` keeps `kind: 'version-dependent'` but has `reason: 'matches-unity'`.
+
+- **Every USS property now has one handling path.** Whether a property exists,
+  inherits and is drawn is read from a registry transcribed from Unity's USS
+  property reference (95/99/102 rows for 6000.0/6.3/6.6, checked 2026-10-13).
+  New `unsupported-property` warnings where there used to be silence:
+  - 24 documented properties this preview does not draw (`text-shadow`,
+    `transition*`, `-unity-text-outline*`, `-unity-font`, `all`, ...) —
+    `reason: 'not-rendered'`; properties newer than 6000.0 say so
+    (`filter (Unity 6.3+)`).
+  - any name Unity does not document (`font-family`, `colour`, `transform`,
+    `-unity-foo`, ...) — `reason: 'not-uss'`, with the USS properties to
+    write instead in `subject.replacements` for eleven common CSS names.
+- **Corrected warnings.** `filter`/`backdrop-filter` are USS since 6.3/6.6
+  and are reported as not drawn rather than as non-USS. `gap`, `row-gap`,
+  `column-gap`, `overflow-wrap` and `word-break` are in no Unity USS reference
+  table up to 6.6 and are reported as not USS rather than version-dependent.
+  The reference version is Unity 6.3 LTS; Unity 6.7 (beta) adds some of these
+  and is not supported in this release.
+  `background-size`/`-position`/`-repeat` are in 6000.0 and no longer warn.
+  `aspect-ratio` is reported as a 6.3+ property this preview does not lay out.
+- **`<Bindings>` and `<ui:Columns>` are no longer laid out.** The only
+  change in this release that moves anything drawn, and it moves it to where
+  Unity puts it: dumps on 6000.0.40f1 and 6000.3.25f1 show neither element in
+  the visual hierarchy, while the preview drew each as a zero-height box that
+  shifted `space-between`/`space-around` siblings. Their two
+  `unsupported-control` warnings are replaced by one notice per document
+  that data bindings are not evaluated (`reason: 'not-rendered'`). A
+  `<ui:Column>`'s name still counts toward `duplicate-name-in-tree`, because
+  Unity gives it to the header column it builds.
+- **One warning per declaration.** Property warnings are raised once where
+  the declaration is written, with `at` — including in rules that match
+  nothing — instead of once per element the value reached. An inherited
+  value is never reported again on descendants. Value-level warnings
+  (`width: 2em`, an unresolved image) also collapse to one per declaration.
+  A consumer counting occurrences will count fewer.
+- Inheritance now follows Unity's USS reference table. Five properties that
+  Unity marks inherited and this package did not now inherit:
+  `text-shadow`, `-unity-editor-text-rendering-mode`, `-unity-text-generator`,
+  `-unity-material` (6.3+) and `-unity-text-auto-size` (6.3+).
+  `isInherited()` returns `true` for them, and `resolveStyles()` hands them to
+  descendants with an `inherited` origin. Nothing drawn changes: none of the
+  five is drawn by this preview.
+
+### Added
+
+- `WarningReason`, `WarningSubject` types.
+- `USS_STATES` (and `UssState`): the seven states Unity sets, from Unity's
+  pseudo-class page — without `:root` and `:selected`.
+- `TEMPLATE_DEPTH_LIMIT` (32): how deep template expansion goes, for hosts
+  that prefetch template files.
+
+### For consumers
+
+- **Read `subject`, not the message.** The failed URL is `subject.url`, the
+  asset path `subject.path` (with `form`), a refused states key `subject.key`,
+  a property `subject.property`/`value`. Seven message texts consumers match
+  on today are kept byte for byte in this release, but are not an API.
+- **Use `reason` to separate the author's mistakes from the tool's limits.**
+  `not-uss` and `invalid-value` are the author's; `not-rendered` is this
+  preview's; `version-dependent` needs checking; `matches-unity` is not a
+  defect. Failing a screen on every `unsupported-property` would now fail
+  valid USS this preview merely does not draw.
+- **A `not-rendered` warning with `subject.affectsLayout: true` means this
+  preview's coordinates may differ from Unity's.** In that case, do not treat
+  a coordinate-based finding (zero size, overflow) as settled. `affectsLayout`
+  comes from a new registry column judging what each property can do in Unity
+  (box or pixels), kept apart from what this preview does with it.
+  `subject.applied: 'paint'` marks a property drawn here but not laid out as
+  Unity would (`letter-spacing`, `word-spacing`: drawn, left out of text
+  measurement), which now raises a `not-rendered` warning of its own.
+- Replace copied constants with `USS_STATES` and `TEMPLATE_DEPTH_LIMIT`.
+
+### Deferred to 0.6.0
+
+`:enabled` applied automatically, `states` key warnings, the unused
+`unsupported-unit` kind, and value-level checks (`hsl()`, `cubic-bezier()`,
+`space-evenly`, `linear-gradient()` per Unity version, USS-only `cursor`
+values). Listed in `docs/backlog.md`.
+
 ## 0.5.0 — 2026-08-26
 
 ### Known limitations
