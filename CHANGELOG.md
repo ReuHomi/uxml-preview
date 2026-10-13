@@ -9,7 +9,7 @@ wrong, and things that used to be dropped without a word are now said.
 
 - **More warnings.** Raised where there used to be silence: undocumented property
   names, documented properties this preview does not draw, state pseudo-classes
-  Unity never sets (`:selected`, `:first-child`, made-up names), `@media` and
+  Unity's pseudo-class page does not list (`:selected`, `:first-child`, made-up names), `@media` and
   `@keyframes` blocks, and `display` values other than `flex`/`none`. A screen
   that passed silently in 0.5.0 may now list warnings; it is drawn the same.
 - **`reason` and `subject` on `Warning`.** Both optional, both **open sets** —
@@ -36,8 +36,10 @@ wrong, and things that used to be dropped without a word are now said.
     write instead in `subject.replacements` for eleven common CSS names.
 - **Corrected warnings.** `filter`/`backdrop-filter` are USS since 6.3/6.6
   and are reported as not drawn rather than as non-USS. `gap`, `row-gap`,
-  `column-gap`, `overflow-wrap` and `word-break` are in no Unity version
-  and are reported as not USS rather than version-dependent.
+  `column-gap`, `overflow-wrap` and `word-break` are in no Unity USS reference
+  table up to 6.6 and are reported as not USS rather than version-dependent.
+  The reference version is Unity 6.3 LTS; Unity 6.7 (beta) adds some of these
+  and is not supported in this release.
   `background-size`/`-position`/`-repeat` are in 6000.0 and no longer warn.
   `aspect-ratio` is reported as a 6.3+ property this preview does not lay out.
 - **`<Bindings>` and `<ui:Columns>` are no longer laid out.** The only

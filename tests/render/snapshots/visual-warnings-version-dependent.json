@@ -5,8 +5,8 @@
     }
   },
   "warnings": [
-    "unsupported-property: gap: not a USS property; ignored",
+    "unsupported-property: gap: not in the USS property reference up to Unity 6.6; ignored",
     "unsupported-property: aspect-ratio (Unity 6.3+): not applied to layout by this preview",
-    "unsupported-property: word-break: not a USS property; ignored"
+    "unsupported-property: word-break: not in the USS property reference up to Unity 6.6; ignored"
   ]
 }

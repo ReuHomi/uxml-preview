@@ -34,7 +34,7 @@ CSS는 `row`, USS는 `column`입니다. 아무 경고도 없습니다.
 
 ![flex-direction: row를 지우면 버튼이 세로로 쌓인다](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/demo-flex-direction.gif)
 
-### 2. `z-index`가 없다
+### 2. `z-index`가 없다 (Unity 6.6까지)
 
 겹침은 문서 순서로 정해집니다. **뒤에 오는 형제가 위에 그려지고**, 이걸 뒤집는
 속성이 없습니다.
@@ -120,7 +120,9 @@ CSS에서 `content-box`에 기대고 있던 곳이 있다면, **그 박스들이
 
 ## 아예 없는 속성
 
-이름이 바뀐 게 아니라 없습니다. 써도 아무 일도 일어나지 않습니다.
+이름이 바뀐 게 아니라 Unity 6.6까지의 USS 참조표에 없습니다. 써도 아무 일도
+일어나지 않습니다. (베타인 Unity 6.7은 `gap`, `z-index`, grid, 애니메이션 속성을 더합니다.
+이 문서는 Unity 6.3 LTS를 기준으로 합니다.)
 
 `box-shadow` · `gap` · `row-gap` · `column-gap` · `overflow-wrap` · `word-break` ·
 `mix-blend-mode` · `clip-path` · `mask` · `outline` · `line-height` ·
@@ -131,7 +133,7 @@ CSS에서 `content-box`에 기대고 있던 곳이 있다면, **그 박스들이
 USS에 있습니다 — 이 미리보기가 그리지 않을 뿐입니다.
 
 `display`는 `flex`와 `none`만 받습니다. `block`도 `inline`도 없고,
-**`grid`도 없습니다** — 그리드 레이아웃은 중첩 flex로 다시 짜야 합니다.
+**`grid`도 없습니다**(Unity 6.6까지) — 그리드 레이아웃은 중첩 flex로 다시 짜야 합니다.
 
 `overflow: auto`와 `scroll`은 설정하는 속성이 아닙니다. 스크롤은 `ScrollView`라는
 **별도 요소**라서, 스크롤 영역을 만들려면 마크업을 바꿔야 합니다.
@@ -183,7 +185,7 @@ pseudo-class: `:hover`, `:active`, `:inactive`, `:focus`, `:disabled`,
 
 ## 애니메이션
 
-**`@keyframes`가 없습니다. 트랜지션만 있습니다.**
+**`@keyframes`가 없습니다(Unity 6.6까지). 트랜지션만 있습니다.**
 
 이 한 문장이 대부분을 결정합니다 — *상태 A에서 B로의 전환*은 되고,
 *혼자 계속 움직이는 것*은 안 됩니다.

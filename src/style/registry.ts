@@ -6,7 +6,7 @@
  * and a hand-kept list per concern (inherited, unsupported, version-dependent)
  * had already drifted three ways: `text-shadow` missing from inheritance,
  * `filter` reported as non-USS after 6.3 added it, `gap` reported as
- * version-dependent although no version has it.
+ * version-dependent although no reference table up to 6.6 has it.
  *
  * Source (checked 2026-10-13, see `USS_PROPERTY_SOURCE`):
  *   https://docs.unity.com/en-us/engine/6000.0/manual/uitoolkits/uielements/uie-uss/properties/reference  (95 rows)
@@ -235,7 +235,7 @@ export function ussProperty(name: string): UssProperty | undefined {
  * Chosen, not exhaustive. The first six are the renamed rows of CLAUDE.md's
  * "이름이 다른 속성" table and docs/uss-reference.md; the rest are CSS
  * shorthands or per-axis splits whose every part USS has under another name.
- * A CSS property with no USS counterpart (`z-index`, `box-shadow`, `gap`) is
+ * A CSS property with no USS counterpart up to Unity 6.6 (`z-index`, `box-shadow`, `gap`) is
  * deliberately absent — offering a replacement there would invent one.
  */
 export const CSS_REPLACEMENTS: Readonly<Record<string, readonly string[]>> = {
@@ -283,6 +283,13 @@ const NOT_RENDERED_TEXT: Readonly<Record<string, string>> = {
   '-unity-animation-clip': 'not animated by this preview',
 };
 
+/**
+ * The newest table the registry holds, which bounds every "not USS" verdict.
+ * The reference version for support is Unity 6.3 LTS; 6.7 is in beta and
+ * deliberately not transcribed (docs/backlog.md, "6.7 LTS 출시 시 재검토").
+ */
+const REFERENCE_LABEL = `6.${Object.keys(USS_PROPERTY_SOURCE.counts).sort().at(-1)!.slice('6000.'.length)}`;
+
 /** `"6000.3"` -> `"Unity 6.3+"`. */
 function versionLabel(version: UssVersion): string {
   return `Unity 6.${version.slice('6000.'.length)}+`;
@@ -318,7 +325,7 @@ export function propertyWarning(property: string, value: string): PropertyWarnin
     const replacements = CSS_REPLACEMENTS[property];
     return {
       message:
-        `${property}: not a USS property; ignored` +
+        `${property}: not in the USS property reference up to Unity ${REFERENCE_LABEL}; ignored` +
         (replacements === undefined ? '' : `; USS uses ${replacements.join(', ')}`),
       reason: 'not-uss',
       subject: { kind: 'property', property, value, ...(replacements === undefined ? {} : { replacements }) },

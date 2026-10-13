@@ -37,7 +37,7 @@ become a column.
 
 ![Deleting flex-direction: row makes the buttons stack](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/demo-flex-direction.gif)
 
-### 2. There is no `z-index`
+### 2. There is no `z-index` (up to Unity 6.6)
 
 Overlap is decided by document order. A later sibling draws on top of an earlier
 one, and no property overrides that.
@@ -125,7 +125,9 @@ nothing, which reads as "unsupported" when it is not.
 
 ## Properties that do not exist
 
-Not renamed — absent. Writing them does nothing.
+Not renamed — absent from Unity's USS reference up to 6.6. Writing them does
+nothing. (Unity 6.7, in beta, adds `gap`, `z-index`, grid and animation properties;
+this guide follows Unity 6.3 LTS.)
 
 `box-shadow` · `gap` · `row-gap` · `column-gap` · `overflow-wrap` · `word-break` ·
 `mix-blend-mode` · `clip-path` · `mask` · `outline` · `line-height` ·
@@ -137,7 +139,7 @@ multiple backgrounds · `transform: skew()` · 3D transforms
 draw them.
 
 `display` only takes `flex` and `none`. There is no `block`, no `inline`, and
-**no `grid`** — grid layouts have to be rebuilt as nested flex containers.
+**no `grid`** (up to Unity 6.6) — grid layouts have to be rebuilt as nested flex containers.
 
 `overflow: auto` and `scroll` are not properties you set. Scrolling is a
 different element, `ScrollView`, so a scrolling region is a markup change.
@@ -192,7 +194,7 @@ It is not an error; the element is simply zero-sized.
 
 ## Animation
 
-**There are no `@keyframes`. Transitions only.**
+**There are no `@keyframes` (up to Unity 6.6). Transitions only.**
 
 That single sentence decides most of it: *state A to state B* works, *moving on
 its own forever* does not.

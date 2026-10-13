@@ -31,7 +31,7 @@ UI Toolkit은 버전마다 지원 범위가 넓어지고 있어서 기억에 의
 
 - **A — 그대로** 옮겨진다. 이름만 바뀌거나 동일
 - **B — 대체** 다른 방식으로 비슷한 결과를 낸다. 사용자에게 "조금 달라진다"로 보고
-- **C — 불가** USS에 없다. C#으로 새로 만들거나 이미지로 굽거나 포기
+- **C — 불가** USS에 없다(Unity 6.6까지의 공식 표 기준). C#으로 새로 만들거나 이미지로 굽거나 포기
 - **D — 구조 변경** 마크업 구조를 바꿔야 한다
 
 ---
@@ -57,7 +57,7 @@ UXML 네임스페이스는 보통 `ui:` (`<ui:VisualElement>`). 프로젝트 관
 | `details` / `summary` | `Foldout` | A | 대응이 좋다. 접힘 동작 내장 |
 | 스크롤 컨테이너 (`overflow: auto`) | `ScrollView` | D | 전용 요소로 교체 |
 | 긴 반복 목록 | `ListView` | D | 수백 개 이상이면 성능상 필요 |
-| `table`, `tr`, `td` | `VisualElement` 중첩 | D | grid 없음. flex로 행/열 구성 |
+| `table`, `tr`, `td` | `VisualElement` 중첩 | D | grid 없음(6.6까지). flex로 행/열 구성 |
 | `svg` (인라인) | — | C | 벡터 미지원. PNG로 구워야 함 |
 | `canvas` | — | C | |
 | `iframe`, `video`, `audio` | — | C | |
@@ -76,13 +76,13 @@ UXML 네임스페이스는 보통 `ui:` (`<ui:VisualElement>`). 프로젝트 관
 | `display: flex` | 기본값 | A | 모든 요소가 flex |
 | `display: none` | `display: none` | A | |
 | `display: block`, `inline`, `inline-block` | — | C | 개념 없음. flex로 재구성 |
-| `display: grid` | — | C | **grid 없음.** flex 중첩으로 재구성 |
+| `display: grid` | — | C | **grid 없음** (Unity 6.6까지. 6.7 LTS 출시 시 재검토). flex 중첩으로 재구성 |
 | `flex-direction` | 동일 | A | **기본값이 column (CSS는 row)** |
 | `flex-grow`, `flex-shrink`, `flex-basis`, `flex` | 동일 | A | |
 | `align-items`, `align-self`, `align-content` | 동일 | A | |
 | `justify-content` | 동일 | A | `space-evenly` 버전 확인 |
 | `flex-wrap` | 동일 | A | |
-| `gap`, `row-gap`, `column-gap` | — | C | **어느 Unity 버전에도 없다**(6.6까지 확인). 자식 margin으로 대체 |
+| `gap`, `row-gap`, `column-gap` | — | C | **Unity 6.6까지의 공식 표에 없다**(6.7 베타에 추가). 자식 margin으로 대체 |
 | `position: relative`, `absolute` | 동일 | A | |
 | `position: fixed`, `sticky` | — | C | absolute + 부모 구조로 대체 |
 | `top`, `right`, `bottom`, `left` | 동일 | A | |
@@ -91,7 +91,7 @@ UXML 네임스페이스는 보통 `ui:` (`<ui:VisualElement>`). 프로젝트 관
 | `overflow: hidden` | 동일 | A | |
 | `overflow: auto`, `scroll` | — | D | `ScrollView`로 교체 |
 | `float`, `clear` | — | C | flex로 재구성 |
-| `z-index` | — | D | **없음.** 형제 순서로 결정. 뒤에 올수록 위 |
+| `z-index` | — | D | **없음** (Unity 6.6까지. 6.7 LTS 출시 시 재검토). 형제 순서로 결정. 뒤에 올수록 위 |
 | `aspect-ratio` | 동일 (6.3+) | B | 6.0에는 없다. 이 미리보기는 레이아웃에 반영하지 않는다 |
 | `box-sizing` | 항상 border-box 동작 | A | 선언 불필요 |
 
@@ -132,7 +132,7 @@ UXML 네임스페이스는 보통 `ui:` (`<ui:VisualElement>`). 프로젝트 관
 | `line-height` | — | C | 없음. `-unity-paragraph-spacing`은 단락 간격이라 다름 |
 | `text-transform` | — | C | 텍스트를 직접 대문자로 넣어야 함 |
 | `text-decoration` (밑줄, 취소선) | — | C | 미지원. 선을 요소로 그리거나 리치텍스트 태그 |
-| `overflow-wrap`, `word-break` | — | C | 어느 Unity 버전에도 없다(6.6까지 확인) |
+| `overflow-wrap`, `word-break` | — | C | Unity 6.6까지의 공식 표에 없다 |
 
 **리치텍스트**: `Label`에 `enable-rich-text="true"`를 주면 `<b>`, `<color=#fff>` 같은
 유니티 리치텍스트 태그를 쓸 수 있다. HTML의 인라인 서식(`<strong>`, `<em>`)을
@@ -252,7 +252,7 @@ transition을 걸면 매 프레임 레이아웃을 다시 계산해서 프레임
 | 스크롤 연동 애니메이션 | C | C# |
 | `@starting-style`, `view-transition` | C | C# |
 
-**핵심**: USS에는 `@keyframes`가 없다. 트랜지션만 있다. 그래서 **"상태 A에서
+**핵심**: USS에는 `@keyframes`가 없다 (Unity 6.6까지. 6.7 LTS 출시 시 재검토). 트랜지션만 있다. 그래서 **"상태 A에서
 상태 B로의 전환"은 잘 되고, "혼자 계속 움직이는 것"은 안 된다.**
 
 **변환 시 권장 구조**: 모든 상태 변화를 클래스 토글로 표현한다.
@@ -343,7 +343,7 @@ USS 쪽에서 해결된다. 이것도 C# 할 일에 적는다.
 6. **`display: block` 잔존** — 무시되거나 오류. 제거한다.
 7. **레이아웃 속성 트랜지션** — 동작하지만 프레임이 떨어진다. transform으로 교체.
 8. **스크롤이 안 됨** — `overflow: auto`가 아니라 `ScrollView` 요소가 필요하다.
-9. **`gap` 무시** — 어느 Unity 버전의 USS에도 없다. 자식 margin으로 대체.
+9. **`gap` 무시** — Unity 6.6까지의 USS에 없다(6.7 베타에 추가). 자식 margin으로 대체.
 10. **`%` 크기가 안 먹음** — 부모에 명시적 크기가 없으면 계산되지 않는다.
 
 ---

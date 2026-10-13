@@ -319,6 +319,13 @@ describe('one warning per declaration', () => {
     expect(warnings[0]!.at).toBeUndefined();
   });
 
+  it('bounds a not-uss verdict by the newest Unity reference the registry holds', () => {
+    // The reference is Unity 6.3 LTS; 6.7 beta adds gap, so "not USS" must say up to when.
+    const w = only(warningsOf('<ui:VisualElement name="a" />', '#a { gap: 4px; }'), 'unsupported-property');
+    expect(w.reason).toBe('not-uss');
+    expect(w.message).toContain('up to Unity 6.6');
+  });
+
   it('says what USS calls a renamed CSS property', () => {
     const w = only(warningsOf('<ui:Label text="x" style="font-family: Arial" />'), 'unsupported-property');
     expect(w.subject).toEqual({

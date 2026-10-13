@@ -2,6 +2,10 @@
 
 *[English](supported.en.md) · 한국어*
 
+> **기준 Unity 버전: 6.3 LTS.** "USS에 없다"는 판정은 Unity 6.6까지의 공식 USS 속성 참조표 기준이다.
+> 좌표 정확도 수치는 6000.0.40f1 측정이며, 6.3 LTS 코호트는 0.6.0에서 추가한다.
+> 6.7(베타)은 지원하지 않는다 — 6.7 LTS가 나오면 다시 판단한다(`docs/backlog.md`).
+
 Phase가 진행되면서 갱신한다. 상세 매핑은 `uss-reference.md` 참조.
 
 ## 등급
@@ -156,7 +160,7 @@ render(doc, el, { states: { '#UseButton': ['hover'], '#DropButton': ['disabled']
 
 | `reason` | 뜻 | 누구의 문제 |
 |---|---|---|
-| `not-uss` | USS에 없는 것을 썼다 (CSS 속성, 없는 의사 클래스, `@media`) | 작성자 |
+| `not-uss` | 기준 USS(Unity 6.6까지의 공식 표)에 없는 것을 썼다 (CSS 속성, 없는 의사 클래스, `@media`) | 작성자 |
 | `invalid-value` | USS 이름에 쓸 수 없는 값이나 대상 (`width: wide`, 없는 override 대상) | 작성자 |
 | `not-rendered` | 올바른 USS/UXML이지만 이 미리보기가 그리지 않는다 | 도구의 한계 |
 | `version-dependent` | 결과가 Unity 버전에 따라 다를 수 있다 (측정 버전 기준값) | 확인 필요 |

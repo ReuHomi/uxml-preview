@@ -2,6 +2,11 @@
 
 *English · [한국어](supported.md)*
 
+> **Reference Unity version: 6.3 LTS.** "Not in USS" means absent from Unity's USS
+> property reference up to 6.6. Coordinate accuracy figures were measured on
+> 6000.0.40f1; a 6.3 LTS cohort is added in 0.6.0. Unity 6.7 (beta) is not
+> supported and will be reconsidered when 6.7 LTS ships (`docs/backlog.md`).
+
 Updated as phases land. Detailed CSS↔USS mappings are in `uss-reference.md`.
 
 ## Portability grades
@@ -127,7 +132,7 @@ Units: `em`, `rem`, `vh`, `vw`, `vmin`, `vmax`, `pt`, `cm`, `in`, `calc()`
 
 Selectors: siblings (`+`, `~`), `:nth-child`, `:first/last-child`, `:not()`,
 `:has()`, attribute selectors, `::before`/`::after`, `@media`, and pseudo-classes
-Unity never sets, such as `:selected`
+Unity's pseudo-class page does not list, such as `:selected`
 
 USS properties this preview does not draw (warned as `not-rendered`): `text-shadow`,
 transitions, `-unity-text-outline*`, 9-slice, font assets, `filter` (6.3+),
@@ -185,7 +190,7 @@ Every warning carries `reason` and `subject` where one applies. Read those, not
 
 | `reason` | Meaning | Whose problem |
 |---|---|---|
-| `not-uss` | Something USS does not have (a CSS property, an unknown pseudo-class, `@media`) | the author |
+| `not-uss` | Something absent from USS as of Unity's reference up to 6.6 (a CSS property, an unknown pseudo-class, `@media`) | the author |
 | `invalid-value` | A USS name with a value or target that cannot work | the author |
 | `not-rendered` | Valid USS/UXML this preview does not draw | the tool |
 | `version-dependent` | The result may differ by Unity version (measured on one) | needs checking |

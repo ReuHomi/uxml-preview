@@ -2,6 +2,10 @@
 
 Unity UI Toolkit의 UXML/USS를 브라우저에서 렌더링·편집하는 라이브러리.
 
+> **기준 Unity 버전: 6.3 LTS.** "USS에 없다"는 판정은 Unity 6.6까지의 공식 USS 속성 참조표 기준이다.
+> 좌표 정확도 수치는 6000.0.40f1 측정이며, 6.3 LTS 코호트는 0.6.0에서 추가한다.
+> 6.7(베타)은 지원하지 않는다 — 6.7 LTS가 나오면 다시 판단한다(`docs/backlog.md`).
+
 ## 절대 규칙
 
 1. **레이아웃 계산을 직접 구현하지 않는다.** `yoga-layout` (공식 WASM)에 위임한다.
@@ -27,7 +31,7 @@ Unity UI Toolkit의 UXML/USS를 브라우저에서 렌더링·편집하는 라�
   파서가 CSS 기본값을 가정하면 모든 레이아웃이 90도 틀어진다.
 - **박스 모델이 항상 `border-box` 동작이다.** width/height에 padding과 border 포함.
   선언 없이도 그렇게 동작하므로 페인팅 시 강제 지정한다.
-- **`z-index`가 없다.** 겹침 순서는 형제 순서로 결정되고, 뒤에 올수록 위다.
+- **`z-index`가 없다** (Unity 6.6까지. 6.7 LTS 출시 시 재검토). 겹침 순서는 형제 순서로 결정되고, 뒤에 올수록 위다.
   → 페인팅 시 z-index를 **절대 출력하지 않는다.** DOM 순서에 맡긴다.
 - **맨몸 텍스트 노드가 없다.** 모든 텍스트는 `Label`의 `text` 속성이다.
   `<div>안녕</div>` → `<ui:Label text="안녕" />`
@@ -69,9 +73,12 @@ Unity UI Toolkit의 UXML/USS를 브라우저에서 렌더링·편집하는 라�
 
 ### 미지원 속성 — 매핑하지 말고 경고 목록에 담는다
 
+아래는 Unity 6.6까지의 공식 표 기준이다. `display: grid`·`gap`·`z-index`는 6.6까지 없고
+6.7 베타에 추가됐다 — 6.7 LTS 출시 시 재검토한다.
+
 `display: block/inline/inline-block`, `display: grid`, `position: fixed/sticky`,
 `float`, `clear`, `overflow: auto/scroll`(→ ScrollView 요소), `z-index`,
-`gap`/`row-gap`/`column-gap`, `overflow-wrap`, `word-break`(어느 Unity 버전에도 없다),
+`gap`/`row-gap`/`column-gap`, `overflow-wrap`, `word-break`(Unity 6.6까지의 공식 표에 없다),
 `box-shadow`, `mix-blend-mode`, `clip-path`, `mask`,
 `outline`, `border-style`(실선만), `line-height`, `text-transform`,
 `text-decoration`, 다중 배경, `transform: skew()`, 3D 트랜스폼, `@keyframes`
@@ -94,7 +101,7 @@ Unity UI Toolkit의 UXML/USS를 브라우저에서 렌더링·편집하는 라�
 
 ### 애니메이션
 
-- **`@keyframes`가 없다. 트랜지션만 있다.**
+- **`@keyframes`가 없다. 트랜지션만 있다** (Unity 6.6까지. 6.7 LTS 출시 시 재검토).
   "상태 A → B 전환"은 되고, "혼자 계속 움직이는 것"은 안 된다.
 - 시작값이 `auto`인 속성의 트랜지션은 작동하지 않는다. `0px`처럼 단위를 명시해야 한다.
 - `translate`의 기본값은 `0px`이라 `%`로 전환하려 하면 실패한다. 단위를 맞춘다.
