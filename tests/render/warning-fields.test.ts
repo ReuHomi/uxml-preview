@@ -329,3 +329,66 @@ describe('one warning per declaration', () => {
     });
   });
 });
+
+describe('syntax that used to be ignored without a word', () => {
+  it('a pseudo-class Unity never sets is reported where the selector is written', () => {
+    const uss = '.a:first-child { width: 1px; }\n.b:selected, .c { width: 2px; }\n.d:bogus { width: 3px; }';
+    const warnings = warningsOf('<ui:VisualElement class="a" />', uss).filter(
+      (w) => w.kind === 'unsupported-selector',
+    );
+    expect(warnings.map(fields)).toEqual([
+      { reason: 'not-uss', subject: { kind: 'selector', selector: '.a:first-child', fragment: ':first-child' } },
+      { reason: 'not-uss', subject: { kind: 'selector', selector: '.b:selected, .c', fragment: ':selected' } },
+      { reason: 'not-uss', subject: { kind: 'selector', selector: '.d:bogus', fragment: ':bogus' } },
+    ]);
+    expect(warnings[0]!.at).toEqual({ in: 'uss', sheet: 0, span: { start: 0, end: '.a:first-child'.length } });
+  });
+
+  it('every Unity state and :root stay quiet', () => {
+    const uss = [':root', ...['hover', 'active', 'inactive', 'focus', 'disabled', 'enabled', 'checked'].map((s) => `.a:${s}`)]
+      .map((selector) => `${selector} { width: 1px; }`)
+      .join('\n');
+    const warnings = warningsOf('<ui:VisualElement class="a" />', uss);
+    expect(warnings.filter((w) => w.kind === 'unsupported-selector')).toEqual([]);
+  });
+
+  it('@media and @keyframes blocks are reported, @import is not', () => {
+    const uss = '@media screen { .a { width: 1px; } }\n@keyframes spin { from { rotate: 0deg; } }\n.a { width: 2px; }';
+    const warnings = warningsOf('<ui:VisualElement class="a" />', uss).filter(
+      (w) => w.subject?.kind === 'at-rule',
+    );
+    expect(warnings.map((w) => [w.kind, w.reason, w.subject])).toEqual([
+      ['unsupported-selector', 'not-uss', { kind: 'at-rule', name: 'media' }],
+      ['unsupported-selector', 'not-uss', { kind: 'at-rule', name: 'keyframes' }],
+    ]);
+    expect(warnings[0]!.at).toEqual({ in: 'uss', sheet: 0, span: { start: 0, end: uss.indexOf('\n') } });
+  });
+
+  it('a display value USS does not have is reported, once, and still laid out as flex', () => {
+    for (const value of ['grid', 'block', 'inline', 'inline-block']) {
+      const warnings = warningsOf(
+        '<ui:VisualElement class="a" /><ui:VisualElement class="a" />',
+        `.a { display: ${value}; }`,
+      ).filter((w) => w.kind === 'unsupported-property');
+      expect(warnings.map(fields), value).toEqual([
+        { reason: 'invalid-value', subject: { kind: 'property', property: 'display', value } },
+      ]);
+    }
+    for (const value of ['flex', 'none']) {
+      expect(warningsOf('<ui:VisualElement class="a" />', `.a { display: ${value}; }`), value).toEqual([]);
+    }
+  });
+
+  it('a background image that is not an asset reference is not USS, not an unresolved asset', () => {
+    const warnings = warningsOf(
+      '<ui:VisualElement name="a" />',
+      '#a { background-image: linear-gradient(red, blue); }',
+      () => 'data:image/png;base64,AAAA',
+    );
+    expect(warnings.filter((w) => w.kind === 'asset-unresolved')).toEqual([]);
+    expect(fields(only(warnings, 'unsupported-property'))).toEqual({
+      reason: 'not-uss',
+      subject: { kind: 'property', property: 'background-image', value: 'linear-gradient(red, blue)' },
+    });
+  });
+});

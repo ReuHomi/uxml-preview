@@ -296,7 +296,15 @@ export function layoutDocument(
       position === 'absolute' ? PositionType.Absolute : PositionType.Relative,
     );
 
-    if (read(style, 'display') === 'none') yg.setDisplay(Display.None);
+    const display = read(style, 'display');
+    if (display === 'none') yg.setDisplay(Display.None);
+    else if (display !== 'flex' && display !== 'initial') {
+      // USS has flex and none; anything else is laid out as flex, as before.
+      warn(`display: ${display} laid out as flex`, node, {
+        reason: 'invalid-value',
+        subject: { kind: 'property', property: 'display', value: display },
+      }, style.get('display'));
+    }
     const overflow = read(style, 'overflow');
     if (overflow === 'hidden') yg.setOverflow(Overflow.Hidden);
     else if (overflow === 'auto' || overflow === 'scroll') {

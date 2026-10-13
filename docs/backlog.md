@@ -101,3 +101,22 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
   `review/g3-adversarial`을 참조한다. 디스크 CRLF 스캔은 아직 어디서도 자동화하지
   않는다. 외부 14개 byte roundtrip은 현재 sibling 재관찰 테스트에만 있으며,
   나머지 반례와 함께 장기 회귀망으로 옮길지 다음 트랙에서 결정한다 (2026-08-25).
+
+## 0.6.0 — 0.5.1이 넘긴 항목
+
+0.5.1의 원칙은 "그려지는 결과는 바꾸지 않고, 말하지 않던 것을 말하게 한다"였다.
+아래는 그 범위를 넘거나 값 수준 판정이 필요해서 넘긴 것이다 (2026-10-13).
+
+- [0.6.0] `:enabled` 자동 적용 — Unity 문서상 활성 요소는 모두 `:enabled`인데,
+  지금은 `states`로 넘겨야만 켜진다. 켜면 `:enabled` 규칙을 쓴 화면의 그림이 바뀐다
+- [0.6.0] `states` 키가 아무 요소에도 매칭되지 않거나 키 안에 상태 의사 클래스가
+  있을 때 경고. `states` 값에 `USS_STATES` 밖의 이름이 있을 때 경고
+- [0.6.0] `unsupported-unit` — `WarningKind`에 있지만 발생 지점이 없다. 단위 문제는
+  `unsupported-property`로 나간다. 쓸지, 문서상 폐기할지 결정
+- [0.6.0] 값 수준 판정 — `hsl()`, `cubic-bezier()`, `justify-content: space-evenly`,
+  `linear-gradient()`(Unity 6.x 지원 여부 미확인; 0.5.1은 `not-uss`로 보고),
+  `opacity: 50%`, `inherit` 키워드, USS 전용 `cursor` 값(`link`, `resource()`)이
+  브라우저에서 조용히 버려지는 것
+- [0.6.0] `letter-spacing`/`word-spacing`이 그려지지만 글자 측정에 들어가지 않음
+- [0.6.0] `background-position-x/-y` 그리기, scale-mode와 `background-*`를 함께 쓸 때
+  어느 쪽이 이기는지 — 육안 대조 필요 (docs/visual-check.md)

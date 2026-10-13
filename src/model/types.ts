@@ -315,7 +315,9 @@ export type WarningSubject =
       from: string | null;
     }
   | { kind: 'control'; type: string }
-  | { kind: 'name'; name: string };
+  | { kind: 'name'; name: string }
+  /** An at-rule block, without the `@`. */
+  | { kind: 'at-rule'; name: string };
 
 /**
  * Never a thrown error. One unsupported property must not take down the render

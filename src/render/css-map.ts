@@ -254,8 +254,11 @@ export function toCss(
   if (image !== undefined && image !== 'none') {
     const asset = assetPath(image);
     if (asset === null) {
-      warn('asset-unresolved', `background-image: cannot read "${image}" as an asset path`, {
-        reason: 'invalid-value',
+      // Not an asset this host failed to find — `linear-gradient()` and the
+      // like are not asset references at all, so asset-unresolved would send
+      // the host looking for a file that does not exist.
+      warn('unsupported-property', `background-image: "${image}" is not an asset reference; ignored`, {
+        reason: 'not-uss',
         ...about('background-image'),
       });
     } else {

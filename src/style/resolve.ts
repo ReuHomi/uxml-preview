@@ -32,7 +32,7 @@ import { THEME_UNITY_VERSION, THEME_USS } from '../controls/theme';
 import { parseUss } from '../parser/uss';
 import { attributeValueStart, parseDeclarationList } from '../parser/uss';
 import { expandShorthand, isInherited } from './properties';
-import { propertyWarning } from './registry';
+import { propertyWarning, USS_STATES } from './registry';
 import {
   buildParentMap,
   matchesSelector,
@@ -439,6 +439,27 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
     const key = `${flat.sheet}:${flat.item}`;
     if (judged.has(key)) continue;
     judged.add(key);
+    // A state Unity never sets makes its selector unmatchable in Unity and
+    // here alike; the rule still runs, so nothing drawn changes.
+    const unknownStates = new Set<string>();
+    for (const selector of flat.rule.selectors) {
+      for (const part of selector.parts) {
+        for (const simple of part.simple) {
+          if (simple.kind !== 'pseudo' || simple.name === 'root') continue;
+          if (!(USS_STATES as readonly string[]).includes(simple.name)) unknownStates.add(simple.name);
+        }
+      }
+    }
+    for (const name of unknownStates) {
+      warnings.push({
+        kind: 'unsupported-selector',
+        message: `":${name}": never matches; Unity sets no such state`,
+        at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
+        ...warningSource(doc, flat.sheet),
+        reason: 'not-uss',
+        subject: { kind: 'selector', selector: selectorText(doc, flat), fragment: `:${name}` },
+      });
+    }
     for (const decl of flat.rule.declarations) {
       const found = propertyWarning(decl.property, decl.value);
       if (found === null) continue;
@@ -450,6 +471,24 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
       });
     }
   }
+
+  // At-rule blocks the parser keeps verbatim (`@media`, `@keyframes`, ...).
+  // `@import` is modelled, and one without a path is already malformed.
+  doc.sheets.forEach((sheet, index) => {
+    for (const item of sheet.items) {
+      if (item.kind !== 'unknown') continue;
+      const name = /^@([A-Za-z][\w-]*)/.exec(sheet.source.slice(item.span.start, item.span.end))?.[1];
+      if (name === undefined || name === 'import') continue;
+      warnings.push({
+        kind: 'unsupported-selector',
+        message: `@${name}: block ignored`,
+        at: { in: 'uss', sheet: index, span: item.span },
+        ...warningSource(doc, index),
+        reason: 'not-uss',
+        subject: { kind: 'at-rule', name },
+      });
+    }
+  });
 
   return { ctx, usable, warnings };
 }
