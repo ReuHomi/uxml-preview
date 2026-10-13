@@ -126,6 +126,23 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
   가리킨다(값 수준 경고를 선언당 하나로 합칠 때). 소비자가 "어떤 요소가 영향을 받는가"를
   알 수 없다. 후보: `Warning`에 `nodes?: NodeId[]`를 더하거나, 요소별 조회 API
 
+- [0.6.0] **6.3 LTS 코호트 측정 문항 — 등록표 `unity` 열의 추론 판정 28개 전부.**
+  `inferred: true`인 행은 문서나 측정이 아니라 추론이다. 6.3 LTS 덤프로 판정하고, 판정이 끝난
+  행은 `inferred`를 내린다. 텍스트 측정 계열이 가장 급하다 — `affectsLayout`이 좌표 신뢰
+  여부를 소비자에게 알리는 근거이기 때문이다.
+  - 텍스트 측정 (layout 판정): `letter-spacing`, `word-spacing`, `white-space`,
+    `-unity-font`, `-unity-font-definition`, `-unity-font-style`, `-unity-paragraph-spacing`,
+    `-unity-text-generator` — 자동 크기 Label의 너비·높이가 값에 따라 바뀌는지
+  - 텍스트 (paint 판정): `-unity-text-auto-size`(상자가 아니라 글자가 맞춰지는지),
+    `text-overflow`, `-unity-text-overflow-position`(말줄임이 상자 크기를 바꾸지 않는지),
+    `-unity-editor-text-rendering-mode`, `text-shadow`, `-unity-text-outline`,
+    `-unity-text-outline-color`, `-unity-text-outline-width`
+  - 클리핑·효과 (paint 판정): `overflow`, `-unity-overflow-clip-box`, `filter`(6.3+),
+    `backdrop-filter`(6.6+, 6.3 LTS에는 없음 — 6.6 이상에서만), `-unity-material`(6.3+)
+  - 시간 (none 판정, 정지 프레임 기준): `transition`, `transition-delay`,
+    `transition-duration`, `transition-property`, `transition-timing-function`,
+    `animation-play-state`(6.6+), `-unity-animation-clip`(6.6+)
+
 ## 6.7 LTS 출시 시 재검토
 
 기준 Unity 버전은 6.3 LTS이고, 등록표(`src/style/registry.ts`)는 6.6까지의 공식 표를
