@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.1 — unreleased
+
+### Behavior changes
+
+- Inheritance now follows Unity's USS reference table. Five properties that
+  Unity marks inherited and this package did not now inherit:
+  `text-shadow`, `-unity-editor-text-rendering-mode`, `-unity-text-generator`,
+  `-unity-material` (6.3+) and `-unity-text-auto-size` (6.3+).
+  `isInherited()` returns `true` for them, and `resolveStyles()` hands them to
+  descendants with an `inherited` origin. Nothing drawn changes: none of the
+  five is drawn by this preview.
+
 ## 0.5.0 — 2026-08-26
 
 ### Known limitations

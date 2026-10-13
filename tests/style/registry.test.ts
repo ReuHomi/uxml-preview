@@ -15,7 +15,7 @@
 
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { isInherited, loadLayoutEngine, parse, render } from '../../src/index';
+import { isInherited, loadLayoutEngine, parse, render, resolveStyles } from '../../src/index';
 import type { MeasureText, Warning } from '../../src/index';
 import { USS_PROPERTIES, USS_PROPERTY_SOURCE, ussProperty } from '../../src/style/registry';
 
@@ -65,23 +65,24 @@ describe('registry data', () => {
   });
 
   // What the cascade does must follow the table, not a second list.
-  const NOT_YET_DERIVED = new Set([
-    'text-shadow',
-    '-unity-editor-text-rendering-mode',
-    '-unity-text-generator',
-    '-unity-material',
-    '-unity-text-auto-size',
-  ]);
   for (const property of USS_PROPERTIES) {
-    const name = `isInherited("${property.name}") follows the table`;
-    if (NOT_YET_DERIVED.has(property.name)) {
-      it.todo(name);
-      continue;
-    }
-    it(name, () => {
+    it(`isInherited("${property.name}") follows the table`, () => {
       expect(isInherited(property.name)).toBe(property.inherited);
     });
   }
+
+  it('hands an inherited property to children through the cascade', () => {
+    const doc = parse(
+      '<ui:UXML xmlns:ui="UnityEngine.UIElements"><ui:VisualElement name="p"><ui:Label name="c" text="x" /></ui:VisualElement></ui:UXML>',
+      '#p { text-shadow: 1px 1px red; -unity-text-generator: advanced; transition: opacity 1s; }',
+    );
+    const child = doc.root.children[0]!.children[0]!;
+    const style = resolveStyles(doc).styles.get(child.id)!;
+    expect(style.get('text-shadow')?.origin.kind).toBe('inherited');
+    expect(style.get('-unity-text-generator')?.origin.kind).toBe('inherited');
+    // Not inherited in Unity's table, so it stays on the parent.
+    expect(style.has('transition')).toBe(false);
+  });
 
   it('knows nothing about custom properties, which still inherit', () => {
     expect(ussProperty('--token')).toBeUndefined();
