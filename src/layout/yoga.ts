@@ -287,7 +287,7 @@ export function layoutDocument(
 
     const position = read(style, 'position');
     if (position === 'fixed' || position === 'sticky') {
-      warn(`position: ${position} is not supported in USS; treated as relative`, node, {
+      warn(`position: ${position} treated as relative`, node, {
         reason: 'not-uss',
         subject: { kind: 'property', property: 'position', value: position },
       }, style.get('position'));
@@ -300,7 +300,7 @@ export function layoutDocument(
     const overflow = read(style, 'overflow');
     if (overflow === 'hidden') yg.setOverflow(Overflow.Hidden);
     else if (overflow === 'auto' || overflow === 'scroll') {
-      warn(`overflow: ${overflow} needs a ScrollView element in USS`, node, {
+      warn(`overflow: ${overflow} ignored; nothing scrolls`, node, {
         reason: 'not-uss',
         subject: { kind: 'property', property: 'overflow', value: overflow },
       }, style.get('overflow'));
@@ -368,8 +368,7 @@ export function layoutDocument(
           `plain VisualElement` +
           (captions.length === 0
             ? ''
-            : `; its ${captions.join(' and ')} attribute${captions.length > 1 ? 's are' : ' is'} ` +
-              'not drawn, because Unity draws that through a child element'),
+            : `; its ${captions.join(' and ')} attribute${captions.length > 1 ? 's are' : ' is'} not drawn`),
         node: node.id,
         reason: 'not-rendered',
         subject: { kind: 'control', type: node.name.local },
@@ -422,10 +421,7 @@ export function layoutDocument(
         themeReported = true;
         warnings.push({
           kind: 'version-dependent',
-          message:
-            `<${node.name.local}> is drawn with the implicit child elements Unity ` +
-            `builds for it, and their geometry was measured on Unity ${THEME_UNITY_VERSION}. ` +
-            'Other versions may differ; see src/controls/theme.ts.',
+          message: `<${node.name.local}> drawn with built-in child elements measured on Unity ${THEME_UNITY_VERSION}`,
           node: node.id,
           reason: 'version-dependent',
           subject: { kind: 'control', type: node.name.local },

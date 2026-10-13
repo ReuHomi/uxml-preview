@@ -327,7 +327,7 @@ function applyOverrides(
       addWarning(
         context.warnings,
         'override-style-ignored',
-        `AttributeOverrides style for element-name "${requested ?? '(missing)'}" was ignored with value "${ignoredStyle}"; Unity ignores style AttributeOverrides, so this matches Unity and is not a preview limitation.`,
+        `AttributeOverrides style for element-name "${requested ?? '(missing)'}" was ignored with value "${ignoredStyle}"`,
         override,
         sourceDocument ?? undefined,
         {

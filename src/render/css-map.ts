@@ -214,7 +214,7 @@ export function toCss(
   if (fontStyle !== undefined) {
     const mapped = FONT_STYLE[fontStyle];
     if (mapped === undefined) {
-      warn('unsupported-property', `-unity-font-style: ${fontStyle} is not a USS value`, {
+      warn('unsupported-property', `-unity-font-style: "${fontStyle}" ignored`, {
         reason: 'invalid-value',
         ...about('-unity-font-style'),
       });
@@ -231,7 +231,7 @@ export function toCss(
     const alignItems = VERTICAL[vertical ?? ''];
     const justify = HORIZONTAL[horizontal ?? ''];
     if (alignItems === undefined || justify === undefined) {
-      warn('unsupported-property', `-unity-text-align: ${align} is not a USS value`, {
+      warn('unsupported-property', `-unity-text-align: "${align}" ignored`, {
         reason: 'invalid-value',
         ...about('-unity-text-align'),
       });
@@ -285,7 +285,7 @@ export function toCss(
         if (mapped === undefined) {
           warn(
             'unsupported-property',
-            `-unity-background-scale-mode: ${mode} is not a USS value; ` +
+            `-unity-background-scale-mode: "${mode}" ignored; ` +
               `expected one of ${Object.keys(SCALE_MODE).join(', ')}`,
             { reason: 'invalid-value', ...about('-unity-background-scale-mode', mode) },
           );

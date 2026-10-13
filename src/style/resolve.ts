@@ -401,7 +401,7 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
       // Reported once per rule rather than once per element it might have hit.
       warnings.push({
         kind: 'unsupported-selector',
-        message: `"${bad}" is not supported in USS; the whole rule is ignored`,
+        message: `"${bad}": the whole rule is ignored`,
         at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
         reason: 'not-uss',
         subject: { kind: 'selector', selector: selectorText(doc, flat), fragment: bad },
@@ -413,12 +413,14 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
       reportedRoot = true;
       warnings.push({
         kind: 'version-dependent',
+        // Not a version difference: USS :root means something else than CSS
+        // :root, and this preview does what Unity does. Kept as a warning so
+        // an author porting CSS is told; the kind stays for compatibility.
         message:
-          ':root in USS names the element the stylesheet was applied to, not the ' +
-          'document root as in CSS. Template stylesheets therefore match their ' +
-          'generated TemplateContainer.',
+          ':root matched the element this stylesheet is attached to — the document ' +
+          'root, or the TemplateContainer of a template',
         at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
-        reason: 'version-dependent',
+        reason: 'matches-unity',
         subject: { kind: 'selector', selector: selectorText(doc, flat), fragment: ':root' },
         ...warningSource(doc, flat.sheet),
       });
@@ -856,10 +858,7 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
   if (themeApplied) {
     warnings.push({
       kind: 'version-dependent',
-      message:
-        `Unity's control defaults were applied, as measured on ${THEME_UNITY_VERSION} ` +
-        '(Unity ships these as a theme stylesheet). Other versions may use different ' +
-        'values; see src/controls/theme.ts.',
+      message: `Built-in control defaults applied, as measured on Unity ${THEME_UNITY_VERSION}`,
       reason: 'version-dependent',
     });
   }
@@ -876,10 +875,8 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
     warnings.push({
       kind: 'unsupported-selector',
       message:
-        `${fragments.join(', ')} matched nothing. Those names belong to the elements a ` +
-        'control builds for itself, and only controls with a renderer of their own have ' +
-        `them — ${supportedControlNames().join(', ')}. Anything else is drawn as a plain ` +
-        'box and has no parts to style.',
+        `${fragments.join(', ')} matched nothing; only ${supportedControlNames().join(', ')} ` +
+        'are drawn with the parts these names refer to',
       at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
       reason: 'not-rendered',
       subject: { kind: 'selector', selector: selectorText(doc, flat), fragment: fragments.join(', ') },

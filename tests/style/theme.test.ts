@@ -238,8 +238,8 @@ describe('the unreachable part-selector warning', () => {
     const messages = unity('<ui:TextField name="t" />', '#unity-text-input { width: 40px; }');
     expect(messages).toHaveLength(1);
     expect(messages[0]).toContain('#unity-text-input');
-    // Says why, not just that: the control is drawn as a plain box.
-    expect(messages[0]).toContain('plain box');
+    // Says why, not just that: only controls with their own renderer have parts.
+    expect(messages[0]).toContain('ScrollView');
   });
 
   it('says nothing when the part is really there', () => {

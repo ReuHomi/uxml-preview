@@ -97,7 +97,7 @@ export function parseLength(text: string): LengthResult {
   if (value === 'initial') return { length: { kind: 'auto' } };
 
   if (value.startsWith('calc(')) {
-    return { length: null, problem: 'calc() is not supported in USS', reason: 'not-uss' };
+    return { length: null, problem: 'calc() is not evaluated', reason: 'not-uss' };
   }
 
   const match = /^(-?(?:\d+\.?\d*|\.\d+))([a-z%]*)$/i.exec(value);
@@ -110,7 +110,7 @@ export function parseLength(text: string): LengthResult {
   if (unit === '' || unit === 'px') return { length: { kind: 'px', value: number } };
   if (unit === '%') return { length: { kind: 'percent', value: number } };
   if (UNSUPPORTED_UNITS.includes(unit)) {
-    return { length: null, problem: `"${unit}" is not a USS unit`, reason: 'not-uss' };
+    return { length: null, problem: `unit "${unit}" not recognised`, reason: 'not-uss' };
   }
   return { length: null, problem: `unknown unit "${unit}"`, reason: 'invalid-value' };
 }

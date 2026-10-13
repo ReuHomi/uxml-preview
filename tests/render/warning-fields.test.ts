@@ -63,6 +63,23 @@ describe('selectors', () => {
     });
   });
 
+  it(':root is reported as a difference from CSS that matches Unity, not a version question', () => {
+    const w = only(warningsOf('<ui:VisualElement />', ':root { --a: 1px; }'), 'version-dependent');
+    expect(fields(w)).toEqual({
+      reason: 'matches-unity',
+      subject: { kind: 'selector', selector: ':root', fragment: ':root' },
+    });
+  });
+
+  it('no warning text sends the reader to a source file they do not have', () => {
+    const texts = [
+      ...warningsOf('<ui:Button /><ui:ScrollView />', ':root { --a: 1px; }'),
+      ...warningsOf('<ui:Toggle label="x" />'),
+    ].map((w) => w.message);
+    expect(texts.length).toBeGreaterThan(3);
+    expect(texts.filter((t) => /src\/|\.ts\b/.test(t))).toEqual([]);
+  });
+
   it('a rule aiming at control parts nothing has is not rendered', () => {
     const w = only(warningsOf('<ui:VisualElement />', '#unity-text-input { width: 1px; }'), 'unsupported-selector');
     expect(fields(w)).toEqual({
