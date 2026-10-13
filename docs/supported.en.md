@@ -118,15 +118,21 @@ matched** ([`accuracy.en.md`](accuracy.en.md)).
 ## Not supported (C)
 
 `display: block/inline/inline-block`, `display: grid`, `position: fixed/sticky`,
-`float`, `clear`, `z-index`, `box-shadow`, `filter`, `backdrop-filter`,
-`mix-blend-mode`, `clip-path`, `mask`, `outline`, `line-height`,
+`float`, `clear`, `z-index`, `box-shadow`, `gap`/`row-gap`/`column-gap`,
+`overflow-wrap`, `word-break`, `mix-blend-mode`, `clip-path`, `mask`, `outline`, `line-height`,
 `text-transform`, `text-decoration`, multiple backgrounds, `transform: skew()`,
 3D transforms, `@keyframes`
 
 Units: `em`, `rem`, `vh`, `vw`, `vmin`, `vmax`, `pt`, `cm`, `in`, `calc()`
 
 Selectors: siblings (`+`, `~`), `:nth-child`, `:first/last-child`, `:not()`,
-`:has()`, attribute selectors, `::before`/`::after`, `@media`
+`:has()`, attribute selectors, `::before`/`::after`, `@media`, and pseudo-classes
+Unity never sets, such as `:selected`
+
+USS properties this preview does not draw (warned as `not-rendered`): `text-shadow`,
+transitions, `-unity-text-outline*`, 9-slice, font assets, `filter` (6.3+),
+`backdrop-filter` (6.6+), and the rest of the `handling: 'none'` rows in
+`src/style/registry.ts`.
 
 > A rule containing any unsupported selector fragment is dropped **whole**, with
 > one warning naming the fragment. The parser still stores it, so the rule
@@ -134,8 +140,8 @@ Selectors: siblings (`+`, `~`), `:nth-child`, `:first/last-child`, `:not()`,
 
 ## Pseudo-class states
 
-`:hover`, `:active`, `:focus`, `:disabled`, `:checked`, `:selected` and
-`:inactive` are honoured as **styling**. States are explicit input rather than
+`:hover`, `:active`, `:inactive`, `:focus`, `:disabled`, `:enabled` and
+`:checked` (`USS_STATES`) are honoured as **styling**. States are explicit input rather than
 mouse events:
 
 ```ts
@@ -154,12 +160,41 @@ cannot express.
   A layout dump measures geometry, and a colour is not geometry, so there is no
   way to prove them. Only state styling you wrote yourself applies.
 
-## Version-dependent (needs checking)
+`:selected` is not a state: Unity's page says USS does not support it (use
+`:checked`). `:enabled` only applies when passed in `states`; switching it on
+automatically is 0.6.0.
 
-`gap`, `aspect-ratio`, `linear-gradient()`, `hsl()`, `cubic-bezier()`,
-`justify-content: space-evenly`, `background-size`/`position`/`repeat`,
-`white-space` values, `overflow-wrap`/`word-break`
+## Versions
 
-`:root` is also version-dependent. USS `:root` names the element a stylesheet was
+When a property was introduced comes from `src/style/registry.ts`, transcribed
+from Unity's reference tables. 6.3+: `aspect-ratio`, `filter`, `-unity-material`,
+`-unity-text-auto-size`. 6.6+: `backdrop-filter`, `animation-play-state`,
+`-unity-animation-clip`. None of them is drawn; warnings say `Unity 6.3+`.
+
+Value-level version differences are not judged yet (0.6.0): `linear-gradient()`,
+`hsl()`, `cubic-bezier()`, `justify-content: space-evenly`, `white-space` values.
+
+`:root` is not a version question. USS `:root` names the element a stylesheet was
 applied to, not the document root as in CSS; with no UIDocument to attach to, the
-preview matches it against `<ui:UXML>` and warns each time.
+preview matches it against `<ui:UXML>` and says so once, with `reason: 'matches-unity'`.
+
+## Warning policy (0.5.1)
+
+Every warning carries `reason` and `subject` where one applies. Read those, not
+`message` — the text is for people and may change in any release.
+
+| `reason` | Meaning | Whose problem |
+|---|---|---|
+| `not-uss` | Something USS does not have (a CSS property, an unknown pseudo-class, `@media`) | the author |
+| `invalid-value` | A USS name with a value or target that cannot work | the author |
+| `not-rendered` | Valid USS/UXML this preview does not draw | the tool |
+| `version-dependent` | The result may differ by Unity version (measured on one) | needs checking |
+| `matches-unity` | Ignored, and Unity ignores it too | not a defect |
+
+- **Both are open sets.** New values may arrive in a minor release; give them a
+  `default` branch. `WarningKind` does not grow.
+- Property warnings are raised **once per declaration**, with its `at`, including in
+  rules that match nothing. Inherited values are never reported again.
+- `subject.replacements` names the USS properties to write for 11 common CSS names.
+- Seven message texts shipped consumers match on are kept byte for byte
+  (`tests/render/consumer-contract.test.ts`).

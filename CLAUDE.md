@@ -44,9 +44,12 @@ Unity UI Toolkit의 UXML/USS를 브라우저에서 렌더링·편집하는 라�
 - **대소문자를 구분**한다.
 - 클래스명 안의 마침표는 새 클래스의 시작으로 해석된다.
 - 지원: 타입, 클래스, `#name`, 자손(` `), 자식(`>`), 복합(`.a.b`), 전체(`*`), `@import`
-- 지원 pseudo-class: `:hover` `:active` `:focus` `:disabled` `:checked` `:selected` `:root` `:inactive`
+- 지원 pseudo-class: `:hover` `:active` `:inactive` `:focus` `:disabled` `:enabled` `:checked` `:root`
+  (Unity "USS selectors: Pseudo-classes" 문서, 2026-10-13 확인. 상태 7개는 `USS_STATES`로 export).
+  **`:selected`는 USS가 지원하지 않는다** — Unity 문서가 `:checked`를 쓰라고 적는다.
+  `:enabled`는 아직 자동으로 켜지지 않는다(0.6.0, `docs/backlog.md`).
 - **미지원**: 형제(`+`, `~`), `:nth-child`, `:first/last-child`, `:not()`, `:has()`,
-  속성 셀렉터, `::before`/`::after`, `@media`
+  속성 셀렉터, `::before`/`::after`, `@media`, Unity가 설정하지 않는 의사 클래스(`:selected` 등)
 - `:root`가 CSS와 다르다. 스타일시트가 적용된 각 요소를 가리키며,
   그 자식 요소에는 매칭되지 않는다.
 
@@ -57,16 +60,19 @@ Unity UI Toolkit의 UXML/USS를 브라우저에서 렌더링·편집하는 라�
 | `font-family` | `-unity-font-definition` |
 | `font-weight` / `font-style` | `-unity-font-style` (`normal`/`bold`/`italic`/`bold-and-italic`) |
 | `text-align` | `-unity-text-align` (`upper-left`, `middle-center` 등 세로+가로 조합) |
-| `text-shadow` | `-unity-text-outline-*` (외곽선이라 의미가 다름) |
 | `border-image` (9-slice) | `-unity-slice-left/right/top/bottom` |
 | (대응 없음) | `-unity-background-image-tint-color` |
 | `transform: translate()/scale()/rotate()` | `translate` / `scale` / `rotate` 개별 속성 |
+
+`text-shadow`는 이름이 바뀐 게 아니라 **6.0부터 USS 속성**이다(상속됨). 이 미리보기는
+그리지 않는다. 대체 이름 대응표의 원본은 `src/style/registry.ts`의 `CSS_REPLACEMENTS`다.
 
 ### 미지원 속성 — 매핑하지 말고 경고 목록에 담는다
 
 `display: block/inline/inline-block`, `display: grid`, `position: fixed/sticky`,
 `float`, `clear`, `overflow: auto/scroll`(→ ScrollView 요소), `z-index`,
-`box-shadow`, `filter`, `backdrop-filter`, `mix-blend-mode`, `clip-path`, `mask`,
+`gap`/`row-gap`/`column-gap`, `overflow-wrap`, `word-break`(어느 Unity 버전에도 없다),
+`box-shadow`, `mix-blend-mode`, `clip-path`, `mask`,
 `outline`, `border-style`(실선만), `line-height`, `text-transform`,
 `text-decoration`, 다중 배경, `transform: skew()`, 3D 트랜스폼, `@keyframes`
 
@@ -75,11 +81,16 @@ Unity UI Toolkit의 UXML/USS를 브라우저에서 렌더링·편집하는 라�
 - 지원: `px` `%` `deg` `s` `ms` `auto` `initial`, `#hex`/`rgb()`/`rgba()`/키워드, `var(--x)`
 - 미지원: `em` `rem` `vh` `vw` `vmin` `vmax` `pt` `cm` `in` `calc()`
 
-### 버전 의존 — 단정하지 말고 "버전 확인" 경고를 남긴다
+### 버전 — 속성 목록은 등록표가 유일한 출처다
 
-`gap`/`row-gap`/`column-gap`, `aspect-ratio`, `linear-gradient()`, `hsl()`,
-`cubic-bezier()`, `justify-content: space-evenly`,
-`background-size`/`position`/`repeat`, `white-space` 값, `overflow-wrap`/`word-break`
+속성의 존재·상속·도입 버전은 `src/style/registry.ts`(Unity 공식 USS 속성 참조표 전사,
+6000.0 95개 · 6.3 99개 · 6.6 102개, 2026-10-13 확인)에서만 읽는다. 손으로 목록을 다시 만들지 않는다.
+
+- 6.3+: `aspect-ratio`, `filter`, `-unity-material`, `-unity-text-auto-size`
+- 6.6+: `backdrop-filter`, `animation-play-state`, `-unity-animation-clip`
+- `background-size`/`position`/`repeat`는 6000.0에 이미 있다 — 버전 의존이 아니다
+- 값 수준은 아직 판정하지 않는다(0.6.0): `linear-gradient()`, `hsl()`, `cubic-bezier()`,
+  `justify-content: space-evenly`, `white-space` 값
 
 ### 애니메이션
 

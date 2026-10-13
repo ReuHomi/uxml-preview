@@ -111,7 +111,6 @@ CSS에서 `content-box`에 기대고 있던 곳이 있다면, **그 박스들이
 | `font-family` | `-unity-font-definition` (웹폰트가 아니라 폰트 에셋) |
 | `font-weight` / `font-style` | `-unity-font-style`: `normal`, `bold`, `italic`, `bold-and-italic` |
 | `text-align` | `-unity-text-align` — 두 축을 한 번에: `upper-left`, `middle-center`, `lower-right` … |
-| `text-shadow` | `-unity-text-outline-*` — 외곽선이라 효과가 다름 |
 | `border-image` (9-slice) | `-unity-slice-left` / `-right` / `-top` / `-bottom` |
 | `transform: translate() / scale() / rotate()` | `translate`, `scale`, `rotate` 개별 속성 |
 | *(대응 없음)* | `-unity-background-image-tint-color` — 배경 이미지 색조. 꽤 유용함 |
@@ -123,9 +122,13 @@ CSS에서 `content-box`에 기대고 있던 곳이 있다면, **그 박스들이
 
 이름이 바뀐 게 아니라 없습니다. 써도 아무 일도 일어나지 않습니다.
 
-`box-shadow` · `filter` · `backdrop-filter` · `mix-blend-mode` · `clip-path` ·
-`mask` · `outline` · `line-height` · `text-transform` · `text-decoration` ·
-`float` · `clear` · `z-index` · 다중 배경 · `transform: skew()` · 3D 트랜스폼
+`box-shadow` · `gap` · `row-gap` · `column-gap` · `overflow-wrap` · `word-break` ·
+`mix-blend-mode` · `clip-path` · `mask` · `outline` · `line-height` ·
+`text-transform` · `text-decoration` · `float` · `clear` · `z-index` · 다중 배경 ·
+`transform: skew()` · 3D 트랜스폼
+
+`text-shadow`는 USS 속성이고(6.0부터), `filter`(6.3+)와 `backdrop-filter`(6.6+)도
+USS에 있습니다 — 이 미리보기가 그리지 않을 뿐입니다.
 
 `display`는 `flex`와 `none`만 받습니다. `block`도 `inline`도 없고,
 **`grid`도 없습니다** — 그리드 레이아웃은 중첩 flex로 다시 짜야 합니다.
@@ -140,8 +143,9 @@ CSS에서 `content-box`에 기대고 있던 곳이 있다면, **그 박스들이
 지원: 타입(`Button`), 클래스(`.foo`), 이름(`#foo`), 자손, 자식(`>`),
 복합(`.a.b`), 전체(`*`), `@import`.
 
-pseudo-class: `:hover`, `:active`, `:focus`, `:disabled`, `:checked`,
-`:selected`, `:inactive`, `:root`.
+pseudo-class: `:hover`, `:active`, `:inactive`, `:focus`, `:disabled`,
+`:enabled`, `:checked`, `:root`. `:selected`는 없습니다 — Unity 문서가 USS 미지원이라
+적고 `:checked`를 쓰라고 합니다.
 
 미지원: **형제 결합자**(`+`, `~`), `:nth-child`, `:first-child` / `:last-child`,
 `:not()`, `:has()`, 속성 셀렉터, `::before` / `::after`, `@media`.

@@ -116,7 +116,6 @@ nothing, which reads as "unsupported" when it is not.
 | `font-family` | `-unity-font-definition` (a font asset, not a web font) |
 | `font-weight` / `font-style` | `-unity-font-style`: `normal`, `bold`, `italic`, `bold-and-italic` |
 | `text-align` | `-unity-text-align`, which sets both axes at once: `upper-left`, `middle-center`, `lower-right`, … |
-| `text-shadow` | `-unity-text-outline-*` — an outline, so not the same effect |
 | `border-image` (9-slice) | `-unity-slice-left` / `-right` / `-top` / `-bottom` |
 | `transform: translate() / scale() / rotate()` | separate `translate`, `scale`, `rotate` properties |
 | *(no equivalent)* | `-unity-background-image-tint-color` — genuinely useful, tints a background image |
@@ -128,10 +127,14 @@ nothing, which reads as "unsupported" when it is not.
 
 Not renamed — absent. Writing them does nothing.
 
-`box-shadow` · `filter` · `backdrop-filter` · `mix-blend-mode` · `clip-path` ·
-`mask` · `outline` · `line-height` · `text-transform` · `text-decoration` ·
-`float` · `clear` · `z-index` · multiple backgrounds · `transform: skew()` ·
-3D transforms
+`box-shadow` · `gap` · `row-gap` · `column-gap` · `overflow-wrap` · `word-break` ·
+`mix-blend-mode` · `clip-path` · `mask` · `outline` · `line-height` ·
+`text-transform` · `text-decoration` · `float` · `clear` · `z-index` ·
+multiple backgrounds · `transform: skew()` · 3D transforms
+
+`text-shadow` is a USS property (since 6.0), and so are `filter` (6.3+) and
+`backdrop-filter` (6.6+) — they exist in USS even though this preview does not
+draw them.
 
 `display` only takes `flex` and `none`. There is no `block`, no `inline`, and
 **no `grid`** — grid layouts have to be rebuilt as nested flex containers.
@@ -146,8 +149,9 @@ different element, `ScrollView`, so a scrolling region is a markup change.
 Supported: type (`Button`), class (`.foo`), name (`#foo`), descendant, child
 (`>`), compound (`.a.b`), universal (`*`), and `@import`.
 
-Pseudo-classes: `:hover`, `:active`, `:focus`, `:disabled`, `:checked`,
-`:selected`, `:inactive`, `:root`.
+Pseudo-classes: `:hover`, `:active`, `:inactive`, `:focus`, `:disabled`,
+`:enabled`, `:checked`, `:root`. Not `:selected` — Unity says USS does not
+support it; use `:checked`.
 
 Not supported: **sibling combinators** (`+`, `~`), `:nth-child`,
 `:first-child` / `:last-child`, `:not()`, `:has()`, attribute selectors,

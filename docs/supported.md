@@ -103,18 +103,23 @@ UXML은 `project://database/Packages/...`로 해석된다(Unity 6000.0.40f1 실�
 ## 미지원 (C)
 
 `display: block/inline/inline-block`, `display: grid`, `position: fixed/sticky`,
-`float`, `clear`, `z-index`, `box-shadow`, `filter`, `backdrop-filter`,
-`mix-blend-mode`, `clip-path`, `mask`, `outline`, `line-height`, `text-transform`,
+`float`, `clear`, `z-index`, `box-shadow`, `gap`/`row-gap`/`column-gap`,
+`overflow-wrap`, `word-break`, `mix-blend-mode`, `clip-path`, `mask`, `outline`,
+`line-height`, `text-transform`,
 `text-decoration`, 다중 배경, `transform: skew()`, 3D 트랜스폼, `@keyframes`
 
 단위: `em` `rem` `vh` `vw` `vmin` `vmax` `pt` `cm` `in` `calc()`
 
 셀렉터: 형제(`+`, `~`), `:nth-child`, `:first/last-child`, `:not()`, `:has()`,
-속성 셀렉터, `::before`/`::after`, `@media`
+속성 셀렉터, `::before`/`::after`, `@media`, `:selected` 등 Unity가 설정하지 않는 의사 클래스
+
+USS 속성이지만 이 미리보기가 그리지 않는 것(경고 `not-rendered`): `text-shadow`, 트랜지션,
+`-unity-text-outline*`, 9-slice, 폰트 에셋, `filter`(6.3+), `backdrop-filter`(6.6+) 등.
+전체 목록은 `src/style/registry.ts`의 `handling: 'none'` 행이다.
 
 ## pseudo-class 상태
 
-`:hover` `:active` `:focus` `:disabled` `:checked` `:selected` `:inactive`의
+`:hover` `:active` `:inactive` `:focus` `:disabled` `:enabled` `:checked`(`USS_STATES`)의
 **스타일 해석**을 지원한다. 상태는 마우스 이벤트가 아니라 **명시적 입력**으로 받는다:
 
 ```ts
@@ -131,8 +136,35 @@ render(doc, el, { states: { '#UseButton': ['hover'], '#DropButton': ['disabled']
 - **상태별 유니티 기본값(예: `:hover` 배경색)은 넣지 않았다.** 좌표 덤프로는 색을
   측정할 수 없어 증명 수단이 없다. 상태 스타일은 사용자가 USS에 쓴 것만 적용된다
 
-## 버전 의존 (확인 필요)
+`:selected`는 상태 목록에 없다. Unity 문서가 USS 미지원이라 적기 때문이다(`:checked`를 쓴다).
+`:enabled`는 `states`로 넘겨야 켜진다 — 자동 적용은 0.6.0.
 
-`gap`, `aspect-ratio`, `linear-gradient()`, `hsl()`, `cubic-bezier()`,
-`justify-content: space-evenly`, `background-size`/`position`/`repeat`,
-`white-space` 값, `overflow-wrap`/`word-break`
+## 버전
+
+속성의 도입 버전은 `src/style/registry.ts`가 Unity 공식표에서 옮긴 값이다.
+6.3+: `aspect-ratio`, `filter`, `-unity-material`, `-unity-text-auto-size`.
+6.6+: `backdrop-filter`, `animation-play-state`, `-unity-animation-clip`.
+이 미리보기는 이 중 어느 것도 그리지 않으며, 경고 문구에 `Unity 6.3+`처럼 표시한다.
+
+값 수준의 버전 차이는 아직 판정하지 않는다(0.6.0): `linear-gradient()`, `hsl()`,
+`cubic-bezier()`, `justify-content: space-evenly`, `white-space` 값.
+
+## 경고 정책 (0.5.1)
+
+모든 경고는 `kind`에 더해 `reason`과 `subject`를 가진다(해당하는 경우). 소비자는
+문구(`message`)가 아니라 이 둘을 읽는다. 문구는 사람용이고 어느 릴리스에서나 바뀔 수 있다.
+
+| `reason` | 뜻 | 누구의 문제 |
+|---|---|---|
+| `not-uss` | USS에 없는 것을 썼다 (CSS 속성, 없는 의사 클래스, `@media`) | 작성자 |
+| `invalid-value` | USS 이름에 쓸 수 없는 값이나 대상 (`width: wide`, 없는 override 대상) | 작성자 |
+| `not-rendered` | 올바른 USS/UXML이지만 이 미리보기가 그리지 않는다 | 도구의 한계 |
+| `version-dependent` | 결과가 Unity 버전에 따라 다를 수 있다 (측정 버전 기준값) | 확인 필요 |
+| `matches-unity` | 무시되지만 Unity도 똑같이 무시한다 | 결함 아님 |
+
+- **둘 다 열린 집합이다.** 새 값이 마이너 릴리스에서 추가될 수 있으니 소비자는
+  `default` 분기를 둔다. `WarningKind`는 늘리지 않는다.
+- 속성 경고는 **선언마다 한 번**, 그 선언의 위치(`at`)와 함께 나온다. 아무 요소에도
+  매칭되지 않는 규칙의 선언도 경고한다. 상속으로 내려온 값에는 경고하지 않는다.
+- `subject.replacements`: 자주 틀리는 CSS 이름 11개에 대해 대신 쓸 USS 속성.
+- 문구가 소비자 계약인 7개(`tests/render/consumer-contract.test.ts`)는 바이트 단위로 유지한다.

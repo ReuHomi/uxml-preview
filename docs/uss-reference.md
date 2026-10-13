@@ -82,7 +82,7 @@ UXML 네임스페이스는 보통 `ui:` (`<ui:VisualElement>`). 프로젝트 관
 | `align-items`, `align-self`, `align-content` | 동일 | A | |
 | `justify-content` | 동일 | A | `space-evenly` 버전 확인 |
 | `flex-wrap` | 동일 | A | |
-| `gap`, `row-gap`, `column-gap` | 버전 확인 | B | 없으면 자식 margin으로 대체 |
+| `gap`, `row-gap`, `column-gap` | — | C | **어느 Unity 버전에도 없다**(6.6까지 확인). 자식 margin으로 대체 |
 | `position: relative`, `absolute` | 동일 | A | |
 | `position: fixed`, `sticky` | — | C | absolute + 부모 구조로 대체 |
 | `top`, `right`, `bottom`, `left` | 동일 | A | |
@@ -92,7 +92,7 @@ UXML 네임스페이스는 보통 `ui:` (`<ui:VisualElement>`). 프로젝트 관
 | `overflow: auto`, `scroll` | — | D | `ScrollView`로 교체 |
 | `float`, `clear` | — | C | flex로 재구성 |
 | `z-index` | — | D | **없음.** 형제 순서로 결정. 뒤에 올수록 위 |
-| `aspect-ratio` | 버전 확인 | B | 없으면 고정 크기로 |
+| `aspect-ratio` | 동일 (6.3+) | B | 6.0에는 없다. 이 미리보기는 레이아웃에 반영하지 않는다 |
 | `box-sizing` | 항상 border-box 동작 | A | 선언 불필요 |
 
 ---
@@ -108,8 +108,8 @@ UXML 네임스페이스는 보통 `ui:` (`<ui:VisualElement>`). 프로젝트 관
 | `opacity` | 동일 | A | |
 | `visibility` | 동일 | A | |
 | `box-shadow` | — | C | **미지원.** 그림자를 이미지에 굽거나 9-slice 배경으로 |
-| `text-shadow` | `-unity-text-outline-*` | B | 외곽선만. 그림자와 다름 |
-| `filter`, `backdrop-filter` | — | C | 흐림·채도 조정 전부 불가. 이미지로 굽기 |
+| `text-shadow` | 동일 | A | 6.0부터 USS 속성(상속됨). 이 미리보기는 그리지 않는다. 외곽선은 `-unity-text-outline-*` |
+| `filter`, `backdrop-filter` | 동일 (6.3+ / 6.6+) | B | 그 이전 버전에서는 이미지로 굽기. 이 미리보기는 그리지 않는다 |
 | `mix-blend-mode`, `background-blend-mode` | — | C | 미지원. 셰이더 영역 |
 | `clip-path`, `mask` | — | C | `overflow: hidden` 정도로만 |
 | `outline` | — | C | border로 대체 |
@@ -132,7 +132,7 @@ UXML 네임스페이스는 보통 `ui:` (`<ui:VisualElement>`). 프로젝트 관
 | `line-height` | — | C | 없음. `-unity-paragraph-spacing`은 단락 간격이라 다름 |
 | `text-transform` | — | C | 텍스트를 직접 대문자로 넣어야 함 |
 | `text-decoration` (밑줄, 취소선) | — | C | 미지원. 선을 요소로 그리거나 리치텍스트 태그 |
-| `overflow-wrap`, `word-break` | 버전 확인 | B | |
+| `overflow-wrap`, `word-break` | — | C | 어느 Unity 버전에도 없다(6.6까지 확인) |
 
 **리치텍스트**: `Label`에 `enable-rich-text="true"`를 주면 `<b>`, `<color=#fff>` 같은
 유니티 리치텍스트 태그를 쓸 수 있다. HTML의 인라인 서식(`<strong>`, `<em>`)을
@@ -145,8 +145,8 @@ UXML 네임스페이스는 보통 `ui:` (`<ui:VisualElement>`). 프로젝트 관
 | CSS | USS | 등급 | 비고 |
 |---|---|---|---|
 | `background-image: url()` | 동일 (`url(...)` 또는 `resource(...)`) | A | 웹 URL 불가. 두 형식은 해석 규칙이 다름 |
-| `background-size` | 동일 (`cover`/`contain`) | A | 버전 확인 |
-| `background-position`, `background-repeat` | 동일 | A | 버전 확인 |
+| `background-size` | 동일 (`cover`/`contain`) | A | 6000.0부터 있음 |
+| `background-position`, `background-repeat` | 동일 | A | 6000.0부터 있음 |
 | 다중 배경 (`,`로 나열) | — | C | 하나만. 요소를 겹쳐서 대체 |
 | `linear-gradient()` | 버전 확인 | B | 미지원 버전이면 이미지로 구움 |
 | 9-slice 늘리기 | `-unity-slice-left/right/top/bottom` | A | CSS `border-image` 대응 |
@@ -194,7 +194,8 @@ transition을 걸면 매 프레임 레이아웃을 다시 계산해서 프레임
 | 복합 (`.a.b`) | 동일 | A |
 | 전체 (`*`) | 동일 | A |
 | `:hover`, `:active`, `:focus`, `:disabled` | 동일 | A |
-| `:checked`, `:selected`, `:root`, `:inactive` | 동일 | A |
+| `:checked`, `:enabled`, `:root`, `:inactive` | 동일 | A |
+| `:selected` | `:checked` | B | Unity 문서: USS가 지원하지 않는 상태 |
 | 인접·일반 형제 (`+`, `~`) | — | C |
 | `:nth-child`, `:first-child`, `:last-child` | — | C |
 | `:not()`, `:has()` | — | C |
@@ -342,7 +343,7 @@ USS 쪽에서 해결된다. 이것도 C# 할 일에 적는다.
 6. **`display: block` 잔존** — 무시되거나 오류. 제거한다.
 7. **레이아웃 속성 트랜지션** — 동작하지만 프레임이 떨어진다. transform으로 교체.
 8. **스크롤이 안 됨** — `overflow: auto`가 아니라 `ScrollView` 요소가 필요하다.
-9. **`gap` 무시** — 버전에 따라 없다. 자식 margin으로 대체.
+9. **`gap` 무시** — 어느 Unity 버전의 USS에도 없다. 자식 margin으로 대체.
 10. **`%` 크기가 안 먹음** — 부모에 명시적 크기가 없으면 계산되지 않는다.
 
 ---
