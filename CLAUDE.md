@@ -96,8 +96,11 @@ Unity UI Toolkit의 UXML/USS를 브라우저에서 렌더링·편집하는 라�
 - 6.3+: `aspect-ratio`, `filter`, `-unity-material`, `-unity-text-auto-size`
 - 6.6+: `backdrop-filter`, `animation-play-state`, `-unity-animation-clip`
 - `background-size`/`position`/`repeat`는 6000.0에 이미 있다 — 버전 의존이 아니다
-- 값 수준은 아직 판정하지 않는다(0.6.0): `linear-gradient()`, `hsl()`, `cubic-bezier()`,
-  `justify-content: space-evenly`, `white-space` 값
+- 값 수준 판정(0.6.0, 6000.0.40f1·6000.3.25f1 실측): `hsl()`(6.3)·`cubic-bezier()`·6.0의 `filter`는
+  Unity 패널 전체의 스타일을 멈춘다(`unityEffect: panel-unstyled`). 인라인 값 하나의 단위 오류는 그 파일의
+  인라인 스타일 전부를 버린다(`file-inline-dropped`). `opacity: 50%`는 50으로, `inherit`는 투명으로 읽힌다.
+  `linear-gradient()`는 경고 아이콘이 된다. `space-evenly`는 동작한다. `white-space` 값은 아직 미판정
+- 글자 높이·간격은 CSS가 아니다: 높이는 FaceInfo 공식(`textHeight`), 자간·어간은 값 × 글자 크기 / 100
 
 ### 애니메이션
 

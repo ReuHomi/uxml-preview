@@ -104,6 +104,13 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 
 ## 0.6.0 — 0.5.1이 넘긴 항목
 
+> **2026-10-16, 0.6.0에서 처리(release/0.6.0):** `:enabled` 자동 적용, `states` 키 경고 3종, 값 수준
+> 판정(`hsl()`·`cubic-bezier()`·`space-evenly`·`opacity %`·`inherit`·`linear-gradient()`; `cursor` 값은 아님),
+> `letter-spacing`/`word-spacing` 측정, 선언 단위 경고의 요소 목록(`nodes`), 6.3 LTS 측정 문항 중
+> 텍스트·효과 계열(등록표 `inferred` 해제). 남은 것: `unsupported-unit` 종류(여전히 발생 지점 없음),
+> `background-position-x/-y` 그리기, `-unity-font` 단독 측정, `transition`/6.6 전용 속성, `white-space` 값.
+> 아래 원문은 기록으로 남긴다.
+
 0.5.1의 원칙은 "그려지는 결과는 바꾸지 않고, 말하지 않던 것을 말하게 한다"였다.
 아래는 그 범위를 넘거나 값 수준 판정이 필요해서 넘긴 것이다 (2026-10-13).
 
