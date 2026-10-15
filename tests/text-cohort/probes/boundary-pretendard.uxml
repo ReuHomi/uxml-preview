@@ -1,0 +1,20 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="pretendard-en-10-bm2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 10px; width: 96px;" />
+<ui:Label name="pretendard-en-10-bp2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 10px; width: 100px;" />
+<ui:Label name="pretendard-en-14-bm2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 14px; width: 136px;" />
+<ui:Label name="pretendard-en-14-bp2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 14px; width: 140px;" />
+<ui:Label name="pretendard-en-20-bm2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 20px; width: 194px;" />
+<ui:Label name="pretendard-en-20-bp2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 20px; width: 198px;" />
+<ui:Label name="pretendard-en-32-bm2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 32px; width: 312px;" />
+<ui:Label name="pretendard-en-32-bp2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 32px; width: 316px;" />
+<ui:Label name="pretendard-ko-10-bm2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 10px; width: 101px;" />
+<ui:Label name="pretendard-ko-10-bp2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 10px; width: 105px;" />
+<ui:Label name="pretendard-ko-14-bm2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 14px; width: 142px;" />
+<ui:Label name="pretendard-ko-14-bp2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 14px; width: 146px;" />
+<ui:Label name="pretendard-ko-20-bm2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 20px; width: 204px;" />
+<ui:Label name="pretendard-ko-20-bp2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 20px; width: 208px;" />
+<ui:Label name="pretendard-ko-32-bm2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 32px; width: 327px;" />
+<ui:Label name="pretendard-ko-32-bp2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 32px; width: 331px;" />
+</ui:VisualElement>
+</ui:UXML>

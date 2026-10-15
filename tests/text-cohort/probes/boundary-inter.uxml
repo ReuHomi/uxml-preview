@@ -1,0 +1,20 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="inter-en-10-bm2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 10px; width: 102px;" />
+<ui:Label name="inter-en-10-bp2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 10px; width: 106px;" />
+<ui:Label name="inter-en-14-bm2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 14px; width: 143px;" />
+<ui:Label name="inter-en-14-bp2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 14px; width: 147px;" />
+<ui:Label name="inter-en-20-bm2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 20px; width: 205px;" />
+<ui:Label name="inter-en-20-bp2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 20px; width: 209px;" />
+<ui:Label name="inter-en-32-bm2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 32px; width: 329px;" />
+<ui:Label name="inter-en-32-bp2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 32px; width: 333px;" />
+<ui:Label name="inter-ko-10-bm2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 10px; width: 117px;" />
+<ui:Label name="inter-ko-10-bp2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 10px; width: 121px;" />
+<ui:Label name="inter-ko-14-bm2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 14px; width: 164px;" />
+<ui:Label name="inter-ko-14-bp2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 14px; width: 168px;" />
+<ui:Label name="inter-ko-20-bm2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 20px; width: 235px;" />
+<ui:Label name="inter-ko-20-bp2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 20px; width: 239px;" />
+<ui:Label name="inter-ko-32-bm2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 32px; width: 378px;" />
+<ui:Label name="inter-ko-32-bp2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 32px; width: 382px;" />
+</ui:VisualElement>
+</ui:UXML>

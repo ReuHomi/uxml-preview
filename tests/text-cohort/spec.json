@@ -1,0 +1,54 @@
+{
+  "fonts": [
+    {
+      "id": "inter",
+      "file": "Inter-Regular.ttf",
+      "role": "Unity editor default (the ttf behind Inter-Regular SDF)",
+      "noGlyphs": [
+        "ko",
+        "mix"
+      ]
+    },
+    {
+      "id": "pretendard",
+      "file": "Pretendard-Regular.otf",
+      "role": "Korean/Latin UI font"
+    },
+    {
+      "id": "jua",
+      "file": "Jua-Regular.ttf",
+      "role": "Korean display font (external feedback)"
+    },
+    {
+      "id": "dunggeunmo",
+      "file": "DungGeunMo.ttf",
+      "role": "pixel font, extreme metrics"
+    },
+    {
+      "id": "wanted-bold",
+      "file": "WantedSans-Bold.ttf",
+      "role": "bold face"
+    }
+  ],
+  "sentences": {
+    "en": "Hamburgefonts Quick",
+    "ko": "다람쥐 헌 쳇바퀴에 타고파",
+    "mix": "UI 툴킷 Preview 미리보기"
+  },
+  "sizes": [
+    10,
+    14,
+    20,
+    32
+  ],
+  "boundary": {
+    "sentences": [
+      "en",
+      "ko"
+    ],
+    "offsets": [
+      -2,
+      2
+    ]
+  }
+}

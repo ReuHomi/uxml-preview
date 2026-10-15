@@ -1,0 +1,5 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="default-en-20" text="Hamburgefonts Quick" style="font-size: 20px; padding: 0; white-space: nowrap;" />
+</ui:VisualElement>
+</ui:UXML>

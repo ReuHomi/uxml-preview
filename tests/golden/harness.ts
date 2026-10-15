@@ -8,7 +8,7 @@
 
 import { posix } from 'node:path';
 
-import { expandTemplates, parse } from '../../src/index';
+import { EDITOR_DEFAULT_FACE_INFO, expandTemplates, parse, textHeight } from '../../src/index';
 import { layoutDocument } from '../../src/layout/yoga';
 import type { MeasureText } from '../../src/layout/yoga';
 import type { ElementNode } from '../../src/model/types';
@@ -20,16 +20,20 @@ const PROJECT_DATABASE = 'project://database/';
 const CASE_ASSETS = 'Assets/GoldenCases/';
 
 /**
- * Half an em per character, one line per text run.
+ * Half an em per character; height by Unity's own rule.
  *
- * Wrong in absolute terms and deliberately so: it is stable, which is what the
- * regression snapshots need. Cases whose layout depends on it are flagged
- * `measuresText` and excluded from the Unity comparison, because matching
- * Unity there would mean matching its font metrics rather than its layout.
+ * The width is wrong in absolute terms and deliberately so: it is stable, which
+ * is what the regression snapshots need. Cases whose layout depends on it are
+ * flagged `measuresText` and excluded from the Unity comparison.
+ *
+ * The height is not a stand-in any more (0.6.0, decision D3): it is the FaceInfo
+ * formula the default measurer uses, with the editor default font Unity reports.
+ * Until 0.6.0 it was the font size, which is why every Label height in the
+ * mismatch tables was 3-5px short.
  */
 export const FIXED_MEASURE: MeasureText = (text, context) => ({
   width: text.length * context.fontSize * 0.5,
-  height: context.fontSize,
+  height: textHeight(text.split('\n').length, context.fontSize, context.faceInfo ?? EDITOR_DEFAULT_FACE_INFO),
 });
 
 export interface Rect {
