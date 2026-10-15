@@ -371,16 +371,14 @@ export interface RenderResult {
  *               nothing to tell two occurrences apart by, so it is left alone.
  */
 function oncePerDeclaration(warnings: readonly Warning[]): Warning[] {
+  // nodes is filled by declarationLocator for value-level warnings, resolveStyles for per-declaration judgements.
   const seen = new Map<string, Warning>();
   const out: Warning[] = [];
   for (const warning of warnings) {
     const w = { ...warning };
     const key = w.at === undefined ? undefined : JSON.stringify([w.kind, w.message, w.sourceDocument ?? null, w.at]);
     const first = key === undefined ? undefined : seen.get(key);
-    if (first !== undefined) {
-      if (w.nodes !== undefined) first.nodes = [...new Set([...(first.nodes ?? []), ...w.nodes])];
-      continue;
-    }
+    if (first !== undefined) continue;
     if (key !== undefined) seen.set(key, w);
     out.push(w);
   }

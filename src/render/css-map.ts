@@ -179,14 +179,14 @@ export function toCss(
     if (width !== undefined && width !== '0') {
       const { length, problem } = parseLength(width);
       if (length === null || length.kind !== 'px') {
-        // Appending "px" to anything non-pixel produced values like `50%px`,
-        // which CSSOM drops without a word — and Yoga ignores the same
-        // declaration. Silence in both layers is exactly what rule 6 forbids.
-        warn(
-          'unsupported-property',
-          `border-${side}-width: ${problem ?? `"${width}" is not a pixel length`}; ignored`,
-          { reason: 'invalid-value', ...about(`border-${side}-width`) },
-        );
+        // Layout owns parse problems, including the inline unityEffect rule.
+        if (problem === undefined) {
+          warn(
+            'unsupported-property',
+            `border-${side}-width: "${width}" is not a pixel length; ignored`,
+            { reason: 'invalid-value', ...about(`border-${side}-width`) },
+          );
+        }
       } else {
         out[`border-${side}-width`] = `${length.value}px`;
         // USS draws solid borders only, so the style is not read from anywhere.
