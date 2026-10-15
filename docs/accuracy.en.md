@@ -28,17 +28,17 @@ v0.4.0)**.
 
 | Item | Template expansion cohort | Meaning |
 |---|---:|---|
-| Matching coordinate values | **200 / 220** | 55 elements × `x`/`y`/`width`/`height` |
+| Matching coordinate values | **215 / 220** (before 0.6.0: 200 / 220) | 55 elements × `x`/`y`/`width`/`height` |
 | Rendered cases | **11** | G3-1 through G3-10 and G3-12 |
 | Unity baselines available | **11 / 11** | Coverage of rendered baselines, not accuracy |
-| Divergences | **20** | (a) known font/text metrics 20 / (b) 1px 0 / (c) new cause 0 |
+| Divergences | **5** | (a) known font/text metrics 5 / (b) 1px 0 / (c) new cause 0 |
 
 G3-11 has no layout baseline: Unity's `CloneTree` raises a
 `StackOverflowException` for the cyclic template. The core blocks the same input
 fail-closed and reports `template-cycle`. It is not included in the 11 rendered
 cases or in the base-control figures.
 
-### The 20 template-expansion divergences — (a) / (b) / (c)
+### The 5 template-expansion divergences — (a) / (b) / (c)
 
 `problems` and `lines` are units used by the external re-observation table; the
 table below counts only coordinate divergences in rendered template cases, and
@@ -51,33 +51,17 @@ does not turn those two diagnostic units or empty-box matches into accuracy.
 
 | Case | Element | Axis | ours | Unity | Δ |
 |---|---|---|---:|---:|---:|
-| `G3-1` | `g31-label` | height | 12 | 15 | -3 |
-| `G3-2` | `g32-label#1` | height | 12 | 15 | -3 |
-| `G3-2` | `g32-label#2` | height | 12 | 15 | -3 |
-| `G3-2` | `g32-label#3` | height | 12 | 15 | -3 |
-| `G3-3` | `g33-label` | height | 12 | 15 | -3 |
 | `G3-4` | `g34-instance` | width | 140 | 145 | -5 |
 | `G3-4` | `g34-template-root` | width | 140 | 145 | -5 |
-| `G3-4` | `g34-template-root` | height | 20 | 25 | -5 |
 | `G3-4` | `g34-internal-label` | width | 140 | 145 | -5 |
-| `G3-4` | `g34-internal-label` | height | 20 | 25 | -5 |
 | `G3-4` | `g34-outside-label` | x | 140 | 145 | -5 |
 | `G3-4` | `g34-outside-label` | width | 150 | 140 | 10 |
-| `G3-5` | `g35-inherited-label` | height | 18 | 22 | -4 |
-| `G3-7` | `g37-deep-label` | height | 12 | 15 | -3 |
-| `G3-8` | `g38-instance` | height | 19 | 23 | -4 |
-| `G3-8` | `g38-template-root` | height | 19 | 23 | -4 |
-| `G3-8` | `g38-label` | height | 19 | 23 | -4 |
-| `G3-9` | `g39-duplicate#1` | height | 12 | 15 | -3 |
-| `G3-9` | `g39-duplicate#2` | y | 12 | 15 | -3 |
-| `G3-9` | `g39-duplicate#2` | height | 12 | 15 | -3 |
 
-The measured classification is **(a) 20 / (b) 0 / (c) 0**. Axis distribution is
-`height` 14, `width` 4, `x` 1, `y` 1. There are zero values with `|Δ| ≤ 1` and
-zero mismatches on fixed-size boxes without text, so neither the 1px allowance
-nor a new layout cause has a row. Every row matches the existing Unity Label
-font metric behavior: font-size 12 gives height 15, and 20 gives height 25;
-the harness uses `height = fontSize`.
+The measured classification is **(a) 5 / (b) 0 / (c) 0**: `width` 4, `x` 1.
+In 0.6.0 the harness's text height moved from `height = fontSize` to the FaceInfo
+formula (`textHeight`, D3), which removed the 14 Label heights and the one `y`
+they pushed (200/220 → 215/220). The 5 left are G3-4 Label widths, from the
+harness's fixed half-em width.
 
 This table went stale once already (found 2026-08-09): two cases,
 `state-vs-id` and `state-vs-inline`, were merged without it being updated.
@@ -174,6 +158,18 @@ Measurement environment:
 > Toolkit differs between versions — which is exactly what the divergence below
 > is. **When re-measuring on another Unity version, add a table for it rather
 > than overwriting this one.**
+
+## Text cohort (separate set, measured 2026-10-16)
+
+Never added to the coordinate figures. Same UXML (tests/text-cohort/probes/) drawn by Unity and a real Chromium; Label boxes compared: line count must match, height must match the FaceInfo formula exactly, width within 1px or 1%. Preview side: Google Chrome 155.0.8059.79 (Playwright Chromium 1140 does not start on this machine: Windows side-by-side error). Unity side: 6000.0.40f1 and 6000.3.25f1. Fonts: Inter, Pretendard, Jua, DungGeunMo, Wanted Sans Bold; coefficients are the FaceInfo Unity reports. Run with pnpm test:text. The Korean table above (docs/accuracy.md) has the per-failure explanation.
+
+| Unity | 줄 수 | 높이 | 너비(1px/1%) | 경계 줄 수 | 실패 (a/b/c): 줄·높이·너비 | 너비 Δ 범위 |
+|---|---:|---:|---:|---:|---|---|
+| 6000.0.40f1 | 60/60 | 28/60 | 57/60 | 74/80 | 5/1/0 · 74/1/0 · 3/0/0 | -4…0 |
+| 6000.3.25f1 | 60/60 | 52/60 | 60/60 | 79/80 | 0/1/0 · 16/1/0 · 0/0/0 | -1…0 |
+|---|---:|---:|
+
+On 6.3 LTS, the reference, nothing is unexplained (c): the height misses are Inter on Hangul (Inter has no Hangul glyphs; Unity and the browser fall back to different fonts), and one boundary case flips on a 1px natural-width difference. The rest on 6000.0 is a Unity version difference the preview does not follow (integer heights rounded up by one, extra lines advanced by lineHeight, Jua drawn 2-4px wider).
 
 ## Why geometry and not pixels
 

@@ -29,6 +29,8 @@ import { expandShorthand } from '../style/properties';
 import type { ComputedValue, DeclarationLocator } from '../style/resolve';
 import { INITIAL, parseLength, parseNumber } from '../render/values';
 import type { Length } from '../render/values';
+import type { FaceInfo } from '../render/measure';
+import { decodeEntities } from '../parser/entities';
 
 let engine: Yoga | null = null;
 
@@ -71,6 +73,12 @@ export interface TextContext {
   /** `normal` | `bold` | `italic` | `bold-and-italic`. */
   fontStyle: string;
   whiteSpace: string;
+  fontFamily?: string;
+  faceInfo?: FaceInfo;
+  letterSpacing?: number;
+  wordSpacing?: number;
+  paragraphSpacing?: number;
+  textGenerator?: 'standard' | 'advanced';
 }
 
 export type MeasureText = (
@@ -80,6 +88,7 @@ export type MeasureText = (
 ) => TextMetrics;
 
 export interface LayoutOptions {
+  fonts?: ReadonlyMap<ComputedStyle, { family: string; faceInfo?: FaceInfo }>;
   size: { width: number; height: number };
   /**
    * Measures a control's text.
@@ -337,7 +346,8 @@ export function layoutDocument(
   }
 
   function textOf(node: ElementNode): string | undefined {
-    return node.attributes.find((a) => a.name === 'text')?.value;
+    const text = node.attributes.find((a) => a.name === 'text')?.value;
+    return text === undefined ? undefined : decodeEntities(text);
   }
 
   /**
@@ -419,7 +429,20 @@ export function layoutDocument(
         fontSize: fontSize !== null && fontSize.kind === 'px' ? fontSize.value : 12,
         fontStyle: read(style, '-unity-font-style') || 'normal',
         whiteSpace: read(style, 'white-space') || 'normal',
+        textGenerator: read(style, '-unity-text-generator') === 'standard' ? 'standard' : 'advanced',
       };
+      const font = options.fonts?.get(style);
+      if (font !== undefined) {
+        context.fontFamily = font.family;
+        if (font.faceInfo !== undefined) context.faceInfo = font.faceInfo;
+      }
+      for (const [property, field] of [
+        ['letter-spacing', 'letterSpacing'], ['word-spacing', 'wordSpacing'],
+        ['-unity-paragraph-spacing', 'paragraphSpacing'],
+      ] as const) {
+        const parsed = length(style, property, node);
+        if (parsed?.kind === 'px') context[field] = parsed.value;
+      }
       yg.setMeasureFunc((availableWidth) =>
         options.measureText(
           text,

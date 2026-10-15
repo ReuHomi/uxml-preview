@@ -48,6 +48,7 @@ try {
 
 // --- Unity side -------------------------------------------------------------
 const VERSIONS = readdirSync(join(HERE, 'unity')).sort();
+const REFERENCE = VERSIONS.at(-1);
 const unity = {};
 const faceInfo = {};
 for (const v of VERSIONS) {
@@ -156,16 +157,33 @@ function judge(v) {
     const dw = p.w - u.w;
     const dh = p.h - u.h;
     const widthOk = Math.abs(dw) <= Math.max(1, u.w * 0.01);
+    // The newest version is the reference (6.3 LTS). On an older one, a value the
+    // preview shares with the reference within tolerance is a Unity version
+    // difference, (a) — measured: 6000.0 draws Jua 2-4px wider than 6000.3.
+    const matchesRef = (field) => ref !== undefined && Math.abs(p[field] - ref[field]) <= Math.max(1, ref[field] * 0.01);
     const why = (delta, versionRule) => {
       if (noGlyphs(name)) return 'a';
       if (versionRule) return 'a';
       if (Math.abs(delta) <= 1) return 'b';
       return 'c';
     };
+    const ref = v === REFERENCE ? undefined : unity[REFERENCE][name];
     const row = { name, boundary: /-b[pm]\d+$/.test(name), unity: { w: u.w, h: u.h }, preview: p, linesU: nU, linesP: nP, dw, dh, widthOk };
-    if (nU !== nP) row.linesCls = why(nU - nP, false);
-    if (dh !== 0) row.heightCls = why(dh, v.startsWith('6000.0') && height60(nU, u.fontSize, u.faceInfo) === u.h);
-    if (!widthOk) row.widthCls = why(dw, false);
+    // A line count that flips at a boundary case because the natural widths differ
+    // by at most 1px is (b); the boundary cases sit 2px from Unity 6000.0's width.
+    if (nU !== nP) {
+      const natural = name.replace(/-b[pm]\d+$/, '');
+      // On an older version the 1px test also runs against the reference's natural
+      // width: a 1px preview difference stacked on a 6000.0-vs-6.3 one is still 1px.
+      const widthGap = (table) => (table[natural] !== undefined && preview.boxes[natural] !== undefined
+        ? Math.abs(preview.boxes[natural].w - table[natural].w) : Infinity);
+      const nw = Math.min(widthGap(unity[v]), v === REFERENCE ? Infinity : widthGap(unity[REFERENCE]));
+      const refLines = ref === undefined ? undefined : lines(ref.h, u.fontSize, u.faceInfo);
+      row.linesCls = noGlyphs(name) || refLines === nP ? 'a' : nw <= 1 ? 'b' : 'c';
+    }
+    // A height that differs because the line count differs is that difference, not another one.
+    if (dh !== 0) row.heightCls = row.linesCls ?? why(dh, (v.startsWith('6000.0') && height60(nU, u.fontSize, u.faceInfo) === u.h) || matchesRef('h'));
+    if (!widthOk) row.widthCls = why(dw, matchesRef('w'));
     rows.push(row);
   }
   return rows;

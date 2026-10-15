@@ -9,8 +9,31 @@
 
 import type { MeasureText } from '../layout/yoga';
 
-/** Rough ratio of line box height to font size for a single line of text. */
-const LINE_HEIGHT_RATIO = 1.2;
+export interface FaceInfo {
+  pointSize: number;
+  ascentLine: number;
+  descentLine: number;
+  lineHeight?: number;
+}
+
+// Measured FontAsset probe, tests/text-cohort/unity/<version>/, 2026-10-16:
+// Inter-Regular SDF is the editor default.
+export const EDITOR_DEFAULT_FACE_INFO: FaceInfo = {
+  pointSize: 90, ascentLine: 87.1875, descentLine: -21.73295, lineHeight: 108.9205,
+};
+
+export function textHeight(
+  lines: number, fontSize: number, face: FaceInfo,
+  paragraphBreaks = 0, paragraphSpacing = 0,
+): number {
+  // Measured on 6.3 LTS, 2026-10-16 (tests/text-cohort/unity/).
+  return Math.ceil(lines * fontSize * (face.ascentLine - face.descentLine) / face.pointSize
+    + paragraphBreaks * paragraphSpacing * fontSize / 100);
+}
+
+export function fontList(family?: string): string {
+  return family === undefined ? 'sans-serif' : `${JSON.stringify(family)}, sans-serif`;
+}
 
 /**
  * Purpose:      measure text with a canvas when one is available.
@@ -27,46 +50,54 @@ export function createDefaultMeasureText(doc?: Document): MeasureText {
   }
 
   return (text, style, availableWidth) => {
-    const lineHeight = style.fontSize * LINE_HEIGHT_RATIO;
-
-    const widthOf = (value: string): number => {
-      if (context === null) {
-        // No canvas. Half an em per character is wrong, but it is wrong the
-        // same way every time, which keeps a headless layout usable.
-        return value.length * style.fontSize * 0.5;
+    const weight = style.fontStyle.includes('bold') ? 'bold' : 'normal';
+    const italic = style.fontStyle.includes('italic') ? 'italic' : 'normal';
+    const setFont = (size: number): void => {
+      if (context !== null) context.font = `${italic} ${weight} ${size}px ${fontList(style.fontFamily)}`;
+    };
+    let face = style.faceInfo;
+    if (face === undefined && style.fontFamily !== undefined && context !== null) {
+      setFont(90);
+      const metrics = context.measureText('Mg');
+      if (Number.isFinite(metrics.fontBoundingBoxAscent) && Number.isFinite(metrics.fontBoundingBoxDescent)) {
+        face = { pointSize: 90, ascentLine: metrics.fontBoundingBoxAscent, descentLine: -metrics.fontBoundingBoxDescent };
       }
-      const weight = style.fontStyle.includes('bold') ? 'bold' : 'normal';
-      const italic = style.fontStyle.includes('italic') ? 'italic' : 'normal';
-      context.font = `${italic} ${weight} ${style.fontSize}px sans-serif`;
-      return context.measureText(value).width;
+    }
+    setFont(style.fontSize);
+    const widthOf = (value: string): number => {
+      const characters = [...value].length;
+      const spaces = [...value].filter((c) => c === ' ').length;
+      // Unity probes, 2026-10-16: spacing is a percentage of font size;
+      // advanced (6.3 editor default) excludes spaces from letter gaps.
+      const gaps = Math.max(0, characters - 1 - (style.textGenerator === 'standard' ? 0 : spaces));
+      const base = context === null ? characters * style.fontSize * 0.5 : context.measureText(value).width;
+      return base + (gaps * (style.letterSpacing ?? 0) + spaces * (style.wordSpacing ?? 0)) * style.fontSize / 100;
     };
 
-    const wraps = style.whiteSpace !== 'nowrap' && style.whiteSpace !== 'pre';
-    if (!wraps || availableWidth <= 0) {
-      // `pre` keeps explicit line breaks, so the text can still be several
-      // lines tall even though it never wraps. Treating it as one line made
-      // every multi-line string measure short.
-      const lines = text.split('\n');
-      const widest = lines.reduce((max, line) => Math.max(max, widthOf(line)), 0);
-      return { width: widest, height: lines.length * lineHeight };
-    }
-
-    const words = text.split(/\s+/).filter((w) => w.length > 0);
-    let lines = 1;
-    let current = 0;
+    const paragraphs = text.split('\n');
+    const wraps = style.whiteSpace !== 'nowrap' && style.whiteSpace !== 'pre' && availableWidth > 0;
+    let lines = 0;
     let widest = 0;
-    for (const word of words) {
-      const wordWidth = widthOf(word);
-      const spaceWidth = current === 0 ? 0 : widthOf(' ');
-      if (current > 0 && current + spaceWidth + wordWidth > availableWidth) {
-        widest = Math.max(widest, current);
-        lines++;
-        current = wordWidth;
-      } else {
-        current += spaceWidth + wordWidth;
+    for (const paragraph of paragraphs) {
+      let current = '';
+      lines++;
+      if (!wraps) {
+        widest = Math.max(widest, widthOf(paragraph));
+        continue;
       }
+      for (const word of paragraph.split(/\s+/).filter((w) => w.length > 0)) {
+        const candidate = current === '' ? word : `${current} ${word}`;
+        if (current !== '' && widthOf(candidate) > availableWidth) {
+          widest = Math.max(widest, widthOf(current));
+          lines++;
+          current = word;
+        } else {
+          current = candidate;
+        }
+      }
+      widest = Math.max(widest, widthOf(current));
     }
-    widest = Math.max(widest, current);
-    return { width: widest, height: lines * lineHeight };
+    return { width: widest, height: textHeight(lines, style.fontSize,
+      face ?? EDITOR_DEFAULT_FACE_INFO, paragraphs.length - 1, style.paragraphSpacing ?? 0) };
   };
 }

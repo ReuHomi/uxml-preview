@@ -1,3 +1,5 @@
+import { fontList } from './measure';
+import type { FaceInfo } from './measure';
 /**
  * Painting: Yoga rectangles to DOM.
  *
@@ -45,6 +47,7 @@ export interface PaintResult {
 
 export interface PaintOptions extends CssMapOptions {
   document: Document;
+  fonts?: ReadonlyMap<ComputedStyle, { family: string; faceInfo?: FaceInfo }>;
 }
 
 /**
@@ -140,7 +143,26 @@ export function paint(
       if (css.declarations['justify-content'] === undefined) {
         el.style.setProperty('justify-content', 'flex-start');
       }
-      el.textContent = decodeEntities(text);
+      const font = options.fonts?.get(style);
+      if (font !== undefined) el.style.fontFamily = fontList(font.family);
+      const gap = parseLength(style.get('-unity-paragraph-spacing')?.value ?? '').length;
+      const decoded = decodeEntities(text);
+      if (gap?.kind === 'px' && decoded.includes('\n')) {
+        const size = parseLength(style.get('font-size')?.value ?? '12px').length;
+        const paragraphs = decoded.split('\n');
+        const content = options.document.createElement('div');
+        content.style.width = '100%';
+        paragraphs.forEach((paragraph, index) => {
+          const block = options.document.createElement('div');
+          block.textContent = paragraph;
+          block.style.minHeight = '1em';
+          if (index < paragraphs.length - 1) block.style.marginBottom = `${gap.value * (size?.kind === 'px' ? size.value : 12) / 100}px`;
+          content.appendChild(block);
+        });
+        el.appendChild(content);
+      } else {
+        el.textContent = decoded;
+      }
     } else {
       // The control's own parts nest between this element and the file's
       // children, so `host` walks inward and the children are appended to the

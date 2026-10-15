@@ -45,6 +45,8 @@ registerTemplateParser((source, resolver) =>
 );
 export { loadLayoutEngine, isLayoutEngineReady, liveNodeCount } from './layout/yoga';
 export type { LayoutBox, MeasureText, TextContext, TextMetrics } from './layout/yoga';
+export type { FaceInfo } from './render/measure';
+export { textHeight, EDITOR_DEFAULT_FACE_INFO } from './render/measure';
 export { createDefaultMeasureText } from './render/measure';
 export { NODE_ATTRIBUTE, PART_ATTRIBUTE, PART_OWNER_ATTRIBUTE } from './render/paint';
 export { supportedControlNames } from './controls/registry';
@@ -74,6 +76,8 @@ import { layoutDocument } from './layout/yoga';
 import type { LayoutBox, MeasureText } from './layout/yoga';
 import { createDefaultMeasureText } from './render/measure';
 import { paint } from './render/paint';
+import { resolveFonts } from './render/fonts';
+import type { ResolveFont } from './render/fonts';
 
 // ---------------------------------------------------------------------------
 // Parsing / serialization
@@ -269,6 +273,8 @@ export function serialize(doc: UxmlDocument): { uxml: string; uss: string } {
 // ---------------------------------------------------------------------------
 
 export interface RenderOptions {
+  /** Resolves font assets once per distinct path and form in each render. */
+  resolveFont?: ResolveFont;
   /**
    * Resolves Unity asset references to something a browser can load.
    *
@@ -405,9 +411,12 @@ export function render(
   const measureText = options?.measureText ?? createDefaultMeasureText(ownerDocument);
   const locate = declarationLocator(renderDocument, resolved.matchedNodes);
 
+  const fontResult = resolveFonts(resolved.styles, resolved.warnings, locate, options?.resolveFont);
+
   const tree = layoutDocument(renderDocument.root, resolved.styles, resolved.partStyles, {
     size,
     measureText,
+    fonts: fontResult.fonts,
     locate,
   });
 
@@ -419,6 +428,7 @@ export function render(
   try {
     painted = paint(renderDocument.root, tree.boxes, tree.parts, resolved.styles, container, {
       document: ownerDocument,
+      fonts: fontResult.fonts,
       resolveAsset: options?.resolveAsset,
       locate,
     });
@@ -431,7 +441,7 @@ export function render(
   return {
     warnings: oncePerDeclaration([
       ...expanded.warnings,
-      ...resolved.warnings,
+      ...fontResult.warnings,
       ...tree.warnings,
       ...painted.warnings,
     ]),

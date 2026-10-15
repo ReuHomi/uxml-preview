@@ -323,7 +323,7 @@ export type WarningSubject =
       fragment?: string;
     }
   | { kind: 'states-key'; key: string; problem?: 'matches-nothing' | 'state-in-key' | 'unknown-state'; state?: string }
-  | { kind: 'asset'; path: string; form: 'url' | 'resource' }
+  | { kind: 'asset'; path: string; form: 'url' | 'resource'; role?: 'font' }
   | {
       kind: 'import';
       /** Exactly the string the resolver hook was (or would have been) called with. */
