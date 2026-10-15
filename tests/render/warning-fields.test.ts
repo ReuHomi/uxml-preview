@@ -264,12 +264,19 @@ describe('one warning per declaration', () => {
       uss,
     ).filter((w) => w.kind === 'unsupported-property');
     expect(warnings.map((w) => w.subject)).toEqual([
-      { kind: 'property', property: 'filter', value: 'blur(2px)', since: '6000.3', affectsLayout: false },
+      {
+        kind: 'property',
+        property: 'filter',
+        value: 'blur(2px)',
+        since: '6000.3',
+        affectsLayout: false,
+        unityEffect: { kind: 'panel-unstyled', versions: ['6000.0'] },
+      },
       { kind: 'property', property: 'gap', value: '4px' },
     ]);
     expect(warnings.map(at)).toEqual([
-      { in: 'uss', sheet: 0, span: { start: uss.indexOf('filter'), end: uss.indexOf(';') } },
-      { in: 'uss', sheet: 0, span: { start: uss.indexOf('gap'), end: uss.lastIndexOf(';') } },
+      { in: 'uss', sheet: 0, url: null, from: null, span: { start: uss.indexOf('filter'), end: uss.indexOf(';') } },
+      { in: 'uss', sheet: 0, url: null, from: null, span: { start: uss.indexOf('gap'), end: uss.lastIndexOf(';') } },
     ]);
   });
 
@@ -290,7 +297,7 @@ describe('one warning per declaration', () => {
       (w) => w.kind === 'unsupported-property',
     );
     expect(warnings).toHaveLength(1);
-    expect(warnings[0]!.at).toEqual({ in: 'uss', sheet: 0, span: { start: 5, end: uss.indexOf(';') } });
+    expect(warnings[0]!.at).toEqual({ in: 'uss', sheet: 0, url: null, from: null, span: { start: 5, end: uss.indexOf(';') } });
   });
 
   it('an inline declaration points into the UXML text', () => {
@@ -348,7 +355,7 @@ describe('syntax that used to be ignored without a word', () => {
       { reason: 'not-uss', subject: { kind: 'selector', selector: '.b:selected, .c', fragment: ':selected' } },
       { reason: 'not-uss', subject: { kind: 'selector', selector: '.d:bogus', fragment: ':bogus' } },
     ]);
-    expect(warnings[0]!.at).toEqual({ in: 'uss', sheet: 0, span: { start: 0, end: '.a:first-child'.length } });
+    expect(warnings[0]!.at).toEqual({ in: 'uss', sheet: 0, url: null, from: null, span: { start: 0, end: '.a:first-child'.length } });
   });
 
   it('every Unity state and :root stay quiet', () => {
@@ -368,7 +375,7 @@ describe('syntax that used to be ignored without a word', () => {
       ['unsupported-selector', 'not-uss', { kind: 'at-rule', name: 'media' }],
       ['unsupported-selector', 'not-uss', { kind: 'at-rule', name: 'keyframes' }],
     ]);
-    expect(warnings[0]!.at).toEqual({ in: 'uss', sheet: 0, span: { start: 0, end: uss.indexOf('\n') } });
+    expect(warnings[0]!.at).toEqual({ in: 'uss', sheet: 0, url: null, from: null, span: { start: 0, end: uss.indexOf('\n') } });
   });
 
   it('a display value USS does not have is reported, once, and still laid out as flex', () => {

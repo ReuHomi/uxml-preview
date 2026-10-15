@@ -21,14 +21,14 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { classifyVisibility, loadLayoutEngine, parse, render, resolveStyles } from '../../src/index';
-import type { ElementNode, NodeId, RenderOptions, RenderResult, UxmlDocument } from '../../src/index';
+import type { ElementNode, MeasureText, NodeId, RenderOptions, RenderResult, UxmlDocument } from '../../src/index';
 
 beforeAll(async () => {
   await loadLayoutEngine();
 });
 
 const PANEL = { width: 400, height: 300 };
-const fixedText: RenderOptions['measureText'] = (text, ctx) => ({ width: text.length * 6, height: ctx.fontSize });
+const fixedText: MeasureText = (text, ctx) => ({ width: text.length * 6, height: ctx.fontSize });
 
 function draw(doc: UxmlDocument, extra: Partial<RenderOptions> = {}): RenderResult {
   return render(doc, document.createElement('div'), { size: PANEL, measureText: fixedText, ...extra });

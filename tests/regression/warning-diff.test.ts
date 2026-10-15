@@ -49,7 +49,8 @@ type Recorded = Pick<Warning, 'kind' | 'message' | 'node' | 'at' | 'sourceDocume
 function record(w: Warning): Recorded {
   const out: Recorded = { kind: w.kind, message: w.message };
   if (w.node !== undefined) out.node = w.node;
-  if (w.at !== undefined) out.at = w.at;
+  // 0.6.0 added url/from to a USS location; 0.5.0 had neither, so they are not compared.
+  if (w.at !== undefined) out.at = w.at.in === 'uss' ? { in: 'uss', sheet: w.at.sheet, span: w.at.span } : w.at;
   if (w.sourceDocument !== undefined) out.sourceDocument = w.sourceDocument;
   if (w.reason !== undefined) out.reason = w.reason;
   if (w.subject !== undefined) out.subject = w.subject;
