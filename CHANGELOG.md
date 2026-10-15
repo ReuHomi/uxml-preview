@@ -65,8 +65,17 @@ and the published accuracy figures move. No type is removed and no
 
 - A `states-key` warning no longer always means "this key is unusable":
   read `subject.problem` (absent = unusable selector). uxml-author master
-  assumes the 0.5.1 meaning (7 of its tests fail against this build; see the
-  0.6.0 compatibility check). vscode-uxml-preview main passes unchanged.
+  assumes the 0.5.1 meaning.
+- `aspect-ratio`, `letter-spacing`, `word-spacing` and
+  `-unity-paragraph-spacing` are now laid out, so they no longer raise a
+  `not-rendered` warning with `affectsLayout`. Tests that used one of them as
+  the example of a layout gap need another; `-unity-text-auto-size` still is
+  one. Against this build, uxml-author master fails 16 tests (states keys,
+  the `aspect-ratio` layout-gap fixtures, its bundle-size note) and
+  vscode-uxml-preview main fails 1 (`letter-spacing` as the layout-gap
+  fixture); its typecheck is clean. All are consumer-side updates, none a
+  core regression. Neither consumer picks up 0.6.0 automatically
+  (uxml-author bundles its core; the extension depends on `^0.5.1`).
 - Messages changed for the inline unsupported unit and `linear-gradient()`;
   match on `reason`/`subject`, not text.
 

@@ -13,7 +13,7 @@ npm `latest`는 여전히 `0.5.1`. 기준 Unity 버전 6.3 LTS.
 | 테스트 | 코어 **824 통과 · 1 건너뜀**(Windows 로컬). `pnpm test:text`(텍스트 코호트) 통과 |
 | 정확도 | 기본 **660/676** 불변 · 템플릿 **215/220**(0.5.1: 200/220) · 텍스트 코호트(6.3) 줄 60/60, 높이 52/60, 너비 60/60, 경계 79/80 · `aspect-ratio` 52/52(6.3) |
 | 6.3 코호트 | 골든 44케이스 6.3 재덤프가 6000.0과 1012/1012 동일 |
-| 소비자 | vscode-uxml-preview main 146/146 통과. uxml-author master 7건 실패, 전부 계약 변경(A) — `states-key` 의미 확장 |
+| 소비자 | `7837b78` 기준 vscode-uxml-preview main 145/146, uxml-author master 16건 실패. 전부 계약 변경(A), 코어 회귀 0 |
 | 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` (그 외는 폴백) |
 
 정확도 세트는 서로 다른 질문을 답하므로 합산하지 않는다. `docs/accuracy.md`.
@@ -21,7 +21,7 @@ npm `latest`는 여전히 `0.5.1`. 기준 Unity 버전 6.3 LTS.
 ## 다음 할 일
 
 0. **0.6.0 적대적 검증(별도 모델) → 머지** — 사용자 지시. 그 뒤 버전 올림·CHANGELOG 초안 확정·태그·배포
-1. **소비자 최종 호환성 점검** — `7837b78` tarball로 재실행 중(첫 실행은 `13f3636`)
+1. **소비자 갱신(소비자 저장소 일)** — `7837b78`에서 uxml-author 16건·vscode 1건 실패, 전부 계약 변경(A). 레이아웃 갭 예시 픽스처를 `-unity-text-auto-size`로 교체
 2. **uxml-author가 `subject.problem`을 읽도록** — 0.6.0을 받을 때. 소비자 저장소 일이다
 3. **0.7.0 컨트롤 + 테마 선택** — 런타임 테마 기준값은 실제 PanelSettings로 다시 덤프
 4. **0.6.0이 남긴 것** — `docs/backlog.md` 0.6.0 절의 2026-10-16 메모(`unsupported-unit`,
