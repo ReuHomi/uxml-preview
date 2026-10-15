@@ -24,6 +24,7 @@ export const INITIAL: Readonly<Record<string, string>> = {
   'align-content': 'flex-start',
   'align-items': 'stretch',
   'align-self': 'auto',
+  'aspect-ratio': 'auto',
   'flex-basis': 'auto',
   'flex-direction': 'column',
   'flex-grow': '0',

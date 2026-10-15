@@ -238,26 +238,38 @@ export function layoutDocument(
     });
   }
 
+  // Template clones retain inline origins, including their source document.
+  // Measured 2026-10-15: tests/layout/unity/<version>/probe-editor/aspect.json
+  // and inline-poison.json (6000.0.40f1, 6000.3.25f1).
+  function warnValue(
+    style: ComputedStyle,
+    property: string,
+    node: ElementNode,
+    problem: string,
+    reason: Warning['reason'],
+    dropsFileInline: boolean,
+  ): void {
+    const from = style.get(property);
+    const dropsInline = dropsFileInline && from?.origin.kind === 'inline';
+    warn(
+      `${property}: ${problem}${dropsInline ? '; Unity drops every inline style in that UXML file' : ''}`,
+      node,
+      {
+        ...(reason === undefined ? {} : { reason: dropsInline ? 'invalid-value' : reason }),
+        subject: { kind: 'property', property, value: read(style, property),
+          ...(dropsInline ? { unityEffect: { kind: 'file-inline-dropped', versions: ['6000.0', '6000.3'] } } : {}),
+        },
+      },
+      from,
+    );
+  }
+
   function length(style: ComputedStyle, property: string, node: ElementNode): Length | null {
     const text = read(style, property);
     if (text === '') return null;
     const { length: parsed, problem, reason, code } = parseLength(text);
-    const from = style.get(property);
-    // Template clones retain inline origins, including their source document.
-    // Measured 2026-10-15: tests/layout/unity/probes-0.6.0 and probe-editor dumps.
-    const dropsInline = code === 'unsupported-unit' && from?.origin.kind === 'inline';
     if (problem !== undefined) {
-      warn(
-        `${property}: ${problem}${dropsInline ? '; Unity drops every inline style in that UXML file' : ''}`,
-        node,
-        {
-          ...(reason === undefined ? {} : { reason: dropsInline ? 'invalid-value' : reason }),
-          subject: { kind: 'property', property, value: text,
-            ...(dropsInline ? { unityEffect: { kind: 'file-inline-dropped', versions: ['6000.0', '6000.3'] } } : {}),
-          },
-        },
-        from,
-      );
+      warnValue(style, property, node, problem, reason, code === 'unsupported-unit');
     }
     return parsed;
   }
@@ -331,6 +343,15 @@ export function layoutDocument(
 
     yg.setWidth(dimension(length(style, 'width', node)));
     yg.setHeight(dimension(length(style, 'height', node)));
+    // Measured 2026-10-15: tests/layout/unity/probes-0.6.0/aspect2.uxml;
+    // dump: tests/layout/unity/6000.3.25f1/probe-editor/aspect2.json.
+    // Unity passes a plain USS number directly to Yoga; auto leaves it unset.
+    const aspectRatio = read(style, 'aspect-ratio').trim();
+    if (aspectRatio !== 'auto' && aspectRatio !== 'initial') {
+      const ratio = parseNumber(aspectRatio);
+      if (ratio !== null && Number.isFinite(ratio)) yg.setAspectRatio(ratio);
+      else warnValue(style, 'aspect-ratio', node, `cannot read "${aspectRatio}" as a number`, 'invalid-value', true);
+    }
     yg.setMinWidth(edge(length(style, 'min-width', node)));
     yg.setMinHeight(edge(length(style, 'min-height', node)));
     yg.setMaxWidth(edge(length(style, 'max-width', node)));

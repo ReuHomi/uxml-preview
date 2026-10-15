@@ -2,15 +2,15 @@
  "total": 1394,
  "preserved": 592,
  "merged": 776,
- "reclassified": 19,
- "deleted": 7,
+ "reclassified": 16,
+ "deleted": 10,
  "deletedTargets": {
+  "property:aspect-ratio": 3,
   "property:background-position": 2,
   "property:background-repeat": 2,
   "property:background-size": 3
  },
  "reclassifiedTargets": {
-  "property:aspect-ratio (kind version-dependent -> unsupported-property)": 3,
   "property:backdrop-filter (reason not-uss -> not-rendered)": 2,
   "property:column-gap (kind version-dependent -> unsupported-property)": 2,
   "property:filter (reason not-uss -> not-rendered)": 2,

@@ -178,12 +178,15 @@ function impliedReason(w: Recorded): string | undefined {
  * Deletions that are corrections, each because the 0.5.0 warning asserted
  * something false: background-size/-position/-repeat are in Unity's 6000.0
  * reference table, so "depends on the Unity version" was wrong, and the
- * preview draws them, so there is nothing left to say.
+ * preview draws them, so there is nothing left to say. aspect-ratio (0.6.0):
+ * the warning said this preview does not lay it out; it now does, matching
+ * Unity 6000.3.25f1 52/52 (tests/contract-060/aspect-ratio.test.ts).
  */
 const ALLOWED_DELETIONS = new Set([
   'property:background-size',
   'property:background-position',
   'property:background-repeat',
+  'property:aspect-ratio',
 ]);
 
 type Verdict = 'preserved' | 'merged' | 'reclassified' | 'deleted';

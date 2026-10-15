@@ -110,7 +110,7 @@ const ROWS: readonly Row[] = [
   ['align-self', '6000.0', false, 'layout', 'layout', 'yoga'],
   ['all', '6000.0', false, 'none', 'layout', 'all'],
   ['animation-play-state', '6000.6', false, 'none', 'none', 'timeInferred'],
-  ['aspect-ratio', '6000.3', false, 'none', 'layout', 'aspectRatio'],
+  ['aspect-ratio', '6000.3', false, 'layout', 'layout', 'aspectRatio'],
   ['backdrop-filter', '6000.6', false, 'none', 'paint', 'effectInferred'],
   ['background-color', '6000.0', false, 'paint', 'paint', 'colour'],
   ['background-image', '6000.0', false, 'paint', 'paint', 'background'],
@@ -275,7 +275,6 @@ export const CSS_REPLACEMENTS: Readonly<Record<string, readonly string[]>> = {
 
 /** What this preview did instead, for the properties where "not drawn" says too little. */
 const NOT_RENDERED_TEXT: Readonly<Record<string, string>> = {
-  'aspect-ratio': 'not applied to layout by this preview',
   '-unity-font': 'font not loaded by this preview; the browser default is used',
   '-unity-font-definition': 'font not loaded by this preview; the browser default is used',
   transition: 'not animated by this preview',

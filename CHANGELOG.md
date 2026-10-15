@@ -1,5 +1,81 @@
 # Changelog
 
+## 0.6.0 — unreleased (draft)
+
+Diagnostics that say what Unity does instead, text measured the way Unity
+measures it, fonts, and `aspect-ratio`. A minor version in 0.x because drawn
+output changes (text height, `:enabled`, letter/word spacing, `aspect-ratio`)
+and the published accuracy figures move. No type is removed and no
+`WarningKind` is added; every new field is optional.
+
+### Accuracy — previous and new figures
+
+| Set | 0.5.1 | 0.6.0 | Why |
+|---|---:|---:|---|
+| Base coordinates (Unity 6000.0.40f1) | 660 / 676 | 660 / 676 | unchanged; its text mismatches are widths |
+| Template cohort (6000.0.40f1) | 200 / 220 | 215 / 220 | text height from FaceInfo removed 14 Label heights and the `y` they pushed |
+| Text cohort (new; Chromium vs Unity 6.3) | — | lines 60/60, height 52/60, width 60/60, boundary 79/80 | see `docs/accuracy.md`; none unexplained |
+| 6.3 re-dump of the golden set | — | 1012 / 1012 equal to 6000.0 | every golden case lays out the same on 6000.3.25f1 |
+
+### Behavior changes
+
+- **Text height follows Unity.** `ceil(lines × size × (ascent − descent) /
+  pointSize)`, from the FaceInfo Unity reports, plus paragraph spacing. The
+  default (editor Inter) gives 12px → 15, 20px → 25 where 0.5.1 gave
+  14.4 / 24. A multi-line block is rounded once, not per line.
+- **`letter-spacing` / `word-spacing` are not CSS px.** Unity widens by
+  value × font size / 100 per gap; measured and drawn that way.
+  `-unity-paragraph-spacing` is measured and drawn.
+- **`:enabled` applies automatically** to every element that is not disabled
+  (measured on 6000.0.40f1 and 6000.3.25f1). A screen with `:enabled` rules
+  draws differently.
+- **`aspect-ratio` is laid out** (Unity 6.3+); it matched Unity 52/52 on the
+  measured case.
+- A Label's text is measured decoded (`&amp;`, `&#10;`), as it is drawn.
+- A border width in an unsupported unit is reported once, not twice.
+- New warnings, all `unsupported-property` with `reason: 'invalid-value'`
+  unless noted: `hsl()`, `cubic-bezier()`, `opacity` in `%`, `inherit`.
+  `linear-gradient()` keeps `not-uss` and says Unity shows its warning icon.
+- `states` keys that match nothing, contain a state pseudo-class, or list a
+  state Unity never sets now warn: `unsupported-selector` with
+  `subject.problem`.
+
+### New, all optional
+
+- `Warning.nodes` — every element a declaration's rule matched.
+- `at.url` / `at.from` on USS locations — the arguments `resolveImport`
+  received for that sheet, so `at.sheet` can be mapped without the expanded
+  document.
+- `subject.unityEffect` — `panel-unstyled` (Unity's style updater throws and
+  the rest of the panel stays unstyled: `hsl()` on 6000.3, `cubic-bezier()`,
+  `filter` on 6000.0) or `file-inline-dropped` (one bad inline value drops
+  every inline style in that UXML file), with the Unity versions measured.
+- `subject.problem` / `subject.state` on `states-key`; `subject.role: 'font'`
+  on `asset`.
+- `RenderResult.document`, `.styles`, `.partStyles` — the expanded tree and
+  the cascade `render()` drew with.
+- `classifyVisibility(result)` — hidden / emptied / collapsed / shown, ported
+  from uxml-author.
+- `RenderOptions.resolveFont(path, form)` → family, or `{ family, faceInfo }`,
+  or `null`. `TextContext` gains `fontFamily`, `faceInfo`, `letterSpacing`,
+  `wordSpacing`, `paragraphSpacing`, `textGenerator`.
+- `textHeight`, `EDITOR_DEFAULT_FACE_INFO`, `FaceInfo`.
+
+### For consumers
+
+- A `states-key` warning no longer always means "this key is unusable":
+  read `subject.problem` (absent = unusable selector). uxml-author master
+  assumes the 0.5.1 meaning (7 of its tests fail against this build; see the
+  0.6.0 compatibility check). vscode-uxml-preview main passes unchanged.
+- Messages changed for the inline unsupported unit and `linear-gradient()`;
+  match on `reason`/`subject`, not text.
+
+### Tools
+
+- `pnpm test:text` runs the text cohort in a real Chromium
+  (`UXML_TEXT_CHROMIUM`, `UXML_TEXT_FONTS`); it fails, never skips, when it
+  cannot run. `playwright-core` is a new devDependency.
+
 ## 0.5.1 — 2026-10-13
 
 A cleanup release: nothing drawn changes except where a Unity dump said it was
