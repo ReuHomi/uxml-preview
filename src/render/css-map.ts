@@ -256,10 +256,10 @@ export function toCss(
     if (asset === null) {
       // Not an asset this host failed to find — `linear-gradient()` and the
       // like are not asset references at all, so asset-unresolved would send
-      // the host looking for a file that does not exist. Gradients are a
-      // candidate to become version-dependent once a Unity reference lists
-      // them; see the note above CSS_REPLACEMENTS in style/registry.ts.
-      warn('unsupported-property', `background-image: "${image}" is not an asset reference; ignored`, {
+      // the host looking for a file that does not exist.
+      // Measured 2026-10-15: tests/layout/unity/probes-0.6.0;
+      // dumps: tests/layout/unity/<version>/probe-editor.
+      warn('unsupported-property', `background-image: "${image}" is not an asset reference; Unity shows its warning icon instead`, {
         reason: 'not-uss',
         ...about('background-image'),
       });

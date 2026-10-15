@@ -1,3 +1,5 @@
+import type { UssVersion } from '../style/registry';
+
 /**
  * uxml-preview — in-memory document model.
  *
@@ -33,7 +35,7 @@ export interface Span {
 /** An explicit text location, for warnings and editor navigation. */
 export type SourceRef =
   | { in: 'uxml'; span: Span }
-  | { in: 'uss'; sheet: number; span: Span };
+  | { in: 'uss'; sheet: number; span: Span; url?: string | null; from?: string | null };
 
 /**
  * Opaque handle to a node, stable for the lifetime of the document.
@@ -311,6 +313,7 @@ export type WarningSubject =
        * `letter-spacing` is drawn and left out of text measurement.
        */
       applied?: 'paint';
+      unityEffect?: { kind: 'panel-unstyled' | 'file-inline-dropped'; versions: readonly UssVersion[] };
     }
   | {
       kind: 'selector';
@@ -319,7 +322,7 @@ export type WarningSubject =
       /** The part of it the warning is about, when narrower than the whole. */
       fragment?: string;
     }
-  | { kind: 'states-key'; key: string }
+  | { kind: 'states-key'; key: string; problem?: 'matches-nothing' | 'state-in-key' | 'unknown-state'; state?: string }
   | { kind: 'asset'; path: string; form: 'url' | 'resource' }
   | {
       kind: 'import';
@@ -352,6 +355,7 @@ export interface Warning {
   at?: SourceRef;
   /** Element the warning is about, when it has one. Lets the UI highlight it. */
   node?: NodeId;
+  nodes?: NodeId[];
   reason?: WarningReason;
   subject?: WarningSubject;
 }

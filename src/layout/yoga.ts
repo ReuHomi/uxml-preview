@@ -232,16 +232,22 @@ export function layoutDocument(
   function length(style: ComputedStyle, property: string, node: ElementNode): Length | null {
     const text = read(style, property);
     if (text === '') return null;
-    const { length: parsed, problem, reason } = parseLength(text);
+    const { length: parsed, problem, reason, code } = parseLength(text);
+    const from = style.get(property);
+    // Template clones retain inline origins, including their source document.
+    // Measured 2026-10-15: tests/layout/unity/probes-0.6.0 and probe-editor dumps.
+    const dropsInline = code === 'unsupported-unit' && from?.origin.kind === 'inline';
     if (problem !== undefined) {
       warn(
-        `${property}: ${problem}`,
+        `${property}: ${problem}${dropsInline ? '; Unity drops every inline style in that UXML file' : ''}`,
         node,
         {
-          ...(reason === undefined ? {} : { reason }),
-          subject: { kind: 'property', property, value: text },
+          ...(reason === undefined ? {} : { reason: dropsInline ? 'invalid-value' : reason }),
+          subject: { kind: 'property', property, value: text,
+            ...(dropsInline ? { unityEffect: { kind: 'file-inline-dropped', versions: ['6000.0', '6000.3'] } } : {}),
+          },
         },
-        style.get(property),
+        from,
       );
     }
     return parsed;

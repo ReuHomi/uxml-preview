@@ -68,7 +68,8 @@ import { parseUxml } from './parser/uxml';
 import { parseUss } from './parser/uss';
 import { serializeUxml } from './serializer/uxml';
 import { serializeUss } from './serializer/uss';
-import { declarationLocator, resolveStyles } from './style/resolve';
+import { declarationLocator, resolveStyles, sheetLocation } from './style/resolve';
+import type { ComputedStyle, ResolveResult } from './style/resolve';
 import { layoutDocument } from './layout/yoga';
 import type { LayoutBox, MeasureText } from './layout/yoga';
 import { createDefaultMeasureText } from './render/measure';
@@ -239,6 +240,9 @@ export function parse(uxml: string, uss?: string, options?: ParseOptions): UxmlD
   }
 
   const document = { source: uxml, root: tree.root, sheets, styleRoots, warnings };
+  for (const warning of warnings) {
+    if (warning.at?.in === 'uss') Object.assign(warning.at, sheetLocation(document, warning.at.sheet));
+  }
   rememberTemplateResolver(document, options?.resolveImport);
   return document;
 }
@@ -313,7 +317,16 @@ export interface RenderOptions {
   states?: Readonly<Record<string, readonly string[]>>;
 }
 
+export { classifyVisibility } from './render/visibility';
+export type { Visibility } from './render/visibility';
+
 export interface RenderResult {
+  /** Expanded document used for rendering, separate from the source AST. */
+  document?: UxmlDocument;
+  /** Computed styles keyed by rendered element id. */
+  styles?: ReadonlyMap<NodeId, ComputedStyle>;
+  /** Computed control part styles keyed by owner id and part name. */
+  partStyles?: ResolveResult['partStyles'];
   /**
    * Everything the renderer could not honour: unsupported controls, properties,
    * selectors and units, plus unresolved assets. Distinct from
@@ -358,14 +371,20 @@ export interface RenderResult {
  *               nothing to tell two occurrences apart by, so it is left alone.
  */
 function oncePerDeclaration(warnings: readonly Warning[]): Warning[] {
-  const seen = new Set<string>();
-  return warnings.filter((w) => {
-    if (w.at === undefined) return true;
-    const key = JSON.stringify([w.kind, w.message, w.sourceDocument ?? null, w.at]);
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+  const seen = new Map<string, Warning>();
+  const out: Warning[] = [];
+  for (const warning of warnings) {
+    const w = { ...warning };
+    const key = w.at === undefined ? undefined : JSON.stringify([w.kind, w.message, w.sourceDocument ?? null, w.at]);
+    const first = key === undefined ? undefined : seen.get(key);
+    if (first !== undefined) {
+      if (w.nodes !== undefined) first.nodes = [...new Set([...(first.nodes ?? []), ...w.nodes])];
+      continue;
+    }
+    if (key !== undefined) seen.set(key, w);
+    out.push(w);
+  }
+  return out;
 }
 
 export function render(
@@ -386,7 +405,7 @@ export function render(
     ...(options?.states === undefined ? {} : { states: options.states }),
   });
   const measureText = options?.measureText ?? createDefaultMeasureText(ownerDocument);
-  const locate = declarationLocator(renderDocument);
+  const locate = declarationLocator(renderDocument, resolved.matchedNodes);
 
   const tree = layoutDocument(renderDocument.root, resolved.styles, resolved.partStyles, {
     size,
@@ -420,6 +439,9 @@ export function render(
     ]),
     elements: painted.elements,
     boxes: tree.boxes,
+    document: renderDocument,
+    styles: resolved.styles,
+    partStyles: resolved.partStyles,
     dispose(): void {
       if (disposed) return;
       disposed = true;

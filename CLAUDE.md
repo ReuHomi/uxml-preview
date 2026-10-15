@@ -51,7 +51,7 @@ Unity UI Toolkit의 UXML/USS를 브라우저에서 렌더링·편집하는 라�
 - 지원 pseudo-class: `:hover` `:active` `:inactive` `:focus` `:disabled` `:enabled` `:checked` `:root`
   (Unity "USS selectors: Pseudo-classes" 문서, 2026-10-13 확인. 상태 7개는 `USS_STATES`로 export).
   **`:selected`는 USS가 지원하지 않는다** — Unity 문서가 `:checked`를 쓰라고 적는다.
-  `:enabled`는 아직 자동으로 켜지지 않는다(0.6.0, `docs/backlog.md`).
+  `:enabled`는 자동으로 적용된다(6000.0.40f1 및 6000.3.25f1 실측, 2026-10-15).
 - **미지원**: 형제(`+`, `~`), `:nth-child`, `:first/last-child`, `:not()`, `:has()`,
   속성 셀렉터, `::before`/`::after`, `@media`, Unity가 설정하지 않는 의사 클래스(`:selected` 등)
 - `:root`가 CSS와 다르다. 스타일시트가 적용된 각 요소를 가리키며,

@@ -79,6 +79,8 @@ export interface LengthResult {
   length: Length | null;
   /** Set when the text names a unit USS does not support, or uses calc(). */
   problem?: string;
+  /** Structured marker for a recognised but unsupported USS unit. */
+  code?: 'unsupported-unit';
   /** Set with `problem`: USS lacks the syntax, or the value is simply unreadable. */
   reason?: 'not-uss' | 'invalid-value';
 }
@@ -110,7 +112,7 @@ export function parseLength(text: string): LengthResult {
   if (unit === '' || unit === 'px') return { length: { kind: 'px', value: number } };
   if (unit === '%') return { length: { kind: 'percent', value: number } };
   if (UNSUPPORTED_UNITS.includes(unit)) {
-    return { length: null, problem: `unit "${unit}" not recognised`, reason: 'not-uss' };
+    return { length: null, problem: `unit "${unit}" not recognised`, code: 'unsupported-unit', reason: 'not-uss' };
   }
   return { length: null, problem: `unknown unit "${unit}"`, reason: 'invalid-value' };
 }

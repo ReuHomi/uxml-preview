@@ -299,7 +299,7 @@ function versionLabel(version: UssVersion): string {
 
 export interface PropertyWarning {
   message: string;
-  reason: 'not-uss' | 'not-rendered';
+  reason: 'not-uss' | 'not-rendered' | 'invalid-value';
   subject: {
     kind: 'property';
     property: string;
@@ -308,6 +308,7 @@ export interface PropertyWarning {
     replacements?: readonly string[];
     affectsLayout?: boolean;
     applied?: 'paint';
+    unityEffect?: { kind: 'panel-unstyled' | 'file-inline-dropped'; versions: readonly UssVersion[] };
   };
 }
 
@@ -333,6 +334,25 @@ export function propertyWarning(property: string, value: string): PropertyWarnin
       subject: { kind: 'property', property, value, ...(replacements === undefined ? {} : { replacements }) },
     };
   }
+  // Measured 2026-10-15: tests/layout/unity/probes-0.6.0;
+  // dumps: tests/layout/unity/<version>/probe-editor (6000.0.40f1, 6000.3.25f1).
+  const subject: PropertyWarning['subject'] = { kind: 'property', property, value };
+  if ((property.includes('color') || property === 'text-shadow') && /hsla?\(/i.test(value)) {
+    return { reason: 'invalid-value', message: `${property}: Unity 6000.3 stops styling the whole panel at this value; 6000.0 draws it black`,
+      subject: { ...subject, unityEffect: { kind: 'panel-unstyled', versions: ['6000.3'] } } };
+  }
+  // Same probes and dumps, measured 2026-10-15: both versions lose the panel.
+  if ((property === 'transition-timing-function' || property === 'transition') && /cubic-bezier\(/i.test(value)) {
+    return { reason: 'invalid-value', message: `${property}: Unity stops styling the whole panel at cubic-bezier()`,
+      subject: { ...subject, unityEffect: { kind: 'panel-unstyled', versions: ['6000.0', '6000.3'] } } };
+  }
+  // Same probes and dumps, measured 2026-10-15: these values differ from CSS.
+  if (property === 'opacity' && value.trim().endsWith('%')) {
+    return { reason: 'invalid-value', message: `opacity: Unity reads 50% as 50 (fully opaque), this preview draws it half-transparent`, subject };
+  }
+  if (value.trim() === 'inherit') {
+    return { reason: 'invalid-value', message: `${property}: USS has initial but not inherit; Unity resolved color: inherit to transparent`, subject };
+  }
   const affectsLayout = known.unity === 'layout';
   const label = known.since === '6000.0' ? '' : ` (${versionLabel(known.since)})`;
   // Drawn, but what it does to layout in Unity is not reproduced: the picture
@@ -349,7 +369,11 @@ export function propertyWarning(property: string, value: string): PropertyWarnin
   return {
     message: `${property}${label}: ${NOT_RENDERED_TEXT[property] ?? 'not drawn by this preview'}`,
     reason: 'not-rendered',
-    subject: { kind: 'property', property, value, since: known.since, affectsLayout },
+    subject: { kind: 'property', property, value, since: known.since, affectsLayout,
+      // Same probes/dumps, measured 2026-10-15: filter functions poison 6000.0 only.
+      ...(property === 'filter' && /[\w-]+\(/.test(value)
+        ? { unityEffect: { kind: 'panel-unstyled' as const, versions: ['6000.0'] as const } } : {}),
+    },
   };
 }
 

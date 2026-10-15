@@ -477,7 +477,9 @@ function addLoadedWarnings(
     if (warning.at?.in === 'uss') {
       context.warnings.push({
         ...warning,
-        at: { ...warning.at, sheet: offsets[warning.at.sheet] ?? warning.at.sheet },
+        at: { ...warning.at, sheet: offsets[warning.at.sheet] ?? warning.at.sheet,
+          url: record.document.sheets[warning.at.sheet]?.origin ?? null,
+          from: context.sheets[offsets[warning.at.sheet] ?? warning.at.sheet]?.sourceDocumentFrom ?? null },
         sourceDocument: record.document.sheets[warning.at.sheet]?.origin ?? record.url,
       });
     } else {
