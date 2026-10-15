@@ -14,7 +14,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { createDefaultMeasureText, parse, serialize } from '../../src/index';
+import { createDefaultMeasureText, EDITOR_DEFAULT_FACE_INFO, parse, serialize, textHeight } from '../../src/index';
 import type { ElementNode } from '../../src/model/types';
 
 const UXML_DIR = fileURLToPath(new URL('../fixtures/uxml', import.meta.url));
@@ -215,7 +215,11 @@ describe('default text measurement', () => {
   it('counts explicit line breaks under white-space: pre', () => {
     const one = measure('one line', style, 0);
     const three = measure('one\ntwo\nthree', style, 0);
-    expect(three.height).toBeCloseTo(one.height * 3);
+    // Unity rounds the whole block, not each line (0.6.0, D3): Inter at 10px is
+    // 13 for one line and ceil(3 x 12.102) = 37 for three, not 39.
+    expect(one.height).toBe(textHeight(1, 10, EDITOR_DEFAULT_FACE_INFO));
+    expect(three.height).toBe(textHeight(3, 10, EDITOR_DEFAULT_FACE_INFO));
+    expect(three.height).toBe(37);
   });
 
   it('takes its width from the longest line, not the whole string', () => {
