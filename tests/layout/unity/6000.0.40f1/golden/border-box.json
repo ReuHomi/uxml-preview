@@ -1,0 +1,15 @@
+{
+  "metadata": {"unityVersion":"6000.0.40f1","unityRevision":"6000.0.40f1 (157d81624ddf)","pixelsPerPoint":1.0,"editorSkin":"dark","editorFont":{"name":"(builtin)","size":12,"style":"Normal"},"systemFont":{"smoothing":"2","smoothingType":"2","smoothingGamma":"0","appliedDpi":"96"},"dumpedAtUtc":"2026-10-15T14:07:00.2819951Z"},
+  "panel": { "width": 400, "height": 300 },
+  "elements": {
+    "outer": { "x": 0, "y": 0, "width": 200, "height": 120 },
+    "inner": { "x": 30, "y": 30, "width": 140, "height": 30 }
+  },
+  "resources": {
+
+  },
+  "observations": [
+    {"path":"0","parentPath":"","name":"outer","type":"UnityEngine.UIElements.VisualElement","classes":[],"resolvedStyle":{"flexGrow":0.0,"flexShrink":1.0,"flexBasis":120.0,"flexBasisKeyword":"Undefined","width":200.0,"height":120.0,"color":{"r":0.8235294222831726,"g":0.8235294222831726,"b":0.8235294222831726,"a":1.0},"backgroundColor":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"fontSize":12.0,"marginTop":0.0,"marginRight":0.0,"marginBottom":0.0,"marginLeft":0.0,"paddingTop":20.0,"paddingRight":20.0,"paddingBottom":20.0,"paddingLeft":20.0,"borderTopWidth":10.0,"borderRightWidth":10.0,"borderBottomWidth":10.0,"borderLeftWidth":10.0},"text":"","enabled":true,"enabledSelf":true,"enabledInHierarchy":true,"styleSheetPaths":[],"matchedRules":[{"selector":"#outer","source":"border-box.uss:1","line":1}],"matchedRulesError":""},
+    {"path":"0/0","parentPath":"0","name":"inner","type":"UnityEngine.UIElements.VisualElement","classes":[],"resolvedStyle":{"flexGrow":0.0,"flexShrink":1.0,"flexBasis":30.0,"flexBasisKeyword":"Undefined","width":140.0,"height":30.0,"color":{"r":0.8235294222831726,"g":0.8235294222831726,"b":0.8235294222831726,"a":1.0},"backgroundColor":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"fontSize":12.0,"marginTop":0.0,"marginRight":0.0,"marginBottom":0.0,"marginLeft":0.0,"paddingTop":0.0,"paddingRight":0.0,"paddingBottom":0.0,"paddingLeft":0.0,"borderTopWidth":0.0,"borderRightWidth":0.0,"borderBottomWidth":0.0,"borderLeftWidth":0.0},"text":"","enabled":true,"enabledSelf":true,"enabledInHierarchy":true,"styleSheetPaths":[],"matchedRules":[{"selector":"#inner","source":"border-box.uss:10","line":10}],"matchedRulesError":""}
+  ]
+}

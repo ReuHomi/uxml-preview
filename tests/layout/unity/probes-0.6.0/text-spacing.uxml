@@ -1,0 +1,25 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="b12" text="Hello World Foo" style="font-size: 12px;" />
+<ui:Label name="ls1-12" text="Hello World Foo" style="font-size: 12px; letter-spacing: 1px;" />
+<ui:Label name="ls2-12" text="Hello World Foo" style="font-size: 12px; letter-spacing: 2px;" />
+<ui:Label name="ls5-12" text="Hello World Foo" style="font-size: 12px; letter-spacing: 5px;" />
+<ui:Label name="ws5-12" text="Hello World Foo" style="font-size: 12px; word-spacing: 5px;" />
+<ui:Label name="ws10-12" text="Hello World Foo" style="font-size: 12px; word-spacing: 10px;" />
+<ui:Label name="lsws-12" text="Hello World Foo" style="font-size: 12px; letter-spacing: 2px; word-spacing: 5px;" />
+<ui:Label name="bold-12" text="Hello World Foo" style="font-size: 12px; -unity-font-style: bold;" />
+<ui:Label name="ps0-12" text="P1&#10;P2" style="font-size: 12px;" />
+<ui:Label name="ps10-12" text="P1&#10;P2" style="font-size: 12px; -unity-paragraph-spacing: 10px;" />
+<ui:Label name="b20" text="Hello World Foo" style="font-size: 20px;" />
+<ui:Label name="ls1-20" text="Hello World Foo" style="font-size: 20px; letter-spacing: 1px;" />
+<ui:Label name="ls2-20" text="Hello World Foo" style="font-size: 20px; letter-spacing: 2px;" />
+<ui:Label name="ls5-20" text="Hello World Foo" style="font-size: 20px; letter-spacing: 5px;" />
+<ui:Label name="ws5-20" text="Hello World Foo" style="font-size: 20px; word-spacing: 5px;" />
+<ui:Label name="ws10-20" text="Hello World Foo" style="font-size: 20px; word-spacing: 10px;" />
+<ui:Label name="lsws-20" text="Hello World Foo" style="font-size: 20px; letter-spacing: 2px; word-spacing: 5px;" />
+<ui:Label name="bold-20" text="Hello World Foo" style="font-size: 20px; -unity-font-style: bold;" />
+<ui:Label name="ps0-20" text="P1&#10;P2" style="font-size: 20px;" />
+<ui:Label name="ps10-20" text="P1&#10;P2" style="font-size: 20px; -unity-paragraph-spacing: 10px;" />
+<ui:VisualElement name="narrow" style="width: 60px;"><ui:Label name="wrap" text="Hello World Foo" /><ui:Label name="nowrap" text="Hello World Foo" style="white-space: nowrap;" /><ui:Label name="ellipsis" text="Hello World Foo" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" /></ui:VisualElement>
+</ui:VisualElement>
+</ui:UXML>

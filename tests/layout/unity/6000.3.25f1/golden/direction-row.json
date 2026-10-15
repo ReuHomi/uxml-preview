@@ -1,0 +1,17 @@
+{
+  "metadata": {"unityVersion":"6000.3.25f1","unityRevision":"6000.3.25f1 (e1dba0a9aba4)","pixelsPerPoint":1.0,"editorSkin":"dark","editorFont":{"name":"(builtin)","size":12,"style":"Normal"},"systemFont":{"smoothing":"2","smoothingType":"2","smoothingGamma":"0","appliedDpi":"96"},"dumpedAtUtc":"2026-10-15T14:07:08.7276856Z"},
+  "panel": { "width": 400, "height": 300 },
+  "elements": {
+    "row": { "x": 0, "y": 0, "width": 400, "height": 50 },
+    "r1": { "x": 0, "y": 0, "width": 70, "height": 50 },
+    "r2": { "x": 70, "y": 0, "width": 70, "height": 50 }
+  },
+  "resources": {
+
+  },
+  "observations": [
+    {"path":"0","parentPath":"","name":"row","type":"UnityEngine.UIElements.VisualElement","classes":[],"resolvedStyle":{"flexGrow":0.0,"flexShrink":1.0,"flexBasis":50.0,"flexBasisKeyword":"Undefined","width":400.0,"height":50.0,"color":{"r":0.8235294222831726,"g":0.8235294222831726,"b":0.8235294222831726,"a":1.0},"backgroundColor":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"fontSize":12.0,"marginTop":0.0,"marginRight":0.0,"marginBottom":0.0,"marginLeft":0.0,"paddingTop":0.0,"paddingRight":0.0,"paddingBottom":0.0,"paddingLeft":0.0,"borderTopWidth":0.0,"borderRightWidth":0.0,"borderBottomWidth":0.0,"borderLeftWidth":0.0},"text":"","enabled":true,"enabledSelf":true,"enabledInHierarchy":true,"styleSheetPaths":[],"matchedRules":[{"selector":"#row","source":"direction-row.uss:1","line":1}],"matchedRulesError":""},
+    {"path":"0/0","parentPath":"0","name":"r1","type":"UnityEngine.UIElements.VisualElement","classes":[],"resolvedStyle":{"flexGrow":0.0,"flexShrink":1.0,"flexBasis":70.0,"flexBasisKeyword":"Undefined","width":70.0,"height":50.0,"color":{"r":0.8235294222831726,"g":0.8235294222831726,"b":0.8235294222831726,"a":1.0},"backgroundColor":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"fontSize":12.0,"marginTop":0.0,"marginRight":0.0,"marginBottom":0.0,"marginLeft":0.0,"paddingTop":0.0,"paddingRight":0.0,"paddingBottom":0.0,"paddingLeft":0.0,"borderTopWidth":0.0,"borderRightWidth":0.0,"borderBottomWidth":0.0,"borderLeftWidth":0.0},"text":"","enabled":true,"enabledSelf":true,"enabledInHierarchy":true,"styleSheetPaths":[],"matchedRules":[{"selector":"#r1","source":"direction-row.uss:5","line":5}],"matchedRulesError":""},
+    {"path":"0/1","parentPath":"0","name":"r2","type":"UnityEngine.UIElements.VisualElement","classes":[],"resolvedStyle":{"flexGrow":0.0,"flexShrink":1.0,"flexBasis":70.0,"flexBasisKeyword":"Undefined","width":70.0,"height":50.0,"color":{"r":0.8235294222831726,"g":0.8235294222831726,"b":0.8235294222831726,"a":1.0},"backgroundColor":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"fontSize":12.0,"marginTop":0.0,"marginRight":0.0,"marginBottom":0.0,"marginLeft":0.0,"paddingTop":0.0,"paddingRight":0.0,"paddingBottom":0.0,"paddingLeft":0.0,"borderTopWidth":0.0,"borderRightWidth":0.0,"borderBottomWidth":0.0,"borderLeftWidth":0.0},"text":"","enabled":true,"enabledSelf":true,"enabledInHierarchy":true,"styleSheetPaths":[],"matchedRules":[{"selector":"#r2","source":"direction-row.uss:5","line":5}],"matchedRulesError":""}
+  ]
+}

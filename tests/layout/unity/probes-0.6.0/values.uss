@@ -1,0 +1,12 @@
+#hsl { width: 50px; height: 10px; background-color: hsl(120, 100%, 50%); }
+#ease { transition-property: width; transition-duration: 1s; transition-timing-function: cubic-bezier(0.1, 0.2, 0.3, 0.4); }
+#even { flex-direction: row; justify-content: space-evenly; width: 300px; height: 20px; }
+.cell { width: 50px; height: 10px; }
+#op { opacity: 50%; width: 10px; height: 10px; }
+#inh-parent { color: rgb(0, 255, 0); }
+#inh { color: rgb(255, 0, 0); }
+.inherit { color: inherit; }
+#cur { cursor: link; }
+#grad { width: 50px; height: 10px; background-image: linear-gradient(red, blue); }
+.en { width: 10px; height: 10px; }
+.en:enabled { width: 77px; }

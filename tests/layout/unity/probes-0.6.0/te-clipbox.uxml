@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="base" text="Hello World Foo" />
+<ui:Label name="probe" text="Hello World Foo" class="p" />
+</ui:VisualElement>
+</ui:UXML>

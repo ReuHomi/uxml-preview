@@ -1,0 +1,2 @@
+#target { width: 50px; height: 10px; transition-property: width; transition-duration: 1s; transition-timing-function: cubic-bezier(0.1, 0.2, 0.3, 0.4); }
+#canary { width: 33px; height: 7px; }

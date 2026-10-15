@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="s8" text="Hamburgefonts" style="font-size: 8px;" />
+<ui:Label name="s10" text="Hamburgefonts" style="font-size: 10px;" />
+<ui:Label name="s12" text="Hamburgefonts" style="font-size: 12px;" />
+<ui:Label name="s14" text="Hamburgefonts" style="font-size: 14px;" />
+<ui:Label name="s16" text="Hamburgefonts" style="font-size: 16px;" />
+<ui:Label name="s20" text="Hamburgefonts" style="font-size: 20px;" />
+<ui:Label name="s24" text="Hamburgefonts" style="font-size: 24px;" />
+<ui:Label name="s32" text="Hamburgefonts" style="font-size: 32px;" />
+<ui:Label name="s48" text="Hamburgefonts" style="font-size: 48px;" />
+<ui:Label name="two12" text="Ag&#10;Ag" style="font-size: 12px;" />
+<ui:Label name="two20" text="Ag&#10;Ag" style="font-size: 20px;" />
+<ui:Label name="kr12" text="한글 가나다" style="font-size: 12px;" />
+<ui:Label name="kr20" text="한글 가나다" style="font-size: 20px;" />
+</ui:VisualElement>
+</ui:UXML>

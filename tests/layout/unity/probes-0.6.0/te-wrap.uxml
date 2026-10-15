@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="narrow" style="width: 60px;">
+<ui:Label name="wrap-normal" text="Hello World Foo" class="n" />
+<ui:Label name="wrap-nowrap" text="Hello World Foo" class="nw" />
+<ui:Label name="wrap-pre" text="Hello World&#10;Foo" class="pr" />
+<ui:Label name="wrap-prewrap" text="Hello World Foo" class="pw" />
+</ui:VisualElement>
+</ui:UXML>

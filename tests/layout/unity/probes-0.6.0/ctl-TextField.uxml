@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:TextField name="with" value="abc" label="Label" />
+<ui:TextField name="without" value="abc"  />
+<ui:TextField name="colored" value="abc" label="Label" style="color: rgb(255, 0, 0); font-size: 20px;" />
+</ui:VisualElement>
+<ui:VisualElement name="parent" style="width: 300px; color: rgb(0, 0, 255); font-size: 16px;">
+<ui:TextField name="inherits" value="abc" label="Label" />
+</ui:VisualElement>
+<ui:VisualElement name="free" style="align-items: flex-start;">
+<ui:TextField name="auto" value="abc" label="Label" />
+</ui:VisualElement>
+</ui:UXML>

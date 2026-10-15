@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:VisualElement name="ar-w" style="width: 100px; aspect-ratio: 2;" />
+<ui:VisualElement name="ar-w-slash" style="width: 100px; aspect-ratio: 2 / 1;" />
+<ui:VisualElement name="ar-h" style="height: 50px; aspect-ratio: 2;" />
+<ui:VisualElement name="ar-max" style="width: 100px; aspect-ratio: 2; max-height: 30px;" />
+<ui:VisualElement name="ar-min" style="width: 100px; aspect-ratio: 2; min-height: 80px;" />
+<ui:VisualElement name="ar-both" style="width: 100px; height: 20px; aspect-ratio: 2;" />
+<ui:VisualElement name="row" style="flex-direction: row; width: 300px; height: 100px;">
+  <ui:VisualElement name="ar-grow" style="flex-grow: 1; aspect-ratio: 2;" />
+  <ui:VisualElement name="fixed" style="width: 100px;" />
+</ui:VisualElement>
+<ui:VisualElement name="row2" style="flex-direction: row; width: 300px; align-items: flex-start;">
+  <ui:VisualElement name="ar-grow2" style="flex-grow: 1; aspect-ratio: 2;" />
+  <ui:VisualElement name="fixed2" style="width: 100px; height: 10px;" />
+</ui:VisualElement>
+</ui:VisualElement>
+<ui:VisualElement name="ar-stretch" style="aspect-ratio: 4;" />
+</ui:UXML>
