@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:VisualElement name="outer" enabled="false" class="box"><ui:VisualElement name="inner" class="box"><ui:VisualElement name="innermost" class="box" /></ui:VisualElement><ui:Button name="btn" text="b" /></ui:VisualElement>
+<ui:VisualElement name="selfonly" enabled="false" class="box" />
+<ui:VisualElement name="plain" class="box" />
+</ui:VisualElement>
+</ui:UXML>

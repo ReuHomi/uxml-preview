@@ -1,0 +1,281 @@
+// Probe dumper for the 0.7.0 design: the same hierarchy dump as ProbeDump.cs,
+// taken from a REAL runtime panel — a PanelSettings + UIDocument in Play mode —
+// instead of an EditorWindow. This is what a player sees.
+//
+//   Unity.exe -batchmode -projectPath <p> -executeMethod UxmlPreview.Probe.PanelDump.Run
+//     -probeFolder Assets/Probes -probeOutput <dir> [-panelTheme <tss asset path>]
+//
+// Theme: the ThemeStyleSheet Unity itself creates for a new PanelSettings
+// (PanelSettingsCreator, via reflection) when that exists; otherwise
+// -panelTheme, default Assets/UnityDefaultRuntimeTheme.tss containing
+// @import url("unity-theme://default"); — the same content. The metadata
+// records which one was used, and the text settings the panel resolved.
+//
+// Panel: ConstantPixelSize, scale 1, an 800x600 target texture, so the panel
+// is 800x600 regardless of the batchmode screen. Domain reload is disabled for
+// Play mode so this static state survives entering it.
+#if UNITY_EDITOR
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace UxmlPreview.Probe
+{
+    public static class PanelDump
+    {
+        const int SettleTicks = 20;
+        static string _out, _themeSource = "";
+        static Queue<string> _queue;
+        static UIDocument _doc;
+        static PanelSettings _ps;
+        static string _current;
+        static int _ticks, _written, _expected;
+
+        public static void Run()
+        {
+            string folder = Arg("-probeFolder") ?? "Assets/Probes";
+            _out = Path.GetFullPath(Arg("-probeOutput"));
+            Directory.CreateDirectory(_out);
+            var files = Directory.GetFiles(folder, "*.uxml", SearchOption.AllDirectories)
+                .OrderBy(f => f, System.StringComparer.Ordinal).Select(f => f.Replace('\\', '/')).ToArray();
+            _expected = files.Length;
+            _queue = new Queue<string>(files);
+
+            EditorSettings.enterPlayModeOptionsEnabled = true;
+            EditorSettings.enterPlayModeOptions = EnterPlayModeOptions.DisableDomainReload | EnterPlayModeOptions.DisableSceneReload;
+            EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
+            _ps = ScriptableObject.CreateInstance<PanelSettings>();
+            _ps.themeStyleSheet = UnityCreatedTheme() ?? FallbackTheme();
+            _ps.scaleMode = PanelScaleMode.ConstantPixelSize;
+            _ps.scale = 1f;
+            _ps.targetTexture = new RenderTexture(800, 600, 24);
+            var go = new GameObject("ProbeUI");
+            _doc = go.AddComponent<UIDocument>();
+            _doc.panelSettings = _ps;
+            Debug.Log("[panel] theme: " + _themeSource + " -> " + (_ps.themeStyleSheet == null ? "null" : AssetDatabase.GetAssetPath(_ps.themeStyleSheet)));
+
+            EditorApplication.update += Tick;
+            EditorApplication.EnterPlaymode();
+        }
+
+        // Unity's own "Create > UI Toolkit > Panel Settings Asset" path makes the default
+        // runtime theme file. Use it when the internal helper is there.
+        static ThemeStyleSheet UnityCreatedTheme()
+        {
+            foreach (var asm in System.AppDomain.CurrentDomain.GetAssemblies())
+            {
+                var t = asm.GetType("UnityEditor.UIElements.PanelSettingsCreator");
+                if (t == null) continue;
+                foreach (var m in t.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+                {
+                    if (m.ReturnType != typeof(ThemeStyleSheet) || m.GetParameters().Length != 0) continue;
+                    try
+                    {
+                        var tss = m.Invoke(null, null) as ThemeStyleSheet;
+                        if (tss != null) { _themeSource = "PanelSettingsCreator." + m.Name; return tss; }
+                    }
+                    catch (System.Exception ex) { Debug.Log("[panel] " + m.Name + " threw " + ex.GetType().Name); }
+                }
+            }
+            return null;
+        }
+
+        static ThemeStyleSheet FallbackTheme()
+        {
+            string path = Arg("-panelTheme") ?? "Assets/UnityDefaultRuntimeTheme.tss";
+            if (!File.Exists(path))
+            {
+                File.WriteAllText(path, "@import url(\"unity-theme://default\");\n");
+                AssetDatabase.ImportAsset(path);
+            }
+            _themeSource = "file " + path;
+            return AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(path);
+        }
+
+        static void Tick()
+        {
+            if (!EditorApplication.isPlaying) return;
+            _ticks++;
+            if (_current == null)
+            {
+                if (_queue.Count == 0)
+                {
+                    Debug.Log($"[panel] {_written}/{_expected} written to {_out}");
+                    EditorApplication.update -= Tick;
+                    EditorApplication.Exit(_written == _expected ? 0 : 3);
+                    return;
+                }
+                _current = _queue.Dequeue();
+                var tree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(_current);
+                _doc.visualTreeAsset = tree;
+                var sheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(Path.ChangeExtension(_current, ".uss"));
+                if (sheet != null) _doc.rootVisualElement.styleSheets.Add(sheet);
+                _ticks = 0;
+                return;
+            }
+            if (_ticks == 2) ForceStates(_doc.rootVisualElement);
+            if (_ticks < SettleTicks) return;
+            Write(Path.GetFileNameWithoutExtension(_current), _doc.rootVisualElement);
+            _current = null;
+        }
+
+        // Forced pseudo-states for the state probes: an element with class force-hover,
+        // force-active or force-focus gets that bit in its (internal) pseudoStates. Only
+        // the element itself; Unity's theme rules for these controls key on it.
+        internal static void ForceStates(VisualElement root)
+        {
+            var prop = typeof(VisualElement).GetProperty("pseudoStates", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            if (prop == null) { Debug.LogError("[probe] no pseudoStates property"); return; }
+            var enumType = prop.PropertyType;
+            root.Query<VisualElement>().ForEach(e =>
+            {
+                int bits = System.Convert.ToInt32(prop.GetValue(e));
+                foreach (var s in new[] { "Hover", "Active", "Focus" })
+                    if (e.ClassListContains("force-" + s.ToLowerInvariant())) bits |= System.Convert.ToInt32(System.Enum.Parse(enumType, s));
+                prop.SetValue(e, System.Enum.ToObject(enumType, bits));
+            });
+        }
+
+        static string Arg(string n)
+        {
+            var a = System.Environment.GetCommandLineArgs();
+            for (int i = 0; i < a.Length - 1; i++) if (a[i] == n) return a[i + 1];
+            return null;
+        }
+
+        static readonly PropertyInfo[] Props = typeof(IResolvedStyle).GetProperties().OrderBy(p => p.Name).ToArray();
+
+        static string S(object v)
+        {
+            if (v == null) return "null";
+            if (v is float f) return f.ToString("0.###", CultureInfo.InvariantCulture);
+            if (v is Color c) return string.Format(CultureInfo.InvariantCulture, "rgba({0:0.###},{1:0.###},{2:0.###},{3:0.###})", c.r, c.g, c.b, c.a);
+            if (v is Object o) return o == null ? "null" : o.GetType().Name + ":" + o.name;
+            var t = v.GetType();
+            if (t.Name == "FontDefinition")
+            {
+                var font = t.GetProperty("font")?.GetValue(v) as Object;
+                var asset = t.GetProperty("fontAsset")?.GetValue(v) as Object;
+                return "font=" + (font == null ? "null" : font.name) + ";fontAsset=" + (asset == null ? "null" : asset.name);
+            }
+            if (v is System.Collections.IEnumerable e && !(v is string))
+                return "[" + string.Join(",", e.Cast<object>().Select(S)) + "]";
+            return System.Convert.ToString(v, CultureInfo.InvariantCulture);
+        }
+
+        static readonly Dictionary<Font, UnityEngine.TextCore.Text.FontAsset> FromFont = new Dictionary<Font, UnityEngine.TextCore.Text.FontAsset>();
+
+        static string FaceJson(UnityEngine.TextCore.Text.FontAsset asset)
+        {
+            if (asset == null) return "null";
+            var f = asset.faceInfo;
+            return string.Format(CultureInfo.InvariantCulture,
+                "{{\"asset\": {0}, \"family\": {1}, \"pointSize\": {2}, \"ascentLine\": {3}, \"descentLine\": {4}, \"lineHeight\": {5}, \"scale\": {6}}}",
+                J(asset.name), J(f.familyName), f.pointSize, f.ascentLine, f.descentLine, f.lineHeight, f.scale);
+        }
+
+        static string FaceInfoJson(FontDefinition def)
+        {
+            var asset = def.fontAsset;
+            if (asset == null && def.font != null)
+            {
+                if (!FromFont.TryGetValue(def.font, out asset))
+                {
+                    asset = UnityEngine.TextCore.Text.FontAsset.CreateFontAsset(def.font);
+                    FromFont[def.font] = asset;
+                }
+            }
+            return FaceJson(asset);
+        }
+
+        // The panel's text settings and its default font asset: what a text element with
+        // no -unity-font-definition falls back to in a runtime panel.
+        static string TextSettingsJson()
+        {
+            var ts = _ps.textSettings;
+            string src = "PanelSettings.textSettings";
+            if (ts == null)
+            {
+                var p = typeof(PanelTextSettings).GetProperty("defaultPanelTextSettings", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+                ts = p?.GetValue(null) as PanelTextSettings;
+                src = "PanelTextSettings.defaultPanelTextSettings";
+            }
+            if (ts == null) return "null";
+            return "{\"source\": " + J(src) + ", \"name\": " + J(ts.name) + ", \"defaultFontAsset\": " + FaceJson(ts.defaultFontAsset) + "}";
+        }
+
+        static string J(string s) => "\"" + (s ?? "").Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "") + "\"";
+
+        static void Write(string name, VisualElement root)
+        {
+            var sb = new StringBuilder();
+            var rb = root.worldBound;
+            sb.Append("{\n  \"metadata\": {\"unityVersion\": ").Append(J(Application.unityVersion))
+              .Append(", \"theme\": \"runtime-panel\", \"themeSource\": ").Append(J(_themeSource))
+              .Append(", \"themeAsset\": ").Append(J(_ps.themeStyleSheet == null ? "" : AssetDatabase.GetAssetPath(_ps.themeStyleSheet)))
+              .Append(", \"textSettings\": ").Append(TextSettingsJson())
+              .Append(", \"panel\": {\"width\": 800, \"height\": 600}, \"root\": {\"w\": ").Append(S(rb.width)).Append(", \"h\": ").Append(S(rb.height)).Append("}},\n  \"elements\": [\n");
+            bool first = true;
+            Walk(root, "", 0, rb, sb, ref first);
+            sb.Append("\n  ]\n}\n");
+            File.WriteAllText(Path.Combine(_out, name + ".json"), sb.ToString(), new UTF8Encoding(false));
+            _written++;
+        }
+
+        static void Walk(VisualElement el, string parentPath, int depth, Rect origin, StringBuilder sb, ref bool first)
+        {
+            for (int i = 0; i < el.hierarchy.childCount; i++)
+            {
+                var c = el.hierarchy[i];
+                string seg = string.IsNullOrEmpty(c.name) ? c.GetType().Name + "[" + i + "]" : c.name;
+                string path = parentPath.Length == 0 ? seg : parentPath + "/" + seg;
+                var r = c.worldBound;
+                if (!first) sb.Append(",\n");
+                first = false;
+                sb.Append("    {\"path\": ").Append(J(path))
+                  .Append(", \"depth\": ").Append(depth)
+                  .Append(", \"type\": ").Append(J(c.GetType().Name))
+                  .Append(", \"name\": ").Append(J(c.name))
+                  .Append(", \"classes\": [").Append(string.Join(",", c.GetClasses().Select(J))).Append("]")
+                  .Append(", \"x\": ").Append(S(r.x - origin.x)).Append(", \"y\": ").Append(S(r.y - origin.y))
+                  .Append(", \"w\": ").Append(S(r.width)).Append(", \"h\": ").Append(S(r.height))
+                  .Append(", \"visible\": ").Append(c.visible ? "true" : "false")
+                  .Append(", \"pseudoStates\": ").Append(J(System.Convert.ToString(typeof(VisualElement).GetProperty("pseudoStates", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.GetValue(c))))
+                  .Append(", \"enabledInHierarchy\": ").Append(c.enabledInHierarchy ? "true" : "false")
+                  .Append(", \"display\": ").Append(J(c.resolvedStyle.display.ToString()));
+                if (c is TextElement te)
+                {
+                    sb.Append(", \"text\": ").Append(J(te.text));
+                    sb.Append(", \"faceInfo\": ").Append(FaceInfoJson(c.resolvedStyle.unityFontDefinition));
+                    try
+                    {
+                        var m = te.MeasureTextSize(te.text ?? "", 0, VisualElement.MeasureMode.Undefined, 0, VisualElement.MeasureMode.Undefined);
+                        sb.Append(", \"measured\": {\"w\": ").Append(S(m.x)).Append(", \"h\": ").Append(S(m.y)).Append("}");
+                    }
+                    catch (System.Exception ex) { sb.Append(", \"measureError\": ").Append(J(ex.GetType().Name)); }
+                }
+                sb.Append(", \"style\": {");
+                bool f2 = true;
+                foreach (var p in Props)
+                {
+                    string val;
+                    try { val = S(p.GetValue(c.resolvedStyle)); } catch (System.Exception ex) { val = "!" + ex.GetType().Name; }
+                    if (!f2) sb.Append(", ");
+                    f2 = false;
+                    sb.Append(J(p.Name)).Append(": ").Append(J(val));
+                }
+                sb.Append("}}");
+                Walk(c, path, depth + 1, origin, sb, ref first);
+            }
+        }
+    }
+}
+#endif

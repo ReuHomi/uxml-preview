@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:GroupBox name="g-empty" />
+<ui:GroupBox name="g-text" text="Group" />
+<ui:GroupBox name="g-child" text="Group"><ui:Label name="g-child-label" text="Inside" /></ui:GroupBox>
+<ui:GroupBox name="g-disabled" text="Group" enabled="false"><ui:Label name="g-disabled-label" text="Inside" /></ui:GroupBox>
+</ui:VisualElement>
+<ui:VisualElement name="free" style="align-items: flex-start;">
+<ui:GroupBox name="g-auto" text="Group"><ui:Label text="Inside" /></ui:GroupBox>
+</ui:VisualElement>
+</ui:UXML>

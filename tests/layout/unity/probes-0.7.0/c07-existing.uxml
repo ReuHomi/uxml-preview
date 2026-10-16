@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:VisualElement name="ve" />
+<ui:Label name="label" text="Label" />
+<ui:Button name="button" text="Button" />
+<ui:Button name="button-empty" />
+<ui:Image name="image" />
+<ui:ScrollView name="scroll" style="height: 60px;"><ui:Label name="scroll-child" text="Child" /></ui:ScrollView>
+<ui:Label name="label-disabled" text="Label" enabled="false" />
+<ui:Button name="button-disabled" text="Button" enabled="false" />
+</ui:VisualElement>
+<ui:VisualElement name="free" style="align-items: flex-start;">
+<ui:Label name="label-auto" text="Hamburgefonts" />
+<ui:Button name="button-auto" text="Button" />
+</ui:VisualElement>
+</ui:UXML>

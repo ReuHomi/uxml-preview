@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:Toggle name="t-plain" />
+<ui:Toggle name="t-label" label="Label" />
+<ui:Toggle name="t-text" text="Text" />
+<ui:Toggle name="t-checked" value="true" />
+<ui:Toggle name="t-checked-label" label="Label" value="true" />
+<ui:Toggle name="t-disabled" label="Label" enabled="false" />
+<ui:Toggle name="t-disabled-checked" label="Label" value="true" enabled="false" />
+</ui:VisualElement>
+<ui:VisualElement name="free" style="align-items: flex-start;">
+<ui:Toggle name="t-auto" />
+<ui:Toggle name="t-auto-label" label="Label" />
+<ui:Toggle name="t-auto-text" text="Text" />
+</ui:VisualElement>
+</ui:UXML>

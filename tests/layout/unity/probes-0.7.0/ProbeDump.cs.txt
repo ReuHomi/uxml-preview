@@ -1,0 +1,237 @@
+// Probe dumper (0.6.0 pre-check; 0.7.0 adds forced pseudo-states and the pseudoStates field).
+//
+// Dumps the WHOLE physical hierarchy (named or not) of each probe UXML with
+// every IResolvedStyle property, so control parts, theme defaults and text
+// sizes can be read without deciding in advance what matters.
+//
+//   Unity.exe -batchmode -projectPath <p> -executeMethod UxmlPreview.Probe.ProbeDump.Run
+//     -probeFolder Assets/Probes -probeOutput <dir> [-probeTheme editor|runtime]
+//
+// editor  = the stage sits in an EditorWindow under the editor theme, exactly
+//           like tools/UxmlLayoutDump.cs (the existing ground truth).
+// runtime = the window panel's theme sheets are replaced by Unity's default
+//           runtime theme (Assets/ProbeRuntime.tss: @import "unity-theme://default").
+#if UNITY_EDITOR
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace UxmlPreview.Probe
+{
+    public sealed class ProbeDump : EditorWindow
+    {
+        const float W = 800f, H = 600f;
+        const long SettleMs = 250;
+        static string _folder, _out, _theme;
+        static int _written, _expected;
+        static Queue<string> _queue;
+        VisualElement _stage;
+        string _path;
+
+        // One fresh EditorWindow (= fresh panel) per case: a value that makes
+        // Unity's style updater throw leaves that panel unstyled for good, and a
+        // shared stage would silently poison every later case.
+        public static void Run()
+        {
+            _folder = Arg("-probeFolder") ?? "Assets/Probes";
+            _out = Path.GetFullPath(Arg("-probeOutput"));
+            _theme = Arg("-probeTheme") ?? "editor";
+            var files = Directory.GetFiles(_folder, "*.uxml", SearchOption.AllDirectories)
+                .OrderBy(f => f, System.StringComparer.Ordinal).ToArray();
+            _expected = files.Length;
+            Directory.CreateDirectory(_out);
+            _queue = new Queue<string>(files);
+            StartNext();
+        }
+
+        static void StartNext()
+        {
+            if (_queue.Count == 0)
+            {
+                Debug.Log($"[probe] {_written}/{_expected} written to {_out}");
+                EditorApplication.Exit(_written == _expected ? 0 : 3);
+                return;
+            }
+            var w = CreateInstance<ProbeDump>();
+            w._path = _queue.Dequeue().Replace('\\', '/');
+            w.Show();
+            EditorApplication.delayCall += w.Begin;
+        }
+
+        // Forced pseudo-states for the state probes: an element with class force-hover,
+        // force-active or force-focus gets that bit in its (internal) pseudoStates. Only
+        // the element itself; Unity's theme rules for these controls key on it.
+        internal static void ForceStates(VisualElement root)
+        {
+            var prop = typeof(VisualElement).GetProperty("pseudoStates", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            if (prop == null) { Debug.LogError("[probe] no pseudoStates property"); return; }
+            var enumType = prop.PropertyType;
+            root.Query<VisualElement>().ForEach(e =>
+            {
+                int bits = System.Convert.ToInt32(prop.GetValue(e));
+                foreach (var s in new[] { "Hover", "Active", "Focus" })
+                    if (e.ClassListContains("force-" + s.ToLowerInvariant())) bits |= System.Convert.ToInt32(System.Enum.Parse(enumType, s));
+                prop.SetValue(e, System.Enum.ToObject(enumType, bits));
+            });
+        }
+
+        static string Arg(string n)
+        {
+            var a = System.Environment.GetCommandLineArgs();
+            for (int i = 0; i < a.Length - 1; i++) if (a[i] == n) return a[i + 1];
+            return null;
+        }
+
+        void Begin()
+        {
+            var root = rootVisualElement;
+            if (_theme == "runtime")
+            {
+                var tss = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>("Assets/ProbeRuntime.tss");
+                if (tss == null) { Debug.LogError("[probe] Assets/ProbeRuntime.tss missing"); EditorApplication.Exit(4); return; }
+                VisualElement top = root;
+                var removed = new List<string>();
+                for (VisualElement e = root; e != null; e = e.hierarchy.parent)
+                {
+                    for (int i = 0; i < e.styleSheets.count; i++) removed.Add((e.name ?? e.GetType().Name) + ":" + e.styleSheets[i].name);
+                    e.styleSheets.Clear();
+                    top = e;
+                }
+                if (_written == 0) Debug.Log("[probe] removed theme sheets: " + string.Join(", ", removed));
+                top.styleSheets.Add(tss);
+            }
+            _stage = new VisualElement();
+            _stage.style.position = Position.Absolute;
+            _stage.style.left = 0; _stage.style.top = 0;
+            _stage.style.width = W; _stage.style.height = H;
+            root.Add(_stage);
+            string name = Path.GetFileNameWithoutExtension(_path);
+            var tree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(_path);
+            if (tree == null) { Debug.LogError("[probe] cannot load " + _path); Close(); StartNext(); return; }
+            var sheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(Path.ChangeExtension(_path, ".uss"));
+            if (sheet != null) _stage.styleSheets.Add(sheet);
+            try { tree.CloneTree(_stage); }
+            catch (System.Exception ex)
+            {
+                // Recorded, not fatal: what Unity does with the input is the finding.
+                Debug.LogError("[probe] CloneTree threw for " + _path + ": " + ex.GetType().Name);
+                File.WriteAllText(Path.Combine(_out, name + ".clone-error.txt"), ex.ToString());
+            }
+            ForceStates(_stage);
+            _stage.schedule.Execute(() => { Write(name); Close(); StartNext(); }).ExecuteLater(SettleMs);
+            Repaint();
+        }
+
+        static readonly PropertyInfo[] Props = typeof(IResolvedStyle).GetProperties()
+            .OrderBy(p => p.Name).ToArray();
+
+        static string S(object v)
+        {
+            if (v == null) return "null";
+            if (v is float f) return f.ToString("0.###", CultureInfo.InvariantCulture);
+            if (v is Color c) return string.Format(CultureInfo.InvariantCulture, "rgba({0:0.###},{1:0.###},{2:0.###},{3:0.###})", c.r, c.g, c.b, c.a);
+            if (v is Object o) return o == null ? "null" : o.GetType().Name + ":" + o.name;
+            var t = v.GetType();
+            if (t.Name == "FontDefinition")
+            {
+                var font = t.GetProperty("font")?.GetValue(v) as Object;
+                var asset = t.GetProperty("fontAsset")?.GetValue(v) as Object;
+                return "font=" + (font == null ? "null" : font.name) + ";fontAsset=" + (asset == null ? "null" : asset.name);
+            }
+            if (v is System.Collections.IEnumerable e && !(v is string))
+                return "[" + string.Join(",", e.Cast<object>().Select(S)) + "]";
+            return System.Convert.ToString(v, CultureInfo.InvariantCulture);
+        }
+
+        static readonly Dictionary<Font, UnityEngine.TextCore.Text.FontAsset> FromFont = new Dictionary<Font, UnityEngine.TextCore.Text.FontAsset>();
+
+        // The FaceInfo of the font a text element is drawn with. A Font (ttf/otf)
+        // gets the FontAsset Unity would build from it, created here the same way.
+        static string FaceInfoJson(FontDefinition def)
+        {
+            var asset = def.fontAsset;
+            if (asset == null && def.font != null)
+            {
+                if (!FromFont.TryGetValue(def.font, out asset))
+                {
+                    asset = UnityEngine.TextCore.Text.FontAsset.CreateFontAsset(def.font);
+                    FromFont[def.font] = asset;
+                }
+            }
+            if (asset == null) return "null";
+            var f = asset.faceInfo;
+            return string.Format(CultureInfo.InvariantCulture,
+                "{{\"asset\": {0}, \"family\": {1}, \"pointSize\": {2}, \"ascentLine\": {3}, \"descentLine\": {4}, \"lineHeight\": {5}, \"scale\": {6}}}",
+                J(asset.name), J(f.familyName), f.pointSize, f.ascentLine, f.descentLine, f.lineHeight, f.scale);
+        }
+
+        static string J(string s) => "\"" + (s ?? "").Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "") + "\"";
+
+        void Write(string name)
+        {
+            var sb = new StringBuilder();
+            sb.Append("{\n  \"metadata\": {\"unityVersion\": ").Append(J(Application.unityVersion))
+              .Append(", \"theme\": ").Append(J(_theme))
+              .Append(", \"panel\": {\"width\": 800, \"height\": 600}},\n  \"elements\": [\n");
+            var origin = _stage.worldBound;
+            bool first = true;
+            Walk(_stage, "", 0, origin, sb, ref first);
+            sb.Append("\n  ]\n}\n");
+            File.WriteAllText(Path.Combine(_out, name + ".json"), sb.ToString(), new UTF8Encoding(false));
+            _written++;
+        }
+
+        void Walk(VisualElement el, string parentPath, int depth, Rect origin, StringBuilder sb, ref bool first)
+        {
+            for (int i = 0; i < el.hierarchy.childCount; i++)
+            {
+                var c = el.hierarchy[i];
+                string seg = string.IsNullOrEmpty(c.name) ? c.GetType().Name + "[" + i + "]" : c.name;
+                string path = parentPath.Length == 0 ? seg : parentPath + "/" + seg;
+                var r = c.worldBound;
+                if (!first) sb.Append(",\n");
+                first = false;
+                sb.Append("    {\"path\": ").Append(J(path))
+                  .Append(", \"depth\": ").Append(depth)
+                  .Append(", \"type\": ").Append(J(c.GetType().Name))
+                  .Append(", \"name\": ").Append(J(c.name))
+                  .Append(", \"classes\": [").Append(string.Join(",", c.GetClasses().Select(J))).Append("]")
+                  .Append(", \"x\": ").Append(S(r.x - origin.x)).Append(", \"y\": ").Append(S(r.y - origin.y))
+                  .Append(", \"w\": ").Append(S(r.width)).Append(", \"h\": ").Append(S(r.height))
+                  .Append(", \"pseudoStates\": ").Append(J(System.Convert.ToString(typeof(VisualElement).GetProperty("pseudoStates", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)?.GetValue(c))))
+                  .Append(", \"visible\": ").Append(c.visible ? "true" : "false")
+                  .Append(", \"display\": ").Append(J(c.resolvedStyle.display.ToString()));
+                if (c is TextElement te)
+                {
+                    sb.Append(", \"text\": ").Append(J(te.text));
+                    sb.Append(", \"faceInfo\": ").Append(FaceInfoJson(c.resolvedStyle.unityFontDefinition));
+                    try
+                    {
+                        var m = te.MeasureTextSize(te.text ?? "", 0, VisualElement.MeasureMode.Undefined, 0, VisualElement.MeasureMode.Undefined);
+                        sb.Append(", \"measured\": {\"w\": ").Append(S(m.x)).Append(", \"h\": ").Append(S(m.y)).Append("}");
+                    }
+                    catch (System.Exception ex) { sb.Append(", \"measureError\": ").Append(J(ex.GetType().Name)); }
+                }
+                sb.Append(", \"style\": {");
+                bool f2 = true;
+                foreach (var p in Props)
+                {
+                    string val;
+                    try { val = S(p.GetValue(c.resolvedStyle)); } catch (System.Exception ex) { val = "!" + ex.GetType().Name; }
+                    if (!f2) sb.Append(", ");
+                    f2 = false;
+                    sb.Append(J(p.Name)).Append(": ").Append(J(val));
+                }
+                sb.Append("}}");
+                Walk(c, path, depth + 1, origin, sb, ref first);
+            }
+        }
+    }
+}
+#endif

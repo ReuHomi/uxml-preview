@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:ProgressBar name="p-plain" />
+<ui:ProgressBar name="p-half" value="50" />
+<ui:ProgressBar name="p-title" value="50" title="Loading" />
+<ui:ProgressBar name="p-full" value="100" />
+<ui:ProgressBar name="p-disabled" value="50" title="Loading" enabled="false" />
+</ui:VisualElement>
+<ui:VisualElement name="free" style="align-items: flex-start;">
+<ui:ProgressBar name="p-auto" value="50" title="Loading" />
+</ui:VisualElement>
+</ui:UXML>
