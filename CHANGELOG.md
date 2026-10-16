@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.6.0 — unreleased (draft)
+## 0.6.0 — 2026-10-16
 
 Diagnostics that say what Unity does instead, text measured the way Unity
 measures it, fonts, and `aspect-ratio`. A minor version in 0.x because drawn
