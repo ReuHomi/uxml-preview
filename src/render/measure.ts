@@ -16,8 +16,9 @@ export interface FaceInfo {
   lineHeight?: number;
 }
 
-// Measured FontAsset probe, tests/text-cohort/unity/<version>/, 2026-10-16:
-// Inter-Regular SDF is the editor default.
+// FaceInfo of "Inter - Regular SDF" / "Inter-Regular SDF" reported by Unity:
+// tests/text-cohort/unity/<version>/cohort-default.json and cohort-inter.json
+// (2026-10-16). Inter-Regular SDF is the editor default.
 export const EDITOR_DEFAULT_FACE_INFO: FaceInfo = {
   pointSize: 90, ascentLine: 87.1875, descentLine: -21.73295, lineHeight: 108.9205,
 };
@@ -74,7 +75,11 @@ export function createDefaultMeasureText(doc?: Document): MeasureText {
       return base + (gaps * (style.letterSpacing ?? 0) + spaces * (style.wordSpacing ?? 0)) * style.fontSize / 100;
     };
 
-    const paragraphs = text.split('\n');
+    // Leading spaces and space runs are measured in Unity 6.3 LTS (probe-editor/spaces.json);
+    // Unity 6000.0 did not collapse them. Dropping trailing spaces under normal/nowrap is
+    // NOT measured: it follows CSS, which is what the painter draws. pre is left as written.
+    const paragraphs = text.split('\n').map((paragraph) =>
+      style.whiteSpace === 'pre' ? paragraph : paragraph.replace(/ +/g, ' ').trim());
     const wraps = style.whiteSpace !== 'nowrap' && style.whiteSpace !== 'pre' && availableWidth > 0;
     let lines = 0;
     let widest = 0;

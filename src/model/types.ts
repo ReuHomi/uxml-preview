@@ -309,11 +309,12 @@ export type WarningSubject =
       affectsLayout?: boolean;
       /**
        * On a `not-rendered` warning: the part this preview did apply, when it
-       * applied some. `'paint'` means drawn, but not laid out as Unity would —
-       * `letter-spacing` is drawn and left out of text measurement.
+       * applied some. Reserved for a property drawn but not laid out as Unity
+       * would; no registry row currently uses this field.
        */
       applied?: 'paint';
-      unityEffect?: { kind: 'panel-unstyled' | 'file-inline-dropped'; versions: readonly UssVersion[] };
+      missingGlyphs?: 'hangul' | 'han' | 'kana';
+      unityEffect?: { kind: 'unstyled-from-here' | 'file-inline-dropped'; versions: readonly UssVersion[] };
     }
   | {
       kind: 'selector';

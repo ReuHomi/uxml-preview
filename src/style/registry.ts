@@ -309,7 +309,7 @@ export interface PropertyWarning {
     replacements?: readonly string[];
     affectsLayout?: boolean;
     applied?: 'paint';
-    unityEffect?: { kind: 'panel-unstyled' | 'file-inline-dropped'; versions: readonly UssVersion[] };
+    unityEffect?: { kind: 'unstyled-from-here' | 'file-inline-dropped'; versions: readonly UssVersion[] };
   };
 }
 
@@ -339,13 +339,13 @@ export function propertyWarning(property: string, value: string): PropertyWarnin
   // dumps: tests/layout/unity/<version>/probe-editor (6000.0.40f1, 6000.3.25f1).
   const subject: PropertyWarning['subject'] = { kind: 'property', property, value };
   if ((property.includes('color') || property === 'text-shadow') && /hsla?\(/i.test(value)) {
-    return { reason: 'invalid-value', message: `${property}: Unity 6000.3 stops styling the whole panel at this value; 6000.0 draws it black`,
-      subject: { ...subject, unityEffect: { kind: 'panel-unstyled', versions: ['6000.3'] } } };
+    return { reason: 'invalid-value', message: `${property}: Unity 6000.3 stops styling from this element on at this value; 6000.0 draws it black`,
+      subject: { ...subject, unityEffect: { kind: 'unstyled-from-here', versions: ['6000.3'] } } };
   }
-  // Same probes and dumps, measured 2026-10-15: both versions lose the panel.
+  // Order probes and exception logs, measured 2026-10-16: both versions stop styling from this element on.
   if ((property === 'transition-timing-function' || property === 'transition') && /cubic-bezier\(/i.test(value)) {
-    return { reason: 'invalid-value', message: `${property}: Unity stops styling the whole panel at cubic-bezier()`,
-      subject: { ...subject, unityEffect: { kind: 'panel-unstyled', versions: ['6000.0', '6000.3'] } } };
+    return { reason: 'invalid-value', message: `${property}: Unity stops styling from this element on at cubic-bezier()`,
+      subject: { ...subject, unityEffect: { kind: 'unstyled-from-here', versions: ['6000.0', '6000.3'] } } };
   }
   // Same probes and dumps, measured 2026-10-15: these values differ from CSS.
   if (property === 'opacity' && value.trim().endsWith('%')) {
@@ -368,12 +368,14 @@ export function propertyWarning(property: string, value: string): PropertyWarnin
   }
   if (known.handling !== 'none') return null;
   return {
-    message: `${property}${label}: ${NOT_RENDERED_TEXT[property] ?? 'not drawn by this preview'}`,
+    message: `${property}${label}: ${NOT_RENDERED_TEXT[property] ?? 'not drawn by this preview'}`
+      + (property === 'filter' && /[\w-]+\(/.test(value)
+        ? '; Unity 6000.0 stops styling from this element on' : ''),
     reason: 'not-rendered',
     subject: { kind: 'property', property, value, since: known.since, affectsLayout,
       // Same probes/dumps, measured 2026-10-15: filter functions poison 6000.0 only.
       ...(property === 'filter' && /[\w-]+\(/.test(value)
-        ? { unityEffect: { kind: 'panel-unstyled' as const, versions: ['6000.0'] as const } } : {}),
+        ? { unityEffect: { kind: 'unstyled-from-here' as const, versions: ['6000.0'] as const } } : {}),
     },
   };
 }

@@ -435,6 +435,21 @@ export function layoutDocument(
       });
     }
 
+    if (drawsText && !style.has('-unity-font-definition') && !style.has('-unity-font')) {
+      const first = /[\u1100-\u11ff\u3130-\u318f\uac00-\ud7af\u3400-\u4dbf\u4e00-\u9fff\u3040-\u30ff]/u.exec(text);
+      if (first !== null) {
+        const code = first[0].codePointAt(0)!;
+        const missingGlyphs = code >= 0x3040 && code <= 0x30ff ? 'kana'
+          : (code >= 0x3400 && code <= 0x4dbf) || (code >= 0x4e00 && code <= 0x9fff) ? 'han' : 'hangul';
+        const script = { hangul: 'Hangul', han: 'Han (CJK ideographs)', kana: 'Kana' }[missingGlyphs];
+        warnings.push({
+          kind: 'unsupported-property', reason: 'not-rendered', node: node.id,
+          message: `The editor default font (Inter-Regular SDF) has no glyphs for ${script}; Unity draws it with a fallback font whose height can differ (measured 1–4px taller).`,
+          subject: { kind: 'property', property: '-unity-font-definition', value: '', affectsLayout: true, missingGlyphs },
+        });
+      }
+    }
+
     if (drawsText) {
       // Yoga refuses to measure a node that has children, and would not ask for
       // an intrinsic size anyway. Text wins; dropping it silently would be worse.
