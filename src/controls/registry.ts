@@ -28,8 +28,11 @@ import type { ElementNode } from '../model/types';
  * observed in `tests/golden/unity/scrollview-*.json`, not invented.
  */
 export interface ControlPart {
-  /** Unity's name, e.g. `unity-content-viewport`. */
+  /** Unity name, or class identity for the unnamed GroupBox title. */
   name: string;
+  /** Omitted for nested wrappers; a leading Label draws the owner text. */
+  kind?: 'leading-text';
+  classes?: readonly string[];
   /**
    * USS this part always carries, because the control fixes it.
    *
@@ -45,7 +48,8 @@ export interface ControlSpec {
   hasText: boolean;
   /**
    * Elements the control inserts between itself and the file's children,
-   * outermost first. The file's children go inside the last one.
+   * outermost first. File children go inside the last wrapper; leading text
+   * parts are siblings before them and exist only for non-empty owner text.
    */
   parts: readonly ControlPart[];
   /**
@@ -75,6 +79,14 @@ export interface ResolvedControl {
 const CONTROLS: Readonly<Record<string, ControlSpec>> = {
   // VisualElement is the base class and carries no class of its own.
   VisualElement: { hasText: false, classes: [], parts: [] },
+  // Measured: probe-editor-070/c07-GroupBox.json (6000.0.40f1) and
+  // probe-panel/c07-GroupBox.json (6000.3.25f1): unnamed leading Label.
+  GroupBox: {
+    hasText: false, classes: ['unity-group-box'],
+    parts: [{ name: 'unity-group-box__label', kind: 'leading-text',
+      classes: ['unity-text-element', 'unity-label', 'unity-group-box__label'], style: {} }],
+  },
+  Box: { hasText: false, classes: ['unity-box'], parts: [] },
   Label: { hasText: true, classes: ['unity-label'], parts: [] },
   Button: { hasText: true, classes: ['unity-button'], parts: [] },
   // Image draws a texture, not text. Its picture reaches this renderer through

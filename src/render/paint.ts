@@ -149,6 +149,52 @@ export function paint(
     insertBreaks(host);
   }
 
+  function paintText(el: HTMLElement, text: string, style: ComputedStyle,
+    css: ReturnType<typeof toCss>): void {
+    // Laid out as a measured leaf, so it has no painted children and can use
+    // flex for the vertical half of -unity-text-align.
+    el.style.setProperty('display', css.declarations['display'] ?? 'flex');
+    if (css.declarations['align-items'] === undefined) {
+      el.style.setProperty('align-items', 'flex-start');
+    }
+    if (css.declarations['justify-content'] === undefined) {
+      el.style.setProperty('justify-content', 'flex-start');
+    }
+    const font = options.fonts?.get(style);
+    if (font !== undefined) el.style.fontFamily = fontList(font.family);
+    const gap = parseLength(style.get('-unity-paragraph-spacing')?.value ?? '').length;
+    const decoded = text;
+    const letterSpacing = parseLength(style.get('letter-spacing')?.value ?? '').length;
+    if (gap?.kind === 'px' && decoded.includes('\n')) {
+      const size = parseLength(style.get('font-size')?.value ?? '12px').length;
+      const paragraphs = decoded.split('\n');
+      const content = options.document.createElement('div');
+      content.style.width = '100%';
+      paragraphs.forEach((paragraph, index) => {
+        const block = options.document.createElement('div');
+        appendText(block, paragraph, style);
+        block.style.minHeight = '1em';
+        if (index < paragraphs.length - 1) block.style.marginBottom = `${gap.value * (size?.kind === 'px' ? size.value : 12) / 100}px`;
+        content.appendChild(block);
+        if (index < paragraphs.length - 1) {
+          const separator = options.document.createElement('span');
+          separator.textContent = '\n';
+          separator.style.display = 'none';
+          content.appendChild(separator);
+        }
+      });
+      el.appendChild(content);
+    } else if ((letterSpacing?.kind === 'px' && letterSpacing.value !== 0)
+      || (options.theme === 'runtime' && CJK_BREAK.test(decoded))) {
+      const content = options.document.createElement('span');
+      content.style.minWidth = '0';
+      appendText(content, decoded, style);
+      el.appendChild(content);
+    } else {
+      appendText(el, decoded, style);
+    }
+  }
+
   function build(
     node: ElementNode,
     parentBox: LayoutBox | null,
@@ -189,48 +235,7 @@ export function paint(
     const { spec } = resolveControl(node);
     const text = node.attributes.find((a) => a.name === 'text')?.value;
     if (spec.hasText && text !== undefined && text.length > 0) {
-      // Laid out as a measured leaf, so it has no painted children and can use
-      // flex for the vertical half of -unity-text-align.
-      el.style.setProperty('display', css.declarations['display'] ?? 'flex');
-      if (css.declarations['align-items'] === undefined) {
-        el.style.setProperty('align-items', 'flex-start');
-      }
-      if (css.declarations['justify-content'] === undefined) {
-        el.style.setProperty('justify-content', 'flex-start');
-      }
-      const font = options.fonts?.get(style);
-      if (font !== undefined) el.style.fontFamily = fontList(font.family);
-      const gap = parseLength(style.get('-unity-paragraph-spacing')?.value ?? '').length;
-      const decoded = decodeEntities(text);
-      const letterSpacing = parseLength(style.get('letter-spacing')?.value ?? '').length;
-      if (gap?.kind === 'px' && decoded.includes('\n')) {
-        const size = parseLength(style.get('font-size')?.value ?? '12px').length;
-        const paragraphs = decoded.split('\n');
-        const content = options.document.createElement('div');
-        content.style.width = '100%';
-        paragraphs.forEach((paragraph, index) => {
-          const block = options.document.createElement('div');
-          appendText(block, paragraph, style);
-          block.style.minHeight = '1em';
-          if (index < paragraphs.length - 1) block.style.marginBottom = `${gap.value * (size?.kind === 'px' ? size.value : 12) / 100}px`;
-          content.appendChild(block);
-          if (index < paragraphs.length - 1) {
-            const separator = options.document.createElement('span');
-            separator.textContent = '\n';
-            separator.style.display = 'none';
-            content.appendChild(separator);
-          }
-        });
-        el.appendChild(content);
-      } else if ((letterSpacing?.kind === 'px' && letterSpacing.value !== 0)
-        || (options.theme === 'runtime' && CJK_BREAK.test(decoded))) {
-        const content = options.document.createElement('span');
-        content.style.minWidth = '0';
-        appendText(content, decoded, style);
-        el.appendChild(content);
-      } else {
-        appendText(el, decoded, style);
-      }
+      paintText(el, decodeEntities(text), style, css);
     } else {
       // The control's own parts nest between this element and the file's
       // children, so `host` walks inward and the children are appended to the
@@ -260,9 +265,13 @@ export function paint(
         }
 
         host.appendChild(partEl);
-        host = partEl;
-        hostBox = part.box;
-        hostBorder = partBorderOrigin(part);
+        if (part.text !== undefined) {
+          paintText(partEl, part.text, part.style, partCss);
+        } else {
+          host = partEl;
+          hostBox = part.box;
+          hostBorder = partBorderOrigin(part);
+        }
       }
 
       for (const child of node.children) {

@@ -403,27 +403,30 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
         const parent = parents.get(target.node) ?? null;
         return parent === null ? null : { kind: 'element', node: parent };
       }
-      if (target.depth === 0) return { kind: 'element', node: target.owner };
+      if (target.depth === 0 || resolveControl(target.owner).spec.parts[target.depth]?.kind === 'leading-text') {
+        return { kind: 'element', node: target.owner };
+      }
       const chain = resolveControl(target.owner).spec.parts;
       const outer = chain[target.depth - 1]!;
       return { kind: 'part', owner: target.owner, name: outer.name, depth: target.depth - 1 };
     },
     isRoot: (target: Target): boolean =>
       target.kind === 'element' && target.node === doc.root,
-    // Unity's parts are VisualElements, so a `VisualElement` rule reaches them.
-    // Not measured — `part-type-selector` is the case that will settle it.
+    // Wrapper type remains the existing inference (part-type-selector);
+    // c07-GroupBox dumps measure the leading part as an unnamed Label.
     typeNameOf: (target: Target): string =>
-      target.kind === 'element' ? target.node.name.local : 'VisualElement',
+      target.kind === 'element' ? target.node.name.local
+        : resolveControl(target.owner).spec.parts[target.depth]?.kind === 'leading-text' ? 'Label' : 'VisualElement',
     idOf: (target: Target): string | undefined =>
-      target.kind === 'element' ? attributeNamed(target.node, 'name') : target.name,
+      target.kind === 'element' ? attributeNamed(target.node, 'name')
+        : resolveControl(target.owner).spec.parts[target.depth]?.kind === 'leading-text' ? undefined : target.name,
     // Implicit classes are as real as written ones for matching: in Unity the
     // element genuinely carries them, which is why `.unity-button` in author USS
-    // hits a plain `<ui:Button />`. Parts carry classes too in Unity, but which
-    // ones is unmeasured, so none are claimed here.
+    // hits a plain `<ui:Button />`. Leading Label classes are measured in c07-GroupBox.
     classesOf: (target: Target): readonly string[] =>
       target.kind === 'element'
         ? [...writtenClasses(target.node), ...implicitClassesOf(target.node)]
-        : [],
+        : resolveControl(target.owner).spec.parts[target.depth]?.classes ?? [],
   };
 
   // Two contexts, and the order matters. `base` has no states at all and is what
@@ -945,13 +948,15 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
     if (chain.length > 0) {
       const byName = new Map<string, ComputedStyle>();
       chain.forEach((part, depth) => {
+        if (part.kind === 'leading-text' && !node.attributes.some((a) => a.name === 'text' && a.value.length > 0)) return;
         const resolved = computeFor(
           { kind: 'part', owner: node, name: part.name, depth },
-          downstream,
+          part.kind === 'leading-text' ? self.forChildren : downstream,
           node.id,
         );
         byName.set(part.name, resolved.computed);
-        downstream = resolved.forChildren;
+        // c07-GroupBox: the title's style must not flow into its following siblings.
+        if (part.kind !== 'leading-text') downstream = resolved.forChildren;
       });
       partStyles.set(node.id, byName);
     }

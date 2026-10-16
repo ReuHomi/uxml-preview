@@ -207,6 +207,11 @@
 - 소비자 측정: uxml-author(`d430ff3`) 0.6.1·0.7.0 모두 17건 실패, 항목 동일. vscode(`ce8ea27`) 1 → 4건, 새 3건은 Label 문서의 테마 경고.
   인계 문서 초안 `docs/design/0.7.0-handoff.md`
 - 변이: A3 4/4(하네스 기본 런타임·런타임 Button 안쪽 여백 0·기본값 에디터·런타임 스크롤바 13)
+- (06:00 추가) 테마 경고 뒤집음(사람 지시): "Built-in control defaults applied"·ScrollView 부품 경고 제거, `version-dependent`는 에디터 테마의
+  덤프상 버전 차이(글자 없는 Button 4/19, 기본 생성기 standard/advanced)에만. 런타임 기본 생성기를 standard로(누락 발견). 고정 7, 변이 4/4,
+  Codex 2라운드. 소비자: vscode 4 → 1건(0.6.1과 같음), uxml-author +1(버전 채널 표본 사라짐). 강제 비활성 확인을 묶음 E 계획에(계획서 13절)
+- 묶음 B(GroupBox, Box): 예측 기존 변화 0–1 → 0. `bundle-b.test.ts` 11개, Codex 1라운드, 전체 915. 새 구조 `leading-text` 부품(GroupBox 제목).
+  변이 4/5 — `text=""` 제목은 미측정이라 고정하지 않고 다음 덤프에 넣기로(계획서 15절). 소비자: vscode 변화 없음, uxml-author docs +3(지원 목록)
 
 ### 2026-10-16 (23:07 추가 — 0.6.1 패치 · 0.7.0 측정·설계)
 - 0번: README 수치 테스트는 이미 영·한·일·중 네 파일을 읽고 있었다. 변이 6개(ja·zh 각각 좌표·높이 숫자, 상단 상호 링크) 전부 실패로 잡힘. 테스트 제목만 고침(`d9948aa`). 번역문의 숫자 오류 없음

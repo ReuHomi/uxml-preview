@@ -62,6 +62,8 @@ export const PANEL_TEXT_DEFAULTS_SELECTOR = 'UXML';
  * author rules win on order, as in Unity. Class selectors also preserve Unity's
  * specificity: `.unity-button` (0,1,0) beats an author `Button {}` (0,0,1).
  */
+// GroupBox/Box: measured c07-GroupBox.json and c07-Box.json in the editor
+// and runtime probe directories cited above; title keeps Label side margins/padding.
 export const THEME_USS: string = `${PANEL_TEXT_DEFAULTS_SELECTOR} {
   font-size: 12px;
   color: #d2d2d2;
@@ -71,6 +73,17 @@ export const THEME_USS: string = `${PANEL_TEXT_DEFAULTS_SELECTOR} {
   margin: 0;
   padding: 0 2px 0 1px;
   flex-shrink: 0;
+}
+.unity-group-box {
+  margin: 6px 3px 1px 3px;
+  padding: 5px 0 5px 3px;
+  flex-shrink: 0;
+}
+.unity-group-box__label { margin-top: -5px; margin-bottom: 5px; }
+.unity-box {
+  border-width: 1px;
+  border-color: transparent;
+  background-color: #2828284d;
 }
 .unity-button {
   margin: 1px 3px;
@@ -107,6 +120,17 @@ export const THEME_SHEETS: Readonly<Record<Theme, string>> = {
   margin: 4px 4px 2px 2px;
   padding: 4px 2px 4px 1px;
   flex-shrink: 0;
+}
+.unity-group-box {
+  margin: 6px 4px 2px 4px;
+  padding: 5px 0 5px 3px;
+  flex-shrink: 0;
+}
+.unity-group-box__label { margin-top: -5px; margin-bottom: 5px; }
+.unity-box {
+  border-width: 1px;
+  border-color: #555555;
+  background-color: #dedede;
 }
 .unity-button {
   margin: 2px 4px;

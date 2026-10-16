@@ -44,6 +44,8 @@
 | `Label` | 검증됨 | 배치는 골든 케이스로, 글자 상자는 텍스트 코호트로 Unity와 대조했다(측정). 높이는 Unity의 FaceInfo 공식, 자간·어간·문단 간격은 Unity 규칙을 따른다 — 아래 "텍스트와 폰트" |
 | `Button` | 검증됨 | 골든 케이스 10개 좌표 대조(측정). 라벨은 **가운데 정렬**(육안 대조로 발견). 테마의 바깥·안쪽 여백, 테두리, 색, `:hover`·`:active`·`:focus`·`:disabled` 색을 두 테마 모두 덤프 값으로 적용한다(`src/controls/theme.ts`, 0.7.0). `flex-shrink: 0` |
 | `ScrollView` | 검증됨 | **암묵 계층 3층**(`unity-content-and-vertical-scroll-container` → `unity-content-viewport` → `unity-content-container`)을 재현한다. 골든 케이스 4개 좌표 대조(측정). 스크롤바는 **폭만 예약**(에디터 테마 13px, 런타임 테마 24px, 측정)하고 그리지 않는다 — 드래그·휠·스크롤 위치는 정지 렌더 범위 밖 |
+| `GroupBox` | 검증됨 | 0.7.0 묶음 B. `unity-group-box`, 바깥·안쪽 여백(두 테마, 측정). `text`가 있으면 Unity처럼 자식 앞에 제목 Label을 만든다(부품 이름 `unity-group-box__label` — Unity는 이름을 주지 않아 클래스로 부른다). 덤프 `c07-GroupBox` 두 테마의 상자·제목·resolved style 일치. `text=""`(빈 문자열)일 때 제목을 만드는지는 미측정 — 다음 측정에서 판정 |
+| `Box` | 검증됨 | 0.7.0 묶음 B. `unity-box`, 테두리 1·테두리색·배경(두 테마, 측정). 덤프 `c07-Box` 두 테마 일치 |
 | `Image` | 검증됨 | 전용 렌더러(`unity-image`). 대표 화면(`inventory`)의 `Image` 6개가 좌표 24값 모두 Unity 6000.0.40f1과 같고(측정), 기본 스케일 모드 `stretch-to-fill`은 육안 대조로 확인했다([육안 대조](visual-check.md) 5번). 그림은 USS `background-image`로 들어온다 — C#에서 할당한 텍스처는 미리보기가 따라갈 경로가 없다 |
 | `TextField` | 폴백 | `text`·`label`이 그려지지 않는다 |
 | `Toggle` | 폴백 | 위와 같다 |

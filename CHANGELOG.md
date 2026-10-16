@@ -52,6 +52,15 @@ Play mode) on Unity 6.3, and the editor theme stays one option away.
   runtime panel does on both versions (it had used advanced, the 6.3 editor's
   default). This only moves text with letter- or word-spacing.
 
+### New controls
+
+- **GroupBox and Box are drawn** instead of falling back with an
+  `unsupported-control` warning (bundle B). GroupBox builds Unity's title
+  Label before its children when it has `text` (a part named
+  `unity-group-box__label`, reachable from author USS by that class); Box
+  carries its border and background. Both match the `c07-GroupBox` and
+  `c07-Box` dumps on both themes.
+
 ### Accuracy — previous and new figures
 
 | Set | 0.6.1 | 0.7.0 | Why |

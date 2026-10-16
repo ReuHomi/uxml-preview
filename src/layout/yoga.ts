@@ -23,10 +23,8 @@ import type { Node as YogaNode, Yoga } from 'yoga-layout/load';
 import type { ElementNode, NodeId, Warning } from '../model/types';
 import type { ComputedStyle } from '../style/resolve';
 import { isNonVisual, resolveControl } from '../controls/registry';
-import type { ControlPart } from '../controls/registry';
 import type { Theme } from '../controls/theme';
 import { DEFAULT_THEME, verticalScrollbarWidth } from '../controls/theme';
-import { expandShorthand } from '../style/properties';
 import type { ComputedValue, DeclarationLocator } from '../style/resolve';
 import { INITIAL, parseLength, parseNumber } from '../render/values';
 import type { Length } from '../render/values';
@@ -118,8 +116,10 @@ export interface LayoutPart {
   name: string;
   /** The element whose control built it. */
   owner: NodeId;
+  /** Present for a leading Label; wrappers omit it. Text is entity-decoded. */
+  text?: string;
   box: LayoutBox;
-  /** Fixed styling, with `builtin-theme` provenance on every value. */
+  /** Cascade output, including inheritance, theme and author rules. */
   style: ComputedStyle;
 }
 
@@ -128,7 +128,7 @@ export interface LayoutTree {
   boxes: ReadonlyMap<NodeId, LayoutBox>;
   /**
    * Parts each element's control built, outermost first. The element's own
-   * children were laid out inside the last one.
+   * children were laid out inside the last wrapper; text parts are leading siblings.
    */
   parts: ReadonlyMap<NodeId, readonly LayoutPart[]>;
   /** Elements that were laid out, parents before children. */
@@ -392,6 +392,47 @@ export function layoutDocument(
   /** The bindings notice is about the document, so it is raised once. */
   let bindingsReported = false;
 
+  function measure(yg: YogaNode, text: string, style: ComputedStyle, node: ElementNode): void {
+    const fontSize = length(style, 'font-size', node);
+    const context: TextContext = {
+      fontSize: fontSize !== null && fontSize.kind === 'px' ? fontSize.value : 12,
+      fontStyle: read(style, '-unity-font-style') || 'normal',
+      whiteSpace: read(style, 'white-space') || 'normal',
+      textGenerator: read(style, '-unity-text-generator') === 'standard' ? 'standard' : 'advanced',
+    };
+    const font = options.fonts?.get(style);
+    if (font !== undefined) {
+      context.fontFamily = font.family;
+      if (font.faceInfo !== undefined) context.faceInfo = font.faceInfo;
+    }
+    for (const [property, field] of [
+      ['letter-spacing', 'letterSpacing'], ['word-spacing', 'wordSpacing'],
+      ['-unity-paragraph-spacing', 'paragraphSpacing'],
+    ] as const) {
+      const parsed = length(style, property, node);
+      if (parsed?.kind === 'px') context[field] = parsed.value;
+    }
+    // probe-editor-070/*.json: Standard in 6000.0.40f1, Advanced in
+    // 6000.3.25f1. The 0.6.0 text-spacing dumps show spacing beside spaces differs.
+    const generatorOrigin = style.get('-unity-text-generator')?.origin.kind;
+    const ownGenerator = generatorOrigin === 'rule' || generatorOrigin === 'inline';
+    if (theme === 'editor' && !ownGenerator &&
+        ((context.letterSpacing ?? 0) !== 0 || (context.wordSpacing ?? 0) !== 0)) {
+      warnings.push({
+        kind: 'version-dependent', reason: 'version-dependent', node: node.id,
+        subject: { kind: 'property', property: '-unity-text-generator', value: '', affectsLayout: true },
+        message: "Unity 6000.0.40f1's editor theme spaces this text with the standard text generator and 6000.3.25f1's with advanced; drawn as advanced",
+      });
+    }
+    yg.setMeasureFunc((availableWidth) =>
+      options.measureText(
+        text,
+        context,
+        Number.isFinite(availableWidth) ? availableWidth : 0,
+      ),
+    );
+  }
+
   function build(node: ElementNode, parent: YogaNode | null): void {
     if (isNonVisual(node)) {
       if (node.name.local === 'Bindings' && !bindingsReported) {
@@ -484,44 +525,7 @@ export function layoutDocument(
           { reason: 'not-rendered', subject: { kind: 'control', type: node.name.local } },
         );
       }
-      const fontSize = length(style, 'font-size', node);
-      const context: TextContext = {
-        fontSize: fontSize !== null && fontSize.kind === 'px' ? fontSize.value : 12,
-        fontStyle: read(style, '-unity-font-style') || 'normal',
-        whiteSpace: read(style, 'white-space') || 'normal',
-        textGenerator: read(style, '-unity-text-generator') === 'standard' ? 'standard' : 'advanced',
-      };
-      const font = options.fonts?.get(style);
-      if (font !== undefined) {
-        context.fontFamily = font.family;
-        if (font.faceInfo !== undefined) context.faceInfo = font.faceInfo;
-      }
-      for (const [property, field] of [
-        ['letter-spacing', 'letterSpacing'], ['word-spacing', 'wordSpacing'],
-        ['-unity-paragraph-spacing', 'paragraphSpacing'],
-      ] as const) {
-        const parsed = length(style, property, node);
-        if (parsed?.kind === 'px') context[field] = parsed.value;
-      }
-      // probe-editor-070/*.json: Standard in 6000.0.40f1, Advanced in
-      // 6000.3.25f1. The 0.6.0 text-spacing dumps show spacing beside spaces differs.
-      const generatorOrigin = style.get('-unity-text-generator')?.origin.kind;
-      const ownGenerator = generatorOrigin === 'rule' || generatorOrigin === 'inline';
-      if (theme === 'editor' && !ownGenerator &&
-          ((context.letterSpacing ?? 0) !== 0 || (context.wordSpacing ?? 0) !== 0)) {
-        warnings.push({
-          kind: 'version-dependent', reason: 'version-dependent', node: node.id,
-          subject: { kind: 'property', property: '-unity-text-generator', value: '', affectsLayout: true },
-          message: "Unity 6000.0.40f1's editor theme spaces this text with the standard text generator and 6000.3.25f1's with advanced; drawn as advanced",
-        });
-      }
-      yg.setMeasureFunc((availableWidth) =>
-        options.measureText(
-          text,
-          context,
-          Number.isFinite(availableWidth) ? availableWidth : 0,
-        ),
-      );
+      measure(yg, text, style, node);
       return;
     }
 
@@ -541,6 +545,7 @@ export function layoutDocument(
       const nodes: YogaNode[] = [];
       const resolvedParts = partStyles.get(node.id);
       for (const part of spec.parts) {
+        if (part.kind === 'leading-text' && (text === undefined || text.length === 0)) continue;
         // Falls back to nothing rather than to the registry defaults: if the
         // cascade did not resolve this part, styling it from a second source
         // here is exactly the divergence this refactor removed.
@@ -550,12 +555,15 @@ export function layoutDocument(
         liveNodes++;
         applyStyle(partNode, style, node);
         host.insertChild(partNode, host.getChildCount());
-        host = partNode;
+        // c07-GroupBox: title is a sibling before file children, never a host.
+        if (part.kind === 'leading-text') measure(partNode, text!, style, node);
+        else host = partNode;
         nodes.push(partNode);
         // Box filled in by `collect`, once layout has actually run.
         chain.push({
           name: part.name,
           owner: node.id,
+          ...(part.kind === 'leading-text' ? { text: text! } : {}),
           box: { left: 0, top: 0, width: 0, height: 0 },
           style,
         });
@@ -635,9 +643,12 @@ export function layoutDocument(
     if (chain !== undefined && nodes !== undefined) {
       chain.forEach((part, index) => {
         const partBox = nodes[index]!.getComputedLayout();
-        left += partBox.left;
-        top += partBox.top;
-        part.box = { left, top, width: partBox.width, height: partBox.height };
+        part.box = { left: left + partBox.left, top: top + partBox.top,
+          width: partBox.width, height: partBox.height };
+        if (part.text === undefined) {
+          left = part.box.left;
+          top = part.box.top;
+        }
       });
     }
 
