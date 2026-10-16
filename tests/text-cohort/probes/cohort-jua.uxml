@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="jua-en-10" class="cohort" text="Hamburgefonts Quick" style="font-size: 10px;" />
+<ui:Label name="jua-en-14" class="cohort" text="Hamburgefonts Quick" style="font-size: 14px;" />
+<ui:Label name="jua-en-20" class="cohort" text="Hamburgefonts Quick" style="font-size: 20px;" />
+<ui:Label name="jua-en-32" class="cohort" text="Hamburgefonts Quick" style="font-size: 32px;" />
+<ui:Label name="jua-ko-10" class="cohort" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 10px;" />
+<ui:Label name="jua-ko-14" class="cohort" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 14px;" />
+<ui:Label name="jua-ko-20" class="cohort" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 20px;" />
+<ui:Label name="jua-ko-32" class="cohort" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 32px;" />
+<ui:Label name="jua-mix-10" class="cohort" text="UI 툴킷 Preview 미리보기" style="font-size: 10px;" />
+<ui:Label name="jua-mix-14" class="cohort" text="UI 툴킷 Preview 미리보기" style="font-size: 14px;" />
+<ui:Label name="jua-mix-20" class="cohort" text="UI 툴킷 Preview 미리보기" style="font-size: 20px;" />
+<ui:Label name="jua-mix-32" class="cohort" text="UI 툴킷 Preview 미리보기" style="font-size: 32px;" />
+</ui:VisualElement>
+</ui:UXML>

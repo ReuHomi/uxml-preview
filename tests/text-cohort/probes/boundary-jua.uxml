@@ -1,0 +1,20 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="jua-en-10-bm2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 10px; width: 91px;" />
+<ui:Label name="jua-en-10-bp2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 10px; width: 95px;" />
+<ui:Label name="jua-en-14-bm2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 14px; width: 128px;" />
+<ui:Label name="jua-en-14-bp2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 14px; width: 132px;" />
+<ui:Label name="jua-en-20-bm2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 20px; width: 183px;" />
+<ui:Label name="jua-en-20-bp2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 20px; width: 187px;" />
+<ui:Label name="jua-en-32-bm2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 32px; width: 294px;" />
+<ui:Label name="jua-en-32-bp2" class="cohort wrap" text="Hamburgefonts Quick" style="font-size: 32px; width: 298px;" />
+<ui:Label name="jua-ko-10-bm2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 10px; width: 99px;" />
+<ui:Label name="jua-ko-10-bp2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 10px; width: 103px;" />
+<ui:Label name="jua-ko-14-bm2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 14px; width: 139px;" />
+<ui:Label name="jua-ko-14-bp2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 14px; width: 143px;" />
+<ui:Label name="jua-ko-20-bm2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 20px; width: 200px;" />
+<ui:Label name="jua-ko-20-bp2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 20px; width: 204px;" />
+<ui:Label name="jua-ko-32-bm2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 32px; width: 320px;" />
+<ui:Label name="jua-ko-32-bp2" class="cohort wrap" text="다람쥐 헌 쳇바퀴에 타고파" style="font-size: 32px; width: 324px;" />
+</ui:VisualElement>
+</ui:UXML>

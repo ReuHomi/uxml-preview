@@ -1,0 +1,24 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="l1-10" text="line1" class="c" style="font-size: 10px;" />
+<ui:Label name="l2-10" text="line1&#10;line2" class="c" style="font-size: 10px;" />
+<ui:Label name="l3-10" text="line1&#10;line2&#10;line3" class="c" style="font-size: 10px;" />
+<ui:Label name="l4-10" text="line1&#10;line2&#10;line3&#10;line4" class="c" style="font-size: 10px;" />
+<ui:Label name="l1-12" text="line1" class="c" style="font-size: 12px;" />
+<ui:Label name="l2-12" text="line1&#10;line2" class="c" style="font-size: 12px;" />
+<ui:Label name="l3-12" text="line1&#10;line2&#10;line3" class="c" style="font-size: 12px;" />
+<ui:Label name="l4-12" text="line1&#10;line2&#10;line3&#10;line4" class="c" style="font-size: 12px;" />
+<ui:Label name="l1-14" text="line1" class="c" style="font-size: 14px;" />
+<ui:Label name="l2-14" text="line1&#10;line2" class="c" style="font-size: 14px;" />
+<ui:Label name="l3-14" text="line1&#10;line2&#10;line3" class="c" style="font-size: 14px;" />
+<ui:Label name="l4-14" text="line1&#10;line2&#10;line3&#10;line4" class="c" style="font-size: 14px;" />
+<ui:Label name="l1-20" text="line1" class="c" style="font-size: 20px;" />
+<ui:Label name="l2-20" text="line1&#10;line2" class="c" style="font-size: 20px;" />
+<ui:Label name="l3-20" text="line1&#10;line2&#10;line3" class="c" style="font-size: 20px;" />
+<ui:Label name="l4-20" text="line1&#10;line2&#10;line3&#10;line4" class="c" style="font-size: 20px;" />
+<ui:Label name="l1-32" text="line1" class="c" style="font-size: 32px;" />
+<ui:Label name="l2-32" text="line1&#10;line2" class="c" style="font-size: 32px;" />
+<ui:Label name="l3-32" text="line1&#10;line2&#10;line3" class="c" style="font-size: 32px;" />
+<ui:Label name="l4-32" text="line1&#10;line2&#10;line3&#10;line4" class="c" style="font-size: 32px;" />
+</ui:VisualElement>
+</ui:UXML>

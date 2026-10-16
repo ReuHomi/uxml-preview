@@ -4,29 +4,30 @@
 
 ## 현재 위치
 
-**v0.5.1 배포 완료 (2026-10-13).** 현재 브랜치 `main`. 기준 Unity 버전 6.3 LTS.
+**0.6.0 릴리스 준비 끝, release/0.6.0 → main PR 대기 (2026-10-16).** 버전 0.6.0, CHANGELOG 날짜 2026-10-16. 브랜치 `release/0.6.0`(push됨, PR·태그·배포 없음).
+npm `latest`는 여전히 `0.5.1`. 기준 Unity 버전 6.3 LTS.
 
 | | |
 |---|---|
-| npm | `uxml-preview@0.5.1` 배포됨 (`latest`). PR #6 머지 `a095b8e`, 태그 `v0.5.1` |
-| 놀이터 | <https://reuhomi.github.io/uxml-preview/> |
-| 테스트 | 코어 **742 통과 · 1 건너뜀**(기준선 생성 모드), Windows 로컬 + CI ubuntu/windows |
-| 속성 | Unity 공식표 102개 전부 등록표(`src/style/registry.ts`)에 하나의 처리 경로. 경고 없이 버려지는 공식표 속성 0 |
-| 정확도 | 기본 컨트롤 **660/676 (169 elements)** · 템플릿 별도 코호트 **200/220 (55 elements)**, Unity 6000.0.40f1 대조 |
+| 0.6.0 범위 | 묶음 1(진단 계약) · 묶음 2(텍스트·폰트) · `aspect-ratio`. 컨트롤은 0.7.0 |
+| 테스트 | 코어 **859 통과 · 1 건너뜀**(Windows 로컬). `pnpm test:text`(텍스트 코호트 + 페인트 대조 9/9) 통과 |
+| 정확도 | 기본 **660/676** 불변 · 템플릿 **215/220**(0.5.1: 200/220) · 텍스트 코호트(6.3) 줄 60/60, 높이 52/60, 너비 60/60, 경계 79/80 · `aspect-ratio` 52/52(6.3) |
+| 6.3 코호트 | 골든 44케이스 6.3 재덤프가 6000.0과 1012/1012 동일 |
+| 소비자 | 0.6.0 tarball 기준 vscode-uxml-preview main 145/146, uxml-author master 17건 실패(이전 16 + 번들 빌드 스크립트의 설치 안내 0.5.1→0.6.0). 전부 소비자 쪽 갱신(A) |
 | 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` (그 외는 폴백) |
-| 템플릿 | `<ui:Template>` / `<ui:Instance>` 전개 완료. 슬롯은 실측 후 비지원 진단으로 고정 |
 
-두 정확도 세트는 서로 다른 질문을 답하므로 합산하지 않는다. 자세한 판정과 20개
-템플릿 좌표 차이는 `docs/accuracy.md`에 있다.
+정확도 세트는 서로 다른 질문을 답하므로 합산하지 않는다. `docs/accuracy.md`.
 
 ## 다음 할 일
 
-0. **소비자 갱신** — 스킬 0.2.1(경고 채널을 `reason`으로)과
-   확장 0.3.1(`subject`로 경로 연결, `USS_STATES`·`TEMPLATE_DEPTH_LIMIT` 사용)
-1. **sibling lock 갱신** — README/CHANGELOG 변경으로 재pack한 tarball의 새 integrity를
-   다음 트랙에서 반영
-2. **GitHub Pages 데모 갱신** — 이번 코어 배포 범위 밖이며 다음 트랙에서 진행
-3. **Template / Instance 후속** — `docs/backlog.md`의 0.5.0 R1 10항목
+0. **0.6.0 머지·태그·npm 배포(사람)** — PR이 열려 있다. 머지하면 Pages가 놀이터를 자동 배포한다(`.github/workflows/pages.yml`). GitHub 소개 문구 반영도 사람 몫 그 뒤 버전 올림·CHANGELOG 초안 확정·태그·배포
+1. **소비자 갱신(소비자 저장소 일)** — `7837b78`에서 uxml-author 16건·vscode 1건 실패, 전부 계약 변경(A). 레이아웃 갭 예시 픽스처를 `-unity-text-auto-size`로 교체
+2. **uxml-author가 `subject.problem`을 읽도록** — 0.6.0을 받을 때. 소비자 저장소 일이다
+3. **0.7.0 컨트롤 + 테마 선택** — 런타임 테마 기준값은 실제 PanelSettings로 다시 덤프
+4. **0.6.0이 남긴 것** — `docs/backlog.md` 0.6.0 절의 2026-10-16 메모(`unsupported-unit`,
+   `background-position-x/-y`, `-unity-font` 단독, 텍스트 외곽선 그리기)
+5. **검증이 남긴 결함 둘(그리는 결과가 바뀌어 0.6.0에서 고치지 않음)** — 중첩 disabled 불투명도(Unity는 `enabled="false"`인 요소만 흐린다, 우리는 곱해서 0.25), Label `flex-shrink: 0` 테마 값(기본 정확도 +2). `docs/backlog.md`
+6. **Playwright Chromium이 이 PC에서 실행되지 않음** — Windows side-by-side 오류. 코호트는 설치된 Chrome으로 측정
 
 **미결(0.1.0에서 이월):** 개발 문서를 비공개로 돌릴지. 결론 안 냄.
 
@@ -140,8 +141,101 @@
 | 2026-10-13 | 속성 경고는 선언당 한 번, `at` 포함. 매칭 없는 규칙도 경고, 상속값은 경고하지 않음 (D3) | 요소 단위 경고는 상속 속성 하나가 자손 수만큼 늘었고(폰트 하나에 5건) 위치가 없었다 |
 | 2026-10-13 | `<Bindings>`·`<ui:Columns>`를 비시각 요소로. `<ui:Column>` 이름은 계속 센다 | 6000.0.40f1·6000.3.25f1 CLI 덤프에서 둘 다 계층에 없고 형제 좌표가 y=20(우리는 13). Column 이름은 Unity가 헤더 열에 붙이므로 이름으로는 존재한다. 근거 덤프는 골든이 아니라 `tests/layout/unity/`에 둬서 공개 정확도 수치의 코호트를 바꾸지 않았다 |
 | 2026-10-13 | 커밋 메시지에 사용자 계정(`Signed-off-by: ReuHomi`)을 명시 | 사용자 요청. 이후 증빙용. author/committer만으로는 부족하다고 판단 |
+| 2026-10-16 | 0.6.0 = 진단·텍스트·`aspect-ratio`, 컨트롤은 0.7.0 | 컨트롤 기대값은 테마(에디터/런타임) 결정 없이 쓸 수 없다. 사전 검사에서 같은 Button이 에디터 테마 39×19, 런타임 테마 55×39였다 |
+| 2026-10-16 | 구현은 Codex(WSL `codex exec`), 기대값·검토·변이·커밋은 Claude | vscode-uxml-preview 0.3.1에서 검증된 분담. 기대값을 구현이 먼저 보면 구현이 정답이 된다. relay 모드는 vscode 클론에 고정돼 있어 손 릴레이로 돌렸다 |
+| 2026-10-16 | `states` 키 경고는 `WarningKind`를 늘리지 않고 `subject.problem`으로 (D1) | 소비자의 `assertNever`가 깨지지 않는다. 대가: 0.5.1에서 `states-key`가 곧 "쓸 수 없는 키"였던 의미가 넓어져 uxml-author가 읽는 법을 바꿔야 한다 |
+| 2026-10-16 | Unity가 패널 스타일을 멈추는 값도 작성자 의도대로 그리고 `unityEffect`로 알린다 (D4) | 망가진 화면을 그리면 작성자는 원인을 모른다. `filter`는 6.3에서 유효하므로 reason을 `invalid-value`로 바꾸지 않고 `not-rendered` 유지 — 사용자 D4 문구에서 의도적으로 벗어났고 보고했다 |
+| 2026-10-16 | 글자 높이 = `ceil(줄 수 × 크기 × (ascent − descent) / pointSize)`, 계수는 FaceInfo (D3) | 맞춤값 1.2109가 아니라 Unity가 보고한 1.2102. 6.3 LTS에 정확하다. 6000.0은 정수를 1 올리고 둘째 줄부터 lineHeight로 내린다 — 기준 버전을 따른다 |
+| 2026-10-16 | 텍스트 코호트를 일반 테스트와 분리(`pnpm test:text`), 실행 못 하면 실패 | happy-dom·jsdom은 글자를 재지 못한다. 건너뛰기를 통과로 세면 측정한 적 없는 숫자가 정답 행세를 한다 |
+| 2026-10-16 | 코호트 분류: 이전 버전에서 기준(6.3)과 같은 값은 (a) 버전 차이, 줄 수 차이가 낳은 높이 차이는 그 줄 수의 분류를 따른다 | 결과를 본 뒤 정한 규칙이라 각각 측정 근거를 확인했다: 6000.0은 Jua를 6.3보다 2~4px 넓게 그리고, 경계 케이스는 자연 폭 1px 차이로 줄이 바뀐다 |
+| 2026-10-16 | `unityEffect.kind`를 `panel-unstyled` → `unstyled-from-here`로 | 검증 지적을 재현: 잘못된 값 앞의 형제는 스타일이 남고 그 요소부터 뒤가 전부 잃는다(`order-*.json`). "패널 전체"는 과장이었다. 미배포 필드라 이름을 바꿨다 |
+| 2026-10-16 | 기본 폰트로 그리는 한글·한자·가나에 경고, 새 `WarningKind` 없이 `unsupported-property` + `subject.missingGlyphs` | Inter에 글리프가 없어 Unity가 폴백 폰트로 1~4px 높게 그린다(코호트). 작성자 폰트의 커버리지 판정은 backlog |
+| 2026-10-16 | 연속 공백은 6.3처럼 하나로 접는다 | `spaces.json`: 6.3은 접고 6000.0은 접지 않는다. 기준 버전과 브라우저 페인팅이 같은 쪽이다. 끝 공백 처리는 미측정 |
+| 2026-10-16 | 페인터의 자간을 측정기와 같게(공백 옆·마지막 글자에 자간 없음) | 검증 지적 재현: 194px 상자에 211.72px를 그렸다. 실제 브라우저 대조(`tests/text-cohort/paint.mjs`)로 고정 |
+| 2026-10-16 | 기본 폰트 글리프 누락 경고의 reason을 `not-rendered` → 새 값 `font-fallback`, kind는 `unsupported-property` 유지 | 사용자 결정(A1). 글자는 그려지되 다른 폰트로 그려진다. `not-rendered`+`affectsLayout`이면 uxml-author가 exit 3을 내 한국어 UXML 대부분이 걸린다. kind: 주제가 속성(`-unity-font-definition`)이고, 나머지 16종은 컨트롤·셀렉터·단위·자산·템플릿·이름에 관한 것이다. 단, 지금 스킬은 모르는 reason을 exit 1로 보낸다 — backlog 소비자 갱신 |
+| 2026-10-16 | `pre-wrap`도 `pre`처럼 공백을 접지 않고 잰다 | `spaces-prewrap.json`(두 버전) 측정. 측정기는 접고 브라우저는 그려서 서로 어긋나 있었다. `pre`가 Unity에서 줄바꿈한다는 것(`te-wrap.json`)은 측정·그리기가 함께 CSS를 따르므로 0.6.0에서 고치지 않는다 |
+| 2026-10-16 | README는 첫 화면을 "검증 방법"으로 연다. 수치는 README에도 두되 테스트로 묶는다. 영·한 두 파일, 링크는 절대 주소 | 사용자 결정(B2 수정). npm에 오는 독자는 개발자가 많고 차별점은 측정이다. 숫자가 여러 곳에 있으면 낡으므로 `golden.test.ts`가 README·영문 정확도 문서까지 재계산값과 대조한다 |
+| 2026-10-16 | 경고 계약은 `docs/api.md`로 옮기고, 지원 범위·정확도 문서는 영·한 같은 내용 | 지원 범위 문서가 API 문서를 겸하면서 두 언어판이 서로 다른 말을 하게 됐다(Image "육안 대조 완료" 대 "Not compared" 등) |
+| 2026-10-16 | `-unity-text-generator`의 등록표 `handling`을 `layout`으로 | 측정·그리기가 이미 읽는다. `none`이면 `not-rendered`+`affectsLayout`로 uxml-author exit 3에 걸렸다 |
+| 2026-10-16 | 없는 속성 이름 경고는 고칠 것이 없었다(반박) | B 보고의 "`colour: red`에 경고 없음"은 내 측정 실수였다 — vitest가 첫 콘솔 줄에 색 코드를 붙여 `grep ^W`가 놓쳤다. 0.5.1부터 `not-uss`(0.5.0은 침묵). 고정 테스트로 묶었다 |
 
 ## 세션 로그
+
+### 2026-10-16 (머지 전 C · 릴리스 준비 D)
+
+- C1: 고정 테스트(`83adc26`) → Codex 1줄(`1b6bdc1`). 영향 예측이 하나 빗나갔다: 등록표의 모든 `layout` 행이 상자를 움직이는지
+  보는 property sheet가 기본값(`advanced`)을 샘플로 써서 움직임을 볼 수 없었다. 속성 이름이 적힌 줄만 찾고 행 전체를
+  도는 루프를 못 봤다. 샘플을 `standard`+자간으로, 가짜 측정기에 standard의 끝 간격을 넣었다.
+- C2: 반박. 원인은 내 grep. 0.5.0 침묵 → 0.5.1부터 `not-uss`. warning-diff 기준선 변화 없음.
+- C3: uxml-author의 링크는 파일 이름만(앵커 없음). 옮겨진 경고 절 자리에 api.md 안내를 남겼다. README·docs의 앵커 12개 전부 해석됨.
+- C4: README 검증 줄에 6.3 재덤프(같은 날 6000.0 덤프와 비교)와 높이 불일치의 정체를 적었다. 건수는 테스트가 잡지 않으므로 숫자 대신 문장으로.
+- D: 버전 0.6.0(`624b0e3`). 최종 검증 859 통과, tsc·typecheck·self-reference·build·build:site 0, `test:text` 표 동일·paint 9/9
+  (Chrome이 .80으로 올라 다시 돌려도 행은 같았다 — results.json은 측정 기록(.79)대로 두었다). CHANGELOG의 상대 링크 4개도 절대 주소로.
+
+### 2026-10-16 (사용자 문서 전면 개정 B)
+
+- 고정 테스트 먼저: README 수치(`19892a1`, golden.test.ts — 좌표는 실시간 재계산, 텍스트는 `results.json`), 놀이터
+  `describeWarning`과 새 예제 셋(같은 커밋), 패널 맞춤(`d7e2927`). Codex 4라운드(놀이터 2, 맞춤 1 — 셋 다 고정 파일 바이트 동일).
+  변이: README 숫자 3, 놀이터 5, 맞춤 4 — 모두 잡힘.
+- 녹화하다 찾은 결함: 놀이터에서 뷰포트보다 큰 패널(1280×720 프리셋 포함)이 화면 밖으로 밀려 그려졌다(`0be63ec`로 고침).
+- 문서끼리 다르던 곳은 코드·덤프로 판정했다. Image는 대표 화면 6개 24값이 Unity와 같고 육안 대조 5번이 있어
+  "검증됨"(영문판의 "Not compared"가 틀렸다). 6.3 재덤프 1012는 같은 날 뜬 6000.0 재덤프와의 비교였고,
+  커밋된 기준값과는 `inventory` 1px 9개가 다르다 — CHANGELOG·정확도 문서에 그렇게 적었다.
+- 새로 찾은 코어 결함(고치지 않음, CHANGELOG "Known"): `-unity-text-generator`는 측정·그리기에 반영되는데 등록표가
+  `handling: 'none'`이라 `not-rendered`+`affectsLayout` 경고가 난다 — uxml-author의 exit 3 조건에 걸린다.
+- `uss-reference.md`는 uxml-author SKILL.md가 링크로 공유한다(사본이 아니다). 파일 이름을 바꾸면 스킬의 링크가 깨진다.
+
+### 2026-10-16 (머지 전 마지막 수정 A)
+
+- A1: 기대값 먼저(`97a5a75`), Codex 1라운드, 고정 테스트 바이트 동일. 스킬의 exit 3 판정식을 테스트에 옮겨 적고 그 판정식을
+  만족하지 않음을 고정했다. 스킬 코드를 읽다가, 지금 스킬은 모르는 reason을 exit 1로 보낸다는 것을 찾았다.
+- A2: 줄 높이 계수 변이 3개(ascent +1, descent −1, pointSize 91) 모두 #3이 두 버전 다 실패.
+- A3: `pre-wrap` 공백을 Unity에서 새로 쟀다 — `pre`와 같다. 측정기를 고쳤다. `pre` 줄바꿈 차이는 backlog.
+- A4: 첫 변이가 맞힌 것은 `registry.ts` `PropertyWarning`의 타입 선언(런타임에 없음)이었다. 그 안의
+  `'file-inline-dropped'`는 등록표가 내지 않으므로 지웠다(그 값은 `yoga.ts`가 자기 타입으로 낸다).
+- A5: 중첩 비활성 투명도와 Label `flex-shrink`를 backlog 0.7.0 절로 옮겼다.
+- 변이 5개 모두 잡힘. 838 통과·1 건너뜀, `tsc` 0, 왕복 33/33, `test:text` 표 불변·paint 9/9.
+
+### 2026-10-16 (적대적 검증 반영)
+
+- Grok의 9개 지적을 고치기 전에 전부 재현했다. #9(스냅샷 재생성의 비교 대상)는 결함이 아니라 설명 요청이라 근거로 답했다.
+  새 Unity 증거: `probe-editor/`의 `lines`·`filter-canary`·`nested-disabled`·`order-{hsl,cubic,filter}`·`spaces`, 예외 로그.
+- 고정 테스트를 먼저 커밋(`b0cdaed`: `tests/contract-060/review-fixes.test.ts`, `tests/text-cohort/paint.mjs`), 구현은 Codex
+  relay(0.2.1, 저장소 인식 — 이번에 실사용 검증), 수정 `95781eb`. 고정 테스트는 라운드 전후 바이트 동일.
+- 틀렸던 것: "텍스트 불일치는 전부 너비" — `ItemDesc.height`는 테마(Label `flex-shrink`) 문제였다. `edit.test`의 단언 둘은
+  구현 공식을 다시 계산하는 동어반복이었다 — Unity 값(13, 37)으로 바꿨다. CHANGELOG·accuracy.md 문구 정정.
+- 고치다 하나 더 찾았다: 측정기가 연속 공백을 그대로 쟀다. 6.3은 접는다(`spaces.json`).
+- 중첩 disabled는 측정만 했다. Unity는 `enabled="false"`인 요소만 흐리게 하고 자식은 곱하지 않는다. 우리는 0.25 — backlog.
+- 소비자 재확인(`95781eb` tarball): vscode 145/146, uxml-author 16건 실패, `7837b78`과 같은 목록. 새 경고·이름 변경은
+  두 소비자 테스트에 닿지 않는다(한글 픽스처·`unityEffect` 참조 없음).
+
+### 2026-10-16
+
+- (사전 검사, 2026-10-15) Unity 6000.0.40f1·6000.3.25f1 빈 프로젝트를 scratchpad에 만들고 프로브 덤퍼
+  (`tests/layout/unity/probes-0.6.0/ProbeDump.cs.txt`, 물리 트리 전체 + `IResolvedStyle` 전부)로 22문항을
+  측정했다. 덤프는 `tests/layout/unity/<version>/`.
+- 덤퍼에서 계측기 문제 둘을 잡았다. 공유 스테이지에서 잘못된 값 하나가 Unity 스타일 갱신기를 예외로
+  멈추면 뒤 케이스가 전부 스타일 없이 찍혔다 — 케이스마다 새 EditorWindow로 바꿨다. 정렬이 문화권 비교라
+  `v-*`보다 `values`가 먼저 돌아 오염원이 됐다. 그 예외 자체가 발견이었다(`hsl()`·`cubic-bezier()`).
+- `release/0.6.0`: 규칙 문서(`9da18ed`) → 묶음 1 기대값+덤프(`713ea3b`) → 기존 테스트 정합(`68be65f`) →
+  묶음 1 구현(`13f3636`) → 중복 경고 고정·수정(`db20140`, `23daf3c`) → 묶음 2 기대값+텍스트 코호트(`559d827`) →
+  aspect 기대값(`d5315b8`) → 기존 테스트 정합+엔티티 고정(`a7f661d`) → 묶음 2 구현(`fe639aa`) →
+  aspect 구현(`caaf27f`) → 문서(`7837b78`).
+- Codex 라운드: 묶음 1 두 번(1차에 문구 매칭·캐스케이드 이중 실행·속성명보다 값 먼저·공개 타입 확장 → 2차에
+  전부 수정), 후속 한 번, 묶음 2 두 번, aspect 한 번. 고정 테스트는 매 라운드 바이트 동일.
+- 직접 돌린 변이 15개 중 14개가 잡혔다(묶음 1 여섯, 후속 하나, 묶음 2 다섯, aspect 셋). 남은 하나(`oncePerDeclaration`의 노드 합치기)는 판정해 보니 죽은
+  코드였고, 판정 케이스(`border-top-width: 5em`, 요소 셋)가 **다른 결함**을 드러냈다 — 레이아웃과 페인터가 같은
+  선언을 두 번 보고했다. 0.5.1부터 있던 것이다.
+- 묶음 2 중 또 하나: 레이아웃이 Label 텍스트를 엔티티 디코딩 없이 쟀다(`&amp;`, `&#10;`). 0.5.1부터.
+  속성 시험지 테스트의 측정기가 간격을 못 봐서 레이아웃 판정을 관찰할 수 없던 것도 함께 고쳤다.
+- 영향 예측이 한 번 빗나갔다: 묶음 1에서 "기존 테스트 변화 없음"이라 했는데 5개가 깨졌다. 원인은 `at`을
+  통째로 비교하는 기존 단언 4개와, 0.5.0 필드만 기록한다면서 `at` 전체를 비교하던 회귀 계측기였다.
+  계측기를 문서대로 고쳤더니 요약은 불변. 묶음 2의 템플릿 예측(215/220)은 정확히 맞았다.
+- Playwright Chromium 1140이 이 PC에서 side-by-side 오류로 실행되지 않아 설치된 Chrome 155로 코호트를 쟀다.
+- relay 모드가 vscode 클론에 고정돼 있어 sync에서 실패했다. 서브 에이전트(Sonnet)가 저장소 이름으로 클론을
+  유도하게 고쳤고(0.2.0), 깨끗한 작업 트리에서 빈 패치로 죽는 버그도 고쳤다(0.2.1). 실사용 검증은 아직이다.
+- 다음에 바꿀 것: `oncePerDeclaration`의 키에 아직 `message`가 들어 있다(같은 선언의 다른 문구는 합쳐지지
+  않는다). 텍스트 외곽선은 그리지 않는다. 6000.0 줄 높이 규칙은 구현하지 않았다(기준 버전만).
 
 ### 2026-08-15
 

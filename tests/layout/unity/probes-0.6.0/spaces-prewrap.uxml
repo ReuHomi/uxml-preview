@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="one" text="a b c" class="c" />
+<ui:Label name="pw-two" text="a  b  c" class="c w" />
+<ui:Label name="pw-five" text="a     b     c" class="c w" />
+<ui:Label name="pw-lead" text="   abc" class="c w" />
+<ui:Label name="pre-two" text="a  b  c" class="c p" />
+<ui:Label name="pre-lead" text="   abc" class="c p" />
+<ui:Label name="abc" text="abc" class="c" />
+</ui:VisualElement>
+</ui:UXML>

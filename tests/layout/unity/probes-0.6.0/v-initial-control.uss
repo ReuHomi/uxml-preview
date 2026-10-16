@@ -1,0 +1,4 @@
+#parent { color: rgb(0, 255, 0); width: 50px; }
+#target { color: rgb(255, 0, 0); height: 10px; }
+.cell { color: initial; height: 3px; }
+#canary { width: 33px; height: 7px; }

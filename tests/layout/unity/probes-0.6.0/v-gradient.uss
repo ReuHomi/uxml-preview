@@ -1,0 +1,2 @@
+#target { width: 50px; height: 10px; background-image: linear-gradient(red, blue); }
+#canary { width: 33px; height: 7px; }

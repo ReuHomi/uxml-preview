@@ -96,7 +96,7 @@ const DEFAULT_SCALE_MODE = 'stretch-to-fill';
  * `&apos;` doesn't match `(["']?)`, so the quote wrapper would be read as part
  * of the path instead of stripped from it.
  */
-function assetPath(value: string): { form: 'url' | 'resource'; path: string } | null {
+export function assetPath(value: string): { form: 'url' | 'resource'; path: string } | null {
   // Must decode before this regex runs, not after: the quote group
   // `(["']?)` matches a literal apostrophe, not the four characters
   // `&apos;`, so an undecoded entity slips past it into the captured path.
@@ -158,8 +158,6 @@ export function toCss(
     'color',
     'opacity',
     'visibility',
-    'letter-spacing',
-    'word-spacing',
     'white-space',
     'text-overflow',
     'cursor',
@@ -171,6 +169,15 @@ export function toCss(
     if (v !== undefined) out[property] = v;
   }
 
+  const fontSize = parseLength(value('font-size') ?? '12px').length;
+  const size = fontSize?.kind === 'px' ? fontSize.value : 12;
+  // Paint cancels letter spacing on advanced-generator spaces and the final
+  // character; CSS alone would include those extra gaps.
+  for (const property of ['letter-spacing', 'word-spacing']) {
+    const parsed = parseLength(value(property) ?? '').length;
+    if (parsed?.kind === 'px') out[property] = `${parsed.value * size / 100}px`;
+  }
+
   if (value('display') === 'none') out['display'] = 'none';
   if (value('overflow') === 'hidden') out['overflow'] = 'hidden';
 
@@ -179,14 +186,14 @@ export function toCss(
     if (width !== undefined && width !== '0') {
       const { length, problem } = parseLength(width);
       if (length === null || length.kind !== 'px') {
-        // Appending "px" to anything non-pixel produced values like `50%px`,
-        // which CSSOM drops without a word — and Yoga ignores the same
-        // declaration. Silence in both layers is exactly what rule 6 forbids.
-        warn(
-          'unsupported-property',
-          `border-${side}-width: ${problem ?? `"${width}" is not a pixel length`}; ignored`,
-          { reason: 'invalid-value', ...about(`border-${side}-width`) },
-        );
+        // Layout owns parse problems, including the inline unityEffect rule.
+        if (problem === undefined) {
+          warn(
+            'unsupported-property',
+            `border-${side}-width: "${width}" is not a pixel length; ignored`,
+            { reason: 'invalid-value', ...about(`border-${side}-width`) },
+          );
+        }
       } else {
         out[`border-${side}-width`] = `${length.value}px`;
         // USS draws solid borders only, so the style is not read from anywhere.
@@ -256,10 +263,10 @@ export function toCss(
     if (asset === null) {
       // Not an asset this host failed to find — `linear-gradient()` and the
       // like are not asset references at all, so asset-unresolved would send
-      // the host looking for a file that does not exist. Gradients are a
-      // candidate to become version-dependent once a Unity reference lists
-      // them; see the note above CSS_REPLACEMENTS in style/registry.ts.
-      warn('unsupported-property', `background-image: "${image}" is not an asset reference; ignored`, {
+      // the host looking for a file that does not exist.
+      // Measured 2026-10-15: tests/layout/unity/probes-0.6.0;
+      // dumps: tests/layout/unity/<version>/probe-editor.
+      warn('unsupported-property', `background-image: "${image}" is not an asset reference; Unity shows its warning icon instead`, {
         reason: 'not-uss',
         ...about('background-image'),
       });

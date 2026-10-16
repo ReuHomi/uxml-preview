@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:VisualElement name="hsl" />
+<ui:VisualElement name="ease" />
+<ui:VisualElement name="even"><ui:VisualElement name="e1" class="cell" /><ui:VisualElement name="e2" class="cell" /><ui:VisualElement name="e3" class="cell" /></ui:VisualElement>
+<ui:VisualElement name="op" />
+<ui:VisualElement name="inh-parent"><ui:VisualElement name="inh"><ui:Label name="inh-child" text="x" class="inherit" /></ui:VisualElement><ui:Label name="inh-plain" text="y" /></ui:VisualElement>
+<ui:VisualElement name="cur" />
+<ui:VisualElement name="grad" />
+<ui:VisualElement name="en1" class="en" />
+<ui:VisualElement name="en2" class="en" enabled="false" />
+</ui:VisualElement>
+</ui:UXML>

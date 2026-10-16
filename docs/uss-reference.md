@@ -80,7 +80,7 @@ UXML 네임스페이스는 보통 `ui:` (`<ui:VisualElement>`). 프로젝트 관
 | `flex-direction` | 동일 | A | **기본값이 column (CSS는 row)** |
 | `flex-grow`, `flex-shrink`, `flex-basis`, `flex` | 동일 | A | |
 | `align-items`, `align-self`, `align-content` | 동일 | A | |
-| `justify-content` | 동일 | A | `space-evenly` 버전 확인 |
+| `justify-content` | 동일 | A | `space-evenly`는 6000.0.40f1·6000.3.25f1에서 동작한다(측정) |
 | `flex-wrap` | 동일 | A | |
 | `gap`, `row-gap`, `column-gap` | — | C | **Unity 6.6까지의 공식 표에 없다**(6.7 베타에 추가). 자식 margin으로 대체 |
 | `position: relative`, `absolute` | 동일 | A | |
@@ -92,7 +92,7 @@ UXML 네임스페이스는 보통 `ui:` (`<ui:VisualElement>`). 프로젝트 관
 | `overflow: auto`, `scroll` | — | D | `ScrollView`로 교체 |
 | `float`, `clear` | — | C | flex로 재구성 |
 | `z-index` | — | D | **없음** (Unity 6.6까지. 6.7 LTS 출시 시 재검토). 형제 순서로 결정. 뒤에 올수록 위 |
-| `aspect-ratio` | 동일 (6.3+) | B | 6.0에는 없다. 이 미리보기는 레이아웃에 반영하지 않는다 |
+| `aspect-ratio` | 동일 (6.3+) | B | 6.0에는 없다. 이 미리보기는 레이아웃에 반영한다(6000.3.25f1과 대조, 측정) |
 | `box-sizing` | 항상 border-box 동작 | A | 선언 불필요 |
 
 ---
@@ -109,7 +109,7 @@ UXML 네임스페이스는 보통 `ui:` (`<ui:VisualElement>`). 프로젝트 관
 | `visibility` | 동일 | A | |
 | `box-shadow` | — | C | **미지원.** 그림자를 이미지에 굽거나 9-slice 배경으로 |
 | `text-shadow` | 동일 | A | 6.0부터 USS 속성(상속됨). 이 미리보기는 그리지 않는다. 외곽선은 `-unity-text-outline-*` |
-| `filter`, `backdrop-filter` | 동일 (6.3+ / 6.6+) | B | 그 이전 버전에서는 이미지로 굽기. 이 미리보기는 그리지 않는다 |
+| `filter`, `backdrop-filter` | 동일 (6.3+ / 6.6+) | B | 그 이전 버전에서는 이미지로 굽기. **6000.0에 `filter`를 쓰면 그 요소부터 뒤의 스타일이 전부 멈춘다**(측정). 이 미리보기는 그리지 않는다 |
 | `mix-blend-mode`, `background-blend-mode` | — | C | 미지원. 셰이더 영역 |
 | `clip-path`, `mask` | — | C | `overflow: hidden` 정도로만 |
 | `outline` | — | C | border로 대체 |
@@ -126,9 +126,9 @@ UXML 네임스페이스는 보통 `ui:` (`<ui:VisualElement>`). 프로젝트 관
 | `font-family` | `-unity-font-definition` | B | 폰트 에셋 참조. 웹폰트 개념 없음 |
 | `font-weight`, `font-style` | `-unity-font-style` | B | `normal/bold/italic/bold-and-italic`. 100~900 수치 없음 |
 | `text-align` | `-unity-text-align` | B | `upper-left`, `middle-center` 등 세로+가로 조합 |
-| `white-space` | 동일 | B | `normal`, `nowrap`, `pre` (버전 확인) |
+| `white-space` | 동일 | B | `normal`, `nowrap`, `pre`, `pre-wrap`. 6.3은 `normal`·`nowrap`에서 연속 공백을 접고 6000.0은 접지 않는다. `pre`도 폭에 맞춰 줄을 바꾼다(측정) |
 | `text-overflow: ellipsis` | 동일 + `-unity-text-overflow-position` | A | |
-| `letter-spacing`, `word-spacing` | 동일 | A | |
+| `letter-spacing`, `word-spacing` | 동일 | A | **값의 뜻이 다르다**: 간격마다 값 × 글자 크기 / 100만큼 벌린다(CSS px가 아니다, 측정) |
 | `line-height` | — | C | 없음. `-unity-paragraph-spacing`은 단락 간격이라 다름 |
 | `text-transform` | — | C | 텍스트를 직접 대문자로 넣어야 함 |
 | `text-decoration` (밑줄, 취소선) | — | C | 미지원. 선을 요소로 그리거나 리치텍스트 태그 |
@@ -148,7 +148,7 @@ UXML 네임스페이스는 보통 `ui:` (`<ui:VisualElement>`). 프로젝트 관
 | `background-size` | 동일 (`cover`/`contain`) | A | 6000.0부터 있음 |
 | `background-position`, `background-repeat` | 동일 | A | 6000.0부터 있음 |
 | 다중 배경 (`,`로 나열) | — | C | 하나만. 요소를 겹쳐서 대체 |
-| `linear-gradient()` | 버전 확인 | B | 미지원 버전이면 이미지로 구움 |
+| `linear-gradient()` | — | C | Unity 6.6까지의 공식 표에 없다. 쓰면 Unity가 경고 아이콘을 그린다(측정). 이미지로 굽는다 |
 | 9-slice 늘리기 | `-unity-slice-left/right/top/bottom` | A | CSS `border-image` 대응 |
 | 이미지 색조 | `-unity-background-image-tint-color` | A | CSS에 대응 없음. 유용함 |
 
@@ -172,7 +172,7 @@ Resources 폴더는 `Assets` 아래 어디에나 둘 수 있고 확장자는 생
 | `transform-origin` | 동일 | A | |
 | `transition` (단축) | 동일 | A | |
 | `transition-property/duration/timing-function/delay` | 동일 | A | |
-| `cubic-bezier()` | 버전 확인 | B | `ease`, `ease-in-out`, `linear` 등 키워드는 확실히 됨 |
+| `cubic-bezier()` | — | C | **쓰지 않는다** — 6000.0·6.3 모두 그 요소부터 뒤의 스타일이 전부 멈춘다(측정). `ease`, `ease-in-out`, `linear` 등 키워드로 바꾼다 |
 | `will-change` | — | A(무시) | 불필요. 그냥 제거 |
 
 **성능 규칙**: `width`, `height`, `left`, `top`, `margin` 같은 레이아웃 속성에
@@ -229,7 +229,7 @@ transition을 걸면 매 프레임 레이아웃을 다시 계산해서 프레임
 | `auto` | ✓ | |
 | `initial` | ✓ | |
 | 색상 `#hex`, `rgb()`, `rgba()`, 키워드 | ✓ | |
-| `hsl()` | 버전 확인 | 미지원이면 hex로 환산 |
+| `hsl()` | ✗ | **hex·`rgb()`로 환산한다** — 6.3에서 그 요소부터 뒤의 스타일이 전부 멈추고, 6000.0은 검정으로 그린다(측정) |
 | 커스텀 속성 (`--x`) + `var(--x)` | ✓ | **디자인 토큰을 그대로 살릴 수 있다** |
 
 ---

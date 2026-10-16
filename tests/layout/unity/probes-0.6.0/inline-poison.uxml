@@ -1,0 +1,5 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="good" style="width: 40px; height: 10px;" />
+<ui:VisualElement name="bad" style="width: 2/1;" />
+<ui:VisualElement name="good2" style="width: 30px; height: 10px;" />
+</ui:UXML>

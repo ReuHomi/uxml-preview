@@ -77,6 +77,8 @@ export interface ResolveOptions {
 }
 
 export interface ResolveResult {
+  /** @internal Element matches collected during this cascade, keyed by sheet and item. */
+  matchedNodes: ReadonlyMap<string, readonly NodeId[]>;
   styles: ReadonlyMap<NodeId, ComputedStyle>;
   /**
    * Style per control part, keyed by the owning element and then Unity's name
@@ -205,7 +207,29 @@ function buildStateMap(
       });
       continue;
     }
-    parsed.push({ selectors: rule.rule.selectors, states });
+    const selectors = rule.rule.selectors;
+    const matches = (node: ElementNode): boolean =>
+      selectors.some((selector) => matchesSelector<Target>(selector, { kind: 'element', node }, base)) ||
+      node.children.some(matches);
+    if (!matches(doc.root)) {
+      const stateInKey = selectors.some((selector) => statesRequiredBy(selector).some((state) =>
+        (USS_STATES as readonly string[]).includes(state)));
+      warnings.push({
+        kind: 'unsupported-selector', reason: 'invalid-value',
+        message: `states key "${key}" matches no element` + (stateInKey
+          ? ': keys are matched before any state is applied, so a state in the key never matches' : ''),
+        subject: { kind: 'states-key', key, problem: stateInKey ? 'state-in-key' : 'matches-nothing' },
+      });
+    }
+    for (const state of new Set(states)) {
+      if ((USS_STATES as readonly string[]).includes(state)) continue;
+      warnings.push({
+        kind: 'unsupported-selector', reason: 'invalid-value',
+        message: `states key "${key}" lists unknown state "${state}"; Unity sets no such state`,
+        subject: { kind: 'states-key', key, problem: 'unknown-state', state },
+      });
+    }
+    parsed.push({ selectors, states });
   }
 
   const map = new Map<ElementNode, ReadonlySet<string>>();
@@ -226,6 +250,9 @@ function buildStateMap(
     const disabled = inheritedDisabled || disabledHere(node);
     const set = new Set(global);
     if (disabled) set.add('disabled');
+    // Measured 2026-10-15: tests/layout/unity/probes-0.6.0 and
+    // tests/layout/unity/<version>/probe-editor (6000.0.40f1, 6000.3.25f1).
+    else set.add('enabled');
     for (const entry of parsed) {
       if (entry.selectors.some((s) => matchesSelector<Target>(s, { kind: 'element', node }, base))) {
         for (const state of entry.states) set.add(state);
@@ -242,6 +269,7 @@ interface Prepared {
   ctx: MatchContext<Target>;
   usable: FlatRule[];
   warnings: Warning[];
+  declarationWarnings: Map<Warning, string>;
 }
 
 /**
@@ -308,6 +336,14 @@ function selectorText(doc: UxmlDocument, flat: FlatRule): string {
   return doc.sheets[flat.sheet]?.source.slice(span.start, span.end) ?? '';
 }
 
+/** Derives the resolver request without adding importer state to the model. */
+export function sheetLocation(doc: UxmlDocument, index: number): { url: string | null; from: string | null } {
+  const sheet = doc.sheets[index];
+  const importer = doc.sheets.find((candidate) => candidate.items.some((item) =>
+    item.kind === 'import' && item.resolvedSheet === index));
+  return { url: sheet?.origin ?? null, from: sheet?.sourceDocumentFrom ?? importer?.origin ?? null };
+}
+
 function warningSource(doc: UxmlDocument, sheet: number): Pick<Warning, 'sourceDocument'> {
   const sourceDocument = doc.sheets[sheet]?.origin;
   return typeof sourceDocument === 'string' ? { sourceDocument } : {};
@@ -321,6 +357,7 @@ function warningSource(doc: UxmlDocument, sheet: number): Pick<Warning, 'sourceD
 function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
   const parents = buildParentMap(doc.root);
   const warnings: Warning[] = [];
+  const declarationWarnings = new Map<Warning, string>();
 
   const NO_STATES: ReadonlySet<string> = new Set();
 
@@ -402,7 +439,7 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
       warnings.push({
         kind: 'unsupported-selector',
         message: `"${bad}": the whole rule is ignored`,
-        at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
+        at: { in: 'uss', sheet: flat.sheet, ...sheetLocation(doc, flat.sheet), span: flat.rule.selectorSpan },
         reason: 'not-uss',
         subject: { kind: 'selector', selector: selectorText(doc, flat), fragment: bad },
         ...warningSource(doc, flat.sheet),
@@ -419,7 +456,7 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
         message:
           ':root matched the element this stylesheet is attached to — the document ' +
           'root, or the TemplateContainer of a template',
-        at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
+        at: { in: 'uss', sheet: flat.sheet, ...sheetLocation(doc, flat.sheet), span: flat.rule.selectorSpan },
         reason: 'matches-unity',
         subject: { kind: 'selector', selector: selectorText(doc, flat), fragment: ':root' },
         ...warningSource(doc, flat.sheet),
@@ -454,7 +491,7 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
       warnings.push({
         kind: 'unsupported-selector',
         message: `":${name}": never matches; Unity sets no such state`,
-        at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
+        at: { in: 'uss', sheet: flat.sheet, ...sheetLocation(doc, flat.sheet), span: flat.rule.selectorSpan },
         ...warningSource(doc, flat.sheet),
         reason: 'not-uss',
         subject: { kind: 'selector', selector: selectorText(doc, flat), fragment: `:${name}` },
@@ -463,12 +500,14 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
     for (const decl of flat.rule.declarations) {
       const found = propertyWarning(decl.property, decl.value);
       if (found === null) continue;
-      warnings.push({
+      const warning: Warning = {
         kind: 'unsupported-property',
         ...found,
-        at: { in: 'uss', sheet: flat.sheet, span: decl.span },
+        at: { in: 'uss', sheet: flat.sheet, ...sheetLocation(doc, flat.sheet), span: decl.span },
         ...warningSource(doc, flat.sheet),
-      });
+      };
+      warnings.push(warning);
+      declarationWarnings.set(warning, `${flat.sheet}:${flat.item}`);
     }
   }
 
@@ -482,7 +521,7 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
       warnings.push({
         kind: 'unsupported-selector',
         message: `@${name}: block ignored`,
-        at: { in: 'uss', sheet: index, span: item.span },
+        at: { in: 'uss', sheet: index, ...sheetLocation(doc, index), span: item.span },
         ...warningSource(doc, index),
         reason: 'not-uss',
         subject: { kind: 'at-rule', name },
@@ -490,7 +529,7 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
     }
   });
 
-  return { ctx, usable, warnings };
+  return { ctx, usable, warnings, declarationWarnings };
 }
 
 /**
@@ -516,7 +555,7 @@ function inlineDeclarations(doc: UxmlDocument, node: ElementNode): Declaration[]
 }
 
 /** Where a computed value was written, as warning fields. */
-export type DeclarationLocator = (origin: StyleOrigin) => Pick<Warning, 'at' | 'sourceDocument'>;
+export type DeclarationLocator = (origin: StyleOrigin) => Pick<Warning, 'at' | 'sourceDocument' | 'nodes'>;
 
 /**
  * Purpose:      turn a computed value's origin back into the text it came from,
@@ -525,7 +564,7 @@ export type DeclarationLocator = (origin: StyleOrigin) => Pick<Warning, 'at' | '
  *               reported where it was declared, not on every descendant — and
  *               for a template's inline style, which names its file instead.
  */
-export function declarationLocator(doc: UxmlDocument): DeclarationLocator {
+export function declarationLocator(doc: UxmlDocument, nodes: ReadonlyMap<string, readonly NodeId[]>): DeclarationLocator {
   let written: Map<NodeId, ElementNode> | null = null;
   const index = (node: ElementNode, into: Map<NodeId, ElementNode>): Map<NodeId, ElementNode> => {
     if (typeof node.sourceDocument !== 'string') into.set(node.derived?.instance ?? node.id, node);
@@ -537,7 +576,7 @@ export function declarationLocator(doc: UxmlDocument): DeclarationLocator {
       const item = doc.sheets[origin.sheet]?.items[origin.item];
       const decl = item?.kind === 'rule' ? item.rule.declarations[origin.declIndex] : undefined;
       if (decl === undefined) return {};
-      return { at: { in: 'uss', sheet: origin.sheet, span: decl.span }, ...warningSource(doc, origin.sheet) };
+      return { nodes: [...(nodes.get(`${origin.sheet}:${origin.item}`) ?? [])], at: { in: 'uss', sheet: origin.sheet, ...sheetLocation(doc, origin.sheet), span: decl.span }, ...warningSource(doc, origin.sheet) };
     }
     if (origin.kind === 'inline') {
       if (typeof origin.sourceDocument === 'string') return { sourceDocument: origin.sourceDocument };
@@ -562,6 +601,7 @@ function collectCandidates(
   prepared: Prepared,
   /** Rules that matched something, for the unreachable-selector warning. */
   matched?: Set<FlatRule>,
+  matchedNodes?: Map<string, NodeId[]>,
 ): Candidate[] {
   const out: Candidate[] = [];
   let order = 0;
@@ -632,6 +672,12 @@ function collectCandidates(
     }
     if (specificity === null) continue;
     matched?.add(flat);
+    if (matchedNodes !== undefined && target.kind === 'element' && flat.builtin !== true) {
+      const key = `${flat.sheet}:${flat.item}`;
+      const ids = matchedNodes.get(key) ?? [];
+      if (!ids.includes(target.node.id)) ids.push(target.node.id);
+      matchedNodes.set(key, ids);
+    }
     flat.rule.declarations.forEach((decl, declIndex) => {
       for (const [property, value] of expandShorthand(decl.property, decl.value)) {
         // A theme declaration has no file and no span, so it gets an origin that
@@ -774,6 +820,7 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
   const partStyles = new Map<NodeId, Map<string, ComputedStyle>>();
   /** Rules that reached something. What is left over drives the part warning. */
   const matched = new Set<FlatRule>();
+  const matchedNodes = new Map<string, NodeId[]>();
 
   /**
    * Purpose:      one target's computed style, plus what it hands to children.
@@ -788,7 +835,7 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
     inherited: ReadonlyMap<string, ComputedValue>,
     nodeForWarnings: NodeId,
   ): { computed: Map<string, ComputedValue>; forChildren: Map<string, ComputedValue> } => {
-    const candidates = collectCandidates(doc, target, prepared, matched);
+    const candidates = collectCandidates(doc, target, prepared, matched, matchedNodes);
     if (!themeApplied && candidates.some((c) => c.origin.kind === 'builtin-theme')) {
       themeApplied = true;
     }
@@ -916,14 +963,17 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
       message:
         `${fragments.join(', ')} matched nothing; only ${supportedControlNames().join(', ')} ` +
         'are drawn with the parts these names refer to',
-      at: { in: 'uss', sheet: flat.sheet, span: flat.rule.selectorSpan },
+      at: { in: 'uss', sheet: flat.sheet, ...sheetLocation(doc, flat.sheet), span: flat.rule.selectorSpan },
       reason: 'not-rendered',
       subject: { kind: 'selector', selector: selectorText(doc, flat), fragment: fragments.join(', ') },
       ...warningSource(doc, flat.sheet),
     });
   }
 
-  return { styles, partStyles, warnings };
+  for (const [warning, key] of prepared.declarationWarnings) {
+    warning.nodes = matchedNodes.get(key) ?? [];
+  }
+  return { styles, partStyles, warnings, matchedNodes };
 }
 
 /**

@@ -1,7 +1,7 @@
 {
   "name": "uxml-preview",
-  "version": "0.5.1",
-  "description": "Preview Unity UI Toolkit UXML/USS in a browser without the Unity Editor. Uses Yoga (WebAssembly), the same layout engine UI Toolkit uses: 660 of 676 element coordinates identical to Unity 6. Parses and writes files back byte-for-byte.",
+  "version": "0.6.0",
+  "description": "Render Unity UI Toolkit UXML/USS in a browser without the Unity Editor. Laid out by Yoga, the engine UI Toolkit uses; reference Unity 6.3 LTS, measured against real Unity. Byte-exact round trips.",
   "keywords": [
     "unity",
     "unity3d",
@@ -67,6 +67,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:roundtrip": "vitest run tests/roundtrip",
+    "test:text": "node tests/text-cohort/run.mjs && node tests/text-cohort/paint.mjs",
     "test:golden": "vitest run tests/golden --passWithNoTests",
     "golden:emit": "node --experimental-strip-types --no-warnings scripts/emit-golden-cases.mjs",
     "template:emit": "node --experimental-strip-types --no-warnings scripts/emit-template-cases.mjs",
@@ -82,6 +83,7 @@
     "@types/node": "^22.0.0",
     "jsdom": "^30.0.1",
     "pixelmatch": "^6.0.0",
+    "playwright-core": "1.48.2",
     "pngjs": "^7.0.0",
     "typescript": "^5.6.0",
     "vite": "^6.0.0",

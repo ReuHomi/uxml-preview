@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="one" text="a b c" class="c" />
+<ui:Label name="two" text="a  b  c" class="c" />
+<ui:Label name="five" text="a     b     c" class="c" />
+<ui:Label name="lead" text="   abc" class="c" />
+<ui:Label name="normal-two" text="a  b  c" class="c n" />
+<ui:Label name="pre-two" text="a  b  c" class="c p" />
+</ui:VisualElement>
+</ui:UXML>

@@ -1,5 +1,126 @@
 # Changelog
 
+## 0.6.0 — 2026-10-16
+
+Diagnostics that say what Unity does instead, text measured the way Unity
+measures it, fonts, and `aspect-ratio`. A minor version in 0.x because drawn
+output changes (text height, `:enabled`, letter/word spacing, `aspect-ratio`)
+and the published accuracy figures move. No type is removed and no
+`WarningKind` is added; every new field is optional.
+
+### Accuracy — previous and new figures
+
+| Set | 0.5.1 | 0.6.0 | Why |
+|---|---:|---:|---|
+| Base coordinates (Unity 6000.0.40f1) | 660 / 676 | 660 / 676 | unchanged: the three text-measuring cases are excluded from it, and of its 16 mismatches the 9 caused by text are widths and x. `ItemDesc.height` has a fixed height and shrinks for a theme reason (Unity gives Labels `flex-shrink: 0`), so text height cannot reach it |
+| Template cohort (6000.0.40f1) | 200 / 220 | 215 / 220 | text height from FaceInfo removed 14 Label heights and the `y` they pushed |
+| Text cohort (new; Chromium vs Unity 6.3) | — | lines 60/60, height 52/60, width 60/60, boundary 79/80 | see `docs/accuracy.md`; none unexplained |
+| 6.3 re-dump of the golden set | — | 1012 / 1012 equal to a 6000.0 dump of the same day | every golden case lays out the same on 6000.3.25f1. Against the committed 2026-08-12 baselines nine values differ, all the known `inventory` footer 1px |
+
+### Behavior changes
+
+- **Text height follows Unity.** `ceil(lines × size × (ascent − descent) /
+  pointSize)`, from the FaceInfo Unity reports, plus paragraph spacing. The
+  default (editor Inter) gives 12px → 15, 20px → 25 where 0.5.1 gave
+  14.4 / 24. A multi-line block is rounded once, not per line.
+- **`letter-spacing` / `word-spacing` are not CSS px.** Unity widens by
+  value × font size / 100 per gap; measured and drawn that way.
+  `-unity-paragraph-spacing` is measured and drawn.
+- **`:enabled` applies automatically** to every element that is not disabled
+  (measured on 6000.0.40f1 and 6000.3.25f1). A screen with `:enabled` rules
+  draws differently.
+- **`aspect-ratio` is laid out** (Unity 6.3+); it matched Unity 52/52 on the
+  measured case.
+- A Label's text is measured decoded (`&amp;`, `&#10;`), as it is drawn.
+- **Spaces are measured the way Unity 6.3 LTS lays them out.** Under
+  `normal` and `nowrap`, a run of spaces measures as one and leading spaces
+  as none; `pre` and `pre-wrap` keep them. Measured at 20px
+  (`tests/layout/unity/<version>/probe-editor/spaces.json`,
+  `spaces-prewrap.json`). Unity 6000.0 does not collapse them; the preview
+  follows 6.3. Trailing spaces are not measured; they follow CSS, which is
+  what the browser paints. 0.5.1 measured every space as written.
+- Painted letter spacing matches measured spacing: no spacing beside a
+  space (advanced generator) and none after the last character.
+- `-unity-text-generator` (`standard` / `advanced`) is measured and painted,
+  and no longer raises a `not-rendered` warning with `affectsLayout`.
+- A border width in an unsupported unit is reported once, not twice.
+- New warnings, all `unsupported-property` with `reason: 'invalid-value'`
+  unless noted: `hsl()`, `cubic-bezier()`, `opacity` in `%`, `inherit`.
+  `linear-gradient()` keeps `not-uss` and says Unity shows its warning icon.
+- Text drawn with the default font (no `-unity-font-definition`) that
+  contains Hangul, Han or Kana warns: `unsupported-property` with the new
+  reason `font-fallback` and `subject.missingGlyphs`. Inter has no such
+  glyphs; Unity draws them with a fallback font, measured 1–4px taller.
+- `states` keys that match nothing, contain a state pseudo-class, or list a
+  state Unity never sets now warn: `unsupported-selector` with
+  `subject.problem`.
+
+### New, all optional
+
+- `Warning.nodes` — every element a declaration's rule matched.
+- `at.url` / `at.from` on USS locations — the arguments `resolveImport`
+  received for that sheet, so `at.sheet` can be mapped without the expanded
+  document.
+- `subject.unityEffect` — `unstyled-from-here` (Unity's style updater throws:
+  `hsl()` on 6000.3, `cubic-bezier()`,
+  `filter` on 6000.0 — measured: the element with the value and every element after it in the panel lose their style, elements before it keep theirs; hence `unstyled-from-here`) or `file-inline-dropped` (one bad inline value drops
+  every inline style in that UXML file), with the Unity versions measured.
+- `subject.problem` / `subject.state` on `states-key`; `subject.role: 'font'`
+  on `asset`.
+- `RenderResult.document`, `.styles`, `.partStyles` — the expanded tree and
+  the cascade `render()` drew with.
+- `classifyVisibility(result)` — hidden / emptied / collapsed / shown, ported
+  from uxml-author.
+- `RenderOptions.resolveFont(path, form)` → family, or `{ family, faceInfo }`,
+  or `null`. `TextContext` gains `fontFamily`, `faceInfo`, `letterSpacing`,
+  `wordSpacing`, `paragraphSpacing`, `textGenerator`.
+- `textHeight`, `EDITOR_DEFAULT_FACE_INFO`, `FaceInfo`.
+
+### For consumers
+
+- A `states-key` warning no longer always means "this key is unusable":
+  read `subject.problem` (absent = unusable selector). uxml-author master
+  assumes the 0.5.1 meaning.
+- `aspect-ratio`, `letter-spacing`, `word-spacing` and
+  `-unity-paragraph-spacing` are now laid out, so they no longer raise a
+  `not-rendered` warning with `affectsLayout`. Tests that used one of them as
+  the example of a layout gap need another; `-unity-text-auto-size` still is
+  one. Against this build, uxml-author master fails 16 tests (states keys,
+  the `aspect-ratio` layout-gap fixtures, its bundle-size note) and
+  vscode-uxml-preview main fails 1 (`letter-spacing` as the layout-gap
+  fixture); its typecheck is clean. All are consumer-side updates, none a
+  core regression. Neither consumer picks up 0.6.0 automatically
+  (uxml-author bundles its core; the extension depends on `^0.5.1`).
+- **A new `reason`, `font-fallback`.** `reason` is an open set and this is the
+  first value added to it. uxml-author master sends any `reason` it does not
+  know to `other`, which fails the run (exit 1), so a Korean UXML with no
+  font set would fail there until the skill learns it. It is not
+  `not-rendered`, so it never meets the skill's exit-3 condition
+  (`not-rendered` + `affectsLayout`). `docs/backlog.md` has the skill-side
+  note.
+- Messages changed for the inline unsupported unit and `linear-gradient()`;
+  match on `reason`/`subject`, not text.
+
+### Tools
+
+- `pnpm test:text` runs the text cohort in a real Chromium
+  (`UXML_TEXT_CHROMIUM`, `UXML_TEXT_FONTS`); it fails, never skips, when it
+  cannot run. `playwright-core` is a new devDependency.
+
+### Playground and documentation
+
+- The playground shows each warning's `reason` as a badge and what its
+  `subject` says — the Unity versions an `unityEffect` was measured on, the
+  missing script, the property to write instead, whether coordinates may
+  differ. New examples: Unity text height and spacing with a fallback-font
+  warning, `aspect-ratio`, and values Unity cannot apply.
+- README split into `README.md` and `README.ko.md`, with absolute links (npm
+  shows the README without `docs/`). Its figures are checked against a live
+  recomputation, as `docs/accuracy.md`'s are.
+- New `docs/api.md` / `docs/api.en.md`; the warning contract moved there from
+  `docs/supported.md`. The Korean and English pages of `supported`,
+  `accuracy` and `uss-vs-css` now carry the same content.
+
 ## 0.5.1 — 2026-10-13
 
 A cleanup release: nothing drawn changes except where a Unity dump said it was
@@ -390,12 +511,12 @@ of the sixteen differences are font metrics rather than layout** — both engine
 shrink the same box for the same reason, and only the ruler differs. Three more
 are 1px, two are the `yoga-layout` version difference already known in 0.1.0, and
 **one is genuinely unresolved**. All sixteen are named in
-[`docs/accuracy.en.md`](docs/accuracy.en.md).
+[`docs/accuracy.en.md`](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md).
 
 Colour, borders and corners are held by a CSS-declaration regression baseline
 (`tests/render/visual.test.ts`), which detects our own drift and is not evidence
 of agreement with Unity. That comparison is a one-time eye check, recorded with
-both screenshots in [`docs/visual-check.md`](docs/visual-check.md).
+both screenshots in [`docs/visual-check.md`](https://github.com/ReuHomi/uxml-preview/blob/main/docs/visual-check.md).
 
 ### Known limitations
 
@@ -420,7 +541,7 @@ back unchanged.
 Measured against **Unity 6000.0.40f1** across 18 layout cases and 61 elements:
 **242 of 244 element coordinates identical** (0.5px tolerance; the matching 17
 cases agree exactly, not merely within tolerance). Procedure and per-case
-figures in [`docs/accuracy.en.md`](docs/accuracy.en.md).
+figures in [`docs/accuracy.en.md`](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md).
 
 Round-trip is byte-exact on all 15 fixtures — comments, attribute order,
 entity encodings, CRLF line endings, mixed indentation, unsupported controls.
@@ -433,7 +554,7 @@ entity encodings, CRLF line endings, mixed indentation, unsupported controls.
 - Cascade: specificity, source order, inheritance, inline styles, `var()`
   custom properties, shorthand expansion
 - Layout: the flex family, sizing, box model, positioning
-- Full matrix: [`docs/supported.en.md`](docs/supported.en.md)
+- Full matrix: [`docs/supported.en.md`](https://github.com/ReuHomi/uxml-preview/blob/main/docs/supported.en.md)
 
 ### Known limitations
 

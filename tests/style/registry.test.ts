@@ -95,7 +95,7 @@ describe('registry data', () => {
     'border-width', 'border-top-width', 'border-right-width', 'border-bottom-width', 'border-left-width',
     'aspect-ratio', 'all', 'font-size', 'white-space', '-unity-font-style', 'letter-spacing',
     'word-spacing', '-unity-font', '-unity-font-definition', '-unity-paragraph-spacing',
-    '-unity-text-generator',
+    '-unity-text-generator', '-unity-text-auto-size',
   ];
   const NOT_IN_A_SETTLED_FRAME = [
     'cursor', 'transition', 'transition-delay', 'transition-duration', 'transition-property',
@@ -116,11 +116,14 @@ describe('registry data', () => {
     expect(USS_PROPERTIES.filter((p) => p.basis.length === 0)).toEqual([]);
   });
 
-  it('marks the text-measurement judgements as inference, since no dump has measured them', () => {
-    for (const name of ['letter-spacing', 'word-spacing', '-unity-font', '-unity-font-definition',
+  it('marks as measured the text judgements the 0.6.0 dumps settled, and only those', () => {
+    // tests/layout/unity/<version>/probe-editor and tests/text-cohort/unity, 2026-10-15/16.
+    for (const name of ['letter-spacing', 'word-spacing', '-unity-font-definition',
       '-unity-paragraph-spacing', '-unity-text-auto-size', '-unity-text-generator', 'text-overflow']) {
-      expect(ussProperty(name)?.inferred, name).toBe(true);
+      expect(ussProperty(name)?.inferred, name).toBe(false);
     }
+    // Only ever written through -unity-font-definition in the probes.
+    expect(ussProperty('-unity-font')?.inferred).toBe(true);
     expect(ussProperty('aspect-ratio')?.inferred).toBe(false);
   });
 
@@ -194,7 +197,7 @@ const SAMPLES: Readonly<Record<string, Sample>> = {
   height: { value: '37px' },
   'justify-content': { value: 'center' },
   left: { value: '5px' },
-  'letter-spacing': { value: '3px' },
+  'letter-spacing': { value: '3px', context: 'align-self: flex-start; white-space: nowrap;' },
   margin: { value: '7px' },
   'margin-bottom': { value: '7px' },
   'margin-left': { value: '7px' },
@@ -243,7 +246,8 @@ const SAMPLES: Readonly<Record<string, Sample>> = {
   '-unity-slice-type': { value: 'tiled' },
   '-unity-text-align': { value: 'middle-center' },
   '-unity-text-auto-size': { value: 'best-fit 10px 20px' },
-  '-unity-text-generator': { value: 'advanced' },
+  // Not 'advanced': that is the default and could never move a box.
+  '-unity-text-generator': { value: 'standard', context: 'letter-spacing: 20px; align-self: flex-start; white-space: nowrap;' },
   '-unity-text-outline': { value: '1px red' },
   '-unity-text-outline-color': { value: 'red' },
   '-unity-text-outline-width': { value: '1px' },
@@ -251,7 +255,7 @@ const SAMPLES: Readonly<Record<string, Sample>> = {
   visibility: { value: 'hidden' },
   'white-space': { value: 'nowrap' },
   width: { value: '37px' },
-  'word-spacing': { value: '5px' },
+  'word-spacing': { value: '5px', context: 'align-self: flex-start; white-space: nowrap;' },
 };
 
 /**
@@ -281,10 +285,20 @@ const NOT_USS: ReadonlyArray<{ name: string; value: string; replacements?: reado
 
 /** Text width depends on font size and weight, line count on wrapping. */
 const measureText: MeasureText = (text, context, availableWidth) => {
-  const width = text.length * context.fontSize * 0.5 * (context.fontStyle.includes('bold') ? 2 : 1);
+  // Spacing reaches the measurer since 0.6.0; a measurer blind to it would
+  // report those properties as moving nothing.
+  // The standard generator also spaces after the last character (text-spacing-standard.json);
+  // the advanced one does not. One gap is enough for the layout to see the difference.
+  const gaps = text.length - 1 + (context.textGenerator === 'standard' ? 1 : 0);
+  const spacing = (gaps * (context.letterSpacing ?? 0) + (context.wordSpacing ?? 0)) * context.fontSize / 100;
+  const width = text.length * context.fontSize * 0.5 * (context.fontStyle.includes('bold') ? 2 : 1) + spacing;
   const wraps = context.whiteSpace !== 'nowrap' && context.whiteSpace !== 'pre' && availableWidth > 0;
   const lines = wraps ? Math.max(1, Math.ceil(width / availableWidth)) : 1;
-  return { width: wraps ? Math.min(width, availableWidth) : width, height: lines * context.fontSize * 1.2 };
+  const breaks = text.split('\n').length - 1;
+  return {
+    width: wraps ? Math.min(width, availableWidth) : width,
+    height: lines * context.fontSize * 1.2 + breaks * (context.paragraphSpacing ?? 0) * context.fontSize / 100,
+  };
 };
 
 /** A box with children to lay out, and a sibling after it to push around. */
@@ -298,7 +312,7 @@ const BOX_BASE = '#t { width: 100px; height: 100px; }';
 
 /** A wrapping label, for everything that reaches the text. */
 const TEXT_SCENE =
-  '<ui:VisualElement style="width: 100px;"><ui:Label name="t" text="Hello world wide text" /></ui:VisualElement>' +
+  '<ui:VisualElement style="width: 100px;"><ui:Label name="t" text="Hello world&#10;wide text" /></ui:VisualElement>' +
   '<ui:VisualElement name="after" style="height: 10px;" />';
 
 interface Snapshot {

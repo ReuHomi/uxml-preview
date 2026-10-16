@@ -1,3 +1,5 @@
+import { fontList } from './measure';
+import type { FaceInfo } from './measure';
 /**
  * Painting: Yoga rectangles to DOM.
  *
@@ -45,6 +47,7 @@ export interface PaintResult {
 
 export interface PaintOptions extends CssMapOptions {
   document: Document;
+  fonts?: ReadonlyMap<ComputedStyle, { family: string; faceInfo?: FaceInfo }>;
 }
 
 /**
@@ -89,6 +92,32 @@ export function paint(
       return length !== null && length.kind === 'px' ? length.value : 0;
     };
     return { left: read('border-left-width'), top: read('border-top-width') };
+  }
+
+  // CSS adds letter spacing after spaces and the final character too. Keep
+  // inline runs so wrapping still belongs to the browser, and cancel only the
+  // gaps Unity's text measurer excludes (advanced is the editor default).
+  function appendText(host: HTMLElement, text: string, style: ComputedStyle): void {
+    const spacing = parseLength(style.get('letter-spacing')?.value ?? '').length;
+    if (spacing?.kind !== 'px' || spacing.value === 0) {
+      host.textContent = text;
+      return;
+    }
+    const standard = style.get('-unity-text-generator')?.value === 'standard';
+    const characters = [...text];
+    const last = characters.pop();
+    for (const run of characters.join('').match(/ +|[^ ]+/g) ?? []) {
+      const span = options.document.createElement('span');
+      span.textContent = run;
+      if (!standard && run[0] === ' ') span.style.letterSpacing = '0px';
+      host.appendChild(span);
+    }
+    if (last !== undefined) {
+      const span = options.document.createElement('span');
+      span.textContent = last;
+      span.style.letterSpacing = '0px';
+      host.appendChild(span);
+    }
   }
 
   function build(
@@ -140,7 +169,38 @@ export function paint(
       if (css.declarations['justify-content'] === undefined) {
         el.style.setProperty('justify-content', 'flex-start');
       }
-      el.textContent = decodeEntities(text);
+      const font = options.fonts?.get(style);
+      if (font !== undefined) el.style.fontFamily = fontList(font.family);
+      const gap = parseLength(style.get('-unity-paragraph-spacing')?.value ?? '').length;
+      const decoded = decodeEntities(text);
+      const letterSpacing = parseLength(style.get('letter-spacing')?.value ?? '').length;
+      if (gap?.kind === 'px' && decoded.includes('\n')) {
+        const size = parseLength(style.get('font-size')?.value ?? '12px').length;
+        const paragraphs = decoded.split('\n');
+        const content = options.document.createElement('div');
+        content.style.width = '100%';
+        paragraphs.forEach((paragraph, index) => {
+          const block = options.document.createElement('div');
+          appendText(block, paragraph, style);
+          block.style.minHeight = '1em';
+          if (index < paragraphs.length - 1) block.style.marginBottom = `${gap.value * (size?.kind === 'px' ? size.value : 12) / 100}px`;
+          content.appendChild(block);
+          if (index < paragraphs.length - 1) {
+            const separator = options.document.createElement('span');
+            separator.textContent = '\n';
+            separator.style.display = 'none';
+            content.appendChild(separator);
+          }
+        });
+        el.appendChild(content);
+      } else if (letterSpacing?.kind === 'px' && letterSpacing.value !== 0) {
+        const content = options.document.createElement('span');
+        content.style.minWidth = '0';
+        appendText(content, decoded, style);
+        el.appendChild(content);
+      } else {
+        el.textContent = decoded;
+      }
     } else {
       // The control's own parts nest between this element and the file's
       // children, so `host` walks inward and the children are appended to the

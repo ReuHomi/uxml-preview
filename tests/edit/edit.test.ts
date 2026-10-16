@@ -215,7 +215,11 @@ describe('default text measurement', () => {
   it('counts explicit line breaks under white-space: pre', () => {
     const one = measure('one line', style, 0);
     const three = measure('one\ntwo\nthree', style, 0);
-    expect(three.height).toBeCloseTo(one.height * 3);
+    // Unity rounds the whole block, not each line: Inter at 10px is 13 for one
+    // line and 37 for three, not 39 — measured on 6000.0.40f1 and 6000.3.25f1,
+    // tests/layout/unity/<version>/probe-editor/lines.json (l1-10, l3-10).
+    expect(one.height).toBe(13);
+    expect(three.height).toBe(37);
   });
 
   it('takes its width from the longest line, not the whole string', () => {

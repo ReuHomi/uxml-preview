@@ -1,0 +1,15 @@
+{
+  "metadata": {"unityVersion":"6000.3.25f1","unityRevision":"6000.3.25f1 (e1dba0a9aba4)","pixelsPerPoint":1.0,"editorSkin":"dark","editorFont":{"name":"(builtin)","size":12,"style":"Normal"},"systemFont":{"smoothing":"2","smoothingType":"2","smoothingGamma":"0","appliedDpi":"96"},"dumpedAtUtc":"2026-10-15T14:07:08.7276856Z"},
+  "panel": { "width": 400, "height": 300 },
+  "elements": {
+    "button-align-items-row": { "x": 0, "y": 0, "width": 200, "height": 100 },
+    "button-align-items-btn": { "x": 3, "y": 35, "width": 60, "height": 30 }
+  },
+  "resources": {
+
+  },
+  "observations": [
+    {"path":"0","parentPath":"","name":"button-align-items-row","type":"UnityEngine.UIElements.VisualElement","classes":[],"resolvedStyle":{"flexGrow":0.0,"flexShrink":1.0,"flexBasis":100.0,"flexBasisKeyword":"Undefined","width":200.0,"height":100.0,"color":{"r":0.8235294222831726,"g":0.8235294222831726,"b":0.8235294222831726,"a":1.0},"backgroundColor":{"r":0.0,"g":0.0,"b":0.0,"a":0.0},"fontSize":12.0,"marginTop":0.0,"marginRight":0.0,"marginBottom":0.0,"marginLeft":0.0,"paddingTop":0.0,"paddingRight":0.0,"paddingBottom":0.0,"paddingLeft":0.0,"borderTopWidth":0.0,"borderRightWidth":0.0,"borderBottomWidth":0.0,"borderLeftWidth":0.0},"text":"","enabled":true,"enabledSelf":true,"enabledInHierarchy":true,"styleSheetPaths":[],"matchedRules":[{"selector":"#button-align-items-row","source":"button-align-items.uss:1","line":1}],"matchedRulesError":""},
+    {"path":"0/0","parentPath":"0","name":"button-align-items-btn","type":"UnityEngine.UIElements.Button","classes":["unity-text-element","unity-button"],"resolvedStyle":{"flexGrow":0.0,"flexShrink":0.0,"flexBasis":60.0,"flexBasisKeyword":"Undefined","width":60.0,"height":30.0,"color":{"r":0.9333333373069763,"g":0.9333333373069763,"b":0.9333333373069763,"a":1.0},"backgroundColor":{"r":0.3450980484485626,"g":0.3450980484485626,"b":0.3450980484485626,"a":1.0},"fontSize":12.0,"marginTop":1.0,"marginRight":3.0,"marginBottom":1.0,"marginLeft":3.0,"paddingTop":1.0,"paddingRight":6.0,"paddingBottom":1.0,"paddingLeft":6.0,"borderTopWidth":1.0,"borderRightWidth":1.0,"borderBottomWidth":1.0,"borderLeftWidth":1.0},"text":"Center","enabled":true,"enabledSelf":true,"enabledInHierarchy":true,"styleSheetPaths":[],"matchedRules":[{"selector":".unity-button","source":"DefaultCommonDark_inter.uss:68","line":68},{"selector":"#button-align-items-btn","source":"button-align-items.uss:7","line":7}],"matchedRulesError":""}
+  ]
+}

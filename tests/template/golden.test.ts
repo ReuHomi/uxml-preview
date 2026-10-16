@@ -15,26 +15,11 @@ interface UnityTemplateDump {
 const UNITY = join(import.meta.dirname, 'unity');
 const measured = CASES.filter((item) => item.id !== 'G3-11');
 const EXPECTED_TEMPLATE_DELTAS = [
-  ['G3-1', 'g31-label', 'height', 12, 15, -3],
-  ['G3-2', 'g32-label#1', 'height', 12, 15, -3],
-  ['G3-2', 'g32-label#2', 'height', 12, 15, -3],
-  ['G3-2', 'g32-label#3', 'height', 12, 15, -3],
-  ['G3-3', 'g33-label', 'height', 12, 15, -3],
   ['G3-4', 'g34-instance', 'width', 140, 145, -5],
   ['G3-4', 'g34-template-root', 'width', 140, 145, -5],
-  ['G3-4', 'g34-template-root', 'height', 20, 25, -5],
   ['G3-4', 'g34-internal-label', 'width', 140, 145, -5],
-  ['G3-4', 'g34-internal-label', 'height', 20, 25, -5],
   ['G3-4', 'g34-outside-label', 'x', 140, 145, -5],
   ['G3-4', 'g34-outside-label', 'width', 150, 140, 10],
-  ['G3-5', 'g35-inherited-label', 'height', 18, 22, -4],
-  ['G3-7', 'g37-deep-label', 'height', 12, 15, -3],
-  ['G3-8', 'g38-instance', 'height', 19, 23, -4],
-  ['G3-8', 'g38-template-root', 'height', 19, 23, -4],
-  ['G3-8', 'g38-label', 'height', 19, 23, -4],
-  ['G3-9', 'g39-duplicate#1', 'height', 12, 15, -3],
-  ['G3-9', 'g39-duplicate#2', 'y', 12, 15, -3],
-  ['G3-9', 'g39-duplicate#2', 'height', 12, 15, -3],
 ] as const;
 const KNOWN_TEXT_METRIC_DIVERGENCES = new Set(
   EXPECTED_TEMPLATE_DELTAS.map(([caseId, element, field]) => `${caseId}/${element}/${field}`),
@@ -146,7 +131,7 @@ describe('template expansion against Unity 6000.0.40f1', () => {
       }
     }
     expect({ matching: values - mismatches, values, elements, cases: measured.length }).toEqual({
-      matching: 200,
+      matching: 215,
       values: 220,
       elements: 55,
       cases: 11,
@@ -156,7 +141,7 @@ describe('template expansion against Unity 6000.0.40f1', () => {
     expect(vacuousMatches, 'a zero-size match cannot enter the accuracy numerator').toEqual([]);
     for (const path of ['docs/accuracy.md', 'docs/accuracy.en.md']) {
       const doc = readFileSync(join(process.cwd(), path), 'utf8');
-      expect(doc, path).toContain('200 / 220');
+      expect(doc, path).toContain('215 / 220');
       expect(doc, path).toContain('55 elements');
       expect(doc, path).toContain('11 / 11');
       for (const [caseId, element, field, ours, unity, delta] of EXPECTED_TEMPLATE_DELTAS) {

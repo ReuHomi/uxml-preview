@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="label" text="Text" />
+<ui:TextElement name="textelement" text="Text" />
+<ui:Button name="button" text="Text" />
+<ui:RepeatButton name="repeat" text="Text" />
+<ui:Box name="box"><ui:VisualElement name="box-child" style="width: 50px; height: 20px;" /></ui:Box>
+<ui:VisualElement name="ve"><ui:VisualElement name="ve-child" style="width: 50px; height: 20px;" /></ui:VisualElement>
+<ui:GroupBox name="groupbox" text="Group"><ui:VisualElement name="gb-child" style="width: 50px; height: 20px;" /></ui:GroupBox>
+<ui:GroupBox name="groupbox-notext"><ui:VisualElement name="gb2-child" style="width: 50px; height: 20px;" /></ui:GroupBox>
+<ui:Button name="button-colored" text="Text" style="color: rgb(255, 0, 0);" />
+</ui:VisualElement>
+</ui:UXML>

@@ -57,6 +57,8 @@ export interface UssProperty {
  * candidate for a Unity dump before it is relied on.
  */
 const BASIS = {
+  measuredTextLayout: 'Measured layout effect in Unity probes, 2026-10-15/16 (tests/text-cohort/unity and tests/layout/unity); auto-size grew 32x15 to 99x49 on 6000.3.25f1',
+  measuredTextPaint: 'Measured paint-only effect in Unity probes, 2026-10-15/16 (tests/layout/unity)',
   yoga: 'A flexbox style input of Yoga, which UI Toolkit lays out with (CLAUDE.md rule 1); many are compared in the golden set',
   box: 'Margin, padding and border widths are part of the box Yoga sizes and places',
   aspectRatio: 'Yoga sizes a box from aspect-ratio, which Unity passes through from 6.3',
@@ -108,7 +110,7 @@ const ROWS: readonly Row[] = [
   ['align-self', '6000.0', false, 'layout', 'layout', 'yoga'],
   ['all', '6000.0', false, 'none', 'layout', 'all'],
   ['animation-play-state', '6000.6', false, 'none', 'none', 'timeInferred'],
-  ['aspect-ratio', '6000.3', false, 'none', 'layout', 'aspectRatio'],
+  ['aspect-ratio', '6000.3', false, 'layout', 'layout', 'aspectRatio'],
   ['backdrop-filter', '6000.6', false, 'none', 'paint', 'effectInferred'],
   ['background-color', '6000.0', false, 'paint', 'paint', 'colour'],
   ['background-image', '6000.0', false, 'paint', 'paint', 'background'],
@@ -136,7 +138,7 @@ const ROWS: readonly Row[] = [
   ['color', '6000.0', true, 'paint', 'paint', 'colour'],
   ['cursor', '6000.0', false, 'paint', 'none', 'cursor'],
   ['display', '6000.0', false, 'layout', 'layout', 'yoga'],
-  ['filter', '6000.3', false, 'none', 'paint', 'effectInferred'],
+  ['filter', '6000.3', false, 'none', 'paint', 'measuredTextPaint'],
   ['flex', '6000.0', false, 'layout', 'layout', 'yoga'],
   ['flex-basis', '6000.0', false, 'layout', 'layout', 'yoga'],
   ['flex-direction', '6000.0', false, 'layout', 'layout', 'yoga'],
@@ -147,7 +149,7 @@ const ROWS: readonly Row[] = [
   ['height', '6000.0', false, 'layout', 'layout', 'yoga'],
   ['justify-content', '6000.0', false, 'layout', 'layout', 'yoga'],
   ['left', '6000.0', false, 'layout', 'layout', 'yoga'],
-  ['letter-spacing', '6000.0', true, 'paint', 'layout', 'textMeasureInferred'],
+  ['letter-spacing', '6000.0', true, 'layout', 'layout', 'measuredTextLayout'],
   ['margin', '6000.0', false, 'layout', 'layout', 'box'],
   ['margin-bottom', '6000.0', false, 'layout', 'layout', 'box'],
   ['margin-left', '6000.0', false, 'layout', 'layout', 'box'],
@@ -170,8 +172,8 @@ const ROWS: readonly Row[] = [
   ['right', '6000.0', false, 'layout', 'layout', 'yoga'],
   ['rotate', '6000.0', false, 'paint', 'paint', 'transform'],
   ['scale', '6000.0', false, 'paint', 'paint', 'transform'],
-  ['text-overflow', '6000.0', false, 'paint', 'paint', 'ellipsisInferred'],
-  ['text-shadow', '6000.0', true, 'none', 'paint', 'textEffectInferred'],
+  ['text-overflow', '6000.0', false, 'paint', 'paint', 'measuredTextPaint'],
+  ['text-shadow', '6000.0', true, 'none', 'paint', 'measuredTextPaint'],
   ['top', '6000.0', false, 'layout', 'layout', 'yoga'],
   ['transform-origin', '6000.0', false, 'paint', 'paint', 'transform'],
   ['transition', '6000.0', false, 'none', 'none', 'timeInferred'],
@@ -183,13 +185,13 @@ const ROWS: readonly Row[] = [
   ['-unity-animation-clip', '6000.6', false, 'none', 'none', 'timeInferred'],
   ['-unity-background-image-tint-color', '6000.0', false, 'none', 'paint', 'background'],
   ['-unity-background-scale-mode', '6000.0', false, 'paint', 'paint', 'background'],
-  ['-unity-editor-text-rendering-mode', '6000.0', true, 'none', 'paint', 'renderingModeInferred'],
+  ['-unity-editor-text-rendering-mode', '6000.0', true, 'none', 'paint', 'measuredTextPaint'],
   ['-unity-font', '6000.0', true, 'none', 'layout', 'textMeasureInferred'],
-  ['-unity-font-definition', '6000.0', true, 'none', 'layout', 'textMeasureInferred'],
-  ['-unity-font-style', '6000.0', true, 'layout', 'layout', 'textMeasureInferred'],
+  ['-unity-font-definition', '6000.0', true, 'none', 'layout', 'measuredTextLayout'],
+  ['-unity-font-style', '6000.0', true, 'layout', 'layout', 'measuredTextLayout'],
   ['-unity-material', '6000.3', true, 'none', 'paint', 'effectInferred'],
-  ['-unity-overflow-clip-box', '6000.0', false, 'none', 'paint', 'clipBoxInferred'],
-  ['-unity-paragraph-spacing', '6000.0', true, 'none', 'layout', 'textMeasureInferred'],
+  ['-unity-overflow-clip-box', '6000.0', false, 'none', 'paint', 'measuredTextPaint'],
+  ['-unity-paragraph-spacing', '6000.0', true, 'layout', 'layout', 'measuredTextLayout'],
   ['-unity-slice-bottom', '6000.0', false, 'none', 'paint', 'background'],
   ['-unity-slice-left', '6000.0', false, 'none', 'paint', 'background'],
   ['-unity-slice-right', '6000.0', false, 'none', 'paint', 'background'],
@@ -197,16 +199,16 @@ const ROWS: readonly Row[] = [
   ['-unity-slice-top', '6000.0', false, 'none', 'paint', 'background'],
   ['-unity-slice-type', '6000.0', false, 'none', 'paint', 'background'],
   ['-unity-text-align', '6000.0', true, 'paint', 'paint', 'textAlign'],
-  ['-unity-text-auto-size', '6000.3', true, 'none', 'paint', 'autoSizeInferred'],
-  ['-unity-text-generator', '6000.0', true, 'none', 'layout', 'textMeasureInferred'],
-  ['-unity-text-outline', '6000.0', false, 'none', 'paint', 'textEffectInferred'],
-  ['-unity-text-outline-color', '6000.0', true, 'none', 'paint', 'textEffectInferred'],
-  ['-unity-text-outline-width', '6000.0', true, 'none', 'paint', 'textEffectInferred'],
-  ['-unity-text-overflow-position', '6000.0', false, 'none', 'paint', 'ellipsisInferred'],
+  ['-unity-text-auto-size', '6000.3', true, 'none', 'layout', 'measuredTextLayout'],
+  ['-unity-text-generator', '6000.0', true, 'layout', 'layout', 'measuredTextLayout'],
+  ['-unity-text-outline', '6000.0', false, 'none', 'paint', 'measuredTextPaint'],
+  ['-unity-text-outline-color', '6000.0', true, 'none', 'paint', 'measuredTextPaint'],
+  ['-unity-text-outline-width', '6000.0', true, 'none', 'paint', 'measuredTextPaint'],
+  ['-unity-text-overflow-position', '6000.0', false, 'none', 'paint', 'measuredTextPaint'],
   ['visibility', '6000.0', true, 'paint', 'paint', 'visibility'],
-  ['white-space', '6000.0', true, 'layout', 'layout', 'textMeasureInferred'],
+  ['white-space', '6000.0', true, 'layout', 'layout', 'measuredTextLayout'],
   ['width', '6000.0', false, 'layout', 'layout', 'yoga'],
-  ['word-spacing', '6000.0', true, 'paint', 'layout', 'textMeasureInferred'],
+  ['word-spacing', '6000.0', true, 'layout', 'layout', 'measuredTextLayout'],
 ];
 
 export const USS_PROPERTIES: readonly UssProperty[] = ROWS.map(
@@ -273,7 +275,6 @@ export const CSS_REPLACEMENTS: Readonly<Record<string, readonly string[]>> = {
 
 /** What this preview did instead, for the properties where "not drawn" says too little. */
 const NOT_RENDERED_TEXT: Readonly<Record<string, string>> = {
-  'aspect-ratio': 'not applied to layout by this preview',
   '-unity-font': 'font not loaded by this preview; the browser default is used',
   '-unity-font-definition': 'font not loaded by this preview; the browser default is used',
   transition: 'not animated by this preview',
@@ -299,7 +300,7 @@ function versionLabel(version: UssVersion): string {
 
 export interface PropertyWarning {
   message: string;
-  reason: 'not-uss' | 'not-rendered';
+  reason: 'not-uss' | 'not-rendered' | 'invalid-value';
   subject: {
     kind: 'property';
     property: string;
@@ -308,6 +309,7 @@ export interface PropertyWarning {
     replacements?: readonly string[];
     affectsLayout?: boolean;
     applied?: 'paint';
+    unityEffect?: { kind: 'unstyled-from-here'; versions: readonly UssVersion[] };
   };
 }
 
@@ -333,6 +335,25 @@ export function propertyWarning(property: string, value: string): PropertyWarnin
       subject: { kind: 'property', property, value, ...(replacements === undefined ? {} : { replacements }) },
     };
   }
+  // Measured 2026-10-15: tests/layout/unity/probes-0.6.0;
+  // dumps: tests/layout/unity/<version>/probe-editor (6000.0.40f1, 6000.3.25f1).
+  const subject: PropertyWarning['subject'] = { kind: 'property', property, value };
+  if ((property.includes('color') || property === 'text-shadow') && /hsla?\(/i.test(value)) {
+    return { reason: 'invalid-value', message: `${property}: Unity 6000.3 stops styling from this element on at this value; 6000.0 draws it black`,
+      subject: { ...subject, unityEffect: { kind: 'unstyled-from-here', versions: ['6000.3'] } } };
+  }
+  // Order probes and exception logs, measured 2026-10-16: both versions stop styling from this element on.
+  if ((property === 'transition-timing-function' || property === 'transition') && /cubic-bezier\(/i.test(value)) {
+    return { reason: 'invalid-value', message: `${property}: Unity stops styling from this element on at cubic-bezier()`,
+      subject: { ...subject, unityEffect: { kind: 'unstyled-from-here', versions: ['6000.0', '6000.3'] } } };
+  }
+  // Same probes and dumps, measured 2026-10-15: these values differ from CSS.
+  if (property === 'opacity' && value.trim().endsWith('%')) {
+    return { reason: 'invalid-value', message: `opacity: Unity reads 50% as 50 (fully opaque), this preview draws it half-transparent`, subject };
+  }
+  if (value.trim() === 'inherit') {
+    return { reason: 'invalid-value', message: `${property}: USS has initial but not inherit; Unity resolved color: inherit to transparent`, subject };
+  }
   const affectsLayout = known.unity === 'layout';
   const label = known.since === '6000.0' ? '' : ` (${versionLabel(known.since)})`;
   // Drawn, but what it does to layout in Unity is not reproduced: the picture
@@ -347,9 +368,15 @@ export function propertyWarning(property: string, value: string): PropertyWarnin
   }
   if (known.handling !== 'none') return null;
   return {
-    message: `${property}${label}: ${NOT_RENDERED_TEXT[property] ?? 'not drawn by this preview'}`,
+    message: `${property}${label}: ${NOT_RENDERED_TEXT[property] ?? 'not drawn by this preview'}`
+      + (property === 'filter' && /[\w-]+\(/.test(value)
+        ? '; Unity 6000.0 stops styling from this element on' : ''),
     reason: 'not-rendered',
-    subject: { kind: 'property', property, value, since: known.since, affectsLayout },
+    subject: { kind: 'property', property, value, since: known.since, affectsLayout,
+      // Same probes/dumps, measured 2026-10-15: filter functions poison 6000.0 only.
+      ...(property === 'filter' && /[\w-]+\(/.test(value)
+        ? { unityEffect: { kind: 'unstyled-from-here' as const, versions: ['6000.0'] as const } } : {}),
+    },
   };
 }
 

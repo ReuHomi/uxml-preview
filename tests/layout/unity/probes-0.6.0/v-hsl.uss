@@ -1,0 +1,2 @@
+#target { width: 50px; height: 10px; background-color: hsl(120, 100%, 50%); }
+#canary { width: 33px; height: 7px; }

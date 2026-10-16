@@ -49,7 +49,8 @@ type Recorded = Pick<Warning, 'kind' | 'message' | 'node' | 'at' | 'sourceDocume
 function record(w: Warning): Recorded {
   const out: Recorded = { kind: w.kind, message: w.message };
   if (w.node !== undefined) out.node = w.node;
-  if (w.at !== undefined) out.at = w.at;
+  // 0.6.0 added url/from to a USS location; 0.5.0 had neither, so they are not compared.
+  if (w.at !== undefined) out.at = w.at.in === 'uss' ? { in: 'uss', sheet: w.at.sheet, span: w.at.span } : w.at;
   if (w.sourceDocument !== undefined) out.sourceDocument = w.sourceDocument;
   if (w.reason !== undefined) out.reason = w.reason;
   if (w.subject !== undefined) out.subject = w.subject;
@@ -177,12 +178,15 @@ function impliedReason(w: Recorded): string | undefined {
  * Deletions that are corrections, each because the 0.5.0 warning asserted
  * something false: background-size/-position/-repeat are in Unity's 6000.0
  * reference table, so "depends on the Unity version" was wrong, and the
- * preview draws them, so there is nothing left to say.
+ * preview draws them, so there is nothing left to say. aspect-ratio (0.6.0):
+ * the warning said this preview does not lay it out; it now does, matching
+ * Unity 6000.3.25f1 52/52 (tests/contract-060/aspect-ratio.test.ts).
  */
 const ALLOWED_DELETIONS = new Set([
   'property:background-size',
   'property:background-position',
   'property:background-repeat',
+  'property:aspect-ratio',
 ]);
 
 type Verdict = 'preserved' | 'merged' | 'reclassified' | 'deleted';

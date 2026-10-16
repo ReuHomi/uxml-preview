@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:Slider name="with" low-value="0" high-value="10" value="5" label="Label" />
+<ui:Slider name="without" low-value="0" high-value="10" value="5"  />
+<ui:Slider name="colored" low-value="0" high-value="10" value="5" label="Label" style="color: rgb(255, 0, 0); font-size: 20px;" />
+</ui:VisualElement>
+<ui:VisualElement name="parent" style="width: 300px; color: rgb(0, 0, 255); font-size: 16px;">
+<ui:Slider name="inherits" low-value="0" high-value="10" value="5" label="Label" />
+</ui:VisualElement>
+<ui:VisualElement name="free" style="align-items: flex-start;">
+<ui:Slider name="auto" low-value="0" high-value="10" value="5" label="Label" />
+</ui:VisualElement>
+</ui:UXML>

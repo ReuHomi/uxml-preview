@@ -1,7 +1,8 @@
 # uxml-preview
 
 규칙 정본은 `CLAUDE.md`다. 그 파일을 전부 읽고 시작하라.
-특히 "USS 함정", "검증 규율", "스코프 경계".
+특히 "USS 함정", "검증 규율", "스코프 경계", "역할 분담 — Claude와 Codex".
+Codex는 고정 테스트를 수정하지 않고 커밋하지 않는다.
 
 ## Group 3 review checklist (Template / Instance)
 

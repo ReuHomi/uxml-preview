@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:Toggle name="with" label="Label" />
+<ui:Toggle name="without"  />
+<ui:Toggle name="colored" label="Label" style="color: rgb(255, 0, 0); font-size: 20px;" />
+</ui:VisualElement>
+<ui:VisualElement name="parent" style="width: 300px; color: rgb(0, 0, 255); font-size: 16px;">
+<ui:Toggle name="inherits" label="Label" />
+</ui:VisualElement>
+<ui:VisualElement name="free" style="align-items: flex-start;">
+<ui:Toggle name="auto" label="Label" />
+</ui:VisualElement>
+</ui:UXML>

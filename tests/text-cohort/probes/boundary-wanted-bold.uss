@@ -1,0 +1,2 @@
+.cohort { padding: 0; margin: 0; white-space: nowrap; -unity-font-definition: url("project://database/Assets/Fonts/WantedSans-Bold.ttf"); }
+.wrap { white-space: normal; }

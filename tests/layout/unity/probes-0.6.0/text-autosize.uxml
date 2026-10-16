@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="fixed" text="Hello" style="width: 200px; height: 40px; -unity-text-auto-size: best-fit 8px 40px;" />
+<ui:Label name="auto" text="Hello" style="-unity-text-auto-size: best-fit 8px 40px;" />
+<ui:Label name="auto-ref" text="Hello" />
+<ui:Label name="narrow" text="Hello World Foo Bar" style="width: 60px; -unity-text-auto-size: best-fit 8px 40px;" />
+<ui:Label name="narrow-ref" text="Hello World Foo Bar" style="width: 60px;" />
+</ui:VisualElement>
+</ui:UXML>

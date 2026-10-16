@@ -150,12 +150,13 @@ export const VISUAL_CASES: VisualCase[] = [
   {
     name: 'visual-warnings-version-dependent',
     // Renamed in meaning, not in file: gap and word-break are in no Unity
-    // version's USS reference, and aspect-ratio is a 6.3 property this preview
-    // does not lay out. The case name stays so its history stays readable.
+    // version's USS reference. aspect-ratio is a 6.3 property that 0.5.1 did
+    // not lay out and warned about; since 0.6.0 it is laid out (matched Unity
+    // 52/52, tests/contract-060/aspect-ratio.test.ts) and is silent here.
+    // The case name stays so its history stays readable.
     question:
-      'Do gap and word-break warn as absent from the USS reference up to 6.6, and aspect-ratio ' +
-      'as a Unity 6.3+ property ' +
-      'this preview does not lay out, rather than emit silently?',
+      'Do gap and word-break warn as absent from the USS reference up to 6.6, while aspect-ratio, ' +
+      'laid out since 0.6.0, stays silent?',
     uxml: wrap('  <ui:VisualElement name="visual-warnings-version-dependent-box" />'),
     uss:
       '#visual-warnings-version-dependent-box {\n' +

@@ -1,0 +1,3 @@
+.box { width: 20px; height: 10px; }
+.f { filter: blur(4px); }
+#canary { width: 33px; height: 7px; }

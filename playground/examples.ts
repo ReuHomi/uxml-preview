@@ -62,7 +62,7 @@ const inventory = CASES.find((c) => c.name === 'inventory')!;
 
 export const EXAMPLES: Example[] = [
   {
-    name: 'Templates: reusable slots and a caught override typo',
+    name: 'Templates: reusable parts and a caught override typo',
     panel: { width: 640, height: 360 },
     files: {
       'ItemSlot.uxml': `<ui:UXML xmlns:ui="UnityEngine.UIElements">
@@ -115,10 +115,103 @@ export const EXAMPLES: Example[] = [
 `,
   },
   {
-    name: 'Representative screen (compared against Unity)',
+    name: 'Representative screen (coordinates compared with Unity)',
     panel: PANEL,
     uxml: inventory.uxml,
     uss: inventory.uss,
+  },
+  {
+    name: 'Text: Unity line height, letter spacing, fallback fonts',
+    panel: { width: 640, height: 360 },
+    uxml: `<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <!--
+    Look at the first two Labels: at 20px with no padding, margin or font set,
+    Unity measured 25px for one line and 73px for three in the editor lines.json
+    probes (6000.0.40f1 and 6000.3.25f1).
+    USS letter-spacing is value × font size / 100, not CSS px: 10 at 20px is 2px.
+    Unity's default font has no Hangul and draws it 1–4px taller with a fallback
+    font, as measured in the text probes. A project font set with
+    -unity-font-definition (resolved via the resolveFont hook) avoids the warning.
+  -->
+  <ui:VisualElement class="text-demo">
+    <ui:Label name="one-line" text="One line" />
+    <ui:Label name="three-lines" text="First line&#10;Second line&#10;Third line" />
+    <ui:Label class="spaced" text="Letter spacing: 10 at 20px" />
+    <ui:Label text="한글은 대체 폰트로 그려진다" />
+  </ui:VisualElement>
+</ui:UXML>
+`,
+    uss: `.text-demo {
+  padding: 20px;
+  background-color: rgb(31, 34, 42);
+}
+
+.text-demo > Label {
+  font-size: 20px;
+  padding: 0;
+  margin: 0;
+  color: rgb(224, 228, 238);
+}
+
+.spaced { letter-spacing: 10px; }
+`,
+  },
+  {
+    name: 'Layout: aspect-ratio (Unity 6.3+)',
+    panel: { width: 640, height: 360 },
+    uxml: `<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <!--
+    This box is twice as wide as it is tall. aspect-ratio is a Unity 6.3+
+    property; Unity 6000.0 does not have it. The aspect2.json probe measured
+    2:1 boxes in Unity 6000.3.25f1 (94×47 and a flex-grown 200×100).
+  -->
+  <ui:VisualElement class="ratio-demo">
+    <ui:Label text="aspect-ratio: 2, width: 240px" />
+    <ui:VisualElement name="ratio" />
+  </ui:VisualElement>
+</ui:UXML>
+`,
+    uss: `.ratio-demo { padding: 20px; }
+Label { color: rgb(224, 228, 238); margin-bottom: 12px; }
+#ratio {
+  width: 240px;
+  aspect-ratio: 2;
+  background-color: rgb(70, 120, 200);
+}
+`,
+  },
+  {
+    name: 'Values Unity cannot apply',
+    panel: { width: 640, height: 360 },
+    uxml: `<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <!--
+    The preview draws what the author meant and warns. Unity value and order
+    probes measured hsl() stopping styling in 6000.3 (6.3), and cubic-bezier()
+    in both 6000.0 and 6000.3: that element and every element after it in the
+    panel lose their style. 6000.0 draws the hsl() colour black instead.
+    opacity: 50% is read as 50 (fully opaque) in both versions; write 0.5.
+    Look at each warning for the affected versions and the value to change.
+  -->
+  <ui:VisualElement class="values-demo">
+    <ui:VisualElement class="box hsl"><ui:Label text="hsl() colour" /></ui:VisualElement>
+    <ui:VisualElement class="box bezier"><ui:Label text="cubic-bezier() timing" /></ui:VisualElement>
+    <ui:VisualElement class="box percent"><ui:Label text="opacity: 50% — write 0.5" /></ui:VisualElement>
+  </ui:VisualElement>
+</ui:UXML>
+`,
+    uss: `.values-demo { padding: 20px; }
+.box {
+  width: 340px;
+  height: 70px;
+  margin-bottom: 10px;
+  padding: 12px;
+  background-color: rgb(70, 120, 200);
+}
+Label { color: rgb(240, 242, 248); }
+.hsl { background-color: hsl(120, 60%, 35%); }
+.bezier { transition-timing-function: cubic-bezier(0.2, 0, 0.8, 1); }
+.percent { opacity: 50%; }
+`,
   },
   {
     name: 'Inventory panel',

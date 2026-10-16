@@ -13,6 +13,8 @@
 import { loadLayoutEngine, parse, render, serialize } from '../src/index';
 import type { RenderResult, Warning } from '../src/index';
 import { EXAMPLES, resolveAsset, resolveExampleImport } from './examples';
+import { fitPanel } from './fit';
+import { describeWarning } from './warnings';
 
 const uxmlEl = document.getElementById('uxml') as HTMLTextAreaElement;
 const ussEl = document.getElementById('uss') as HTMLTextAreaElement;
@@ -96,8 +98,27 @@ let activeFiles: Record<string, string> | undefined;
 function showWarnings(warnings: readonly Warning[]): void {
   warnEl.replaceChildren();
   for (const warning of warnings) {
+    const view = describeWarning(warning);
     const line = document.createElement('div');
-    line.textContent = `[${warning.kind}] ${warning.message}`;
+    line.className = 'warning-row';
+    const badge = document.createElement('span');
+    badge.className = `badge badge-${view.badge}`;
+    badge.textContent = view.badge;
+    const content = document.createElement('div');
+    const message = document.createElement('span');
+    message.textContent = view.message;
+    content.appendChild(message);
+    if (view.details.length > 0) {
+      const details = document.createElement('ul');
+      details.className = 'warning-details';
+      for (const detail of view.details) {
+        const item = document.createElement('li');
+        item.textContent = detail;
+        details.appendChild(item);
+      }
+      content.appendChild(details);
+    }
+    line.append(badge, content);
     warnEl.appendChild(line);
   }
 }
@@ -109,21 +130,16 @@ function showWarnings(warnings: readonly Warning[]): void {
  */
 function applyScale(): number {
   const choice = zoomEl.value;
-  let scale: number;
-  if (choice === 'fit') {
-    const available = viewportEl.getBoundingClientRect();
-    // A little slack so the drop shadow is not clipped against the edge.
-    scale = Math.min(
-      (available.width - 24) / panel.width,
-      (available.height - 24) / panel.height,
-      1,
-    );
-    scale = Math.max(scale, 0.05);
-  } else {
-    scale = Number(choice);
-  }
-  scalerEl.style.transform = `scale(${scale})`;
-  return scale;
+  const fitted = fitPanel(
+    panel,
+    viewportEl.getBoundingClientRect(),
+    choice === 'fit' ? 'fit' : Number(choice),
+  );
+  scalerEl.style.width = `${fitted.width}px`;
+  scalerEl.style.height = `${fitted.height}px`;
+  scalerEl.style.overflow = 'visible';
+  panelEl.style.transform = `scale(${fitted.scale})`;
+  return fitted.scale;
 }
 
 function update(): void {

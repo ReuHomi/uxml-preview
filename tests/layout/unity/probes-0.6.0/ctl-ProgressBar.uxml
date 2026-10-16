@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:ProgressBar name="with" title="Title" value="50" />
+<ui:ProgressBar name="without" value="50" />
+<ui:ProgressBar name="colored" title="Title" value="50" style="color: rgb(255, 0, 0); font-size: 20px;" />
+</ui:VisualElement>
+<ui:VisualElement name="free" style="align-items: flex-start;"><ui:ProgressBar name="auto" title="Title" value="50" /></ui:VisualElement>
+</ui:UXML>

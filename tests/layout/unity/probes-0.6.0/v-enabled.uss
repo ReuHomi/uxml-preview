@@ -1,0 +1,5 @@
+.cell { width: 10px; height: 10px; }
+.cell:enabled { width: 77px; }
+.en { width: 10px; height: 10px; }
+.en:enabled { width: 77px; }
+#canary { width: 33px; height: 7px; }

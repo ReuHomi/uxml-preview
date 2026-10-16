@@ -1,0 +1,3 @@
+.box { width: 20px; height: 10px; }
+.t { background-color: hsl(120, 100%, 50%); }
+#canary { width: 33px; height: 7px; }

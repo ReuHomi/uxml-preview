@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="p8" text="Hamburgefonts" class="pre" style="font-size: 8px;" />
+<ui:Label name="p10" text="Hamburgefonts" class="pre" style="font-size: 10px;" />
+<ui:Label name="p12" text="Hamburgefonts" class="pre" style="font-size: 12px;" />
+<ui:Label name="p14" text="Hamburgefonts" class="pre" style="font-size: 14px;" />
+<ui:Label name="p16" text="Hamburgefonts" class="pre" style="font-size: 16px;" />
+<ui:Label name="p20" text="Hamburgefonts" class="pre" style="font-size: 20px;" />
+<ui:Label name="p24" text="Hamburgefonts" class="pre" style="font-size: 24px;" />
+<ui:Label name="p32" text="Hamburgefonts" class="pre" style="font-size: 32px;" />
+<ui:Label name="p48" text="Hamburgefonts" class="pre" style="font-size: 48px;" />
+<ui:Label name="ptwo20" text="Ag&#10;Ag" class="pre" style="font-size: 20px;" />
+<ui:Label name="pkr20" text="한글 가나다" class="pre" style="font-size: 20px;" />
+</ui:VisualElement>
+</ui:UXML>

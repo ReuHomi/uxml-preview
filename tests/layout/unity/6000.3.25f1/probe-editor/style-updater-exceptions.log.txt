@@ -1,0 +1,32 @@
+# Unity 6000.3.25f1 batch log excerpt, 2026-10-16: every ArgumentOutOfRangeException from the probe runs
+# lines.uxml, filter-canary.uxml, nested-disabled.uxml and order-{hsl,cubic,filter}.uxml (probes-0.6.0).
+# The style updater throws in ApplyGlobalKeyword while styling the element with the bad value;
+# that element and every later one stay unstyled (see order-*.json).
+ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection.
+Parameter name: index
+  at System.Collections.Generic.List`1[T].get_Item (System.Int32 index) [0x00009] in <d49d4cb128564ee1b54a84338c98d353>:0 
+  at UnityEngine.UIElements.StyleSheets.StylePropertyReader.GetValue (System.Int32 index) [0x0000d] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.ComputedStyle.ApplyGlobalKeyword (UnityEngine.UIElements.StyleSheets.StylePropertyReader reader, UnityEngine.UIElements.ComputedStyle& parentStyle) [0x00001] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.ComputedStyle.ApplyProperties (UnityEngine.UIElements.StyleSheets.StylePropertyReader reader, UnityEngine.UIElements.ComputedStyle& parentStyle) [0x0000e] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.VisualTreeStyleUpdaterTraversal.ProcessMatchedRules (UnityEngine.UIElements.VisualElement element, System.Collections.Generic.List`1[T] matchingSelectors) [0x002c6] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.VisualTreeStyleUpdaterTraversal.TraverseRecursive (UnityEngine.UIElements.VisualElement element, System.Int32 depth) [0x0012d] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.StyleSheets.HierarchyTraversal.Recurse (UnityEngine.UIElements.VisualElement element, System.Int32 depth) [0x00016] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.VisualTreeStyleUpdaterTraversal.TraverseRecursive (UnityEngine.UIElements.VisualElement element, System.Int32 depth) [0x00299] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.StyleSheets.HierarchyTraversal.Recurse (UnityEngine.UIElements.VisualElement element, System.Int32 depth) [0x00016] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.VisualTreeStyleUpdaterTraversal.TraverseRecursive (UnityEngine.UIElements.VisualElement element, System.Int32 depth) [0x00299] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.StyleSheets.HierarchyTraversal.Recurse (UnityEngine.UIElements.VisualElement element, System.Int32 depth) [0x00016] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.VisualTreeStyleUpdaterTraversal.TraverseRecursive (UnityEngine.UIElements.VisualElement element, System.Int32 depth) [0x00299] in <2a16c5818a9f497f971bd434f68584f4>:0 
+ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection.
+Parameter name: index
+  at System.Collections.Generic.List`1[T].get_Item (System.Int32 index) [0x00009] in <d49d4cb128564ee1b54a84338c98d353>:0 
+  at UnityEngine.UIElements.StyleSheets.StylePropertyReader.GetValue (System.Int32 index) [0x0000d] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.ComputedStyle.ApplyGlobalKeyword (UnityEngine.UIElements.StyleSheets.StylePropertyReader reader, UnityEngine.UIElements.ComputedStyle& parentStyle) [0x00001] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.ComputedStyle.ApplyProperties (UnityEngine.UIElements.StyleSheets.StylePropertyReader reader, UnityEngine.UIElements.ComputedStyle& parentStyle) [0x0000e] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.VisualTreeStyleUpdaterTraversal.ProcessMatchedRules (UnityEngine.UIElements.VisualElement element, System.Collections.Generic.List`1[T] matchingSelectors) [0x002c6] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.VisualTreeStyleUpdaterTraversal.TraverseRecursive (UnityEngine.UIElements.VisualElement element, System.Int32 depth) [0x0012d] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.StyleSheets.HierarchyTraversal.Recurse (UnityEngine.UIElements.VisualElement element, System.Int32 depth) [0x00016] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.VisualTreeStyleUpdaterTraversal.TraverseRecursive (UnityEngine.UIElements.VisualElement element, System.Int32 depth) [0x00299] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.StyleSheets.HierarchyTraversal.Recurse (UnityEngine.UIElements.VisualElement element, System.Int32 depth) [0x00016] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.VisualTreeStyleUpdaterTraversal.TraverseRecursive (UnityEngine.UIElements.VisualElement element, System.Int32 depth) [0x00299] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.StyleSheets.HierarchyTraversal.Recurse (UnityEngine.UIElements.VisualElement element, System.Int32 depth) [0x00016] in <2a16c5818a9f497f971bd434f68584f4>:0 
+  at UnityEngine.UIElements.VisualTreeStyleUpdaterTraversal.TraverseRecursive (UnityEngine.UIElements.VisualElement element, System.Int32 depth) [0x00299] in <2a16c5818a9f497f971bd434f68584f4>:0 

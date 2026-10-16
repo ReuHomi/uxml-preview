@@ -1,3 +1,5 @@
+import type { UssVersion } from '../style/registry';
+
 /**
  * uxml-preview — in-memory document model.
  *
@@ -33,7 +35,7 @@ export interface Span {
 /** An explicit text location, for warnings and editor navigation. */
 export type SourceRef =
   | { in: 'uxml'; span: Span }
-  | { in: 'uss'; sheet: number; span: Span };
+  | { in: 'uss'; sheet: number; span: Span; url?: string | null; from?: string | null };
 
 /**
  * Opaque handle to a node, stable for the lifetime of the document.
@@ -265,6 +267,7 @@ export type WarningKindMap<T> = { [K in WarningKind]: T };
  *
  *   - `not-uss`           the author wrote something USS does not have
  *   - `not-rendered`      valid USS/UXML this preview does not draw or apply
+ *   - `font-fallback`     drawn, but Unity draws some glyphs with a fallback font, so text size can differ
  *   - `invalid-value`     a valid name with a value or target that cannot work
  *   - `version-dependent` the result depends on the Unity version
  *   - `matches-unity`     ignored, and Unity ignores it too; not a defect
@@ -277,6 +280,7 @@ export type WarningKindMap<T> = { [K in WarningKind]: T };
 export type WarningReason =
   | 'not-uss'
   | 'not-rendered'
+  | 'font-fallback'
   | 'invalid-value'
   | 'version-dependent'
   | 'matches-unity';
@@ -299,7 +303,7 @@ export type WarningSubject =
       /** USS properties to write instead, for a CSS name USS spells differently. */
       replacements?: readonly string[];
       /**
-       * On a `not-rendered` warning: whether the property can change a box's size
+       * On a `not-rendered` or `font-fallback` warning: whether the property can change a box's size
        * or position in Unity. When true, this preview's coordinates may differ
        * from Unity's — do not treat a coordinate-based finding (zero size,
        * overflow) as settled.
@@ -307,10 +311,13 @@ export type WarningSubject =
       affectsLayout?: boolean;
       /**
        * On a `not-rendered` warning: the part this preview did apply, when it
-       * applied some. `'paint'` means drawn, but not laid out as Unity would —
-       * `letter-spacing` is drawn and left out of text measurement.
+       * applied some. Reserved for a property drawn but not laid out as Unity
+       * would; no registry row currently uses this field.
        */
       applied?: 'paint';
+      /** On a `font-fallback` warning: the script the editor default font (Inter) has no glyphs for. */
+      missingGlyphs?: 'hangul' | 'han' | 'kana';
+      unityEffect?: { kind: 'unstyled-from-here' | 'file-inline-dropped'; versions: readonly UssVersion[] };
     }
   | {
       kind: 'selector';
@@ -319,8 +326,8 @@ export type WarningSubject =
       /** The part of it the warning is about, when narrower than the whole. */
       fragment?: string;
     }
-  | { kind: 'states-key'; key: string }
-  | { kind: 'asset'; path: string; form: 'url' | 'resource' }
+  | { kind: 'states-key'; key: string; problem?: 'matches-nothing' | 'state-in-key' | 'unknown-state'; state?: string }
+  | { kind: 'asset'; path: string; form: 'url' | 'resource'; role?: 'font' }
   | {
       kind: 'import';
       /** Exactly the string the resolver hook was (or would have been) called with. */
@@ -352,6 +359,7 @@ export interface Warning {
   at?: SourceRef;
   /** Element the warning is about, when it has one. Lets the UI highlight it. */
   node?: NodeId;
+  nodes?: NodeId[];
   reason?: WarningReason;
   subject?: WarningSubject;
 }

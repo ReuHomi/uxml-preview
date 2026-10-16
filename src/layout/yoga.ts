@@ -29,6 +29,8 @@ import { expandShorthand } from '../style/properties';
 import type { ComputedValue, DeclarationLocator } from '../style/resolve';
 import { INITIAL, parseLength, parseNumber } from '../render/values';
 import type { Length } from '../render/values';
+import type { FaceInfo } from '../render/measure';
+import { decodeEntities } from '../parser/entities';
 
 let engine: Yoga | null = null;
 
@@ -71,6 +73,12 @@ export interface TextContext {
   /** `normal` | `bold` | `italic` | `bold-and-italic`. */
   fontStyle: string;
   whiteSpace: string;
+  fontFamily?: string;
+  faceInfo?: FaceInfo;
+  letterSpacing?: number;
+  wordSpacing?: number;
+  paragraphSpacing?: number;
+  textGenerator?: 'standard' | 'advanced';
 }
 
 export type MeasureText = (
@@ -80,6 +88,7 @@ export type MeasureText = (
 ) => TextMetrics;
 
 export interface LayoutOptions {
+  fonts?: ReadonlyMap<ComputedStyle, { family: string; faceInfo?: FaceInfo }>;
   size: { width: number; height: number };
   /**
    * Measures a control's text.
@@ -229,20 +238,38 @@ export function layoutDocument(
     });
   }
 
+  // Template clones retain inline origins, including their source document.
+  // Measured 2026-10-15: tests/layout/unity/<version>/probe-editor/aspect.json
+  // and inline-poison.json (6000.0.40f1, 6000.3.25f1).
+  function warnValue(
+    style: ComputedStyle,
+    property: string,
+    node: ElementNode,
+    problem: string,
+    reason: Warning['reason'],
+    dropsFileInline: boolean,
+  ): void {
+    const from = style.get(property);
+    const dropsInline = dropsFileInline && from?.origin.kind === 'inline';
+    warn(
+      `${property}: ${problem}${dropsInline ? '; Unity drops every inline style in that UXML file' : ''}`,
+      node,
+      {
+        ...(reason === undefined ? {} : { reason: dropsInline ? 'invalid-value' : reason }),
+        subject: { kind: 'property', property, value: read(style, property),
+          ...(dropsInline ? { unityEffect: { kind: 'file-inline-dropped', versions: ['6000.0', '6000.3'] } } : {}),
+        },
+      },
+      from,
+    );
+  }
+
   function length(style: ComputedStyle, property: string, node: ElementNode): Length | null {
     const text = read(style, property);
     if (text === '') return null;
-    const { length: parsed, problem, reason } = parseLength(text);
+    const { length: parsed, problem, reason, code } = parseLength(text);
     if (problem !== undefined) {
-      warn(
-        `${property}: ${problem}`,
-        node,
-        {
-          ...(reason === undefined ? {} : { reason }),
-          subject: { kind: 'property', property, value: text },
-        },
-        style.get(property),
-      );
+      warnValue(style, property, node, problem, reason, code === 'unsupported-unit');
     }
     return parsed;
   }
@@ -316,6 +343,15 @@ export function layoutDocument(
 
     yg.setWidth(dimension(length(style, 'width', node)));
     yg.setHeight(dimension(length(style, 'height', node)));
+    // Measured 2026-10-15: tests/layout/unity/probes-0.6.0/aspect2.uxml;
+    // dump: tests/layout/unity/6000.3.25f1/probe-editor/aspect2.json.
+    // Unity passes a plain USS number directly to Yoga; auto leaves it unset.
+    const aspectRatio = read(style, 'aspect-ratio').trim();
+    if (aspectRatio !== 'auto' && aspectRatio !== 'initial') {
+      const ratio = parseNumber(aspectRatio);
+      if (ratio !== null && Number.isFinite(ratio)) yg.setAspectRatio(ratio);
+      else warnValue(style, 'aspect-ratio', node, `cannot read "${aspectRatio}" as a number`, 'invalid-value', true);
+    }
     yg.setMinWidth(edge(length(style, 'min-width', node)));
     yg.setMinHeight(edge(length(style, 'min-height', node)));
     yg.setMaxWidth(edge(length(style, 'max-width', node)));
@@ -331,7 +367,8 @@ export function layoutDocument(
   }
 
   function textOf(node: ElementNode): string | undefined {
-    return node.attributes.find((a) => a.name === 'text')?.value;
+    const text = node.attributes.find((a) => a.name === 'text')?.value;
+    return text === undefined ? undefined : decodeEntities(text);
   }
 
   /**
@@ -398,6 +435,21 @@ export function layoutDocument(
       });
     }
 
+    if (drawsText && !style.has('-unity-font-definition') && !style.has('-unity-font')) {
+      const first = /[\u1100-\u11ff\u3130-\u318f\uac00-\ud7af\u3400-\u4dbf\u4e00-\u9fff\u3040-\u30ff]/u.exec(text);
+      if (first !== null) {
+        const code = first[0].codePointAt(0)!;
+        const missingGlyphs = code >= 0x3040 && code <= 0x30ff ? 'kana'
+          : (code >= 0x3400 && code <= 0x4dbf) || (code >= 0x4e00 && code <= 0x9fff) ? 'han' : 'hangul';
+        const script = { hangul: 'Hangul', han: 'Han (CJK ideographs)', kana: 'Kana' }[missingGlyphs];
+        warnings.push({
+          kind: 'unsupported-property', reason: 'font-fallback', node: node.id,
+          message: `The editor default font (Inter-Regular SDF) has no glyphs for ${script}; Unity draws it with a fallback font whose height can differ (measured 1–4px taller).`,
+          subject: { kind: 'property', property: '-unity-font-definition', value: '', affectsLayout: true, missingGlyphs },
+        });
+      }
+    }
+
     if (drawsText) {
       // Yoga refuses to measure a node that has children, and would not ask for
       // an intrinsic size anyway. Text wins; dropping it silently would be worse.
@@ -413,7 +465,20 @@ export function layoutDocument(
         fontSize: fontSize !== null && fontSize.kind === 'px' ? fontSize.value : 12,
         fontStyle: read(style, '-unity-font-style') || 'normal',
         whiteSpace: read(style, 'white-space') || 'normal',
+        textGenerator: read(style, '-unity-text-generator') === 'standard' ? 'standard' : 'advanced',
       };
+      const font = options.fonts?.get(style);
+      if (font !== undefined) {
+        context.fontFamily = font.family;
+        if (font.faceInfo !== undefined) context.faceInfo = font.faceInfo;
+      }
+      for (const [property, field] of [
+        ['letter-spacing', 'letterSpacing'], ['word-spacing', 'wordSpacing'],
+        ['-unity-paragraph-spacing', 'paragraphSpacing'],
+      ] as const) {
+        const parsed = length(style, property, node);
+        if (parsed?.kind === 'px') context[field] = parsed.value;
+      }
       yg.setMeasureFunc((availableWidth) =>
         options.measureText(
           text,

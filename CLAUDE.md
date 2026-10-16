@@ -3,7 +3,7 @@
 Unity UI Toolkit의 UXML/USS를 브라우저에서 렌더링·편집하는 라이브러리.
 
 > **기준 Unity 버전: 6.3 LTS.** "USS에 없다"는 판정은 Unity 6.6까지의 공식 USS 속성 참조표 기준이다.
-> 좌표 정확도 수치는 6000.0.40f1 측정이며, 6.3 LTS 코호트는 0.6.0에서 추가한다.
+> 좌표 정확도의 공개 수치는 6000.0.40f1 측정이다. 6.3 LTS 코호트는 합산하지 않고 별도 표로 둔다.
 > 6.7(베타)은 지원하지 않는다 — 6.7 LTS가 나오면 다시 판단한다(`docs/backlog.md`).
 
 ## 절대 규칙
@@ -51,7 +51,7 @@ Unity UI Toolkit의 UXML/USS를 브라우저에서 렌더링·편집하는 라�
 - 지원 pseudo-class: `:hover` `:active` `:inactive` `:focus` `:disabled` `:enabled` `:checked` `:root`
   (Unity "USS selectors: Pseudo-classes" 문서, 2026-10-13 확인. 상태 7개는 `USS_STATES`로 export).
   **`:selected`는 USS가 지원하지 않는다** — Unity 문서가 `:checked`를 쓰라고 적는다.
-  `:enabled`는 아직 자동으로 켜지지 않는다(0.6.0, `docs/backlog.md`).
+  `:enabled`는 자동으로 적용된다(6000.0.40f1 및 6000.3.25f1 실측, 2026-10-15).
 - **미지원**: 형제(`+`, `~`), `:nth-child`, `:first/last-child`, `:not()`, `:has()`,
   속성 셀렉터, `::before`/`::after`, `@media`, Unity가 설정하지 않는 의사 클래스(`:selected` 등)
 - `:root`가 CSS와 다르다. 스타일시트가 적용된 각 요소를 가리키며,
@@ -96,8 +96,11 @@ Unity UI Toolkit의 UXML/USS를 브라우저에서 렌더링·편집하는 라�
 - 6.3+: `aspect-ratio`, `filter`, `-unity-material`, `-unity-text-auto-size`
 - 6.6+: `backdrop-filter`, `animation-play-state`, `-unity-animation-clip`
 - `background-size`/`position`/`repeat`는 6000.0에 이미 있다 — 버전 의존이 아니다
-- 값 수준은 아직 판정하지 않는다(0.6.0): `linear-gradient()`, `hsl()`, `cubic-bezier()`,
-  `justify-content: space-evenly`, `white-space` 값
+- 값 수준 판정(0.6.0, 6000.0.40f1·6000.3.25f1 실측): `hsl()`(6.3)·`cubic-bezier()`·6.0의 `filter`는
+  그 요소와 그 뒤 요소 전부의 스타일을 멈춘다 — 앞선 형제는 유지(`unityEffect: unstyled-from-here`). 인라인 값 하나의 단위 오류는 그 파일의
+  인라인 스타일 전부를 버린다(`file-inline-dropped`). `opacity: 50%`는 50으로, `inherit`는 투명으로 읽힌다.
+  `linear-gradient()`는 경고 아이콘이 된다. `space-evenly`는 동작한다. `white-space` 값은 아직 미판정
+- 글자 높이·간격은 CSS가 아니다: 높이는 FaceInfo 공식(`textHeight`), 자간·어간은 값 × 글자 크기 / 100
 
 ### 애니메이션
 
@@ -330,6 +333,32 @@ Step 2에서 스냅샷 자동 생성에 경고를 붙인 것과 같은 위험이
 `.unity-button`이라는 클래스명은 측정된 적이 없어서, 그것만 겨냥한 케이스를 두고
 다음 유니티 덤프가 판정하게 했다. 측정 수단이 아예 없으면 **판정 시점을 명시적으로
 잡아둔다** (예: Step 6 육안 대조).
+
+## 역할 분담 — Claude와 Codex
+
+vscode-uxml-preview 0.3.1의 위임 규칙을 이 저장소에도 적용한다(0.6.0부터).
+
+| Claude | Codex |
+|---|---|
+| 기대값이 걸린 테스트를 **먼저** 쓴다 | 프로덕션 코드를 구현한다 |
+| 브리프, 디프 검토, 커밋 메시지, `docs/progress.md` | 고정 테스트를 수정하지 않는다 |
+| `pnpm` 실행·테스트·Unity 덤프·변이 확인 | 커밋하지 않는다(add·commit·push·checkout·stash 금지) |
+
+- 구현은 사람을 거치지 않고 WSL의 Codex CLI(`codex exec`)에 브리프를 직접 넘긴다.
+  샌드박스는 유지한다. Codex는 파일만 고치고, 실행과 검증은 Claude가 Windows에서 하고
+  결과를 다음 라운드에 넘긴다.
+- **고정 테스트.** 머리말에 "구현에 맞춰 기대값을 고치지 말 것"(영문 "do not edit the
+  expectations")이 적힌 테스트다. 브리프가 특정 단언의 교체를 명시적으로 허용한 경우만
+  예외다. 기대값이 틀렸다고 보면 Codex는 근거와 함께 보고만 한다.
+- **매 라운드 검토.** Codex의 보고가 아니라 `git diff`를 읽는다. 고정 테스트 파일은 라운드
+  전후를 **바이트 비교**해 허용된 교체 외의 변경이 없음을 확인한다. `git diff --stat`과
+  줄바꿈(CRLF)·권한 변화도 본다.
+- **변이 확인.** Codex의 보고와 별개로 Claude가 최소 3개를 직접 되돌려 실패를 본다
+  (검증 규율 1).
+- **라운드 상한 3회.** 3회 안에 통과하지 않거나 기대값이 틀렸다고 판단되면 멈추고 사용자에게
+  보고한다. Claude도 기대값을 혼자 고치지 않는다.
+- **브리프의 규칙이 코어 출력의 의미**(필드가 언제 채워지는지 등)에 기대면, 기대값과 마찬가지로
+  넘기기 전에 실제 출력으로 확인한다.
 
 ## 세션 규칙
 
