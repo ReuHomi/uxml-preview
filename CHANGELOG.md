@@ -15,7 +15,7 @@ and the published accuracy figures move. No type is removed and no
 | Base coordinates (Unity 6000.0.40f1) | 660 / 676 | 660 / 676 | unchanged: the three text-measuring cases are excluded from it, and of its 16 mismatches the 9 caused by text are widths and x. `ItemDesc.height` has a fixed height and shrinks for a theme reason (Unity gives Labels `flex-shrink: 0`), so text height cannot reach it |
 | Template cohort (6000.0.40f1) | 200 / 220 | 215 / 220 | text height from FaceInfo removed 14 Label heights and the `y` they pushed |
 | Text cohort (new; Chromium vs Unity 6.3) | — | lines 60/60, height 52/60, width 60/60, boundary 79/80 | see `docs/accuracy.md`; none unexplained |
-| 6.3 re-dump of the golden set | — | 1012 / 1012 equal to 6000.0 | every golden case lays out the same on 6000.3.25f1 |
+| 6.3 re-dump of the golden set | — | 1012 / 1012 equal to a 6000.0 dump of the same day | every golden case lays out the same on 6000.3.25f1. Against the committed 2026-08-12 baselines nine values differ, all the known `inventory` footer 1px |
 
 ### Behavior changes
 
@@ -104,6 +104,26 @@ and the published accuracy figures move. No type is removed and no
 - `pnpm test:text` runs the text cohort in a real Chromium
   (`UXML_TEXT_CHROMIUM`, `UXML_TEXT_FONTS`); it fails, never skips, when it
   cannot run. `playwright-core` is a new devDependency.
+
+### Known
+
+- `-unity-text-generator` is measured and painted, but the registry still
+  marks it `handling: 'none'`, so writing it raises a `not-rendered` warning
+  with `affectsLayout`.
+
+### Playground and documentation
+
+- The playground shows each warning's `reason` as a badge and what its
+  `subject` says — the Unity versions an `unityEffect` was measured on, the
+  missing script, the property to write instead, whether coordinates may
+  differ. New examples: Unity text height and spacing with a fallback-font
+  warning, `aspect-ratio`, and values Unity cannot apply.
+- README split into `README.md` and `README.ko.md`, with absolute links (npm
+  shows the README without `docs/`). Its figures are checked against a live
+  recomputation, as `docs/accuracy.md`'s are.
+- New `docs/api.md` / `docs/api.en.md`; the warning contract moved there from
+  `docs/supported.md`. The Korean and English pages of `supported`,
+  `accuracy` and `uss-vs-css` now carry the same content.
 
 ## 0.5.1 — 2026-10-13
 

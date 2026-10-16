@@ -153,7 +153,9 @@ Supported: type (`Button`), class (`.foo`), name (`#foo`), descendant, child
 
 Pseudo-classes: `:hover`, `:active`, `:inactive`, `:focus`, `:disabled`,
 `:enabled`, `:checked`, `:root`. Not `:selected` — Unity says USS does not
-support it; use `:checked`.
+support it; use `:checked`. **`:enabled` is on for every element that is not
+disabled**, without anyone setting it (measured on 6000.0.40f1 and 6000.3.25f1),
+so a `:enabled` rule reaches far more than it looks like it should.
 
 Not supported: **sibling combinators** (`+`, `~`), `:nth-child`,
 `:first-child` / `:last-child`, `:not()`, `:has()`, attribute selectors,
@@ -190,7 +192,48 @@ almost unchanged:
 ```
 
 One trap: a percentage against a parent with no explicit size does not resolve.
-It is not an error; the element is simply zero-sized.
+It is not an error; the element is simply zero-sized. (This preview resolves the
+main-axis percentage there and draws something Unity would not — a known
+divergence, written up in [Accuracy](accuracy.en.md).)
+
+## Text
+
+USS text is laid out by Unity's text engine, not by CSS's, and the numbers do
+not carry over.
+
+- **There is no `line-height`.** A line is as tall as the font says: for the
+  editor's default font, 20px text is 25px tall per line, and several lines are
+  rounded once as a block.
+- **`letter-spacing` and `word-spacing` are not CSS pixels.** Unity widens each
+  gap by *value × font size / 100*, so `letter-spacing: 10px` at 20px is 2px per
+  gap. The default text generator also leaves no spacing beside a space or after
+  the last character.
+- **Runs of spaces collapse** under `normal` and `nowrap` in Unity 6.3, as in
+  CSS; Unity 6000.0 kept them. `pre` and `pre-wrap` keep them in both. Unlike
+  CSS, `pre` still wraps to the width.
+- **The default font has no Korean, Chinese or Japanese glyphs.** Unity draws
+  them with a fallback font, and the line comes out 1–4px taller than you
+  planned. Set a font with `-unity-font-definition` for any text in those
+  scripts.
+
+All measured in Unity; the details are in [Supported](supported.en.md).
+
+## Values Unity does not read as CSS does
+
+Some values are not merely ignored. On `hsl()` and `cubic-bezier()` Unity's style
+updater fails, and **every element from that one onwards loses its style** —
+earlier siblings keep theirs, which makes the cause hard to find. Two more are
+read as something other than what CSS means.
+
+| Write | Instead of |
+|---|---|
+| `rgb()` / `#hex` | `hsl()` (6.3 stops styling; 6000.0 draws it black) |
+| `ease`, `ease-in-out`, … | `cubic-bezier()` (stops styling on both versions) |
+| `0.5` | `opacity: 50%` (read as 50: fully opaque) |
+| an explicit value | `inherit` (read as transparent) |
+
+This preview draws what you meant and warns, naming the Unity versions measured
+([Supported](supported.en.md#values-unity-cannot-apply)).
 
 ## Animation
 
@@ -242,13 +285,10 @@ The claims above are not from reading documentation. This repository lays out a
 set of cases twice — once in Unity, once in the browser through the same Yoga
 engine UI Toolkit uses — and compares every element's position and size.
 
-Against **Unity 6000.0.40f1**: **660 of 676 coordinates identical**, across 40
-cases and 169 elements. Of the sixteen that differ, ten are font metrics rather
-than a layout defect — both engines shrink the same box the same way and only
-the ruler differs — three are within 1px, two are a known `yoga-layout` version
-difference, and one is unresolved. All sixteen, and the failed attempts to
-reconcile the unresolved one, are written down in
-[`accuracy.en.md`](accuracy.en.md).
+Text is compared the same way, Label by Label, in a real browser against Unity
+6.3. The figures, every difference by name, and the failed attempts to reconcile
+the unresolved one are in [Accuracy](accuracy.en.md) — the one place they are
+kept, so they cannot go stale here.
 
 Geometry rather than screenshots, deliberately: Unity draws text with its own
 font asset and a browser does not, so a pixel comparison over anything
