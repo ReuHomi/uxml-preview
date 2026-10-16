@@ -4,15 +4,15 @@
 
 ## 현재 위치
 
-**0.6.0 릴리스 준비 끝, release/0.6.0 → main PR 대기 (2026-10-16).** 버전 0.6.0, CHANGELOG 날짜 2026-10-16. 브랜치 `release/0.6.0`(push됨, PR·태그·배포 없음).
-npm `latest`는 여전히 `0.5.1`. 기준 Unity 버전 6.3 LTS.
+**0.6.0 배포됨 (2026-10-16).** npm `latest` = `0.6.0`(gitHead `cc3e6cd`, 34파일), 태그 `v0.6.0`(→ `cc3e6cd`),
+놀이터 Pages 배포 완료. 기준 Unity 버전 6.3 LTS.
 
 | | |
 |---|---|
 | 0.6.0 범위 | 묶음 1(진단 계약) · 묶음 2(텍스트·폰트) · `aspect-ratio`. 컨트롤은 0.7.0 |
 | 테스트 | 코어 **859 통과 · 1 건너뜀**(Windows 로컬). `pnpm test:text`(텍스트 코호트 + 페인트 대조 9/9) 통과 |
 | 정확도 | 기본 **660/676** 불변 · 템플릿 **215/220**(0.5.1: 200/220) · 텍스트 코호트(6.3) 줄 60/60, 높이 52/60, 너비 60/60, 경계 79/80 · `aspect-ratio` 52/52(6.3) |
-| 6.3 코호트 | 골든 44케이스 6.3 재덤프가 6000.0과 1012/1012 동일 |
+| 6.3 코호트 | 골든 44케이스 6.3 재덤프가 같은 날 뜬 6000.0 덤프와 1012/1012 동일(커밋된 기준값과는 `inventory` 1px 9개 차이) |
 | 소비자 | 0.6.0 tarball 기준 vscode-uxml-preview main 145/146, uxml-author master 17건 실패(이전 16 + 번들 빌드 스크립트의 설치 안내 0.5.1→0.6.0). 전부 소비자 쪽 갱신(A) |
 | 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` (그 외는 폴백) |
 
@@ -20,9 +20,14 @@ npm `latest`는 여전히 `0.5.1`. 기준 Unity 버전 6.3 LTS.
 
 ## 다음 할 일
 
-0. **0.6.0 머지·태그·npm 배포(사람)** — PR이 열려 있다. 머지하면 Pages가 놀이터를 자동 배포한다(`.github/workflows/pages.yml`). GitHub 소개 문구 반영도 사람 몫 그 뒤 버전 올림·CHANGELOG 초안 확정·태그·배포
-1. **소비자 갱신(소비자 저장소 일)** — `7837b78`에서 uxml-author 16건·vscode 1건 실패, 전부 계약 변경(A). 레이아웃 갭 예시 픽스처를 `-unity-text-auto-size`로 교체
-2. **uxml-author가 `subject.problem`을 읽도록** — 0.6.0을 받을 때. 소비자 저장소 일이다
+0. **GitHub 소개 문구(사람)** — 확정 문안: "Render Unity UI Toolkit UXML/USS in the browser, no Editor needed.
+   Same layout engine as Unity (Yoga), measured against real Unity 6.3 LTS. Differences are reported as warnings,
+   and edits round-trip byte-exact."
+1. **소비자 갱신(소비자 저장소 일)** — 0.6.0 tarball 기준 uxml-author 17건·vscode 1건 실패, 전부 계약 변경(A).
+   uxml-author: `font-fallback` case(지금은 모르는 reason이라 exit 1), `states-key`의 `subject.problem`, aspect-ratio
+   레이아웃 갭 픽스처, 번들 스크립트 설치 안내 버전. vscode: 레이아웃 갭 예시 픽스처를 `-unity-text-auto-size`로.
+   자세한 것은 `docs/backlog.md` 0.7.0 절 "소비자 갱신"
+2. (1에 합침)
 3. **0.7.0 컨트롤 + 테마 선택** — 런타임 테마 기준값은 실제 PanelSettings로 다시 덤프
 4. **0.6.0이 남긴 것** — `docs/backlog.md` 0.6.0 절의 2026-10-16 메모(`unsupported-unit`,
    `background-position-x/-y`, `-unity-font` 단독, 텍스트 외곽선 그리기)
@@ -701,3 +706,20 @@ S1 전체(Step 1~6)를 한 세션에 끝냈다. 커밋 25개, 테스트 228 → 
   재작성, 백업 브랜치 `backup/0.5.1-before-signoff`).
 - (배포) PR #6을 CI 2/2 통과 후 머지(`a095b8e`), 태그 `v0.5.1`, npm `0.5.1`이 `latest`.
   `npm publish`는 2단계 인증 일회용 코드가 필요해 사용자가 직접 실행했다.
+
+## 2026-10-16 — 0.6.0 릴리스
+
+- 범위: 진단 계약(묶음 1) · 텍스트·폰트(묶음 2) · `aspect-ratio`. 컨트롤·테마는 0.7.0.
+- 구현은 Codex(WSL relay), 기대값·검토·변이·커밋은 Claude. 라운드마다 고정 테스트 바이트 비교. 이 릴리스 전체에서
+  고정 테스트 먼저 → 구현 순서를 지켰고, 변이는 라운드마다 3개 이상(대부분 4~9개) 모두 잡혔다. 예외로 한 번 첫 변이가
+  타입 줄을 맞혀 헛돌았고(실제 경고 지점 셋에서 다시 잡음), C1에서 영향 예측이 property sheet 하나를 놓쳤다.
+- 적대적 검증(Grok) 9건을 고치기 전에 전부 Unity에서 재현했다(#9는 설명 요청). 처리 내역은 PR #8 본문.
+- 머지 전 마지막 수정: `font-fallback` reason(A1), `pre-wrap` 공백(A3), `-unity-text-generator` 등록표(C1).
+  내 측정 실수 하나를 정정했다 — "없는 속성 이름에 경고 없음"은 vitest 색 코드 때문에 `grep ^W`가 놓친 것이었다(C2).
+- 사용자 문서 전면 개정: README 영·한·일·중 4종(수치는 `golden.test.ts`가 재계산값과 대조), `docs/api.md` 신설,
+  supported·accuracy·uss-vs-css의 영·한 내용 일치, 역사 문서 배너, GIF·스크린샷 0.6.0으로 재촬영.
+  녹화 중 놀이터 결함(뷰포트보다 큰 패널이 화면 밖으로)을 찾아 고쳤다.
+- 일본어·중국어 README는 사용자가 제공. 정본과 사실 대조(오류 없음), 오해 소지 표현만 교정(PR #9).
+- (배포) PR #8 머지(`553df40`), PR #9 머지(`cc3e6cd`, CI ubuntu·windows 통과). `npm publish --dry-run`으로
+  prepublishOnly(self-reference·typecheck·테스트 859·빌드) 확인 뒤 사용자가 직접 배포. npm `0.6.0`이 `latest`
+  (2026-10-16T10:57:32Z), 태그 `v0.6.0`. Pages 배포 확인(번들에 새 예제·`font-fallback`, 페이지에 `safe center`).
