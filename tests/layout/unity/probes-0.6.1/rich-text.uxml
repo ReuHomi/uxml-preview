@@ -1,0 +1,23 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="plain" class="r" text="Hello World" />
+<ui:Label name="b-def" class="r" text="&lt;b&gt;Hello&lt;/b&gt; World" />
+<ui:Label name="b-true" class="r" enable-rich-text="true" text="&lt;b&gt;Hello&lt;/b&gt; World" />
+<ui:Label name="b-false" class="r" enable-rich-text="false" text="&lt;b&gt;Hello&lt;/b&gt; World" />
+<ui:Label name="b-noparse" class="r" text="&lt;noparse&gt;&lt;b&gt;Hello&lt;/b&gt;&lt;/noparse&gt; World" />
+<ui:Label name="i-def" class="r" text="&lt;i&gt;Hello&lt;/i&gt; World" />
+<ui:Label name="i-false" class="r" enable-rich-text="false" text="&lt;i&gt;Hello&lt;/i&gt; World" />
+<ui:Label name="color-def" class="r" text="&lt;color=#ff0000&gt;Hello&lt;/color&gt; World" />
+<ui:Label name="color-false" class="r" enable-rich-text="false" text="&lt;color=#ff0000&gt;Hello&lt;/color&gt; World" />
+<ui:Label name="size-def" class="r" text="&lt;size=40&gt;Hello&lt;/size&gt; World" />
+<ui:Label name="size-false" class="r" enable-rich-text="false" text="&lt;size=40&gt;Hello&lt;/size&gt; World" />
+<ui:Label name="voffset-def" class="r" text="&lt;voffset=10&gt;Hello&lt;/voffset&gt; World" />
+<ui:Label name="voffset-false" class="r" enable-rich-text="false" text="&lt;voffset=10&gt;Hello&lt;/voffset&gt; World" />
+<ui:Label name="unknown-def" class="r" text="&lt;ruby&gt;Hello&lt;/ruby&gt; World" />
+<ui:Label name="unknown-false" class="r" enable-rich-text="false" text="&lt;ruby&gt;Hello&lt;/ruby&gt; World" />
+<ui:Label name="lt-def" class="r" text="a &lt; b &gt; c" />
+<ui:Label name="br-def" class="r" text="Hello&lt;br&gt;World" />
+<ui:Button name="btn-b-def" class="r" text="&lt;b&gt;Hello&lt;/b&gt; World" />
+<ui:Button name="btn-plain" class="r" text="Hello World" />
+</ui:VisualElement>
+</ui:UXML>

@@ -153,8 +153,17 @@ From 0.6.0 text boxes are measured by Unity's rules. All of it rests on Unity du
   Unity's), or `null`. Details in the [API](api.en.md)
 - **Fallback fonts** — text with no font set that contains Hangul, Han or Kana raises a
   `font-fallback` warning. The default font Inter has none of those glyphs, so Unity draws them
-  with a fallback font, and that box measured 1–4px taller. **Glyphs missing from a font you set
-  are not checked** — the preview does not read a font file's coverage
+  with a fallback font, and that box measured 1–4px taller. For Han and Kana the width differs too:
+  Unity's box was 6–87px narrower (10–32px, Chrome on one PC; the preview's width depends on the
+  device's fallback font). **Glyphs missing from a font you set are not checked** — the preview
+  does not read a font file's coverage
+- **Han and Kana line breaking** — from 0.6.1 lines break between Han and Kana characters (Hangul
+  and Latin at spaces only, measured). Japanese and Chinese in a font you set match Unity in line
+  count, height and width (text cohort). **Kinsoku (not starting a line with `。` and the like) is
+  not measured and not done** — a line count can differ from Unity 6.3's by one
+- **Rich text** — Unity interprets tags such as `<b>` and `<size=…>` by default. The preview draws
+  them as characters and warns on every element with an interpreted tag (not with
+  `enable-rich-text="false"`, where Unity draws them as characters too)
 - Text outlines and shadows are not drawn
 
 The text cohort's figures and failure classes are in [Accuracy](accuracy.en.md).

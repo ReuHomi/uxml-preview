@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="noto-jp-ja-20-w60" class="cohort" text="吾輩は猫である。名前はまだ無い。" style="width: 60px;" />
+<ui:Label name="noto-jp-ja-20-w100" class="cohort" text="吾輩は猫である。名前はまだ無い。" style="width: 100px;" />
+<ui:Label name="noto-jp-ja-20-w140" class="cohort" text="吾輩は猫である。名前はまだ無い。" style="width: 140px;" />
+<ui:Label name="noto-jp-ja-20-w170" class="cohort" text="吾輩は猫である。名前はまだ無い。" style="width: 170px;" />
+<ui:Label name="noto-jp-ja-20-w220" class="cohort" text="吾輩は猫である。名前はまだ無い。" style="width: 220px;" />
+</ui:VisualElement>
+</ui:UXML>

@@ -36,6 +36,9 @@ export function fontList(family?: string): string {
   return family === undefined ? 'sans-serif' : `${JSON.stringify(family)}, sans-serif`;
 }
 
+// USS: Unity breaks between CJK characters, Hangul at spaces only: tests/text-cohort/unity/<version>/wrap-*.json, boundary-noto-*.json.
+const CJK_BREAK = /((?![\uFFA0-\uFFDC])[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\u3000-\u303F\u30FC\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFFEF\u{20000}-\u{3FFFF}])/u;
+
 /**
  * Purpose:      measure text with a canvas when one is available.
  * Deps/Effects: creates one offscreen canvas and reuses it.
@@ -91,8 +94,11 @@ export function createDefaultMeasureText(doc?: Document): MeasureText {
         widest = Math.max(widest, widthOf(paragraph));
         continue;
       }
-      for (const word of paragraph.split(/\s+/).filter((w) => w.length > 0)) {
-        const candidate = current === '' ? word : `${current} ${word}`;
+      const tokens = paragraph.split(/\s+/).filter((w) => w.length > 0).flatMap((word) =>
+        word.split(CJK_BREAK).filter((part) => part.length > 0)
+          .map((value, index) => ({ value, separator: index === 0 ? ' ' : '' })));
+      for (const { value: word, separator } of tokens) {
+        const candidate = current === '' ? word : `${current}${separator}${word}`;
         if (current !== '' && widthOf(candidate) > availableWidth) {
           widest = Math.max(widest, widthOf(current));
           lines++;

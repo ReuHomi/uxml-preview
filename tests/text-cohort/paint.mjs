@@ -14,7 +14,11 @@
  * wrapped text — the painted line count equals the measured one and no painted
  * line is wider than the box + 1px.
  *
- * Deps/Effects: like run.mjs — UXML_TEXT_CHROMIUM, UXML_TEXT_FONTS (Inter-Regular.ttf),
+ * CJK (0.6.1): the measurer breaks between CJK characters; the browser must paint
+ * the same number of lines (the 0.6.0 defect was a one-line box under a painted
+ * paragraph). Cases: the text cohort's wrap set, Noto Sans JP 20px.
+ *
+ * Deps/Effects: like run.mjs — UXML_TEXT_CHROMIUM, UXML_TEXT_FONTS (Inter-Regular.ttf, NotoSansJP-Regular.otf),
  * bundles src/ with Vite in memory. Exits 1 when it cannot run.
  */
 
@@ -30,9 +34,18 @@ const notRun = (why) => {
 const chromiumPath = process.env.UXML_TEXT_CHROMIUM;
 const fontDir = process.env.UXML_TEXT_FONTS;
 if (!chromiumPath || !existsSync(chromiumPath)) notRun('UXML_TEXT_CHROMIUM is not a Chromium executable');
-if (!fontDir || !existsSync(join(fontDir, 'Inter-Regular.ttf'))) notRun('UXML_TEXT_FONTS has no Inter-Regular.ttf');
+for (const file of ['Inter-Regular.ttf', 'NotoSansJP-Regular.otf']) {
+  if (!fontDir || !existsSync(join(fontDir, file))) notRun(`UXML_TEXT_FONTS has no ${file}`);
+}
 
-// [text, font size, letter-spacing, word-spacing, extra USS, wraps]
+// FaceInfo as Unity reports it (tests/text-cohort/unity/<version>/).
+const FONTS = {
+  'Inter-Regular.ttf': { family: 'cohort-inter', face: { pointSize: 90, ascentLine: 87.1875, descentLine: -21.73295 } },
+  'NotoSansJP-Regular.otf': { family: 'cohort-noto-jp', face: { pointSize: 90, ascentLine: 104.4, descentLine: -25.92 } },
+};
+
+// [text, font size, letter-spacing, word-spacing, extra USS, wraps, font file (default Inter)]
+const spec = JSON.parse(readFileSync(join(ROOT, 'tests', 'text-cohort', 'spec.json'), 'utf8'));
 const CASES = [
   ['Hello World Foo', 12, 5, 0, '', false],
   ['Hello World Foo', 20, 5, 0, '', false],
@@ -43,6 +56,8 @@ const CASES = [
   ['a b c d e f g h i j k l m n o p', 14, 8, 0, '-unity-text-generator: standard;', false],
   ['the quick brown fox jumps over the lazy dog again and again and again', 14, 6, 0, 'width: 200px; white-space: normal;', true],
   ['a b c d e f g h i j k l m n o p q r s t u v w x y z', 16, 10, 5, 'width: 150px; white-space: normal;', true],
+  ...spec.wrap.sentences.flatMap((sid) => spec.wrap.widths.map((w) =>
+    [spec.sentences[sid], spec.wrap.size, 0, 0, `width: ${w}px; white-space: normal;`, true, 'NotoSansJP-Regular.otf'])),
 ];
 
 const { chromium } = await import('playwright-core');
@@ -54,26 +69,26 @@ const browser = await chromium.launch({ executablePath: chromiumPath });
 const page = await browser.newPage();
 await page.route('http://paint.test/**', (route) => {
   const path = decodeURIComponent(new URL(route.request().url()).pathname);
-  if (path === '/') return route.fulfill({ contentType: 'text/html', body: '<!doctype html><style>@font-face{font-family:"cohort-inter";src:url("/f/Inter-Regular.ttf")}</style><script src="/core.js"></script>' });
+  if (path === '/') return route.fulfill({ contentType: 'text/html', body: `<!doctype html><style>${Object.entries(FONTS).map(([file, f]) => `@font-face{font-family:"${f.family}";src:url("/f/${file}")}`).join('')}</style><script src="/core.js"></script>` });
   if (path === '/core.js') return route.fulfill({ contentType: 'text/javascript', body: coreJs });
   if (path.startsWith('/f/')) return route.fulfill({ body: readFileSync(join(fontDir, path.slice(3))) });
   return route.fulfill({ status: 404, body: '' });
 });
 await page.goto('http://paint.test/');
-const rows = await page.evaluate(async (cases) => {
-  await document.fonts.load('14px "cohort-inter"');
+const rows = await page.evaluate(async ({ cases, fonts }) => {
+  for (const f of Object.values(fonts)) await document.fonts.load(`14px "${f.family}"`, 'Ag漢あ');
   const core = globalThis.UxmlCore;
   await core.loadLayoutEngine();
-  const face = { pointSize: 90, ascentLine: 87.1875, descentLine: -21.73295 };
   const out = [];
-  for (const [text, fs, ls, ws, extra, wraps] of cases) {
+  for (const [text, fs, ls, ws, extra, wraps, file = 'Inter-Regular.ttf'] of cases) {
+    const { family, face } = fonts[file];
     const host = document.createElement('div');
     document.body.append(host);
     const doc = core.parse(
       `<ui:UXML xmlns:ui="UnityEngine.UIElements"><ui:VisualElement style="align-items: flex-start;"><ui:Label name="t" text="${text}" /></ui:VisualElement></ui:UXML>`,
-      `#t { padding: 0; margin: 0; white-space: nowrap; font-size: ${fs}px; letter-spacing: ${ls}px; word-spacing: ${ws}px; -unity-font-definition: url("project://database/Assets/Fonts/Inter-Regular.ttf"); ${extra} }`,
+      `#t { padding: 0; margin: 0; white-space: nowrap; font-size: ${fs}px; letter-spacing: ${ls}px; word-spacing: ${ws}px; -unity-font-definition: url("project://database/Assets/Fonts/${file}"); ${extra} }`,
     );
-    const r = core.render(doc, host, { size: { width: 800, height: 600 }, resolveFont: () => ({ family: 'cohort-inter', faceInfo: face }) });
+    const r = core.render(doc, host, { size: { width: 800, height: 600 }, resolveFont: () => ({ family, faceInfo: face }) });
     let id;
     const walk = (n) => {
       if (n.attributes.some((a) => a.name === 'name' && a.value === 't')) id = n.id;
@@ -101,16 +116,23 @@ const rows = await page.evaluate(async (cases) => {
     host.remove();
   }
   return out;
-}, CASES);
+}, { cases: CASES, fonts: FONTS });
 await browser.close();
 
+// spec.known wrap rows: the browser does not start a line with ，or 。 either, so it paints
+// Unity 6.3's line count, not the measured one. Held as known; failing once it matches.
+const known = new Set(Object.keys(spec.known ?? {}).map((k) => /^\S+ (.+)-(\w+)-(\d+)-w(\d+)$/.exec(k))
+  .filter((m) => m !== null && m[1] === spec.wrap.font)
+  .map((m) => `${spec.sentences[m[2]]} ${m[4]}`));
 let failed = 0;
 for (const r of rows) {
-  const ok = r.wraps
+  const isKnown = known.has(`${r.text} ${/width: (\d+)px/.exec(r.extra)?.[1]}`);
+  const matches = r.wraps
     ? r.paintedLines === r.measuredLines && r.widest <= r.boxW + 1
     : r.paintedLines === 1 && Math.abs(r.widest - r.boxW) <= 1;
+  const ok = matches !== isKnown;
   if (!ok) failed++;
-  console.log(`${ok ? 'ok  ' : 'FAIL'} ${JSON.stringify(r.text)} ${r.fs}px ls ${r.ls} ws ${r.ws} ${r.extra} box ${r.boxW}x${r.boxH} (${r.measuredLines} lines) painted ${r.widest.toFixed(2)} (${r.paintedLines} lines)`);
+  console.log(`${ok ? (isKnown ? 'know' : 'ok  ') : 'FAIL'} ${JSON.stringify(r.text)} ${r.fs}px ls ${r.ls} ws ${r.ws} ${r.extra} box ${r.boxW}x${r.boxH} (${r.measuredLines} lines) painted ${r.widest.toFixed(2)} (${r.paintedLines} lines)`);
 }
 console.log(`paint vs measure: ${rows.length - failed}/${rows.length}`);
 process.exit(failed === 0 ? 0 : 1);

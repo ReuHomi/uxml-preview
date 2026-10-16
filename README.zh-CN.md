@@ -19,7 +19,7 @@ Yoga 引擎负责布局，并与 Unity 实测结果进行了比对验证。**
 ## 验证方式
 
 - **坐标：** 在包含完整界面在内的 40 个布局用例中，660 / 676 个元素坐标值与 Unity 6000.0.40f1 完全一致。[查看全部差异明细 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md) 在 Unity 6.3（6000.3.25f1）中重新导出这批用例后，所有布局结果均与当天导出的 6000.0.40f1 结果一致。[6.3 重新测量结果 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#unity-63-lts-re-measurement-2026-10-15)
-- **文本：** 在真实浏览器中绘制，并与 Unity 6000.3.25f1 逐个 Label 进行比对——行数 60 / 60、高度 52 / 60、宽度 60 / 60（误差在 1px 或 1% 以内）。所有高度存在差异的用例，均是使用了不含韩文字符的拉丁字体 Inter 来排版韩文或混排文本；此时 Unity 会改用回退字体绘制，而本预览工具会针对该情况发出明确警告。[文本测试集 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#text-cohort-separate-set-measured-2026-10-16)
+- **文本：** 在真实浏览器中绘制，并与 Unity 6000.3.25f1 逐个 Label 进行比对——行数 92 / 92、高度 84 / 92、宽度 92 / 92（误差在 1px 或 1% 以内）。所有高度存在差异的用例，均是使用了不含韩文字符的拉丁字体 Inter 来排版韩文或混排文本；此时 Unity 会改用回退字体绘制，而本预览工具会针对该情况发出明确警告。[文本测试集 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#text-cohort-separate-set-measured-2026-10-16)
 - **Unity 版本：** 基准版本为 Unity 6.3 LTS。某项属性是否属于 USS，依据 Unity 官方属性表（截至 6.6）判定；6.7 在推出 LTS 版本之前暂不支持。[支持范围 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/supported.en.md)
 - **不一致之处会明确报告，绝不静默忽略。** 遇到不支持的控件、属性或值时，工具会返回警告并说明原因；对于已实测的情况，还会一并告知 Unity 的实际处理方式。[警告说明 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/api.en.md#warnings)
 

@@ -1,0 +1,20 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="noto-sc-ja-10" class="cohort" text="吾輩は猫である。名前はまだ無い。" style="font-size: 10px;" />
+<ui:Label name="noto-sc-ja-14" class="cohort" text="吾輩は猫である。名前はまだ無い。" style="font-size: 14px;" />
+<ui:Label name="noto-sc-ja-20" class="cohort" text="吾輩は猫である。名前はまだ無い。" style="font-size: 20px;" />
+<ui:Label name="noto-sc-ja-32" class="cohort" text="吾輩は猫である。名前はまだ無い。" style="font-size: 32px;" />
+<ui:Label name="noto-sc-zh-10" class="cohort" text="天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。" style="font-size: 10px;" />
+<ui:Label name="noto-sc-zh-14" class="cohort" text="天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。" style="font-size: 14px;" />
+<ui:Label name="noto-sc-zh-20" class="cohort" text="天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。" style="font-size: 20px;" />
+<ui:Label name="noto-sc-zh-32" class="cohort" text="天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。" style="font-size: 32px;" />
+<ui:Label name="noto-sc-jamix-10" class="cohort" text="UIツールキットで漢字とかなを表示" style="font-size: 10px;" />
+<ui:Label name="noto-sc-jamix-14" class="cohort" text="UIツールキットで漢字とかなを表示" style="font-size: 14px;" />
+<ui:Label name="noto-sc-jamix-20" class="cohort" text="UIツールキットで漢字とかなを表示" style="font-size: 20px;" />
+<ui:Label name="noto-sc-jamix-32" class="cohort" text="UIツールキットで漢字とかなを表示" style="font-size: 32px;" />
+<ui:Label name="noto-sc-en-10" class="cohort" text="Hamburgefonts Quick" style="font-size: 10px;" />
+<ui:Label name="noto-sc-en-14" class="cohort" text="Hamburgefonts Quick" style="font-size: 14px;" />
+<ui:Label name="noto-sc-en-20" class="cohort" text="Hamburgefonts Quick" style="font-size: 20px;" />
+<ui:Label name="noto-sc-en-32" class="cohort" text="Hamburgefonts Quick" style="font-size: 32px;" />
+</ui:VisualElement>
+</ui:UXML>

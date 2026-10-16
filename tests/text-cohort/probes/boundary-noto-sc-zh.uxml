@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="noto-sc-zh-10-bm2" class="cohort wrap" text="天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。" style="font-size: 10px; width: 199px;" />
+<ui:Label name="noto-sc-zh-10-bp2" class="cohort wrap" text="天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。" style="font-size: 10px; width: 203px;" />
+<ui:Label name="noto-sc-zh-14-bm2" class="cohort wrap" text="天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。" style="font-size: 14px; width: 279px;" />
+<ui:Label name="noto-sc-zh-14-bp2" class="cohort wrap" text="天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。" style="font-size: 14px; width: 283px;" />
+<ui:Label name="noto-sc-zh-20-bm2" class="cohort wrap" text="天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。" style="font-size: 20px; width: 399px;" />
+<ui:Label name="noto-sc-zh-20-bp2" class="cohort wrap" text="天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。" style="font-size: 20px; width: 403px;" />
+<ui:Label name="noto-sc-zh-32-bm2" class="cohort wrap" text="天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。" style="font-size: 32px; width: 639px;" />
+<ui:Label name="noto-sc-zh-32-bp2" class="cohort wrap" text="天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。" style="font-size: 32px; width: 643px;" />
+</ui:VisualElement>
+</ui:UXML>
