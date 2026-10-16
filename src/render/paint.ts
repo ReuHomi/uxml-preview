@@ -1,4 +1,5 @@
-import { fontList } from './measure';
+import { CJK_BREAK, fontList } from './measure';
+import type { Theme } from '../controls/theme';
 import type { FaceInfo } from './measure';
 /**
  * Painting: Yoga rectangles to DOM.
@@ -47,6 +48,7 @@ export interface PaintResult {
 
 export interface PaintOptions extends CssMapOptions {
   document: Document;
+  theme?: Theme;
   fonts?: ReadonlyMap<ComputedStyle, { family: string; faceInfo?: FaceInfo }>;
 }
 
@@ -97,7 +99,7 @@ export function paint(
   // CSS adds letter spacing after spaces and the final character too. Keep
   // inline runs so wrapping still belongs to the browser, and cancel only the
   // gaps Unity's text measurer excludes (advanced is the editor default).
-  function appendText(host: HTMLElement, text: string, style: ComputedStyle): void {
+  function appendSpacedText(host: HTMLElement, text: string, style: ComputedStyle): void {
     const spacing = parseLength(style.get('letter-spacing')?.value ?? '').length;
     if (spacing?.kind !== 'px' || spacing.value === 0) {
       host.textContent = text;
@@ -118,6 +120,33 @@ export function paint(
       span.style.letterSpacing = '0px';
       host.appendChild(span);
     }
+  }
+
+  function appendText(host: HTMLElement, text: string, style: ComputedStyle): void {
+    appendSpacedText(host, text, style);
+    if (options.theme !== 'runtime' || !CJK_BREAK.test(text)) return;
+    // Unity probe-panel/kinsoku.json: runtime allows breaks on either side of
+    // CJK punctuation. Explicit opportunities bypass browser kinsoku; keep-all
+    // preserves the measurer's space-only breaks within Hangul and Latin.
+    // These are painter-only CSS/DOM choices, not supported USS properties.
+    host.style.wordBreak = 'keep-all';
+    const insertBreaks = (parent: Node): void => {
+      for (const child of Array.from(parent.childNodes)) {
+        if (child.nodeType !== 3) {
+          insertBreaks(child);
+          continue;
+        }
+        const pieces = (child.textContent ?? '').split(CJK_BREAK);
+        if (pieces.length === 1) continue;
+        const fragment = options.document.createDocumentFragment();
+        pieces.forEach((piece, index) => {
+          if (index > 0) fragment.appendChild(options.document.createElement('wbr'));
+          fragment.appendChild(options.document.createTextNode(piece));
+        });
+        parent.replaceChild(fragment, child);
+      }
+    };
+    insertBreaks(host);
   }
 
   function build(
@@ -193,13 +222,14 @@ export function paint(
           }
         });
         el.appendChild(content);
-      } else if (letterSpacing?.kind === 'px' && letterSpacing.value !== 0) {
+      } else if ((letterSpacing?.kind === 'px' && letterSpacing.value !== 0)
+        || (options.theme === 'runtime' && CJK_BREAK.test(decoded))) {
         const content = options.document.createElement('span');
         content.style.minWidth = '0';
         appendText(content, decoded, style);
         el.appendChild(content);
       } else {
-        el.textContent = decoded;
+        appendText(el, decoded, style);
       }
     } else {
       // The control's own parts nest between this element and the file's

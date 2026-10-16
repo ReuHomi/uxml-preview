@@ -37,7 +37,7 @@ export function fontList(family?: string): string {
 }
 
 // USS: Unity breaks between CJK characters, Hangul at spaces only: tests/text-cohort/unity/<version>/wrap-*.json, boundary-noto-*.json.
-const CJK_BREAK = /((?![\uFFA0-\uFFDC])[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\u3000-\u303F\u30FC\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFFEF\u{20000}-\u{3FFFF}])/u;
+export const CJK_BREAK = /((?![\uFFA0-\uFFDC])[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\u3000-\u303F\u30FC\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFFEF\u{20000}-\u{3FFFF}])/u;
 
 /**
  * Purpose:      measure text with a canvas when one is available.

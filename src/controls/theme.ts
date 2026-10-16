@@ -1,57 +1,43 @@
 /**
  * Unity's control defaults, as far as we have measured them.
  *
- * Unity ships a theme stylesheet that gives controls their own margin, padding
- * and border before any author USS runs. This renderer supplied none of it, so
- * every Button sat 3px left and 1px high of where Unity puts it — invisible on
- * one button and compounding across a row.
+ * Unity supplies control spacing before author USS runs; omitting it once put
+ * every Button 3px left and 1px high, compounding across a row. Only measured
+ * values live here. Values copied from Unity's source could look just as
+ * authoritative while being wrong without appearing in the unmeasured list.
  *
- * **Only measured values live here.** Every declaration below was derived from
- * a Unity layout dump in tests/golden/unity/, and adding `Button`'s margin
- * moved all five Button cases from 18 mismatched values to zero. Values read
- * from Unity's source instead would look identical in this file while being
- * wrong in a way no test could see: they would not appear in the unmeasured
- * list, so they would quietly pass for ground truth.
+ * There are two measured themes: editor in an EditorWindow on 6000.0.40f1
+ * (tests/layout/unity/6000.0.40f1/probe-editor-070/), runtime on a real runtime
+ * panel on 6000.3.25f1 (tests/layout/unity/6000.3.25f1/probe-panel/), with
+ * identical runtime values on 6000.0.40f1. Geometry comes from coordinate dumps.
+ * `-unity-text-align` came from the Step 6 eye check: a glyph's position inside
+ * its box does not move the box, so 368 matching coordinates could not reveal
+ * that Unity centred Button text while this renderer put it at the top left.
  *
- * Two kinds of measurement feed this file, and the second was a long time
- * coming. Geometry comes from the coordinate dumps. `-unity-text-align` cannot:
- * where a glyph sits inside a box does not move the box, so no dump can ever
- * see it. It came from the Step 6 eye check — Unity centres a Button's label
- * and this renderer had it at the top left, which is visible the moment the two
- * screenshots sit side by side and invisible in 368 compared numbers.
+ * Opacity 0.5 was established by pixel arithmetic: Unity's disabled Drop button
+ * is rgb(41,50,67); its base rgb(58,74,104) composited at half over the footer's
+ * rgb(24,26,31) gives (41,50,67.5). It is measured, not chosen by appearance.
+ * `nested-disabled` now places it on `.unity-disabled`, which Unity adds only
+ * where enabled="false" was written. This replaces the earlier `:disabled`
+ * rule that applied half opacity at every disabled level and dimmed twice.
  *
- * `opacity` on `:disabled` came from the same screenshots, but by sampling
- * pixels rather than looking. Unity's disabled Drop button is rgb(41,50,67);
- * the base colour rgb(58,74,104) composited at half over the footer's
- * rgb(24,26,31) is (41, 50, 67.5) — all three channels exact. That arithmetic
- * is the evidence, and it is why the value is 0.5 and not a number that merely
- * looked about right.
+ * Two wrong turns preceded that result. The author's `Button:disabled` rule
+ * was first blamed for not applying, but `#DropButton` outranks it in both
+ * engines. Then state rules were thought to outrank specificity; `state-vs-id`
+ * and `state-vs-inline` both returned 40 in Unity, refuting that explanation.
+ * The dimming was never a cascade defect.
  *
- * Getting there took two wrong turns worth recording. First the author's
- * `Button:disabled` rule was blamed for not applying — it genuinely does not,
- * because `#DropButton` outranks it, in both engines. Then Unity was accused of
- * ranking state rules above specificity, and `state-vs-id` and `state-vs-inline`
- * refuted that: Unity answers 40 to both, exactly as this cascade already did.
- * The dimming was never about the cascade at all.
+ * Earlier omissions, superseded by c07-existing and c07-states:
+ * - "Label has nothing" described only its measured editor margin; Label and
+ *   Button spacing and flex-shrink are now measured for both themes.
+ * - "Padding, border, font deliberately absent" is superseded by measured
+ *   padding, borders, colours and font size; Label text alignment stays absent.
  *
- * What is deliberately absent, and why:
- *
- *   - `Label` — measured, and it has no default margin. `inherit-vs-direct`
- *     puts an explicitly-sized Label at the origin of a sized parent, and Unity
- *     reports x=0 y=0. Nothing to add is a result, not an omission.
- *   - padding, border, font — invisible to the cases we have. Every compared
- *     element is explicitly sized, and USS is border-box, so padding and border
- *     do not move the outer rectangle. They are unmeasured, so they are not here.
- *   - `Label`'s text alignment — the eye check could not separate it from the
- *     box at this size. Unmeasured, so absent.
- *
- * The class names were a separate claim from the values, and are now measured
- * too. `unity-button` came from Unity's documented `Button.ussClassName`, which
- * the margin dumps said nothing about — they proved the spacing, not the
- * selector delivering it. The golden case `theme-class-hook` was written to
- * settle exactly that, and Unity answered on 2026-08-05: a `.unity-button` rule
- * in author USS reaches a bare `<ui:Button>`, sizing it 120×40 in both engines.
- * The selector below is therefore measured, not assumed.
+ * Class hooks are a separate claim from values: margin dumps proved spacing,
+ * not the selector delivering it. `unity-button` began with the documented
+ * Button.ussClassName; `theme-class-hook` then confirmed on 2026-08-05 that
+ * author `.unity-button` reaches a bare <ui:Button>, sizing it 120×40 in Unity
+ * and this renderer. The hook is measured, not assumed.
  */
 
 export type Theme = 'runtime' | 'editor';
@@ -65,29 +51,83 @@ export const THEME_UNITY_VERSIONS: Readonly<Record<Theme, string>> = {
   runtime: '6000.3.25f1',
 };
 
-/**
- * Editor theme stylesheet.
- * Parsed once and spliced in ahead of author sheets, so an author rule of equal
- * specificity wins on order — which is how a theme stylesheet behaves in Unity.
- *
- * Class selectors rather than type selectors, also for Unity's reasons: a theme
- * rule at `.unity-button` (0,1,0) beats an author's `Button { }` (0,0,1), and
- * that is a real Unity gotcha worth reproducing rather than smoothing over.
- */
-export const THEME_USS: string = `:disabled {
-  opacity: 0.5;
-}
+/** Panel text defaults alone do not announce the theme: no control theme has been applied. */
+export const PANEL_TEXT_DEFAULTS_SELECTOR = 'UXML';
 
+/**
+ * Editor theme stylesheet; kept as the legacy editor-sheet export.
+ * Parsed once and spliced in ahead of author sheets, so equal specificity lets
+ * author rules win on order, as in Unity. Class selectors also preserve Unity's
+ * specificity: `.unity-button` (0,1,0) beats an author `Button {}` (0,0,1).
+ */
+export const THEME_USS: string = `${PANEL_TEXT_DEFAULTS_SELECTOR} {
+  font-size: 12px;
+  color: #d2d2d2;
+}
+.unity-disabled { opacity: 0.5; }
+.unity-label {
+  margin: 0;
+  padding: 0 2px 0 1px;
+  flex-shrink: 0;
+}
 .unity-button {
   margin: 1px 3px;
+  padding: 1px 6px;
+  border-width: 1px;
+  border-radius: 3px;
+  background-color: #585858;
+  color: #eeeeee;
+  border-color: #303030;
+  border-bottom-color: #242424;
   -unity-text-align: middle-center;
+  flex-shrink: 0;
 }
+.unity-button:hover { background-color: #676767; }
+.unity-button:hover:active {
+  background-color: #46607c;
+  border-color: #242424;
+  border-top-color: #0d0d0d;
+}
+.unity-button:focus { border-color: #7baefa; }
 `;
 
-/** Built-in stylesheet for each theme; runtime values arrive in step A2. */
 export const THEME_SHEETS: Readonly<Record<Theme, string>> = {
   editor: THEME_USS,
-  runtime: '',
+  runtime: `${PANEL_TEXT_DEFAULTS_SELECTOR} {
+  font-size: 14px;
+  color: #1b1b1b;
+}
+.unity-disabled { opacity: 0.5; }
+.unity-label {
+  margin: 4px 4px 2px 2px;
+  padding: 4px 2px 4px 1px;
+  flex-shrink: 0;
+}
+.unity-button {
+  margin: 2px 4px;
+  padding: 10px 12px;
+  border-width: 1px;
+  border-radius: 0;
+  background-color: #bcbcbc;
+  color: #1b1b1b;
+  border-color: #959595;
+  -unity-text-align: middle-center;
+  flex-shrink: 0;
+}
+.unity-button:hover {
+  background-color: #d1d1d1;
+  border-color: #808080;
+}
+.unity-button:hover:active {
+  background-color: #959595;
+  border-color: #646464;
+}
+.unity-button:focus { border-color: #006aa6; }
+.unity-button:disabled {
+  background-color: #959595;
+  border-color: #7e7e7e;
+}
+`,
 };
 
 /**
@@ -103,24 +143,12 @@ export const THEME_SHEETS: Readonly<Record<Theme, string>> = {
  * which on a real screen is most of them. Read it through
  * `verticalScrollbarWidth`, never as a bare constant.
  */
-// Runtime deliberately retains editor geometry until step A2 supplies its measurement.
-const VERTICAL_SCROLLBAR_PX: Readonly<Record<Theme, number>> = { editor: 13, runtime: 13 };
+// scrollview-overflowing: editor viewport 187/200px, runtime viewport 176/200px.
+const VERTICAL_SCROLLBAR_PX: Readonly<Record<Theme, number>> = { editor: 13, runtime: 24 };
 
-/**
- * **Unmeasured, and reachable: nested disabled elements.**
- *
- * `enabled="false"` puts a whole subtree into `:disabled` — measured, by
- * `disabled-inherits`. The rule above therefore hands every level its own
- * `opacity: 0.5`, and CSS multiplies them, so a disabled button inside a
- * disabled panel comes out at a quarter. Unity almost certainly dims once.
- *
- * Not guessed at, because the fix has a choice inside it — dim only where
- * `enabled="false"` was written, or suppress the inherited one — and picking
- * without evidence is how the `.unity-button` selector became a hypothesis
- * nobody noticed for a day. Opacity leaves no trace in a coordinate dump, so
- * settling it needs a screenshot of a nested case. Recorded in
- * `docs/backlog.md` and visible in `visual-nested-disabled`.
- */
+// nested-disabled.json (both themes/versions): only the element with its own
+// enabled="false" carries unity-disabled and opacity 0.5. Descendants retain
+// :disabled for control colours, but resolve opacity 1 unless disabled directly.
 
 /**
  * Purpose:      how much width a vertical scrollbar claims, given whether it shows.

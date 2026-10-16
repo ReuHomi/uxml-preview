@@ -39,6 +39,18 @@ function tryByName(node: ElementNode, name: string): ElementNode | null {
   return null;
 }
 
+/**
+ * The value an author's USS gave, or undefined. Since 0.7.0 the built-in theme gives
+ * every element a text colour (Unity resolves one on every element: probe-editor-070,
+ * probe-panel), so "nothing set it" is told apart by provenance, not by absence.
+ */
+function authored(d: UxmlDocument, name: string, property: string, options?: Parameters<typeof resolveStyles>[1]): string | undefined {
+  const v = resolveStyles(d, options).styles.get(byName(d.root, name).id)?.get(property);
+  let origin = v?.origin;
+  while (origin?.kind === 'inherited') origin = origin.origin;
+  return origin?.kind === 'builtin-theme' ? undefined : v?.value;
+}
+
 function value(d: UxmlDocument, name: string, property: string): string | undefined {
   return resolveStyles(d).styles.get(byName(d.root, name).id)?.get(property)?.value;
 }
@@ -54,9 +66,12 @@ describe('which elements the defaults reach', () => {
 
   // Measured, not assumed: `inherit-vs-direct` puts an explicitly-sized Label at
   // the origin of a sized parent and Unity reports x=0, y=0.
-  it('gives Label nothing, because Unity gives Label nothing', () => {
+  // Margin 0 in Unity's editor theme: golden/inherit-vs-direct (Label at x=0 y=0) and
+  // 6000.0.40f1/probe-editor-070/c07-existing.json col/label marginLeft 0. Since 0.7.0 the
+  // theme writes it (with the measured padding), so the value is present and 0.
+  it('gives Label no margin, because Unity gives Label none', () => {
     const d = doc('<ui:Label name="l" text="hi" />');
-    expect(value(d, 'l', 'margin-left')).toBeUndefined();
+    expect(parseFloat(value(d, 'l', 'margin-left') ?? '0')).toBe(0);
   });
 
   it('gives VisualElement nothing', () => {
@@ -111,13 +126,13 @@ describe('where the defaults sit in the cascade', () => {
 
   it('does not put the implicit class on a control that has no renderer', () => {
     const d = doc('<ui:Foldout name="s" />', '.unity-button { color: red; }');
-    expect(value(d, 's', 'color')).toBeUndefined();
+    expect(authored(d, 's', 'color')).toBeUndefined();
   });
 
   it('gives Image its own class, and not another control class', () => {
     const d = doc('<ui:Image name="i" />', '.unity-image { color: red; }');
     expect(value(d, 'i', 'color')).toBe('red');
-    expect(value(doc('<ui:Image name="i" />', '.unity-button { color: red; }'), 'i', 'color'))
+    expect(authored(doc('<ui:Image name="i" />', '.unity-button { color: red; }'), 'i', 'color'))
       .toBeUndefined();
   });
 });

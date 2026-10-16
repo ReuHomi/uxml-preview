@@ -1,9 +1,9 @@
 /**
  * Differences from Unity that measurement has confirmed and that fixing the
- * renderer cannot close. `docs/accuracy.md` describes 16 divergent values;
+ * renderer cannot close. `docs/accuracy.md` describes 14 divergent values;
  * all but one class of them are listed below.
  *
- * The 1px cases (3 values) are excluded on purpose: they sit inside the
+ * The 1px cases (2 values) are excluded on purpose: they sit inside the
  * golden tests' own 0.5px-tighter-than-plan tolerance. That is a test
  * judgement parameter, not a rendering limitation — listing it here would
  * tell a host to worry about a difference the renderer did not actually make.
@@ -42,7 +42,7 @@ export const KNOWN_DIVERGENCES: readonly KnownDivergence[] = [
     detail:
       'A browser measures text with its own font stack; Unity measures with its ' +
       "font asset. Both engines apply the same layout rule, so this is not a " +
-      "layout defect — it is measured in docs/accuracy.md at 10 of 16 known " +
+      "layout defect — it is measured in docs/accuracy.md at 9 of 14 known " +
       'divergent values, all traced to this one cause.',
   },
   {

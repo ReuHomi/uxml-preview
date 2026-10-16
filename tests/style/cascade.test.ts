@@ -35,6 +35,18 @@ function value(d: UxmlDocument, name: string, property: string): string | undefi
   return resolveStyles(d).styles.get(node.id)?.get(property)?.value;
 }
 
+/**
+ * The value an author's USS gave, or undefined. Since 0.7.0 the built-in theme gives
+ * every element a text colour (Unity resolves one on every element: probe-editor-070,
+ * probe-panel), so "nothing set it" is told apart by provenance, not by absence.
+ */
+function authored(d: UxmlDocument, name: string, property: string, options?: Parameters<typeof resolveStyles>[1]): string | undefined {
+  const v = resolveStyles(d, options).styles.get(byName(d.root, name).id)?.get(property);
+  let origin = v?.origin;
+  while (origin?.kind === 'inherited') origin = origin.origin;
+  return origin?.kind === 'builtin-theme' ? undefined : v?.value;
+}
+
 const ONE = '<ui:Label name="a" class="x y" text="t" />';
 
 describe('specificity', () => {
@@ -154,7 +166,7 @@ describe('selector kinds', () => {
     '</ui:VisualElement>';
 
   it('matches a child combinator only one level down', () => {
-    expect(value(doc(tree, '.panel > .t { color: red; }'), 'deep', 'color')).toBeUndefined();
+    expect(authored(doc(tree, '.panel > .t { color: red; }'), 'deep', 'color')).toBeUndefined();
   });
 
   it('matches a child combinator at the right level', () => {
@@ -174,7 +186,7 @@ describe('selector kinds', () => {
   });
 
   it('is case-sensitive on type selectors', () => {
-    expect(value(doc(ONE, 'label { color: red; }'), 'a', 'color')).toBeUndefined();
+    expect(authored(doc(ONE, 'label { color: red; }'), 'a', 'color')).toBeUndefined();
   });
 
   it('matches a name selector against the name attribute, not an id', () => {
@@ -190,7 +202,8 @@ describe('unsupported selectors', () => {
   });
 
   it('warn once, naming the fragment', () => {
-    const { warnings } = resolveStyles(d);
+    // A Label also gets the theme's version note (0.7.0: the theme now reaches Label); count the selector warnings.
+    const warnings = resolveStyles(d).warnings.filter((w) => w.kind === 'unsupported-selector');
     expect(warnings).toHaveLength(1);
     expect(warnings[0]!.kind).toBe('unsupported-selector');
     expect(warnings[0]!.message).toContain(':nth-child(2)');
@@ -288,13 +301,13 @@ describe('custom properties', () => {
 
   it('drop the declaration when nothing can satisfy it', () => {
     const d = doc(ONE, '.x { color: var(--nope); }');
-    expect(value(d, 'a', 'color')).toBeUndefined();
+    expect(authored(d, 'a', 'color')).toBeUndefined();
     expect(resolveStyles(d).warnings.some((w) => w.message.includes('var()'))).toBe(true);
   });
 
   it('survive a reference cycle instead of hanging', () => {
     const d = doc(ONE, '.x { --a: var(--b); --b: var(--a); color: var(--a); }');
-    expect(value(d, 'a', 'color')).toBeUndefined();
+    expect(authored(d, 'a', 'color')).toBeUndefined();
   });
 
   it('resolves a var() nested inside a fallback', () => {

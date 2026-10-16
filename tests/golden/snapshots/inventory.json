@@ -169,7 +169,7 @@
     "DetailPanel": {
       "x": 8,
       "y": 220,
-      "width": 299,
+      "width": 300,
       "height": 72
     },
     "ItemName": {
@@ -180,24 +180,24 @@
     },
     "ItemDesc": {
       "x": 8,
-      "y": 239,
+      "y": 240,
       "width": 292,
-      "height": 54
+      "height": 56
     },
     "ActionBar": {
-      "x": 307,
+      "x": 308,
       "y": 220,
-      "width": 85,
+      "width": 84,
       "height": 72
     },
     "UseButton": {
-      "x": 307,
+      "x": 308,
       "y": 220,
       "width": 85,
       "height": 30
     },
     "DropButton": {
-      "x": 307,
+      "x": 308,
       "y": 256,
       "width": 85,
       "height": 30

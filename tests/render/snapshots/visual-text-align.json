@@ -3,21 +3,35 @@
     "visual-text-align-upper-left": {
       "align-items": "flex-start",
       "box-sizing": "border-box",
+      "color": "rgb(210, 210, 210)",
       "display": "flex",
-      "justify-content": "flex-start"
+      "font-size": "12px",
+      "justify-content": "flex-start",
+      "padding-left": "1px",
+      "padding-right": "2px"
     },
     "visual-text-align-middle-center": {
       "align-items": "center",
       "box-sizing": "border-box",
+      "color": "rgb(210, 210, 210)",
       "display": "flex",
-      "justify-content": "center"
+      "font-size": "12px",
+      "justify-content": "center",
+      "padding-left": "1px",
+      "padding-right": "2px"
     },
     "visual-text-align-lower-right": {
       "align-items": "flex-end",
       "box-sizing": "border-box",
+      "color": "rgb(210, 210, 210)",
       "display": "flex",
-      "justify-content": "flex-end"
+      "font-size": "12px",
+      "justify-content": "flex-end",
+      "padding-left": "1px",
+      "padding-right": "2px"
     }
   },
-  "warnings": []
+  "warnings": [
+    "version-dependent: Built-in control defaults applied, as measured on Unity 6000.0.40f1"
+  ]
 }

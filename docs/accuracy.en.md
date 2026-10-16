@@ -10,8 +10,8 @@ did that at 0.1.0, but it is now a record frozen at that time.
 
 | Number | Meaning | Use |
 |---|---|---|
-| **660 / 676 (97.6%)** | Values matching, of the values compared (169 elements × `x`/`y`/`w`/`h`) | **the one number quoted outside** |
-| 38 / 40 | Cases matching completely | internal. Quote it only together with 660/676 |
+| **662 / 676 (97.9%)** | Values matching, of the values compared (169 elements × `x`/`y`/`w`/`h`) | **the one number quoted outside** |
+| 38 / 40 | Cases matching completely | internal. Quote it only together with 662/676 |
 | 41 / 41 | Cases with Unity ground truth available | **coverage, not accuracy.** Never quoted outside |
 
 31/31 was once quoted as accuracy (`docs/visual-check.md`, 2026-08-06) — the same mistake
@@ -34,17 +34,17 @@ figures against `tests/text-cohort/results.json`).
 | Unity ground truth available | **41 / 41** |
 | Elements compared | 169 (676 values = elements × x/y/width/height) |
 | **Cases matching** | **38 / 40** |
-| **Values matching** | **660 / 676 (97.6%)** |
-| Known divergences | 16 values — **and they are four different things** |
+| **Values matching** | **662 / 676 (97.9%)** |
+| Known divergences | 14 values — **and they are four different things** |
 
 `resource-resolution` measures Unity's resolved background object and asset path, not
-coordinate accuracy. It counts toward baseline coverage but not the 660/676 matching values or
+coordinate accuracy. It counts toward baseline coverage but not the 662/676 matching values or
 the 38/40 coordinate cases.
 
 ## Template / Instance expansion (separate cohort, measured on Unity 6000.0.40f1)
 
 The base-control and template-expansion cohorts answer different questions and are never added
-together. The base figure stays **660 / 676 (169 elements, as of v0.4.0)**.
+together. The base figure stays **662 / 676 (169 elements, with the 0.7.0 editor theme values)**.
 
 | Item | Template expansion cohort | Meaning |
 |---|---:|---|
@@ -70,11 +70,11 @@ nor a match between empty boxes, is added to accuracy.
 
 | Case | Element | Axis | ours | Unity | Δ |
 |---|---|---|---:|---:|---:|
-| `G3-4` | `g34-instance` | width | 140 | 145 | -5 |
-| `G3-4` | `g34-template-root` | width | 140 | 145 | -5 |
-| `G3-4` | `g34-internal-label` | width | 140 | 145 | -5 |
-| `G3-4` | `g34-outside-label` | x | 140 | 145 | -5 |
-| `G3-4` | `g34-outside-label` | width | 150 | 140 | 10 |
+| `G3-4` | `g34-instance` | width | 143 | 145 | -2 |
+| `G3-4` | `g34-template-root` | width | 143 | 145 | -2 |
+| `G3-4` | `g34-internal-label` | width | 143 | 145 | -2 |
+| `G3-4` | `g34-outside-label` | x | 143 | 145 | -2 |
+| `G3-4` | `g34-outside-label` | width | 153 | 140 | 13 |
 
 The classification is **(a) 5 / (b) 0 / (c) 0**, with axes `width` 4, `x` 1. In 0.6.0 the
 harness's text height moved from `height = fontSize` to the FaceInfo formula (`textHeight`, D3),
@@ -85,27 +85,26 @@ em).
 Tolerance 0.5px. **Kept deliberately stricter than the 1px criterion 2 allows** — loosening it
 would hide a real 1px error in another case.
 
-### What the 16 divergences are — this distinction matters more than the number
+### What the 14 divergences are — this distinction matters more than the number
 
 | Kind | Values | What it means |
 |---|---|---|
 | **Text metrics** | **9** | **Not a layout defect.** Both engines behave the same way; only the ruler differs. All widths and x |
-| Missing theme value (reclassified 2026-10-16) | 1 | `ItemDesc.height`: a fixed 56px Label shrinks, because Unity's editor theme gives Labels `flex-shrink: 0` and this preview's theme does not. Adding only that value was checked to make `ItemDesc.height` and `y` match Unity. Not fixed in 0.6.0 |
-| 1px (inside criterion 2's tolerance) | 3 | named in a list; the comparator is not loosened |
+| 1px (inside criterion 2's tolerance) | 2 | named in a list; the comparator is not loosened |
 | `yoga-layout` version difference | 2 | judged and recorded 2026-08-02 |
 | **Unresolved** | **1** | a wrapped container's height. Unity's rule is not identified |
 
 The evidence for the nine text ones: the representative screen's footer is a fixed width
 holding a flexible panel beside a 96px ActionBar, and the boundary between them is pushed by the
 labels' min-content width. **Both engines** compress the ActionBar — Unity to 93, this renderer
-to 85 — and pinning the label widths makes our excess **converge on the same 3px Unity has.**
+to 84 — and pinning the label widths makes our excess **converge on the same 3px Unity has.**
 Same mechanism, different ruler. A browser cannot measure Unity's font asset, which is the fact
 that made pixel diffing useless, **showing up in coordinates instead of colours**.
 
 > The previous figure was 242/244 (99.2%). **The ratio fell because the case set widened, not
 > because accuracy did** — then, 17 of 18 cases were `VisualElement` alone and no `Button` had
-> ever been compared. Now a text-heavy working screen is in there, and 9 of the 16 divergences
-> are fonts (first counted as 10; `ItemDesc.height` turned out to be a theme value, 2026-10-16).
+> ever been compared. Now a text-heavy working screen is in there, and 9 of the 14 divergences
+> are fonts (first counted as 10; `ItemDesc.height` was a theme value, and 0.7.0's Label `flex-shrink: 0` made both `ItemDesc` values match).
 > **Move the case composition along with the number whenever you compare it.**
 
 > Across six re-measurements every pre-existing case reproduced **byte for byte** (at 20, 26, 27,
@@ -191,7 +190,7 @@ The drift guard in `tests/golden/golden.test.ts` keeps this table's five numbers
 
 ### What this number covers — important
 
-**The 97.6% is measured at the coordinates Yoga produces.** The pipeline has four layers (parse
+**The 97.9% is measured at the coordinates Yoga produces.** The pipeline has four layers (parse
 → resolve styles → Yoga layout → DOM paint), and the comparison with Unity is of the third
 layer's output. Whether the DOM actually drawn on screen reproduces those coordinates is **not
 compared with Unity.**
@@ -242,7 +241,7 @@ golden cases were dumped again on 6000.3.25f1 to check whether the two versions 
 
 ## Text cohort (separate set, measured 2026-10-16)
 
-**Never added** to the coordinate figure (660/676) or the template cohort. Text is judged by its
+**Never added** to the coordinate figure (662/676) or the template cohort. Text is judged by its
 boxes and line counts, not by pixels or bytes. The same UXML (`tests/text-cohort/probes/`) is drawn
 by Unity and by a real Chromium, and the Label boxes compared. Run it with `pnpm test:text`
 (`tests/text-cohort/README.md`).

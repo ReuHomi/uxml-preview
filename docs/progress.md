@@ -170,8 +170,36 @@
 | 2026-10-16 | 0.7.0 런타임 측정은 Play 모드의 실제 PanelSettings로 | 0.6.0 `probe-runtime`은 에디터 창에 테마 시트만 바꿔 끼운 것이라 패널 기본값(글자 설정 등)이 다르다. 실제로 금칙이 패널마다 달랐다 |
 | 2026-10-16 | 0.7.0 상호작용은 "상태별 모습만" 권고 | UI Builder Preview는 조작을 지원하지만, 글자 입력(한글 조합)·끌기는 측정 규율로 검증할 수단이 없고 CLI·스킬 소비자는 쓸 수 없다. 사람 결정 대기 |
 
+| 2026-10-17 | 0.7.0 런타임 골든은 PanelDump로, 검증을 거쳐서 | PanelDump를 에디터 테마로 돌려 UxmlLayoutDump와 두 버전 모두 1012/1012 일치. 검증 중 스타일시트 미정리 결함을 찾아 고쳤고 다시 뜬 probe-panel은 전부 같았다. 그래서 probe-panel 값을 기대값으로 쓴다 |
+| 2026-10-17 | 테마 기본 글자색·크기를 스타일 맵에 넣는다(묶음 A 첫 번째 안) | Unity는 모든 요소에 색을 낸다(probe-editor-070·probe-panel). "작성자가 정하지 않았다"는 값의 부재가 아니라 출처(`builtin-theme`)로 판별한다. 고정 테스트 theme-values를 바꾸는 둘째 안은 택하지 않음(사람 결정) |
+| 2026-10-17 | 비활성 투명도는 `.unity-disabled`에만 | Unity가 `enabled="false"`를 쓴 요소에만 클래스를 붙이고 그 요소만 0.5(nested-disabled, 두 테마·두 버전). `states`로 강제한 `disabled`도 그 요소에 클래스를 준다 — [추론] SetEnabled(false)와 같은 요청으로 보고 0.6.x 동작을 지킴 |
+| 2026-10-17 | 영향 예측은 값을 읽는 모든 테스트 대상(CLAUDE.md 검증 규율 5) | 0.6.0(이름 검색만 하고 전체 루프를 놓침)과 0.7.0 A2(골든만 보고 단위 테스트 12개를 놓침) 두 번 빗나갔다 |
 
 ## 세션 로그
+
+### 2026-10-17 (01:20 — 0.7.0 묶음 A: A0·A1·A2)
+- A0: `PanelDump`에 `-panelSize`·`-panelSkin editor`·케이스별 스타일시트 비우기. 골든 44케이스 에디터 테마 덤프가 UxmlLayoutDump와 1012/1012(두 버전). `tools/panel-to-golden.mjs`, `tests/golden/panel-dump.ts`·`panel-dump.test.ts`, 런타임 골든 `tests/golden/unity-runtime/`(6.3). 기준선 런타임 609/676. 런타임 세로 스크롤바 24px 발견
+- A1: `RenderOptions.theme`·`RenderResult.theme`·`ResolveOptions.theme`·`LayoutOptions.theme`(기본 `'editor'`), 모르는 값은 `malformed`/`invalid-value`. Codex 2라운드(1라운드는 브리프가 내부 export 모양을 바꾸라 해서 기존 테스트 1개를 깸)
+- A2: 두 테마 값(`src/controls/theme.ts` `THEME_SHEETS`), `unity-disabled`, Label·Button `flex-shrink: 0`, 런타임 스크롤바 24, 런타임 테마의 CJK `<wbr>`+`keep-all`(금칙 없음). Codex 3라운드(3라운드: `states`로 강제한 disabled가 더는 흐려지지 않던 결함 — 스냅숏 검토에서 발견). 에디터 좌표 660 → **662/676**(`ItemDesc` y·height, 예측대로), 불일치 16 → 14. paint 39/39(런타임 행은 known 없이 통과). 전체 896 통과
+- 예측이 빗나감: 골든만 보고 단위 테스트를 놓쳤다. 고정이 아닌 기존 단언 12개를 사람 승인 아래 바꿨다. 근거:
+
+| # | 테스트 | 옛 기대값과 그 출처 | 새 기대값과 그 출처(덤프 경로·키) | 바뀐 이유 |
+|---|---|---|---|---|
+| 1 | `style/cascade` 자식 결합자는 한 단계만 | `color` 값 없음(undefined). [추론] "아무 규칙도 색을 정하지 않으면 값이 없다" — 미리보기에 기본 글자색이 없던 시절의 전제 | 작성자 출처의 `color` 없음. 테마 색은 있으나 출처가 `inherited`→`builtin-theme`(selector `UXML`)로 구별된다. Unity는 모든 요소에 색을 낸다: `6000.0.40f1/probe-editor-070/c07-existing.json` `col/ve` `color` rgba(0.824,…) | 테마 기본 글자색이 스타일 맵에 들어감(사람 결정: 첫 번째 안). 표지 속성은 그대로, 출처로 판별 |
+| 2 | `style/cascade` 타입 셀렉터 대소문자 | 같음 | 같음 | 같음 |
+| 3 | `style/cascade` 만족할 수 없는 `var()` 선언은 버림 | 같음 | 같음 | 같음 |
+| 4 | `style/cascade` `var()` 순환 | 같음 | 같음 | 같음 |
+| 5 | `style/states` 조상의 상태는 조상에서 읽는다(둘째 단언) | 같음 | 같음 | 같음 |
+| 6 | `style/theme` 렌더러 없는 컨트롤엔 암묵 클래스 없음 | 같음 | 같음 | 같음 |
+| 7 | `style/theme` Image는 자기 클래스만(둘째 단언) | 같음 | 같음 | 같음 |
+| 8 | `style/cascade` 미지원 셀렉터 경고는 한 번 | 경고 전체가 1개. [추론] Label에는 테마 값이 없다는 전제(옛 `theme.ts` 머리말 "padding, border, font — unmeasured, so not here") | `unsupported-selector` 경고가 1개. 늘어난 것은 `version-dependent` "Built-in control defaults applied, as measured on Unity 6000.0.40f1". Label 테마 값: `probe-editor-070/c07-existing.json` `col/label` `paddingLeft` 1 `paddingRight` 2 `flexShrink` 0 | 테마가 Label에 닿는다. 경고는 "이 값은 특정 Unity 버전의 측정값"이라는 뜻이고, Unity에서도 Label은 같은 테마 값을 받으므로 맞는 경고다 |
+| 9 | `style/theme` Label에는 바깥 여백이 없다 | `margin-left` 값 없음. [확인] `tests/golden/unity/inherit-vs-direct.json`(UxmlLayoutDump, 에디터): 크기를 준 Label이 x 0 y 0 | `margin-left`가 0(테마가 명시). `probe-editor-070/c07-existing.json` `col/label` `marginLeft` 0 | 두 덤프는 다르지 않다(둘 다 0). 테마 시트가 측정된 안쪽 여백과 함께 margin 0을 적어서 "값 없음"이 "0"이 됐다. 테스트 제목의 "Label에는 아무것도 없다"는 거짓이 되어 "바깥 여백이 없다"로 고침 |
+| 10 | `layout` Label 교차축 크기는 측정값 | 폭 20. [추론] 스텁 측정(반 em × 4자 × 10px)에 Label 안쪽 여백이 없다는 전제(미측정이라 넣지 않았던 값) | 폭 23(20 + 1 + 2). `probe-editor-070/c07-existing.json` `free/label-auto` `paddingLeft` 1 `paddingRight` 2, 상자 w 91 = measured 88 + 3 | 측정된 Label 안쪽 여백 |
+| 11 | `render` Button은 잎으로 측정 | 높이 10. [추론] 스텁 높이에 안쪽 여백·테두리가 없다는 전제 | 높이 14(10 + 1 + 1 + 1 + 1). `probe-editor-070/c07-existing.json` `free/button-auto` `paddingTop`/`Bottom` 1, `borderTopWidth` 1, 상자 h 19 = measured 15 + 4 | 측정된 Button 안쪽 여백·테두리 |
+| 12 | `template/golden` 템플릿 차이 목록 | G3-4 폭·x 140 대 Unity 145(-5) 4값, `g34-outside-label` 폭 150 대 140(+10). 출처: 하네스 고정 측정(반 em) 대 `tests/template/unity/G3-4.json` | 143(-2) 4값, 153(+13) 1값. 수치 215/220 그대로 | Label 안쪽 여백 +3(`probe-editor-070/c07-existing`). 4값은 Unity 쪽으로, `g34-outside-label` 폭 1값은 반대쪽으로 갔다 — 고정 측정기의 글자 폭 과대(원래 틀리던 값)에 실제 여백이 더해진 것 |
+
+- 스냅숏 25개 재생성: 상자 변화는 골든 3케이스뿐이고 Unity 쪽으로 움직였거나(`button-sizes-to-text` 높이 29 일치, `ItemDesc` 일치, `text-size` 90→93 대 92) 원래 틀리던 글자 폭(`inventory` 경계 4값). 색 47개는 모두 새로 생긴 값(작성자 색 변경 없음). 투명도는 `visual-nested-disabled` 안쪽 0.5→없음(측정대로)
+- 변이: A0 3/4(남은 하나는 동치), A1 3/3, A2 7/7(Label 여백·`flex-shrink`·비활성 규칙·런타임 글자 크기·스크롤바·`<wbr>`·강제 비활성)
 
 ### 2026-10-16 (23:07 추가 — 0.6.1 패치 · 0.7.0 측정·설계)
 - 0번: README 수치 테스트는 이미 영·한·일·중 네 파일을 읽고 있었다. 변이 6개(ja·zh 각각 좌표·높이 숫자, 상단 상호 링크) 전부 실패로 잡힘. 테스트 제목만 고침(`d9948aa`). 번역문의 숫자 오류 없음

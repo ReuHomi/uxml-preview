@@ -37,6 +37,18 @@ function tryByName(node: ElementNode, name: string): ElementNode | null {
   return null;
 }
 
+/**
+ * The value an author's USS gave, or undefined. Since 0.7.0 the built-in theme gives
+ * every element a text colour (Unity resolves one on every element: probe-editor-070,
+ * probe-panel), so "nothing set it" is told apart by provenance, not by absence.
+ */
+function authored(d: UxmlDocument, name: string, property: string, options?: Parameters<typeof resolveStyles>[1]): string | undefined {
+  const v = resolveStyles(d, options).styles.get(byName(d.root, name).id)?.get(property);
+  let origin = v?.origin;
+  while (origin?.kind === 'inherited') origin = origin.origin;
+  return origin?.kind === 'builtin-theme' ? undefined : v?.value;
+}
+
 function value(
   d: UxmlDocument,
   name: string,
@@ -113,7 +125,7 @@ describe('states on an ancestor', () => {
     );
     expect(value(d, 'text', 'color', { states: { '#panel': ['hover'] } })).toBe('red');
     // Putting the state on the descendant must not satisfy an ancestor's :hover.
-    expect(value(d, 'text', 'color', { states: { '#text': ['hover'] } })).toBeUndefined();
+    expect(authored(d, 'text', 'color', { states: { '#text': ['hover'] } })).toBeUndefined();
   });
 });
 

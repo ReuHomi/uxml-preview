@@ -169,12 +169,14 @@ export function isRoot(node: ElementNode): boolean {
 
 /**
  * Purpose:      the USS classes Unity would have added to this element.
- * Ensures:      empty for anything with no renderer of its own — a fallback box
- *               must not pick up theme styling meant for a control we do not
- *               actually draw.
+ * Ensures:      control classes and own disabled class remain outside the model.
  */
 export function implicitClassesOf(node: ElementNode): readonly string[] {
-  return resolveControl(node).spec.classes;
+  const classes = resolveControl(node).spec.classes;
+  // Unity nested-disabled.json, both panel/editor probes: inherited disabled
+  // state does not add this class, so opacity is applied only at explicit sites.
+  return node.attributes.some((a) => a.name === 'enabled' && a.value === 'false')
+    ? [...classes, 'unity-disabled'] : classes;
 }
 
 /** Controls with a renderer of their own. Everything else still draws. */

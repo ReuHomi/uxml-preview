@@ -187,7 +187,9 @@ describe('text', () => {
       '#a { font-size: 10px; align-self: flex-start; }',
       'a',
     );
-    expect(b.width).toBe(20);
+    // 20 measured + the theme's Label padding 1 + 2 (6000.0.40f1/probe-editor-070/c07-existing.json
+    // free/label-auto: measured 88, box 91).
+    expect(b.width).toBe(23);
   });
 
   it('uses the inherited font size', () => {

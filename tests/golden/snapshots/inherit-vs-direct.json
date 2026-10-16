@@ -17,5 +17,7 @@
       "height": 50
     }
   },
-  "warnings": []
+  "warnings": [
+    "version-dependent: Built-in control defaults applied, as measured on Unity 6000.0.40f1"
+  ]
 }

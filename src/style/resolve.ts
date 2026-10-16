@@ -29,7 +29,7 @@ import type {
 } from '../model/types';
 import { implicitClassesOf, resolveControl, supportedControlNames } from '../controls/registry';
 import type { Theme } from '../controls/theme';
-import { THEME_UNITY_VERSIONS, THEME_SHEETS } from '../controls/theme';
+import { PANEL_TEXT_DEFAULTS_SELECTOR, THEME_UNITY_VERSIONS, THEME_SHEETS } from '../controls/theme';
 import { parseUss } from '../parser/uss';
 import { attributeValueStart, parseDeclarationList } from '../parser/uss';
 import { expandShorthand, isInherited } from './properties';
@@ -200,7 +200,10 @@ function buildStateMap(
   base: MatchContext<Target>,
   options: ResolveOptions | undefined,
   warnings: Warning[],
-): Map<ElementNode, ReadonlySet<string>> {
+): {
+  states: Map<ElementNode, ReadonlySet<string>>;
+  forcedDisabled: ReadonlySet<ElementNode>;
+} {
   const global = options?.activeStates ?? new Set<string>();
   const entries = Object.entries(options?.states ?? {});
 
@@ -243,6 +246,7 @@ function buildStateMap(
   }
 
   const map = new Map<ElementNode, ReadonlySet<string>>();
+  const forcedDisabled = new Set<ElementNode>();
 
   /**
    * `enabled="false"` in the file is a state the document declares about itself,
@@ -259,6 +263,7 @@ function buildStateMap(
   const visit = (node: ElementNode, inheritedDisabled: boolean): void => {
     const disabled = inheritedDisabled || disabledHere(node);
     const set = new Set(global);
+    let forcedDisabledHere = global.has('disabled');
     if (disabled) set.add('disabled');
     // Measured 2026-10-15: tests/layout/unity/probes-0.6.0 and
     // tests/layout/unity/<version>/probe-editor (6000.0.40f1, 6000.3.25f1).
@@ -266,13 +271,15 @@ function buildStateMap(
     for (const entry of parsed) {
       if (entry.selectors.some((s) => matchesSelector<Target>(s, { kind: 'element', node }, base))) {
         for (const state of entry.states) set.add(state);
+        if (entry.states.includes('disabled')) forcedDisabledHere = true;
       }
     }
+    if (forcedDisabledHere) forcedDisabled.add(node);
     map.set(node, set);
     for (const child of node.children) visit(child, disabled);
   };
   visit(doc.root, false);
-  return map;
+  return { states: map, forcedDisabled };
 }
 
 interface Prepared {
@@ -424,9 +431,18 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
   // the stylesheet is matched against. Using one context for both would let a
   // key like `Button:hover` turn itself on.
   const base: MatchContext<Target> = { ...shared, statesOf: () => NO_STATES };
-  const stateMap = buildStateMap(doc, base, options, warnings);
+  const { states: stateMap, forcedDisabled } = buildStateMap(doc, base, options, warnings);
   const ctx: MatchContext<Target> = {
     ...shared,
+    classesOf: (target) => {
+      const classes = shared.classesOf(target);
+      // Inferred, not measured: Unity disables an element via SetEnabled(false),
+      // which gives it unity-disabled. Forcing disabled requests that same own
+      // state; inherited disabled alone must not add the class (nested-disabled.json).
+      return target.kind === 'element' && forcedDisabled.has(target.node) &&
+        !classes.includes('unity-disabled')
+        ? [...classes, 'unity-disabled'] : classes;
+    },
     // A part inherits its owner's states: `SetEnabled(false)` disables the whole
     // subtree, and a part is inside it.
     statesOf: (target) =>
@@ -825,8 +841,7 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
   const styles = new Map<NodeId, ComputedStyle>();
 
   // Reported once, and only if a control default actually reached an element.
-  // Announcing the theme on a document with no Button would be a warning about
-  // something that did not happen.
+  // Panel text defaults alone are silent; Label, Button and disabled rules announce use.
   let themeApplied = false;
 
   const partStyles = new Map<NodeId, Map<string, ComputedStyle>>();
@@ -848,7 +863,7 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
     nodeForWarnings: NodeId,
   ): { computed: Map<string, ComputedValue>; forChildren: Map<string, ComputedValue> } => {
     const candidates = collectCandidates(doc, target, prepared, matched, matchedNodes);
-    if (!themeApplied && candidates.some((c) => c.origin.kind === 'builtin-theme')) {
+    if (!themeApplied && candidates.some((c) => c.origin.kind === 'builtin-theme' && c.origin.selector !== PANEL_TEXT_DEFAULTS_SELECTOR)) {
       themeApplied = true;
     }
     const own = pickWinners(candidates);

@@ -13,9 +13,11 @@
     "label": {
       "x": 0,
       "y": 0,
-      "width": 90,
+      "width": 93,
       "height": 25
     }
   },
-  "warnings": []
+  "warnings": [
+    "version-dependent: Built-in control defaults applied, as measured on Unity 6000.0.40f1"
+  ]
 }
