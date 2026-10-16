@@ -511,12 +511,12 @@ of the sixteen differences are font metrics rather than layout** — both engine
 shrink the same box for the same reason, and only the ruler differs. Three more
 are 1px, two are the `yoga-layout` version difference already known in 0.1.0, and
 **one is genuinely unresolved**. All sixteen are named in
-[`docs/accuracy.en.md`](docs/accuracy.en.md).
+[`docs/accuracy.en.md`](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md).
 
 Colour, borders and corners are held by a CSS-declaration regression baseline
 (`tests/render/visual.test.ts`), which detects our own drift and is not evidence
 of agreement with Unity. That comparison is a one-time eye check, recorded with
-both screenshots in [`docs/visual-check.md`](docs/visual-check.md).
+both screenshots in [`docs/visual-check.md`](https://github.com/ReuHomi/uxml-preview/blob/main/docs/visual-check.md).
 
 ### Known limitations
 
@@ -541,7 +541,7 @@ back unchanged.
 Measured against **Unity 6000.0.40f1** across 18 layout cases and 61 elements:
 **242 of 244 element coordinates identical** (0.5px tolerance; the matching 17
 cases agree exactly, not merely within tolerance). Procedure and per-case
-figures in [`docs/accuracy.en.md`](docs/accuracy.en.md).
+figures in [`docs/accuracy.en.md`](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md).
 
 Round-trip is byte-exact on all 15 fixtures — comments, attribute order,
 entity encodings, CRLF line endings, mixed indentation, unsupported controls.
@@ -554,7 +554,7 @@ entity encodings, CRLF line endings, mixed indentation, unsupported controls.
 - Cascade: specificity, source order, inheritance, inline styles, `var()`
   custom properties, shorthand expansion
 - Layout: the flex family, sizing, box model, positioning
-- Full matrix: [`docs/supported.en.md`](docs/supported.en.md)
+- Full matrix: [`docs/supported.en.md`](https://github.com/ReuHomi/uxml-preview/blob/main/docs/supported.en.md)
 
 ### Known limitations
 
