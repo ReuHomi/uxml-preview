@@ -167,6 +167,8 @@
 | 2026-10-17 | 테마 기본 글자색·크기를 스타일 맵에 넣는다(묶음 A 첫 번째 안) | Unity는 모든 요소에 색을 낸다(probe-editor-070·probe-panel). "작성자가 정하지 않았다"는 값의 부재가 아니라 출처(`builtin-theme`)로 판별한다. 고정 테스트 theme-values를 바꾸는 둘째 안은 택하지 않음(사람 결정) |
 | 2026-10-17 | 비활성 투명도는 `.unity-disabled`에만 | Unity가 `enabled="false"`를 쓴 요소에만 클래스를 붙이고 그 요소만 0.5(nested-disabled, 두 테마·두 버전). `states`로 강제한 `disabled`도 그 요소에 클래스를 준다 — [추론] SetEnabled(false)와 같은 요청으로 보고 0.6.x 동작을 지킴 |
 | 2026-10-17 | 영향 예측은 값을 읽는 모든 테스트 대상(CLAUDE.md 검증 규율 5) | 0.6.0(이름 검색만 하고 전체 루프를 놓침)과 0.7.0 A2(골든만 보고 단위 테스트 12개를 놓침) 두 번 빗나갔다 |
+| 2026-10-17 | 테마 값을 적용했다는 사실만으로는 경고하지 않는다 — A2 판단 뒤집음 | 경고는 미리보기가 Unity와 다르게 그린다는 뜻. 측정된 테마 값은 차이가 아니고, `version-dependent`도 사실이 아니었다(런타임 값 두 버전 동일). 에디터 테마에서 덤프상 버전마다 다른 값(글자 없는 Button 4 대 19, 기본 생성기 standard 대 advanced)에만 `version-dependent`. ScrollView 부품 경고도 같은 이유로 없앰 |
+| 2026-10-17 | 런타임 테마의 기본 텍스트 생성기는 standard | probe-panel 두 버전 모두 Standard. 코어가 에디터 6.3의 advanced를 쓰고 있었다(경고 정리 중 발견) |
 
 ## 세션 로그
 
@@ -191,6 +193,7 @@
 | 11 | `render` Button은 잎으로 측정 | 높이 10. [추론] 스텁 높이에 안쪽 여백·테두리가 없다는 전제 | 높이 14(10 + 1 + 1 + 1 + 1). `probe-editor-070/c07-existing.json` `free/button-auto` `paddingTop`/`Bottom` 1, `borderTopWidth` 1, 상자 h 19 = measured 15 + 4 | 측정된 Button 안쪽 여백·테두리 |
 | 12 | `template/golden` 템플릿 차이 목록 | G3-4 폭·x 140 대 Unity 145(-5) 4값, `g34-outside-label` 폭 150 대 140(+10). 출처: 하네스 고정 측정(반 em) 대 `tests/template/unity/G3-4.json` | 143(-2) 4값, 153(+13) 1값. 수치 215/220 그대로 | Label 안쪽 여백 +3(`probe-editor-070/c07-existing`). 4값은 Unity 쪽으로, `g34-outside-label` 폭 1값은 반대쪽으로 갔다 — 고정 측정기의 글자 폭 과대(원래 틀리던 값)에 실제 여백이 더해진 것 |
 
+- **(2026-10-17 추가) 8행 판단 철회.** "테마가 Label에 닿아 붙는 경고는 맞는 경고"는 틀렸다 — 경고는 Unity와 다르게 그릴 때만 내고, 테마 값은 두 버전에서 같았다(사람 지시). 8행의 단언은 원래대로(경고 전체 1개) 되돌렸다. 아래 같은 날 기록 참조
 - 스냅숏 25개 재생성: 상자 변화는 골든 3케이스뿐이고 Unity 쪽으로 움직였거나(`button-sizes-to-text` 높이 29 일치, `ItemDesc` 일치, `text-size` 90→93 대 92) 원래 틀리던 글자 폭(`inventory` 경계 4값). 색 47개는 모두 새로 생긴 값(작성자 색 변경 없음). 투명도는 `visual-nested-disabled` 안쪽 0.5→없음(측정대로)
 - 변이: A0 3/4(남은 하나는 동치), A1 3/3, A2 7/7(Label 여백·`flex-shrink`·비활성 규칙·런타임 글자 크기·스크롤바·`<wbr>`·강제 비활성)
 - (04:05 추가) A3: 예측을 새 규칙(값을 읽는 테스트 목록부터)으로 다시 세움 — 기본 테마를 읽는 테스트 파일 33개, 예측 61–92개 깨짐.

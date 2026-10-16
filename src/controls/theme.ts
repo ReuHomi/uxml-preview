@@ -53,7 +53,7 @@ export const THEME_UNITY_VERSIONS: Readonly<Record<Theme, string>> = {
   runtime: '6000.3.25f1',
 };
 
-/** Panel text defaults alone do not announce the theme: no control theme has been applied. */
+/** Panel defaults inherited by the rendered elements. */
 export const PANEL_TEXT_DEFAULTS_SELECTOR = 'UXML';
 
 /**
@@ -93,11 +93,14 @@ export const THEME_USS: string = `${PANEL_TEXT_DEFAULTS_SELECTOR} {
 .unity-button:focus { border-color: #7baefa; }
 `;
 
+// probe-panel/*.json: Standard on both 6000.0.40f1 and 6000.3.25f1.
+// Editor probe-editor-070/*.json changes Standard -> Advanced; retain the 6.3 default.
 export const THEME_SHEETS: Readonly<Record<Theme, string>> = {
   editor: THEME_USS,
   runtime: `${PANEL_TEXT_DEFAULTS_SELECTOR} {
   font-size: 14px;
   color: #1b1b1b;
+  -unity-text-generator: standard;
 }
 .unity-disabled { opacity: 0.5; }
 .unity-label {

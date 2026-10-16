@@ -187,6 +187,13 @@ const ALLOWED_DELETIONS = new Set([
   'property:background-position',
   'property:background-repeat',
   'property:aspect-ratio',
+  // 0.7.0 (decision 2026-10-17): "Built-in control defaults applied" claimed a version
+  // difference the dumps do not show (theme values equal on 6000.0.40f1 and 6.3) and
+  // a difference from Unity there is none of. Its fact was wrong.
+  'theme',
+  // Same decision: "<ScrollView> drawn with built-in child elements measured on Unity ..." -
+  // the parts measured the same on both versions and both themes (golden, golden-panel).
+  'control-parts:ScrollView',
 ]);
 
 type Verdict = 'preserved' | 'merged' | 'reclassified' | 'deleted';

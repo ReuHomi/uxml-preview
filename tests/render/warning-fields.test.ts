@@ -75,6 +75,7 @@ describe('selectors', () => {
     const texts = [
       ...warningsOf('<ui:Button /><ui:ScrollView />', ':root { --a: 1px; }'),
       ...warningsOf('<ui:Toggle label="x" />'),
+      ...warningsOf('<ui:Foldout /><ui:Slider />'), // 0.7.0: ScrollView and Button no longer warn; keep the sample above three
     ].map((w) => w.message);
     expect(texts.length).toBeGreaterThan(3);
     expect(texts.filter((t) => /src\/|\.ts\b/.test(t))).toEqual([]);

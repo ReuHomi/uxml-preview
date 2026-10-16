@@ -25,7 +25,7 @@ import type { ComputedStyle } from '../style/resolve';
 import { isNonVisual, resolveControl } from '../controls/registry';
 import type { ControlPart } from '../controls/registry';
 import type { Theme } from '../controls/theme';
-import { DEFAULT_THEME, THEME_UNITY_VERSIONS, verticalScrollbarWidth } from '../controls/theme';
+import { DEFAULT_THEME, verticalScrollbarWidth } from '../controls/theme';
 import { expandShorthand } from '../style/properties';
 import type { ComputedValue, DeclarationLocator } from '../style/resolve';
 import { INITIAL, parseLength, parseNumber } from '../render/values';
@@ -219,8 +219,6 @@ export function layoutDocument(
   const partNodes = new Map<NodeId, YogaNode[]>();
   let created = 0;
   let disposed = false;
-  /** Version warning for control parts, raised once per document. */
-  let themeReported = false;
 
   const read = (style: ComputedStyle, property: string): string =>
     style.get(property)?.value ?? INITIAL[property] ?? '';
@@ -421,6 +419,15 @@ export function layoutDocument(
     const text = textOf(node);
     const drawsText = spec.hasText && text !== undefined && text.length > 0;
 
+    // probe-editor-070/c07-existing.json, col/button-empty: 4px vs 19px.
+    if (theme === 'editor' && node.name.local === 'Button' && !drawsText) {
+      warnings.push({
+        kind: 'version-dependent', reason: 'version-dependent', node: node.id,
+        subject: { kind: 'control', type: 'Button' },
+        message: '<Button> with no text is 4px high on Unity 6000.0.40f1 and 19px on 6000.3.25f1 (editor theme); drawn as 6000.0.40f1',
+      });
+    }
+
     if (fallback) {
       // Drawn, not dropped — but say so. The one thing a preview must never do
       // is show a plausible screen that is missing part of the tree.
@@ -496,6 +503,18 @@ export function layoutDocument(
         const parsed = length(style, property, node);
         if (parsed?.kind === 'px') context[field] = parsed.value;
       }
+      // probe-editor-070/*.json: Standard in 6000.0.40f1, Advanced in
+      // 6000.3.25f1. The 0.6.0 text-spacing dumps show spacing beside spaces differs.
+      const generatorOrigin = style.get('-unity-text-generator')?.origin.kind;
+      const ownGenerator = generatorOrigin === 'rule' || generatorOrigin === 'inline';
+      if (theme === 'editor' && !ownGenerator &&
+          ((context.letterSpacing ?? 0) !== 0 || (context.wordSpacing ?? 0) !== 0)) {
+        warnings.push({
+          kind: 'version-dependent', reason: 'version-dependent', node: node.id,
+          subject: { kind: 'property', property: '-unity-text-generator', value: '', affectsLayout: true },
+          message: "Unity 6000.0.40f1's editor theme spaces this text with the standard text generator and 6000.3.25f1's with advanced; drawn as advanced",
+        });
+      }
       yg.setMeasureFunc((availableWidth) =>
         options.measureText(
           text,
@@ -516,22 +535,8 @@ export function layoutDocument(
     // ScrollView in the wrong place.
     let host = yg;
     if (spec.parts.length > 0) {
-      // A part's styling and the scrollbar width beside it are both measured on
-      // one Unity version, exactly like the Button margin — but neither goes
-      // through the cascade, so neither reached the warning the cascade raises.
-      // A ScrollView-only document was using version-specific geometry in
-      // silence, and a document that happened to contain a Button got the
-      // warning for an unrelated reason. Reported here, once, where it applies.
-      if (!themeReported) {
-        themeReported = true;
-        warnings.push({
-          kind: 'version-dependent',
-          message: `<${node.name.local}> drawn with built-in child elements measured on Unity ${THEME_UNITY_VERSIONS[theme]}`,
-          node: node.id,
-          reason: 'version-dependent',
-          subject: { kind: 'control', type: node.name.local },
-        });
-      }
+      // golden and golden-panel dumps agree across 6000.0.40f1 and 6000.3.25f1:
+      // measured ScrollView parts do not introduce a version difference.
       const chain: LayoutPart[] = [];
       const nodes: YogaNode[] = [];
       const resolvedParts = partStyles.get(node.id);

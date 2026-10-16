@@ -29,7 +29,7 @@ import type {
 } from '../model/types';
 import { implicitClassesOf, resolveControl, supportedControlNames } from '../controls/registry';
 import type { Theme } from '../controls/theme';
-import { DEFAULT_THEME, PANEL_TEXT_DEFAULTS_SELECTOR, THEME_UNITY_VERSIONS, THEME_SHEETS } from '../controls/theme';
+import { DEFAULT_THEME, THEME_SHEETS, THEME_UNITY_VERSIONS } from '../controls/theme';
 import { parseUss } from '../parser/uss';
 import { attributeValueStart, parseDeclarationList } from '../parser/uss';
 import { expandShorthand, isInherited } from './properties';
@@ -840,10 +840,6 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
   const warnings: Warning[] = [...prepared.warnings];
   const styles = new Map<NodeId, ComputedStyle>();
 
-  // Reported once, and only if a control default actually reached an element.
-  // Panel text defaults alone are silent; Label, Button and disabled rules announce use.
-  let themeApplied = false;
-
   const partStyles = new Map<NodeId, Map<string, ComputedStyle>>();
   /** Rules that reached something. What is left over drives the part warning. */
   const matched = new Set<FlatRule>();
@@ -851,7 +847,7 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
 
   /**
    * Purpose:      one target's computed style, plus what it hands to children.
-   * Deps/Effects: appends var() warnings; records theme use and rule matches.
+   * Deps/Effects: appends var() warnings; records rule matches.
    *
    * Shared by elements and parts on purpose. A part styled through a second
    * code path would be a second cascade, and Step 5's own note about "a second
@@ -863,9 +859,6 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
     nodeForWarnings: NodeId,
   ): { computed: Map<string, ComputedValue>; forChildren: Map<string, ComputedValue> } => {
     const candidates = collectCandidates(doc, target, prepared, matched, matchedNodes);
-    if (!themeApplied && candidates.some((c) => c.origin.kind === 'builtin-theme' && c.origin.selector !== PANEL_TEXT_DEFAULTS_SELECTOR)) {
-      themeApplied = true;
-    }
     const own = pickWinners(candidates);
 
     // Custom properties are resolved first: an ordinary value may reference one,
@@ -967,14 +960,6 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
   };
 
   visit(doc.root, new Map());
-
-  if (themeApplied) {
-    warnings.push({
-      kind: 'version-dependent',
-      message: `Built-in control defaults applied, as measured on Unity ${THEME_UNITY_VERSIONS[prepared.theme]}`,
-      reason: 'version-dependent',
-    });
-  }
 
   // A rule aiming at a Unity-internal name that reached nothing is not an
   // unused rule — it is a rule that could not work. Reported because the

@@ -203,8 +203,5 @@
       "height": 30
     }
   },
-  "warnings": [
-    "version-dependent: Built-in control defaults applied, as measured on Unity 6000.0.40f1",
-    "version-dependent: <ScrollView> drawn with built-in child elements measured on Unity 6000.0.40f1"
-  ]
+  "warnings": []
 }

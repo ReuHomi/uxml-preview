@@ -1,14 +1,16 @@
 {
  "total": 1394,
- "preserved": 592,
+ "preserved": 552,
  "merged": 776,
  "reclassified": 16,
- "deleted": 10,
+ "deleted": 50,
  "deletedTargets": {
+  "control-parts:ScrollView": 9,
   "property:aspect-ratio": 3,
   "property:background-position": 2,
   "property:background-repeat": 2,
-  "property:background-size": 3
+  "property:background-size": 3,
+  "theme": 31
  },
  "reclassifiedTargets": {
   "property:backdrop-filter (reason not-uss -> not-rendered)": 2,

@@ -247,7 +247,9 @@ const SAMPLES: Readonly<Record<string, Sample>> = {
   '-unity-text-align': { value: 'middle-center' },
   '-unity-text-auto-size': { value: 'best-fit 10px 20px' },
   // Not 'advanced': that is the default and could never move a box.
-  '-unity-text-generator': { value: 'standard', context: 'letter-spacing: 20px; align-self: flex-start; white-space: nowrap;' },
+  // 0.7.0: the runtime theme (the default) already measures with standard (probe-panel), so the
+  // probe sets the other one.
+  '-unity-text-generator': { value: 'advanced', context: 'letter-spacing: 20px; align-self: flex-start; white-space: nowrap;' },
   '-unity-text-outline': { value: '1px red' },
   '-unity-text-outline-color': { value: 'red' },
   '-unity-text-outline-width': { value: '1px' },

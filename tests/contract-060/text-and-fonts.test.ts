@@ -157,6 +157,7 @@ describe('what reaches the measurer and the painter', () => {
   it('without a -unity-text-generator the measurer is told advanced, the 6.3 editor default', () => {
     const seen: TextContext[] = [];
     const r = draw('<ui:Label text="x" />', undefined, {
+      theme: 'editor', // 0.7.0: the runtime theme's default is standard (probe-panel); this is the editor's
       measureText: (t, c) => {
         seen.push(c);
         return { width: 6, height: c.fontSize };

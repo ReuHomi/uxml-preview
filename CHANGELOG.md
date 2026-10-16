@@ -36,11 +36,21 @@ Play mode) on Unity 6.3, and the editor theme stays one option away.
   difference at one 60px Chinese case, Unity 6.3 editor).
 - An unknown `theme` value warns (`malformed`, reason `invalid-value`) and
   draws the default.
-- **A document with a Label now gets the theme note.** The
-  `version-dependent` warning "Built-in control defaults applied, as measured
-  on Unity <version>" used to appear only where a Button took theme values;
-  Label now takes them too. A host that counts every warning as an issue will
-  count one more (vscode-uxml-preview's diagnostics panel does).
+- **Applying the theme is no longer a warning.** "Built-in control defaults
+  applied, as measured on Unity <version>" and "<ScrollView> drawn with built-in
+  child elements measured on Unity <version>" are gone: a measured theme value
+  is not a difference from Unity, and both were measured the same on
+  6000.0.40f1 and 6.3. `version-dependent` now comes only from values the dumps
+  show differ by version, both on the editor theme:
+  - a Button with no text: 4px high on 6000.0.40f1, 19px on 6000.3.25f1 (the
+    editor theme draws 6000.0.40f1's)
+  - letter- or word-spacing with no `-unity-text-generator`: the editor theme's
+    default generator is standard on 6000.0.40f1 and advanced on 6000.3.25f1
+    (drawn as advanced)
+  A host that keyed anything off the removed warnings loses that signal.
+- **The runtime theme measures text with the standard generator**, as Unity's
+  runtime panel does on both versions (it had used advanced, the 6.3 editor's
+  default). This only moves text with letter- or word-spacing.
 
 ### Accuracy — previous and new figures
 
