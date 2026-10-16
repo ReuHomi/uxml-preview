@@ -131,6 +131,28 @@ namespace UxmlPreview.Probe
             return System.Convert.ToString(v, CultureInfo.InvariantCulture);
         }
 
+        static readonly Dictionary<Font, UnityEngine.TextCore.Text.FontAsset> FromFont = new Dictionary<Font, UnityEngine.TextCore.Text.FontAsset>();
+
+        // The FaceInfo of the font a text element is drawn with. A Font (ttf/otf)
+        // gets the FontAsset Unity would build from it, created here the same way.
+        static string FaceInfoJson(FontDefinition def)
+        {
+            var asset = def.fontAsset;
+            if (asset == null && def.font != null)
+            {
+                if (!FromFont.TryGetValue(def.font, out asset))
+                {
+                    asset = UnityEngine.TextCore.Text.FontAsset.CreateFontAsset(def.font);
+                    FromFont[def.font] = asset;
+                }
+            }
+            if (asset == null) return "null";
+            var f = asset.faceInfo;
+            return string.Format(CultureInfo.InvariantCulture,
+                "{{\"asset\": {0}, \"family\": {1}, \"pointSize\": {2}, \"ascentLine\": {3}, \"descentLine\": {4}, \"lineHeight\": {5}, \"scale\": {6}}}",
+                J(asset.name), J(f.familyName), f.pointSize, f.ascentLine, f.descentLine, f.lineHeight, f.scale);
+        }
+
         static string J(string s) => "\"" + (s ?? "").Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "") + "\"";
 
         void Write(string name)
@@ -169,6 +191,7 @@ namespace UxmlPreview.Probe
                 if (c is TextElement te)
                 {
                     sb.Append(", \"text\": ").Append(J(te.text));
+                    sb.Append(", \"faceInfo\": ").Append(FaceInfoJson(c.resolvedStyle.unityFontDefinition));
                     try
                     {
                         var m = te.MeasureTextSize(te.text ?? "", 0, VisualElement.MeasureMode.Undefined, 0, VisualElement.MeasureMode.Undefined);

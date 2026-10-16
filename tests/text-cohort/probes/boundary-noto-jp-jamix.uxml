@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="noto-jp-jamix-10-bm2" class="cohort wrap" text="UIツールキットで漢字とかなを表示" style="font-size: 10px; width: 159px;" />
+<ui:Label name="noto-jp-jamix-10-bp2" class="cohort wrap" text="UIツールキットで漢字とかなを表示" style="font-size: 10px; width: 163px;" />
+<ui:Label name="noto-jp-jamix-14-bm2" class="cohort wrap" text="UIツールキットで漢字とかなを表示" style="font-size: 14px; width: 223px;" />
+<ui:Label name="noto-jp-jamix-14-bp2" class="cohort wrap" text="UIツールキットで漢字とかなを表示" style="font-size: 14px; width: 227px;" />
+<ui:Label name="noto-jp-jamix-20-bm2" class="cohort wrap" text="UIツールキットで漢字とかなを表示" style="font-size: 20px; width: 319px;" />
+<ui:Label name="noto-jp-jamix-20-bp2" class="cohort wrap" text="UIツールキットで漢字とかなを表示" style="font-size: 20px; width: 323px;" />
+<ui:Label name="noto-jp-jamix-32-bm2" class="cohort wrap" text="UIツールキットで漢字とかなを表示" style="font-size: 32px; width: 511px;" />
+<ui:Label name="noto-jp-jamix-32-bp2" class="cohort wrap" text="UIツールキットで漢字とかなを表示" style="font-size: 32px; width: 515px;" />
+</ui:VisualElement>
+</ui:UXML>

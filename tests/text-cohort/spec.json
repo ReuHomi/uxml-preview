@@ -4,6 +4,8 @@
       "id": "inter",
       "file": "Inter-Regular.ttf",
       "role": "Unity editor default (the ttf behind Inter-Regular SDF)",
+      "sentences": ["en", "ko", "mix"],
+      "boundarySentences": ["en", "ko"],
       "noGlyphs": [
         "ko",
         "mix"
@@ -12,28 +14,55 @@
     {
       "id": "pretendard",
       "file": "Pretendard-Regular.otf",
-      "role": "Korean/Latin UI font"
+      "role": "Korean/Latin UI font",
+      "sentences": ["en", "ko", "mix"],
+      "boundarySentences": ["en", "ko"]
     },
     {
       "id": "jua",
       "file": "Jua-Regular.ttf",
-      "role": "Korean display font (external feedback)"
+      "role": "Korean display font (external feedback)",
+      "sentences": ["en", "ko", "mix"],
+      "boundarySentences": ["en", "ko"]
     },
     {
       "id": "dunggeunmo",
       "file": "DungGeunMo.ttf",
-      "role": "pixel font, extreme metrics"
+      "role": "pixel font, extreme metrics",
+      "sentences": ["en", "ko", "mix"],
+      "boundarySentences": ["en", "ko"]
     },
     {
       "id": "wanted-bold",
       "file": "WantedSans-Bold.ttf",
-      "role": "bold face"
+      "role": "bold face",
+      "sentences": ["en", "ko", "mix"],
+      "boundarySentences": ["en", "ko"]
+    },
+    {
+      "id": "noto-jp",
+      "file": "NotoSansJP-Regular.otf",
+      "role": "Japanese (Noto Sans JP Regular, SubsetOTF)",
+      "sentences": ["ja", "zh", "jamix", "en"],
+      "boundarySentences": ["ja", "zh", "jamix", "en"],
+      "boundaryFilePerSentence": true
+    },
+    {
+      "id": "noto-sc",
+      "file": "NotoSansSC-Regular.otf",
+      "role": "Simplified Chinese (Noto Sans SC Regular, SubsetOTF)",
+      "sentences": ["ja", "zh", "jamix", "en"],
+      "boundarySentences": ["ja", "zh", "jamix", "en"],
+      "boundaryFilePerSentence": true
     }
   ],
   "sentences": {
     "en": "Hamburgefonts Quick",
     "ko": "다람쥐 헌 쳇바퀴에 타고파",
-    "mix": "UI 툴킷 Preview 미리보기"
+    "mix": "UI 툴킷 Preview 미리보기",
+    "ja": "吾輩は猫である。名前はまだ無い。",
+    "zh": "天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。",
+    "jamix": "UIツールキットで漢字とかなを表示"
   },
   "sizes": [
     10,
@@ -42,13 +71,18 @@
     32
   ],
   "boundary": {
-    "sentences": [
-      "en",
-      "ko"
-    ],
     "offsets": [
       -2,
       2
     ]
+  },
+  "wrap": {
+    "font": "noto-jp",
+    "size": 20,
+    "sentences": ["ja", "zh", "jamix"],
+    "widths": [60, 100, 140, 170, 220]
+  },
+  "known": {
+    "6000.3.25f1 noto-jp-zh-20-w60": "Unity 6.3 draws 8 lines where breaking at every CJK character gives 7: consistent with Unity not starting a line with ，or 。 (kinsoku), which is not measured and not implemented. 6000.0.40f1 draws 7"
   }
 }

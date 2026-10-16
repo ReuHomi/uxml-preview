@@ -93,7 +93,7 @@ await page.route('http://cohort.test/**', (route) => {
 });
 await page.goto('http://cohort.test/');
 const preview = await page.evaluate(async ({ docs, fonts }) => {
-  await Promise.all(fonts.map((f) => document.fonts.load(`20px "${f.family}"`, 'Ag한')));
+  await Promise.all(fonts.map((f) => document.fonts.load(`20px "${f.family}"`, 'Ag한漢あ')));
   const core = globalThis.UxmlCore;
   await core.loadLayoutEngine();
   const byFile = Object.fromEntries(fonts.map((f) => [f.file, f]));
@@ -136,6 +136,10 @@ const ratio = (fi) => (fi.ascentLine - fi.descentLine) / fi.pointSize;
 const fontOf = (name) => spec.fonts.find((f) => name.startsWith(`${f.id}-`));
 const sentenceOf = (name) => name.split('-').find((part) => part in spec.sentences);
 const noGlyphs = (name) => (fontOf(name)?.noGlyphs ?? []).includes(sentenceOf(name));
+// Line-break cases: boundary (-bm2/-bp2) and fixed-width wrap (-wN) rows.
+const LINE_BREAK_CASE = /-(b[pm]\d+|w\d+)$/;
+// spec.known: "<version> <name>" -> a measured difference the preview does not reproduce, with the reason.
+const KNOWN = spec.known ?? {};
 const lines = (h, fs, fi) => Math.max(1, Math.round(h / (fs * ratio(fi))));
 
 /** 6000.0's measured height rule (README): exact integers round up by one, lines advance by lineHeight. */
@@ -168,18 +172,27 @@ function judge(v) {
       return 'c';
     };
     const ref = v === REFERENCE ? undefined : unity[REFERENCE][name];
-    const row = { name, boundary: /-b[pm]\d+$/.test(name), unity: { w: u.w, h: u.h }, preview: p, linesU: nU, linesP: nP, dw, dh, widthOk };
+    const row = { name, boundary: LINE_BREAK_CASE.test(name), unity: { w: u.w, h: u.h }, preview: p, linesU: nU, linesP: nP, dw, dh, widthOk };
     // A line count that flips at a boundary case because the natural widths differ
     // by at most 1px is (b); the boundary cases sit 2px from Unity 6000.0's width.
+    // Only when the preview's own count agrees with its own natural width: a measurer
+    // that keeps text wider than the box on one line has not wrapped it, and no 1px
+    // difference explains that (0.6.0 measured CJK as one word and passed here as (b)).
+    // The wrap cases (-wN, several lines) have no 1px explanation at all.
     if (nU !== nP) {
-      const natural = name.replace(/-b[pm]\d+$/, '');
+      const natural = name.replace(LINE_BREAK_CASE, '');
       // On an older version the 1px test also runs against the reference's natural
       // width: a 1px preview difference stacked on a 6000.0-vs-6.3 one is still 1px.
       const widthGap = (table) => (table[natural] !== undefined && preview.boxes[natural] !== undefined
         ? Math.abs(preview.boxes[natural].w - table[natural].w) : Infinity);
       const nw = Math.min(widthGap(unity[v]), v === REFERENCE ? Infinity : widthGap(unity[REFERENCE]));
       const refLines = ref === undefined ? undefined : lines(ref.h, u.fontSize, u.faceInfo);
-      row.linesCls = noGlyphs(name) || refLines === nP ? 'a' : nw <= 1 ? 'b' : 'c';
+      const pN = preview.boxes[natural]?.w;
+      const consistent = pN !== undefined && (nP > 1) === (pN > p.w);
+      const bOk = /-b[pm]\d+$/.test(name) && consistent && nw <= 1;
+      row.linesCls = noGlyphs(name) || refLines === nP || KNOWN[`${v} ${name}`] !== undefined ? 'a' : bOk ? 'b' : 'c';
+    } else if (KNOWN[`${v} ${name}`] !== undefined) {
+      row.staleKnown = true;
     }
     // A height that differs because the line count differs is that difference, not another one.
     if (dh !== 0) row.heightCls = row.linesCls ?? why(dh, (v.startsWith('6000.0') && height60(nU, u.fontSize, u.faceInfo) === u.h) || matchesRef('h'));
@@ -204,7 +217,7 @@ for (const v of VERSIONS) {
     boundaryLines: count(bound, (r) => r.linesCls === undefined),
     failuresABC: { lines: classes('linesCls'), height: classes('heightCls'), width: classes('widthCls') },
     widthDelta: { min: Math.min(...rows.map((r) => r.dw)), max: Math.max(...rows.map((r) => r.dw)) },
-    unexplained: rows.filter((r) => r.missing || r.linesCls === 'c' || r.heightCls === 'c' || r.widthCls === 'c').map((r) => r.name),
+    unexplained: rows.filter((r) => r.missing || r.staleKnown || r.linesCls === 'c' || r.heightCls === 'c' || r.widthCls === 'c').map((r) => r.name),
   };
   report.push(...rows.map((r) => ({ version: v, ...r })));
 }

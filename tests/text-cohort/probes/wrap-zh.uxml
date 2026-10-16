@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="noto-jp-zh-20-w60" class="cohort" text="天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。" style="width: 60px;" />
+<ui:Label name="noto-jp-zh-20-w100" class="cohort" text="天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。" style="width: 100px;" />
+<ui:Label name="noto-jp-zh-20-w140" class="cohort" text="天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。" style="width: 140px;" />
+<ui:Label name="noto-jp-zh-20-w170" class="cohort" text="天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。" style="width: 170px;" />
+<ui:Label name="noto-jp-zh-20-w220" class="cohort" text="天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。" style="width: 220px;" />
+</ui:VisualElement>
+</ui:UXML>

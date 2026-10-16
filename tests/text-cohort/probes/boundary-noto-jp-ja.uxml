@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="noto-jp-ja-10-bm2" class="cohort wrap" text="吾輩は猫である。名前はまだ無い。" style="font-size: 10px; width: 159px;" />
+<ui:Label name="noto-jp-ja-10-bp2" class="cohort wrap" text="吾輩は猫である。名前はまだ無い。" style="font-size: 10px; width: 163px;" />
+<ui:Label name="noto-jp-ja-14-bm2" class="cohort wrap" text="吾輩は猫である。名前はまだ無い。" style="font-size: 14px; width: 223px;" />
+<ui:Label name="noto-jp-ja-14-bp2" class="cohort wrap" text="吾輩は猫である。名前はまだ無い。" style="font-size: 14px; width: 227px;" />
+<ui:Label name="noto-jp-ja-20-bm2" class="cohort wrap" text="吾輩は猫である。名前はまだ無い。" style="font-size: 20px; width: 319px;" />
+<ui:Label name="noto-jp-ja-20-bp2" class="cohort wrap" text="吾輩は猫である。名前はまだ無い。" style="font-size: 20px; width: 323px;" />
+<ui:Label name="noto-jp-ja-32-bm2" class="cohort wrap" text="吾輩は猫である。名前はまだ無い。" style="font-size: 32px; width: 511px;" />
+<ui:Label name="noto-jp-ja-32-bp2" class="cohort wrap" text="吾輩は猫である。名前はまだ無い。" style="font-size: 32px; width: 515px;" />
+</ui:VisualElement>
+</ui:UXML>
