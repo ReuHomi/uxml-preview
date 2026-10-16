@@ -18,6 +18,12 @@
  * the same number of lines (the 0.6.0 defect was a one-line box under a painted
  * paragraph). Cases: the text cohort's wrap set, Noto Sans JP 20px.
  *
+ * Themes (0.7.0 bundle A): every case is drawn with an explicit theme. The cases
+ * above are the editor theme's, where spec.known holds the kinsoku row. The CJK wrap
+ * set is drawn again on the runtime theme with no known rows: Unity's runtime panel
+ * applies no kinsoku (tests/layout/unity/<version>/probe-panel/kinsoku.json, both
+ * versions), so the browser must paint the measured lines there too.
+ *
  * Deps/Effects: like run.mjs — UXML_TEXT_CHROMIUM, UXML_TEXT_FONTS (Inter-Regular.ttf, NotoSansJP-Regular.otf),
  * bundles src/ with Vite in memory. Exits 1 when it cannot run.
  */
@@ -44,7 +50,7 @@ const FONTS = {
   'NotoSansJP-Regular.otf': { family: 'cohort-noto-jp', face: { pointSize: 90, ascentLine: 104.4, descentLine: -25.92 } },
 };
 
-// [text, font size, letter-spacing, word-spacing, extra USS, wraps, font file (default Inter)]
+// [text, font size, letter-spacing, word-spacing, extra USS, wraps, font file (default Inter), theme (default editor)]
 const spec = JSON.parse(readFileSync(join(ROOT, 'tests', 'text-cohort', 'spec.json'), 'utf8'));
 const CASES = [
   ['Hello World Foo', 12, 5, 0, '', false],
@@ -58,6 +64,8 @@ const CASES = [
   ['a b c d e f g h i j k l m n o p q r s t u v w x y z', 16, 10, 5, 'width: 150px; white-space: normal;', true],
   ...spec.wrap.sentences.flatMap((sid) => spec.wrap.widths.map((w) =>
     [spec.sentences[sid], spec.wrap.size, 0, 0, `width: ${w}px; white-space: normal;`, true, 'NotoSansJP-Regular.otf'])),
+  ...spec.wrap.sentences.flatMap((sid) => spec.wrap.widths.map((w) =>
+    [spec.sentences[sid], spec.wrap.size, 0, 0, `width: ${w}px; white-space: normal;`, true, 'NotoSansJP-Regular.otf', 'runtime'])),
 ];
 
 const { chromium } = await import('playwright-core');
@@ -80,7 +88,7 @@ const rows = await page.evaluate(async ({ cases, fonts }) => {
   const core = globalThis.UxmlCore;
   await core.loadLayoutEngine();
   const out = [];
-  for (const [text, fs, ls, ws, extra, wraps, file = 'Inter-Regular.ttf'] of cases) {
+  for (const [text, fs, ls, ws, extra, wraps, file = 'Inter-Regular.ttf', theme = 'editor'] of cases) {
     const { family, face } = fonts[file];
     const host = document.createElement('div');
     document.body.append(host);
@@ -88,7 +96,7 @@ const rows = await page.evaluate(async ({ cases, fonts }) => {
       `<ui:UXML xmlns:ui="UnityEngine.UIElements"><ui:VisualElement style="align-items: flex-start;"><ui:Label name="t" text="${text}" /></ui:VisualElement></ui:UXML>`,
       `#t { padding: 0; margin: 0; white-space: nowrap; font-size: ${fs}px; letter-spacing: ${ls}px; word-spacing: ${ws}px; -unity-font-definition: url("project://database/Assets/Fonts/${file}"); ${extra} }`,
     );
-    const r = core.render(doc, host, { size: { width: 800, height: 600 }, resolveFont: () => ({ family, faceInfo: face }) });
+    const r = core.render(doc, host, { theme, size: { width: 800, height: 600 }, resolveFont: () => ({ family, faceInfo: face }) });
     let id;
     const walk = (n) => {
       if (n.attributes.some((a) => a.name === 'name' && a.value === 't')) id = n.id;
@@ -111,7 +119,7 @@ const rows = await page.evaluate(async ({ cases, fonts }) => {
     }
     const widths = [...lines.values()].map((l) => l.right - l.left);
     const lineHeight = (fs * (face.ascentLine - face.descentLine)) / face.pointSize;
-    out.push({ text, fs, ls, ws, extra, wraps, boxW: box.width, boxH: box.height, measuredLines: Math.max(1, Math.round(box.height / lineHeight)), paintedLines: lines.size, widest: Math.max(...widths) });
+    out.push({ theme, text, fs, ls, ws, extra, wraps, boxW: box.width, boxH: box.height, measuredLines: Math.max(1, Math.round(box.height / lineHeight)), paintedLines: lines.size, widest: Math.max(...widths) });
     r.dispose();
     host.remove();
   }
@@ -126,13 +134,13 @@ const known = new Set(Object.keys(spec.known ?? {}).map((k) => /^\S+ (.+)-(\w+)-
   .map((m) => `${spec.sentences[m[2]]} ${m[4]}`));
 let failed = 0;
 for (const r of rows) {
-  const isKnown = known.has(`${r.text} ${/width: (\d+)px/.exec(r.extra)?.[1]}`);
+  const isKnown = r.theme === 'editor' && known.has(`${r.text} ${/width: (\d+)px/.exec(r.extra)?.[1]}`);
   const matches = r.wraps
     ? r.paintedLines === r.measuredLines && r.widest <= r.boxW + 1
     : r.paintedLines === 1 && Math.abs(r.widest - r.boxW) <= 1;
   const ok = matches !== isKnown;
   if (!ok) failed++;
-  console.log(`${ok ? (isKnown ? 'know' : 'ok  ') : 'FAIL'} ${JSON.stringify(r.text)} ${r.fs}px ls ${r.ls} ws ${r.ws} ${r.extra} box ${r.boxW}x${r.boxH} (${r.measuredLines} lines) painted ${r.widest.toFixed(2)} (${r.paintedLines} lines)`);
+  console.log(`${ok ? (isKnown ? 'know' : 'ok  ') : 'FAIL'} ${r.theme.padEnd(7)} ${JSON.stringify(r.text)} ${r.fs}px ls ${r.ls} ws ${r.ws} ${r.extra} box ${r.boxW}x${r.boxH} (${r.measuredLines} lines) painted ${r.widest.toFixed(2)} (${r.paintedLines} lines)`);
 }
 console.log(`paint vs measure: ${rows.length - failed}/${rows.length}`);
 process.exit(failed === 0 ? 0 : 1);
