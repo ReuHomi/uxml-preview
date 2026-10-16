@@ -202,8 +202,7 @@ describe('unsupported selectors', () => {
   });
 
   it('warn once, naming the fragment', () => {
-    // A Label also gets the theme's version note (0.7.0: the theme now reaches Label); count the selector warnings.
-    const warnings = resolveStyles(d).warnings.filter((w) => w.kind === 'unsupported-selector');
+    const { warnings } = resolveStyles(d);
     expect(warnings).toHaveLength(1);
     expect(warnings[0]!.kind).toBe('unsupported-selector');
     expect(warnings[0]!.message).toContain(':nth-child(2)');

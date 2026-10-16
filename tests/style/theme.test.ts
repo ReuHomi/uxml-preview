@@ -163,11 +163,12 @@ describe('provenance', () => {
 });
 
 describe('the version warning', () => {
-  it('is raised when a default actually applies', () => {
+  // 0.7.0 (decision 2026-10-17): a measured theme value is not a difference from
+  // Unity, so applying one is not warned. Version warnings come only from values
+  // the dumps show differ by version (tests/contract-070/theme-warnings.test.ts).
+  it('is not raised because a default applies', () => {
     const { warnings } = resolveStyles(doc('<ui:Button name="b" text="OK" />'));
-    const themed = warnings.filter((w) => w.message.includes(THEME_UNITY_VERSION));
-    expect(themed).toHaveLength(1);
-    expect(themed[0]!.kind).toBe('version-dependent');
+    expect(warnings.filter((w) => w.message.includes(THEME_UNITY_VERSION))).toHaveLength(0);
   });
 
   // Announcing the theme on a document it never touched is a warning about
@@ -177,11 +178,11 @@ describe('the version warning', () => {
     expect(warnings.filter((w) => w.message.includes(THEME_UNITY_VERSION))).toHaveLength(0);
   });
 
-  it('is raised once, not once per element', () => {
+  it('is not raised for many elements either', () => {
     const { warnings } = resolveStyles(
       doc('<ui:Button name="a" text="A" /><ui:Button name="b" text="B" />'),
     );
-    expect(warnings.filter((w) => w.message.includes(THEME_UNITY_VERSION))).toHaveLength(1);
+    expect(warnings.filter((w) => w.message.includes(THEME_UNITY_VERSION))).toHaveLength(0);
   });
 });
 

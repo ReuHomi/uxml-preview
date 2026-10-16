@@ -149,15 +149,26 @@ describe('controls and versions', () => {
     expect(fields(w)).toEqual({ reason: 'not-rendered', subject: { kind: 'control', type: 'Label' } });
   });
 
-  it('measured control geometry is version-dependent', () => {
-    const warnings = warningsOf('<ui:ScrollView />');
-    expect(fields(only(warnings, 'version-dependent', 'ScrollView'))).toEqual({
-      reason: 'version-dependent',
-      subject: { kind: 'control', type: 'ScrollView' },
+  // 0.7.0 (decision 2026-10-17): only geometry the dumps show differ by version is
+  // version-dependent. ScrollView parts and theme values are the same on 6000.0.40f1
+  // and 6000.3.25f1; an editor-theme Button with no text is 4px against 19px
+  // (probe-editor-070/c07-existing.json col/button-empty).
+  it('measured control geometry is version-dependent only where versions differ', () => {
+    expect(warningsOf('<ui:ScrollView />').filter((w) => w.kind === 'version-dependent')).toEqual([]);
+    expect(warningsOf('<ui:Button />').filter((w) => w.kind === 'version-dependent')).toEqual([]);
+    const editor = render(parse('<ui:UXML xmlns:ui="UnityEngine.UIElements"><ui:Button /></ui:UXML>'), document.createElement('div'), {
+      theme: 'editor',
+      size: { width: 200, height: 100 },
+      measureText: () => ({ width: 0, height: 0 }),
     });
-    expect(fields(only(warningsOf('<ui:Button />'), 'version-dependent', 'control defaults'))).toEqual({
-      reason: 'version-dependent',
-    });
+    try {
+      expect(fields(only(editor.warnings, 'version-dependent', 'Button'))).toEqual({
+        reason: 'version-dependent',
+        subject: { kind: 'control', type: 'Button' },
+      });
+    } finally {
+      editor.dispose();
+    }
   });
 });
 
