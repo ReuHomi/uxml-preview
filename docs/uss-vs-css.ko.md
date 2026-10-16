@@ -282,7 +282,15 @@ background-image: resource("panel");
 [놀이터](https://reuhomi.github.io/uxml-preview/)에 `.uxml`과 `.uss`를 넣으면
 바로 렌더됩니다. **아무것도 업로드되지 않고** 페이지 안에서 돕니다.
 우상단의 `round-trip: exact`는 지금 문서를 다시 저장했을 때 주석과 미지원
-컨트롤까지 포함해 **바이트 단위로 같다**는 뜻입니다.
+컨트롤까지 포함해 **바이트 단위로 같다**는 뜻입니다. 파일이 깨져서 파싱되지 않아도 그대로
+유지됩니다 — 고치지 않은 텍스트는 다시 만들지 않고 원문에서 그대로 옮기기 때문입니다.
+
+![미지원 컨트롤은 상자로 그리고 경고한다. 파일을 깨뜨려도 왕복은 그대로 같다](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/demo-round-trip.gif)
+
+패널 크기는 창을 따르지 않고 직접 고릅니다. `%`와 늘이기가 패널을 기준으로 계산되기
+때문입니다. 실제로 내보낼 해상도 — 1920×1080, 세로 화면, 휴대폰 — 에서 배치를 확인하세요:
+
+![패널을 1920x1080, 세로, 휴대폰 크기, 1280x720으로 바꿔 본다](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/demo-panel-size.gif)
 
 자기 도구에 프리뷰를 넣고 싶다면 라이브러리로도 쓸 수 있습니다:
 

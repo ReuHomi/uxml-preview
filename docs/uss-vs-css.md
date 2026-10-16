@@ -299,7 +299,17 @@ containing text measures the font rather than the layout.
 The [playground](https://reuhomi.github.io/uxml-preview/) takes a `.uxml` and a
 `.uss` and renders them. Nothing is uploaded; it runs in the page. The corner
 reads `round-trip: exact` when serializing your document back out reproduces it
-byte for byte, comments and unsupported controls included.
+byte for byte, comments and unsupported controls included. It stays exact even
+when the file stops parsing: untouched text is copied out of the original, not
+regenerated.
+
+![An unsupported control is drawn as a box and warned; breaking the file still round-trips exactly](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/demo-round-trip.gif)
+
+The panel size is chosen, not taken from the window, because percentages and
+stretching resolve against the panel. Check a layout at the resolution it ships
+at — 1920×1080, portrait, a phone:
+
+![Switching the panel between 1920x1080, portrait, a phone size and 1280x720](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/demo-panel-size.gif)
 
 It is also a library, if you want a preview inside your own tooling:
 
