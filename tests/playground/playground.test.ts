@@ -45,7 +45,7 @@ const byName = (r: RenderResult, name: string) => {
     if (n.attributes.some((a) => a.name === 'name' && a.value === name)) id = n.id;
     (n.children as (typeof n)[]).forEach(walk);
   };
-  walk(r.document.root as never);
+  walk(r.document!.root as never);
   expect(id, `element #${name}`).toBeDefined();
   return r.boxes.get(id as never)!;
 };
