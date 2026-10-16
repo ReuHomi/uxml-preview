@@ -445,7 +445,7 @@ describe('accuracy: we match Unity', () => {
 
   /**
    * Purpose: the same guard for every other place a headline number is
-   * printed — the English accuracy page and both READMEs (user decision
+   * printed — the English accuracy page and every README (user decision
    * 2026-10-16: README carries the numbers, so a test must hold them).
    * Pinned expectations: do not edit the expectations to match an
    * implementation.
@@ -455,7 +455,7 @@ describe('accuracy: we match Unity', () => {
    * width, in that order) on a line that names 6000.3.25f1. Any other fraction
    * in a README is a number nothing checks, and fails.
    */
-  it('matches the figures published in docs/accuracy.en.md, README.md and README.ko.md', () => {
+  it('matches the figures published in docs/accuracy.en.md and all four READMEs', () => {
     const stats = computeAccuracy();
     const baselinePresent = measured.filter((c) => existsSync(join(UNITY, `${c.name}.json`))).length;
     const root = join(HERE, '..', '..');
