@@ -200,7 +200,7 @@ const ROWS: readonly Row[] = [
   ['-unity-slice-type', '6000.0', false, 'none', 'paint', 'background'],
   ['-unity-text-align', '6000.0', true, 'paint', 'paint', 'textAlign'],
   ['-unity-text-auto-size', '6000.3', true, 'none', 'layout', 'measuredTextLayout'],
-  ['-unity-text-generator', '6000.0', true, 'none', 'layout', 'measuredTextLayout'],
+  ['-unity-text-generator', '6000.0', true, 'layout', 'layout', 'measuredTextLayout'],
   ['-unity-text-outline', '6000.0', false, 'none', 'paint', 'measuredTextPaint'],
   ['-unity-text-outline-color', '6000.0', true, 'none', 'paint', 'measuredTextPaint'],
   ['-unity-text-outline-width', '6000.0', true, 'none', 'paint', 'measuredTextPaint'],

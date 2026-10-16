@@ -246,7 +246,8 @@ const SAMPLES: Readonly<Record<string, Sample>> = {
   '-unity-slice-type': { value: 'tiled' },
   '-unity-text-align': { value: 'middle-center' },
   '-unity-text-auto-size': { value: 'best-fit 10px 20px' },
-  '-unity-text-generator': { value: 'advanced' },
+  // Not 'advanced': that is the default and could never move a box.
+  '-unity-text-generator': { value: 'standard', context: 'letter-spacing: 20px; align-self: flex-start; white-space: nowrap;' },
   '-unity-text-outline': { value: '1px red' },
   '-unity-text-outline-color': { value: 'red' },
   '-unity-text-outline-width': { value: '1px' },
@@ -286,7 +287,10 @@ const NOT_USS: ReadonlyArray<{ name: string; value: string; replacements?: reado
 const measureText: MeasureText = (text, context, availableWidth) => {
   // Spacing reaches the measurer since 0.6.0; a measurer blind to it would
   // report those properties as moving nothing.
-  const spacing = ((text.length - 1) * (context.letterSpacing ?? 0) + (context.wordSpacing ?? 0)) * context.fontSize / 100;
+  // The standard generator also spaces after the last character (text-spacing-standard.json);
+  // the advanced one does not. One gap is enough for the layout to see the difference.
+  const gaps = text.length - 1 + (context.textGenerator === 'standard' ? 1 : 0);
+  const spacing = (gaps * (context.letterSpacing ?? 0) + (context.wordSpacing ?? 0)) * context.fontSize / 100;
   const width = text.length * context.fontSize * 0.5 * (context.fontStyle.includes('bold') ? 2 : 1) + spacing;
   const wraps = context.whiteSpace !== 'nowrap' && context.whiteSpace !== 'pre' && availableWidth > 0;
   const lines = wraps ? Math.max(1, Math.ceil(width / availableWidth)) : 1;

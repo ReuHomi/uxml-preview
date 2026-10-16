@@ -41,6 +41,8 @@ and the published accuracy figures move. No type is removed and no
   what the browser paints. 0.5.1 measured every space as written.
 - Painted letter spacing matches measured spacing: no spacing beside a
   space (advanced generator) and none after the last character.
+- `-unity-text-generator` (`standard` / `advanced`) is measured and painted,
+  and no longer raises a `not-rendered` warning with `affectsLayout`.
 - A border width in an unsupported unit is reported once, not twice.
 - New warnings, all `unsupported-property` with `reason: 'invalid-value'`
   unless noted: `hsl()`, `cubic-bezier()`, `opacity` in `%`, `inherit`.
@@ -104,12 +106,6 @@ and the published accuracy figures move. No type is removed and no
 - `pnpm test:text` runs the text cohort in a real Chromium
   (`UXML_TEXT_CHROMIUM`, `UXML_TEXT_FONTS`); it fails, never skips, when it
   cannot run. `playwright-core` is a new devDependency.
-
-### Known
-
-- `-unity-text-generator` is measured and painted, but the registry still
-  marks it `handling: 'none'`, so writing it raises a `not-rendered` warning
-  with `affectsLayout`.
 
 ### Playground and documentation
 

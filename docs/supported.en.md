@@ -115,7 +115,7 @@ property exists, inherits, and when it was introduced comes only from the regist
 | color / font-size | A | written | font-size inheritance covered by cascade tests |
 | `letter-spacing` / `word-spacing` | A | verified | the value is not CSS px but **value × font size / 100**. Measured and painted by that rule (spacing probes, measured). See "Text and fonts" below |
 | `-unity-paragraph-spacing` | A | verified | measured and painted (spacing probes, measured) |
-| `-unity-text-generator` | A | verified | the spacing difference between `standard` and `advanced` is measured and painted (measured). **Known defect:** the registry still has `handling: 'none'`, so writing it raises a `not-rendered` warning |
+| `-unity-text-generator` | A | verified | the spacing difference between `standard` and `advanced` is measured and painted (measured) |
 | `white-space` | A | **partial** | space handling is measured (below). Wrapping under `pre` differs — Unity wraps `pre` to the width too (measured); the preview does not |
 | `-unity-font-definition` | B | verified | when the host returns a font through the `resolveFont` hook, text is measured and painted in it (text cohort, measured). Without the hook, or on `null`, it warns and uses the browser's default font |
 | `-unity-font` | B | written | its precedence against `-unity-font-definition` follows Unity's documentation (documented); not measured on its own |

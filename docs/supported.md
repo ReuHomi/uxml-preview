@@ -110,7 +110,7 @@ UXML은 `project://database/Packages/...`로 해석된다(Unity 6000.0.40f1 측�
 | color / font-size | A | 코드 작성 | font-size 상속은 캐스케이드 테스트로 확인 |
 | `letter-spacing` / `word-spacing` | A | 검증됨 | 값은 CSS px가 아니라 **값 × 글자 크기 / 100**이다. 측정과 그리기 모두 이 규칙(간격 프로브, 측정). 아래 "텍스트와 폰트" |
 | `-unity-paragraph-spacing` | A | 검증됨 | 측정과 그리기에 반영(간격 프로브, 측정) |
-| `-unity-text-generator` | A | 검증됨 | `standard`와 `advanced`의 간격 규칙 차이를 측정·그리기에 반영(측정). **알려진 결함:** 등록표가 아직 `handling: 'none'`이라 쓰면 `not-rendered` 경고가 난다 |
+| `-unity-text-generator` | A | 검증됨 | `standard`와 `advanced`의 간격 규칙 차이를 측정·그리기에 반영(측정) |
 | `white-space` | A | **부분** | 공백 처리는 측정했다(아래). `pre`의 줄바꿈은 Unity와 다르다 — Unity는 `pre`도 폭에 맞춰 줄을 바꾸고(측정) 미리보기는 바꾸지 않는다 |
 | `-unity-font-definition` | B | 검증됨 | 호스트가 `resolveFont` 훅으로 폰트를 넘기면 그 폰트로 재고 그린다(텍스트 코호트, 측정). 훅이 없거나 `null`이면 경고하고 브라우저 기본 폰트를 쓴다 |
 | `-unity-font` | B | 코드 작성 | `-unity-font-definition`과의 우선순위는 Unity 문서를 따랐다(문서). 단독 측정은 안 했다 |
