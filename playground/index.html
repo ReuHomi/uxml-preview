@@ -78,12 +78,12 @@
         linear-gradient(45deg, #5f636c 25%, transparent 25%, transparent 75%, #5f636c 75%);
       background-size: 16px 16px;
       background-position: 0 0, 8px 8px;
-      display: grid; place-items: center;
+      display: grid; place-items: safe center;
     }
     /* Scaled for display only. Yoga still lays out at the true panel size, so
        the numbers a user reads off the DOM are the real ones. */
-    #scaler { transform-origin: center center; }
     #panel {
+      transform-origin: 0 0;
       position: relative; overflow: hidden;
       background: #2b2d33;
       box-shadow: 0 0 0 1px rgba(0, 0, 0, .55), 0 8px 24px rgba(0, 0, 0, .35);
