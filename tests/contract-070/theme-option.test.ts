@@ -19,7 +19,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { loadLayoutEngine, parse, render, resolveStyles } from '../../src/index';
-import type { RenderOptions, RenderResult, Theme, UxmlDocument } from '../../src/index';
+import type { MeasureText, RenderOptions, RenderResult, Theme, UxmlDocument } from '../../src/index';
 import { layoutDocument } from '../../src/layout/yoga';
 
 const DEFAULT_THEME: Theme = 'editor';
@@ -39,7 +39,7 @@ const UXML = `<ui:UXML xmlns:ui="UnityEngine.UIElements">
   </ui:ScrollView>
 </ui:UXML>`;
 
-const MEASURE: RenderOptions['measureText'] = (t, c) => ({ width: t.length * 7, height: c.fontSize + 3 });
+const MEASURE: MeasureText = (t, c) => ({ width: t.length * 7, height: c.fontSize + 3 });
 
 function draw(options: Partial<RenderOptions>): { result: RenderResult; html: string; boxes: string } {
   const doc: UxmlDocument = parse(UXML);
@@ -110,10 +110,10 @@ describe('theme option (A1)', () => {
       JSON.stringify([...r.styles].map(([id, s]) => [id, [...s].map(([p, v]) => [p, v.value])]));
     expect(flat(explicit)).toBe(flat(plain));
 
-    const t1 = layoutDocument(doc.root, plain.styles, plain.partStyles, { size: { width: 400, height: 300 }, measureText: MEASURE! });
+    const t1 = layoutDocument(doc.root, plain.styles, plain.partStyles, { size: { width: 400, height: 300 }, measureText: MEASURE });
     const t2 = layoutDocument(doc.root, explicit.styles, explicit.partStyles, {
       size: { width: 400, height: 300 },
-      measureText: MEASURE!,
+      measureText: MEASURE,
       theme: DEFAULT_THEME,
     });
     try {
