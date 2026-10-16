@@ -172,6 +172,8 @@ Never added to the coordinate figures. Same UXML (tests/text-cohort/probes/) dra
 
 On 6.3 LTS, the reference, nothing is unexplained (c): the height misses are Inter on Hangul (Inter has no Hangul glyphs; Unity and the browser fall back to different fonts), and one boundary case flips on a 1px natural-width difference. The rest on 6000.0 is a Unity version difference the preview does not follow (integer heights rounded up by one, extra lines advanced by lineHeight, Jua drawn 2-4px wider).
 
+**Spaces.** Runs of spaces and leading spaces are measured (`probe-editor/spaces.json`, `spaces-prewrap.json`, 20px, both versions): 6.3 collapses a run to one and drops leading spaces under `normal` and `nowrap`, and keeps them under `pre` and `pre-wrap`; 6000.0 does not collapse. The preview follows 6.3. **Trailing spaces are not measured**; they follow CSS, which is also what the browser paints. No cohort sentence ends in a space, so the table above is unaffected.
+
 ## Why geometry and not pixels
 
 Unity draws text with its own font asset; a browser draws it with `sans-serif`.

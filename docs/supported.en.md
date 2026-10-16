@@ -193,6 +193,7 @@ Every warning carries `reason` and `subject` where one applies. Read those, not
 | `not-uss` | Something absent from USS as of Unity's reference up to 6.6 (a CSS property, an unknown pseudo-class, `@media`) | the author |
 | `invalid-value` | A USS name with a value or target that cannot work | the author |
 | `not-rendered` | Valid USS/UXML this preview does not draw | the tool |
+| `font-fallback` | Drawn, but Unity draws some glyphs with a fallback font, so text size may differ (Hangul, Han, Kana in the default font Inter, `subject.missingGlyphs`) | needs checking |
 | `version-dependent` | The result may differ by Unity version (measured on one) | needs checking |
 | `matches-unity` | Ignored, and Unity ignores it too | not a defect |
 

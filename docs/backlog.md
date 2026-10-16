@@ -114,11 +114,13 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 > **2026-10-16, 적대적 검증에서 남긴 것:**
 > - 사용자 폰트의 글자 범위 확인 — 0.6.0은 기본 폰트(Inter)의 한글·한자·가나만 경고한다. 사용자 폰트에
 >   없는 글자는 Unity가 대체 폰트로 그리지만 이 미리보기는 모른다
-> - 중첩 비활성의 투명도 — **측정됨**(`nested-disabled.json`, 두 버전): Unity는 `enabled="false"`를 쓴 요소에만
->   `unity-disabled`와 opacity 0.5를 주고 자손은 1이다. 이 미리보기는 `:disabled`에 0.5를 줘서 자손이 0.25가
->   된다. 그려지는 결과가 바뀌는 수정이라 별도 결정이 필요하다
-> - Label `flex-shrink: 0` — Unity 에디터 테마 값(측정). 넣으면 `inventory`의 `ItemDesc.height`·`y`가 맞는다(+2)
-> - 공백 접기 — 6.3은 연속 공백을 접고 앞 공백을 버린다(`spaces.json`). 6000.0은 접지 않는다. 미리보기는 6.3을 따른다
+> - 중첩 비활성의 투명도 — **0.7.0(컨트롤·테마)으로 옮겼다**, 아래 0.7.0 절
+> - Label `flex-shrink: 0` — 0.7.0 절로 옮겼다
+> - 공백 접기 — 6.3은 연속 공백을 접고 앞 공백을 버린다(`spaces.json`). 6000.0은 접지 않는다. 미리보기는 6.3을 따른다.
+>   `pre-wrap`은 `pre`처럼 공백을 둔다(`spaces-prewrap.json`, 측정 후 측정기 수정). 끝 공백은 미측정
+> - `white-space: pre`의 줄바꿈 — **측정됨**(`te-wrap.json`, 두 버전): Unity는 `pre`도 폭에 맞춰 줄을 바꾼다
+>   (60px 상자에서 `normal`·`pre`·`pre-wrap` 모두 두 줄, `nowrap`만 한 줄). 미리보기는 측정·그리기 모두 CSS처럼
+>   `pre`를 줄바꿈하지 않는다 — 둘은 서로 맞지만 Unity와 다르다. 고치면 측정과 그리기를 함께 바꿔야 한다
 
 0.5.1의 원칙은 "그려지는 결과는 바꾸지 않고, 말하지 않던 것을 말하게 한다"였다.
 아래는 그 범위를 넘거나 값 수준 판정이 필요해서 넘긴 것이다 (2026-10-13).
@@ -158,6 +160,25 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
   - 시간 (none 판정, 정지 프레임 기준): `transition`, `transition-delay`,
     `transition-duration`, `transition-property`, `transition-timing-function`,
     `animation-play-state`(6.6+), `-unity-animation-clip`(6.6+)
+
+## 0.7.0 — 컨트롤·테마
+
+- **중첩 비활성의 투명도** — 측정됨(`tests/layout/unity/<version>/probe-editor/nested-disabled.json`, 6000.0.40f1·
+  6000.3.25f1, 2026-10-16): Unity는 `enabled="false"`를 쓴 요소에만 `unity-disabled`와 opacity 0.5를 주고, 그 자손은
+  1이다. 이 미리보기는 내장 테마의 `:disabled` 규칙으로 0.5를 줘서 자손이 0.25로 겹친다(Unity 0.5, 미리보기 0.25).
+  테마 규칙의 문제라 0.7.0 테마 작업에서 고친다. 2026-08-06 항목("측정하지 않았다")은 이것으로 판정됐다
+- Label `flex-shrink: 0` — 에디터 테마 값(측정). 넣으면 `inventory`의 `ItemDesc.height`·`y`가 맞는다(+2)
+
+### 소비자 갱신 — uxml-author가 0.6.0 이상을 받을 때
+
+- **`font-fallback`(0.6.0에 새로 생긴 reason)** — 스킬의 `src/check.js` `classify`는 모르는 `reason`을 `default`로
+  `other`에 보내고, `other`는 `judge`에서 `problems`가 되어 **exit 1**이다. 그대로 0.6.0 코어를 묶으면 폰트를
+  지정하지 않은 한국어 UXML이 전부 exit 1이 된다. 스킬은 `case 'font-fallback':`을 더해 알림 채널
+  (`matchesUnity`처럼 보고만 하는 채널)로 보내고 **exit 코드는 바꾸지 않는다**. exit 3 조건
+  (`not-rendered` + `subject.affectsLayout === true`)은 그대로 둔다 — 이 경고는 `affectsLayout: true`를 달지만
+  reason이 `not-rendered`가 아니어서 걸리지 않는다. 보고에는 `subject.missingGlyphs`와 "Unity에서 글자 높이가
+  1~4px 다를 수 있다"를 함께 적는다. 코어 쪽 고정: `tests/contract-060/review-fixes.test.ts` #4
+- `states-key` 경고는 `subject.problem`을 읽는다(0.6.0 D1). `aspect-ratio`는 더 이상 레이아웃 갭 예시가 아니다
 
 ## 6.7 LTS 출시 시 재검토
 

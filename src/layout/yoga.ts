@@ -443,7 +443,7 @@ export function layoutDocument(
           : (code >= 0x3400 && code <= 0x4dbf) || (code >= 0x4e00 && code <= 0x9fff) ? 'han' : 'hangul';
         const script = { hangul: 'Hangul', han: 'Han (CJK ideographs)', kana: 'Kana' }[missingGlyphs];
         warnings.push({
-          kind: 'unsupported-property', reason: 'not-rendered', node: node.id,
+          kind: 'unsupported-property', reason: 'font-fallback', node: node.id,
           message: `The editor default font (Inter-Regular SDF) has no glyphs for ${script}; Unity draws it with a fallback font whose height can differ (measured 1–4px taller).`,
           subject: { kind: 'property', property: '-unity-font-definition', value: '', affectsLayout: true, missingGlyphs },
         });

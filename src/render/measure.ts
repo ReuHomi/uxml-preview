@@ -77,9 +77,10 @@ export function createDefaultMeasureText(doc?: Document): MeasureText {
 
     // Leading spaces and space runs are measured in Unity 6.3 LTS (probe-editor/spaces.json);
     // Unity 6000.0 did not collapse them. Dropping trailing spaces under normal/nowrap is
-    // NOT measured: it follows CSS, which is what the painter draws. pre is left as written.
+    // NOT measured: it follows CSS, which is what the painter draws.
+    // pre and pre-wrap keep spaces (probe-editor/spaces-prewrap.json).
     const paragraphs = text.split('\n').map((paragraph) =>
-      style.whiteSpace === 'pre' ? paragraph : paragraph.replace(/ +/g, ' ').trim());
+      style.whiteSpace === 'pre' || style.whiteSpace === 'pre-wrap' ? paragraph : paragraph.replace(/ +/g, ' ').trim());
     const wraps = style.whiteSpace !== 'nowrap' && style.whiteSpace !== 'pre' && availableWidth > 0;
     let lines = 0;
     let widest = 0;

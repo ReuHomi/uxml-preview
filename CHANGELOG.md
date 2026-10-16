@@ -32,10 +32,23 @@ and the published accuracy figures move. No type is removed and no
 - **`aspect-ratio` is laid out** (Unity 6.3+); it matched Unity 52/52 on the
   measured case.
 - A Label's text is measured decoded (`&amp;`, `&#10;`), as it is drawn.
+- **Spaces are measured the way Unity 6.3 LTS lays them out.** Under
+  `normal` and `nowrap`, a run of spaces measures as one and leading spaces
+  as none; `pre` and `pre-wrap` keep them. Measured at 20px
+  (`tests/layout/unity/<version>/probe-editor/spaces.json`,
+  `spaces-prewrap.json`). Unity 6000.0 does not collapse them; the preview
+  follows 6.3. Trailing spaces are not measured; they follow CSS, which is
+  what the browser paints. 0.5.1 measured every space as written.
+- Painted letter spacing matches measured spacing: no spacing beside a
+  space (advanced generator) and none after the last character.
 - A border width in an unsupported unit is reported once, not twice.
 - New warnings, all `unsupported-property` with `reason: 'invalid-value'`
   unless noted: `hsl()`, `cubic-bezier()`, `opacity` in `%`, `inherit`.
   `linear-gradient()` keeps `not-uss` and says Unity shows its warning icon.
+- Text drawn with the default font (no `-unity-font-definition`) that
+  contains Hangul, Han or Kana warns: `unsupported-property` with the new
+  reason `font-fallback` and `subject.missingGlyphs`. Inter has no such
+  glyphs; Unity draws them with a fallback font, measured 1–4px taller.
 - `states` keys that match nothing, contain a state pseudo-class, or list a
   state Unity never sets now warn: `unsupported-selector` with
   `subject.problem`.
@@ -76,6 +89,13 @@ and the published accuracy figures move. No type is removed and no
   fixture); its typecheck is clean. All are consumer-side updates, none a
   core regression. Neither consumer picks up 0.6.0 automatically
   (uxml-author bundles its core; the extension depends on `^0.5.1`).
+- **A new `reason`, `font-fallback`.** `reason` is an open set and this is the
+  first value added to it. uxml-author master sends any `reason` it does not
+  know to `other`, which fails the run (exit 1), so a Korean UXML with no
+  font set would fail there until the skill learns it. It is not
+  `not-rendered`, so it never meets the skill's exit-3 condition
+  (`not-rendered` + `affectsLayout`). `docs/backlog.md` has the skill-side
+  note.
 - Messages changed for the inline unsupported unit and `linear-gradient()`;
   match on `reason`/`subject`, not text.
 

@@ -243,13 +243,18 @@ Label 상자를 비교한다. 실행은 `pnpm test:text`(`tests/text-cohort/READ
 - (a) 6.3 높이 16건(일반 8 + 경계 8): Inter로 쓴 한글·혼합 문장. Inter에는 한글 글리프가 없어 Unity와
   브라우저가 서로 다른 대체 폰트로 그린다(Unity 14/19/27/43, 미리보기 13/17/25/39). 폰트가 글리프를 가진
   나머지 4종은 높이가 전부 정확히 맞는다. **알려진 차이**이며, 0.6.0부터 기본 폰트로 그리는 요소의 글자에
-  한글·한자·가나가 있으면 경고한다(`-unity-font-definition`, `missingGlyphs`). 사용자 폰트의 글자 범위는
+  한글·한자·가나가 있으면 경고한다(reason `font-fallback`, `missingGlyphs`). 사용자 폰트의 글자 범위는
   확인하지 않는다(`docs/backlog.md`)
 - (b) 6.3 경계 1건: `inter-en-32-bm2`. 자연 폭이 Unity 330, 미리보기 329(1px)라 329px 상자에서 Unity는
   줄을 바꾸고 미리보기는 바꾸지 않는다. 높이 불일치는 그 결과다
 - (a) 6000.0의 나머지는 버전 차이다. 6000.0은 정수가 되는 높이를 1 올리고(Jua·DungGeunMo, 10px → 11),
   둘째 줄부터 FaceInfo `lineHeight`로 내린다(Jua 두 줄 10px → 23, 6.3은 20). 6000.0은 Jua 영문을
   6.3보다 2~4px 넓게 그린다. 미리보기는 6.3과 같다
+
+**공백.** 연속 공백과 앞 공백은 측정했다(`probe-editor/spaces.json`, `spaces-prewrap.json`, 20px, 두 버전):
+6.3은 `normal`·`nowrap`에서 연속 공백을 하나로 접고 앞 공백을 버리며, `pre`·`pre-wrap`에서는 그대로 둔다.
+6000.0은 접지 않는다. 미리보기는 6.3을 따른다. **끝 공백은 측정하지 않았다** — CSS를 따르며, 그건 브라우저가
+그리는 쪽과 같다. 코호트 문장에는 끝 공백이 없어 위 표에 영향이 없다.
 
 FaceInfo가 없는 폰트(웹 폰트만 주어진 경우)는 캔버스의 ascent/descent로 대신한다. 그 값과 FaceInfo의 차이:
 

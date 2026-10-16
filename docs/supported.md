@@ -163,6 +163,7 @@ render(doc, el, { states: { '#UseButton': ['hover'], '#DropButton': ['disabled']
 | `not-uss` | 기준 USS(Unity 6.6까지의 공식 표)에 없는 것을 썼다 (CSS 속성, 없는 의사 클래스, `@media`) | 작성자 |
 | `invalid-value` | USS 이름에 쓸 수 없는 값이나 대상 (`width: wide`, 없는 override 대상) | 작성자 |
 | `not-rendered` | 올바른 USS/UXML이지만 이 미리보기가 그리지 않는다 | 도구의 한계 |
+| `font-fallback` | 그리지만, Unity는 일부 글자를 대체 폰트로 그려 글자 크기가 다를 수 있다 (기본 폰트 Inter에 없는 한글·한자·가나, `subject.missingGlyphs`) | 확인 필요 |
 | `version-dependent` | 결과가 Unity 버전에 따라 다를 수 있다 (측정 버전 기준값) | 확인 필요 |
 | `matches-unity` | 무시되지만 Unity도 똑같이 무시한다 | 결함 아님 |
 

@@ -309,7 +309,7 @@ export interface PropertyWarning {
     replacements?: readonly string[];
     affectsLayout?: boolean;
     applied?: 'paint';
-    unityEffect?: { kind: 'unstyled-from-here' | 'file-inline-dropped'; versions: readonly UssVersion[] };
+    unityEffect?: { kind: 'unstyled-from-here'; versions: readonly UssVersion[] };
   };
 }
 

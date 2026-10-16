@@ -10,7 +10,7 @@ npm `latest`는 여전히 `0.5.1`. 기준 Unity 버전 6.3 LTS.
 | | |
 |---|---|
 | 0.6.0 범위 | 묶음 1(진단 계약) · 묶음 2(텍스트·폰트) · `aspect-ratio`. 컨트롤은 0.7.0 |
-| 테스트 | 코어 **836 통과 · 1 건너뜀**(Windows 로컬). `pnpm test:text`(텍스트 코호트 + 페인트 대조 9/9) 통과 |
+| 테스트 | 코어 **838 통과 · 1 건너뜀**(Windows 로컬). `pnpm test:text`(텍스트 코호트 + 페인트 대조 9/9) 통과 |
 | 정확도 | 기본 **660/676** 불변 · 템플릿 **215/220**(0.5.1: 200/220) · 텍스트 코호트(6.3) 줄 60/60, 높이 52/60, 너비 60/60, 경계 79/80 · `aspect-ratio` 52/52(6.3) |
 | 6.3 코호트 | 골든 44케이스 6.3 재덤프가 6000.0과 1012/1012 동일 |
 | 소비자 | `95781eb` 기준 vscode-uxml-preview main 145/146, uxml-author master 16건 실패. 전부 계약 변경(A), `7837b78` 대비 새 실패 0 |
@@ -20,7 +20,7 @@ npm `latest`는 여전히 `0.5.1`. 기준 Unity 버전 6.3 LTS.
 
 ## 다음 할 일
 
-0. **0.6.0 머지** — 적대적 검증(Grok) 반영 끝(`b0cdaed`, `95781eb`). 사용자 지시 대기. 그 뒤 버전 올림·CHANGELOG 초안 확정·태그·배포
+0. **0.6.0 머지** — 적대적 검증(Grok) 반영 끝(`b0cdaed`, `95781eb`), 마지막 수정 A1~A5 끝. 사용자 문서 전면 개정(B) 후 머지. 그 뒤 버전 올림·CHANGELOG 초안 확정·태그·배포
 1. **소비자 갱신(소비자 저장소 일)** — `7837b78`에서 uxml-author 16건·vscode 1건 실패, 전부 계약 변경(A). 레이아웃 갭 예시 픽스처를 `-unity-text-auto-size`로 교체
 2. **uxml-author가 `subject.problem`을 읽도록** — 0.6.0을 받을 때. 소비자 저장소 일이다
 3. **0.7.0 컨트롤 + 테마 선택** — 런타임 테마 기준값은 실제 PanelSettings로 다시 덤프
@@ -152,8 +152,21 @@ npm `latest`는 여전히 `0.5.1`. 기준 Unity 버전 6.3 LTS.
 | 2026-10-16 | 기본 폰트로 그리는 한글·한자·가나에 경고, 새 `WarningKind` 없이 `unsupported-property` + `subject.missingGlyphs` | Inter에 글리프가 없어 Unity가 폴백 폰트로 1~4px 높게 그린다(코호트). 작성자 폰트의 커버리지 판정은 backlog |
 | 2026-10-16 | 연속 공백은 6.3처럼 하나로 접는다 | `spaces.json`: 6.3은 접고 6000.0은 접지 않는다. 기준 버전과 브라우저 페인팅이 같은 쪽이다. 끝 공백 처리는 미측정 |
 | 2026-10-16 | 페인터의 자간을 측정기와 같게(공백 옆·마지막 글자에 자간 없음) | 검증 지적 재현: 194px 상자에 211.72px를 그렸다. 실제 브라우저 대조(`tests/text-cohort/paint.mjs`)로 고정 |
+| 2026-10-16 | 기본 폰트 글리프 누락 경고의 reason을 `not-rendered` → 새 값 `font-fallback`, kind는 `unsupported-property` 유지 | 사용자 결정(A1). 글자는 그려지되 다른 폰트로 그려진다. `not-rendered`+`affectsLayout`이면 uxml-author가 exit 3을 내 한국어 UXML 대부분이 걸린다. kind: 주제가 속성(`-unity-font-definition`)이고, 나머지 16종은 컨트롤·셀렉터·단위·자산·템플릿·이름에 관한 것이다. 단, 지금 스킬은 모르는 reason을 exit 1로 보낸다 — backlog 소비자 갱신 |
+| 2026-10-16 | `pre-wrap`도 `pre`처럼 공백을 접지 않고 잰다 | `spaces-prewrap.json`(두 버전) 측정. 측정기는 접고 브라우저는 그려서 서로 어긋나 있었다. `pre`가 Unity에서 줄바꿈한다는 것(`te-wrap.json`)은 측정·그리기가 함께 CSS를 따르므로 0.6.0에서 고치지 않는다 |
 
 ## 세션 로그
+
+### 2026-10-16 (머지 전 마지막 수정 A)
+
+- A1: 기대값 먼저(`97a5a75`), Codex 1라운드, 고정 테스트 바이트 동일. 스킬의 exit 3 판정식을 테스트에 옮겨 적고 그 판정식을
+  만족하지 않음을 고정했다. 스킬 코드를 읽다가, 지금 스킬은 모르는 reason을 exit 1로 보낸다는 것을 찾았다.
+- A2: 줄 높이 계수 변이 3개(ascent +1, descent −1, pointSize 91) 모두 #3이 두 버전 다 실패.
+- A3: `pre-wrap` 공백을 Unity에서 새로 쟀다 — `pre`와 같다. 측정기를 고쳤다. `pre` 줄바꿈 차이는 backlog.
+- A4: 첫 변이가 맞힌 것은 `registry.ts` `PropertyWarning`의 타입 선언(런타임에 없음)이었다. 그 안의
+  `'file-inline-dropped'`는 등록표가 내지 않으므로 지웠다(그 값은 `yoga.ts`가 자기 타입으로 낸다).
+- A5: 중첩 비활성 투명도와 Label `flex-shrink`를 backlog 0.7.0 절로 옮겼다.
+- 변이 5개 모두 잡힘. 838 통과·1 건너뜀, `tsc` 0, 왕복 33/33, `test:text` 표 불변·paint 9/9.
 
 ### 2026-10-16 (적대적 검증 반영)
 
