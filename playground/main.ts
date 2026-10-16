@@ -13,6 +13,7 @@
 import { loadLayoutEngine, parse, render, serialize } from '../src/index';
 import type { RenderResult, Warning } from '../src/index';
 import { EXAMPLES, resolveAsset, resolveExampleImport } from './examples';
+import { describeWarning } from './warnings';
 
 const uxmlEl = document.getElementById('uxml') as HTMLTextAreaElement;
 const ussEl = document.getElementById('uss') as HTMLTextAreaElement;
@@ -96,8 +97,27 @@ let activeFiles: Record<string, string> | undefined;
 function showWarnings(warnings: readonly Warning[]): void {
   warnEl.replaceChildren();
   for (const warning of warnings) {
+    const view = describeWarning(warning);
     const line = document.createElement('div');
-    line.textContent = `[${warning.kind}] ${warning.message}`;
+    line.className = 'warning-row';
+    const badge = document.createElement('span');
+    badge.className = `badge badge-${view.badge}`;
+    badge.textContent = view.badge;
+    const content = document.createElement('div');
+    const message = document.createElement('span');
+    message.textContent = view.message;
+    content.appendChild(message);
+    if (view.details.length > 0) {
+      const details = document.createElement('ul');
+      details.className = 'warning-details';
+      for (const detail of view.details) {
+        const item = document.createElement('li');
+        item.textContent = detail;
+        details.appendChild(item);
+      }
+      content.appendChild(details);
+    }
+    line.append(badge, content);
     warnEl.appendChild(line);
   }
 }
