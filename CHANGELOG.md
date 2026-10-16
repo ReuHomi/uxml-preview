@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.6.1 — unreleased
+## 0.6.1 — 2026-10-16
 
 Japanese and Chinese text, first. The Japanese and Simplified Chinese READMEs
 are public, and the first defect their readers meet is a paragraph the browser
