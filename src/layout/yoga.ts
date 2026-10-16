@@ -25,7 +25,7 @@ import type { ComputedStyle } from '../style/resolve';
 import { isNonVisual, resolveControl } from '../controls/registry';
 import type { ControlPart } from '../controls/registry';
 import type { Theme } from '../controls/theme';
-import { THEME_UNITY_VERSIONS, verticalScrollbarWidth } from '../controls/theme';
+import { DEFAULT_THEME, THEME_UNITY_VERSIONS, verticalScrollbarWidth } from '../controls/theme';
 import { expandShorthand } from '../style/properties';
 import type { ComputedValue, DeclarationLocator } from '../style/resolve';
 import { INITIAL, parseLength, parseNumber } from '../render/values';
@@ -89,7 +89,7 @@ export type MeasureText = (
 ) => TextMetrics;
 
 export interface LayoutOptions {
-  /** Built-in theme; defaults to 'editor'. */
+  /** Built-in theme; defaults to 'runtime'. */
   theme?: Theme;
   fonts?: ReadonlyMap<ComputedStyle, { family: string; faceInfo?: FaceInfo }>;
   size: { width: number; height: number };
@@ -204,7 +204,7 @@ export function layoutDocument(
   partStyles: ReadonlyMap<NodeId, ReadonlyMap<string, ComputedStyle>>,
   options: LayoutOptions,
 ): LayoutTree {
-  const theme = options.theme ?? 'editor';
+  const theme = options.theme ?? DEFAULT_THEME;
   const yoga = engine;
   if (yoga === null) {
     throw new Error('loadLayoutEngine() must be awaited before rendering');

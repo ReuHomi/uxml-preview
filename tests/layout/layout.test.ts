@@ -30,8 +30,9 @@ const SIZE = { width: 200, height: 100 };
 
 function build(body: string, uss = ''): { doc: UxmlDocument; tree: ReturnType<typeof layoutDocument> } {
   const doc = parse(`<ui:UXML xmlns:ui="UnityEngine.UIElements">${body}</ui:UXML>`, uss);
-  const { styles, partStyles } = resolveStyles(doc);
-  return { doc, tree: layoutDocument(doc.root, styles, partStyles, { size: SIZE, measureText }) };
+  const theme = 'editor'; // 0.7.0: these values are the editor theme's; the default is now 'runtime'
+  const { styles, partStyles } = resolveStyles(doc, { theme });
+  return { doc, tree: layoutDocument(doc.root, styles, partStyles, { theme, size: SIZE, measureText }) };
 }
 
 function named(node: ElementNode, name: string): ElementNode {

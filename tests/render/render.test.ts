@@ -36,6 +36,7 @@ function draw(
   const doc = parse(`<ui:UXML xmlns:ui="UnityEngine.UIElements">${body}</ui:UXML>`, uss);
   const container = host();
   const result = render(doc, container, {
+    theme: 'editor', // 0.7.0: written against the editor theme; the default is now 'runtime'
     size: { width: 200, height: 100 },
     measureText,
     ...(resolveAsset === undefined ? {} : { resolveAsset }),

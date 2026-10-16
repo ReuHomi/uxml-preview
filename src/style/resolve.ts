@@ -29,7 +29,7 @@ import type {
 } from '../model/types';
 import { implicitClassesOf, resolveControl, supportedControlNames } from '../controls/registry';
 import type { Theme } from '../controls/theme';
-import { PANEL_TEXT_DEFAULTS_SELECTOR, THEME_UNITY_VERSIONS, THEME_SHEETS } from '../controls/theme';
+import { DEFAULT_THEME, PANEL_TEXT_DEFAULTS_SELECTOR, THEME_UNITY_VERSIONS, THEME_SHEETS } from '../controls/theme';
 import { parseUss } from '../parser/uss';
 import { attributeValueStart, parseDeclarationList } from '../parser/uss';
 import { expandShorthand, isInherited } from './properties';
@@ -54,7 +54,7 @@ export interface ComputedValue {
 export type ComputedStyle = ReadonlyMap<string, ComputedValue>;
 
 export interface ResolveOptions {
-  /** Built-in theme; defaults to 'editor'. */
+  /** Built-in theme; defaults to 'runtime'. */
   theme?: Theme;
   /**
    * Pseudo-classes to treat as active on every element, e.g. `new Set(['hover'])`.
@@ -373,7 +373,7 @@ function warningSource(doc: UxmlDocument, sheet: number): Pick<Warning, 'sourceD
  *               so neither caller can accidentally match against one.
  */
 function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
-  const theme = options?.theme ?? 'editor';
+  const theme = options?.theme ?? DEFAULT_THEME;
   const parents = buildParentMap(doc.root);
   const warnings: Warning[] = [];
   const declarationWarnings = new Map<Warning, string>();

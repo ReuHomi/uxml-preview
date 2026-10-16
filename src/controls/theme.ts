@@ -42,6 +42,8 @@
 
 export type Theme = 'runtime' | 'editor';
 
+export const DEFAULT_THEME: Theme = 'runtime';
+
 /** Unity version used to measure the editor theme. */
 export const THEME_UNITY_VERSION: string = '6000.0.40f1';
 
@@ -155,6 +157,6 @@ const VERTICAL_SCROLLBAR_PX: Readonly<Record<Theme, number>> = { editor: 13, run
  * Ensures:      0 when the content fits — Unity hides the scroller rather than
  *               shrinking the viewport for a bar nobody can see.
  */
-export function verticalScrollbarWidth(overflows: boolean, theme: Theme = 'editor'): number {
+export function verticalScrollbarWidth(overflows: boolean, theme: Theme = DEFAULT_THEME): number {
   return overflows ? VERTICAL_SCROLLBAR_PX[theme] : 0;
 }

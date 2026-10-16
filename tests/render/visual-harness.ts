@@ -92,6 +92,7 @@ export function runVisualCase(visual: VisualCase): CaseVisuals {
   document.body.appendChild(container);
 
   const result = render(doc, container, {
+    theme: 'editor', // 0.7.0: the snapshots are the editor theme's; the default is now 'runtime'
     size: PANEL,
     measureText: FIXED_MEASURE,
     ...(resolveAsset === undefined ? {} : { resolveAsset }),

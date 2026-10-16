@@ -49,6 +49,7 @@ function ours(name: string) {
   const doc = parse(readFileSync(join(HERE, `${name}.uxml`), 'utf8'));
   const container = document.createElement('div');
   const result = render(doc, container, {
+    theme: 'editor', // the dumps are UxmlLayoutDump's (EditorWindow)
     size: { width: 400, height: 300 },
     measureText: (text, context) => ({ width: text.length * context.fontSize * 0.5, height: context.fontSize }),
   });
@@ -129,6 +130,7 @@ describe('what the preview says about them', () => {
         '</ui:UXML>',
     );
     const result = render(twice, document.createElement('div'), {
+      theme: 'editor',
       size: { width: 100, height: 100 },
       measureText: () => ({ width: 0, height: 0 }),
     });

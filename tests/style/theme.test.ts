@@ -14,9 +14,13 @@
 
 import { describe, it, expect } from 'vitest';
 
-import { parse, resolveStyles, explainProperty } from '../../src/index';
+import { parse, resolveStyles as resolveAny, explainProperty as explainAny } from '../../src/index';
 import type { ElementNode, UxmlDocument } from '../../src/model/types';
 import { THEME_UNITY_VERSION } from '../../src/controls/theme';
+
+// 0.7.0: this file holds the editor theme (THEME_UNITY_VERSION); the default is now 'runtime'.
+const resolveStyles: typeof resolveAny = (d, o) => resolveAny(d, { theme: 'editor', ...o });
+const explainProperty: typeof explainAny = (d, n, p, o) => explainAny(d, n, p, { theme: 'editor', ...o });
 
 function doc(body: string, uss = ''): UxmlDocument {
   return parse(`<ui:UXML xmlns:ui="UnityEngine.UIElements">${body}</ui:UXML>`, uss);

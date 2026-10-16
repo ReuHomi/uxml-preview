@@ -161,6 +161,7 @@ function update(): void {
         : { resolveImport: (url, from) => resolveExampleImport(files, url, from) },
     );
     result = render(doc, panelEl, { size: panel, resolveAsset });
+    panelEl.dataset.theme = result.theme;
     showWarnings([...doc.warnings, ...result.warnings]);
 
     // The headline claim, checked live on whatever the user just typed.

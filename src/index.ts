@@ -32,7 +32,7 @@ export type {
 } from './model/types';
 
 export type { Theme } from './controls/theme';
-import type { Theme } from './controls/theme';
+import { DEFAULT_THEME, type Theme } from './controls/theme';
 
 import type { ElementNode, NodeId, StyleSheet, UxmlDocument, Warning } from './model/types';
 import {
@@ -277,9 +277,11 @@ export function serialize(doc: UxmlDocument): { uxml: string; uss: string } {
 
 export interface RenderOptions {
   /**
-   * 'editor' is Unity's dark editor theme; 'runtime' is the default runtime
-   * theme of a PanelSettings (Unity Manual: Panel Settings, Theme Style Sheet).
-   * Defaults to 'editor' for now; a later step changes the default to 'runtime'.
+   * Defaults to 'runtime' since 0.7.0 (Unity's PanelSettings runtime theme).
+   * 'editor' is Unity's dark editor theme, used for the published 662/676 figure.
+   * The core draws no panel background (transparent, as Unity does). Runtime
+   * text is dark (#1b1b1b), so hosts drawing on a dark backdrop must provide
+   * a panel background.
    */
   theme?: Theme;
   /** Resolves font assets once per distinct path and form in each render. */
@@ -410,7 +412,7 @@ export function render(
   const requestedTheme = options?.theme;
   const theme: Theme = requestedTheme === 'runtime' || requestedTheme === 'editor'
     ? requestedTheme
-    : 'editor';
+    : DEFAULT_THEME;
   const optionWarnings: Warning[] = requestedTheme === undefined || requestedTheme === theme
     ? []
     : [{
