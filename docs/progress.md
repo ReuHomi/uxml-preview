@@ -4,7 +4,8 @@
 
 ## 현재 위치
 
-**0.6.0 배포됨 (2026-10-16). 0.6.1 패치는 `release/0.6.1`에 커밋됨(푸시·머지 안 함). 0.7.0은 측정·설계 보고까지(`design/0.7.0`).**
+**0.6.1 배포됨 (2026-10-16).** npm `latest` = `0.6.1`(gitHead `76954ae`, 34파일), 태그 `v0.6.1`, 놀이터 Pages 배포 완료.
+0.7.0은 측정·설계 보고까지(`design/0.7.0`, 푸시 안 함).
 기준 Unity 버전 6.3 LTS.
 
 | | |
@@ -23,7 +24,7 @@
 0. **GitHub 소개 문구(사람)** — 확정 문안: "Render Unity UI Toolkit UXML/USS in the browser, no Editor needed.
    Same layout engine as Unity (Yoga), measured against real Unity 6.3 LTS. Differences are reported as warnings,
    and edits round-trip byte-exact."
-1. **0.6.1 리뷰·머지·배포(사람)** — `release/0.6.1` 커밋 3개(`d9948aa`, `077c9f6`, `f008d2b`)
+1. (0.6.1 배포 완료 — 아래 "0.6.1 릴리스")
 2. **소비자를 0.6.1에 맞춤** — uxml-author 17건(`font-fallback` 알림 채널, `states-key` `subject.problem`, aspect-ratio 픽스처,
    번들 안내 버전), vscode 1건(레이아웃 갭 픽스처). `docs/design/0.7.0-design.md` 9절
 3. **0.7.0 설계 결정(사람)** — `docs/design/0.7.0-design.md` 10절 미결 질문 7개, 상호작용은 "상태별 모습만" 권고(8절)
@@ -738,3 +739,15 @@ S1 전체(Step 1~6)를 한 세션에 끝냈다. 커밋 25개, 테스트 228 → 
 - (배포) PR #8 머지(`553df40`), PR #9 머지(`cc3e6cd`, CI ubuntu·windows 통과). `npm publish --dry-run`으로
   prepublishOnly(self-reference·typecheck·테스트 859·빌드) 확인 뒤 사용자가 직접 배포. npm `0.6.0`이 `latest`
   (2026-10-16T10:57:32Z), 태그 `v0.6.0`. Pages 배포 확인(번들에 새 예제·`font-fallback`, 페이지에 `safe center`).
+
+## 2026-10-16 — 0.6.1 릴리스
+
+- 범위: CJK 글자 사이 줄바꿈(P1), 리치 텍스트 경고(P2), `font-fallback` 문구에 한자·가나 너비(P3). 일본어·중국어 README가
+  이미 공개돼 있어 0.7.0보다 먼저 냈다.
+- 고정 테스트 먼저(`077c9f6`) → Codex 1라운드(`f008d2b`) → 고정 파일 바이트 비교 → 변이 6개. 적대적 검증은 패치 규모라 생략(지시).
+- (배포) PR #12 머지(`76954ae`, CI ubuntu·windows 통과, CHANGELOG 날짜 커밋 `52a6516` 뒤 재통과). `npm publish --dry-run`으로
+  prepublishOnly(테스트 873·빌드) 확인 뒤 사용자가 직접 배포 — 첫 시도는 `--otp`에 액세스 토큰을 넣어 400(업로드 없음),
+  `--auth-type=web`류 브라우저 인증으로 성공. npm `0.6.1`이 `latest`(gitHead `76954ae`, 34파일), 태그 `v0.6.1`,
+  GitHub 릴리스 "v0.6.1 — Japanese and Chinese text, first". Pages 배포 확인(번들에 `enable-rich-text` 경고·`6–87px` 문구).
+- 릴리스 노트에 0.6.0 노트의 정정을 넣었다: Unity도 `white-space: pre`를 폭에 맞춰 줄바꿈하지 않는다(증거는 0.7.0과 함께).
+- 노출된 npm 토큰의 폐기를 사용자에게 권했다(확인하지 않음).
