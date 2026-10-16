@@ -4,29 +4,30 @@
 
 ## 현재 위치
 
-**0.6.0 구현 완료, 미배포 (2026-10-16).** 브랜치 `release/0.6.0`(push됨, PR·태그·배포 없음).
+**0.6.0 구현 완료, 적대적 검증(Grok) 반영, 미배포 (2026-10-16).** 브랜치 `release/0.6.0`(push됨, PR·태그·배포 없음).
 npm `latest`는 여전히 `0.5.1`. 기준 Unity 버전 6.3 LTS.
 
 | | |
 |---|---|
 | 0.6.0 범위 | 묶음 1(진단 계약) · 묶음 2(텍스트·폰트) · `aspect-ratio`. 컨트롤은 0.7.0 |
-| 테스트 | 코어 **824 통과 · 1 건너뜀**(Windows 로컬). `pnpm test:text`(텍스트 코호트) 통과 |
+| 테스트 | 코어 **836 통과 · 1 건너뜀**(Windows 로컬). `pnpm test:text`(텍스트 코호트 + 페인트 대조 9/9) 통과 |
 | 정확도 | 기본 **660/676** 불변 · 템플릿 **215/220**(0.5.1: 200/220) · 텍스트 코호트(6.3) 줄 60/60, 높이 52/60, 너비 60/60, 경계 79/80 · `aspect-ratio` 52/52(6.3) |
 | 6.3 코호트 | 골든 44케이스 6.3 재덤프가 6000.0과 1012/1012 동일 |
-| 소비자 | `7837b78` 기준 vscode-uxml-preview main 145/146, uxml-author master 16건 실패. 전부 계약 변경(A), 코어 회귀 0 |
+| 소비자 | `95781eb` 기준 vscode-uxml-preview main 145/146, uxml-author master 16건 실패. 전부 계약 변경(A), `7837b78` 대비 새 실패 0 |
 | 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` (그 외는 폴백) |
 
 정확도 세트는 서로 다른 질문을 답하므로 합산하지 않는다. `docs/accuracy.md`.
 
 ## 다음 할 일
 
-0. **0.6.0 적대적 검증(별도 모델) → 머지** — 사용자 지시. 그 뒤 버전 올림·CHANGELOG 초안 확정·태그·배포
+0. **0.6.0 머지** — 적대적 검증(Grok) 반영 끝(`b0cdaed`, `95781eb`). 사용자 지시 대기. 그 뒤 버전 올림·CHANGELOG 초안 확정·태그·배포
 1. **소비자 갱신(소비자 저장소 일)** — `7837b78`에서 uxml-author 16건·vscode 1건 실패, 전부 계약 변경(A). 레이아웃 갭 예시 픽스처를 `-unity-text-auto-size`로 교체
 2. **uxml-author가 `subject.problem`을 읽도록** — 0.6.0을 받을 때. 소비자 저장소 일이다
 3. **0.7.0 컨트롤 + 테마 선택** — 런타임 테마 기준값은 실제 PanelSettings로 다시 덤프
 4. **0.6.0이 남긴 것** — `docs/backlog.md` 0.6.0 절의 2026-10-16 메모(`unsupported-unit`,
    `background-position-x/-y`, `-unity-font` 단독, 텍스트 외곽선 그리기)
-5. **Playwright Chromium이 이 PC에서 실행되지 않음** — Windows side-by-side 오류. 코호트는 설치된 Chrome으로 측정
+5. **검증이 남긴 결함 둘(그리는 결과가 바뀌어 0.6.0에서 고치지 않음)** — 중첩 disabled 불투명도(Unity는 `enabled="false"`인 요소만 흐린다, 우리는 곱해서 0.25), Label `flex-shrink: 0` 테마 값(기본 정확도 +2). `docs/backlog.md`
+6. **Playwright Chromium이 이 PC에서 실행되지 않음** — Windows side-by-side 오류. 코호트는 설치된 Chrome으로 측정
 
 **미결(0.1.0에서 이월):** 개발 문서를 비공개로 돌릴지. 결론 안 냄.
 
@@ -147,8 +148,25 @@ npm `latest`는 여전히 `0.5.1`. 기준 Unity 버전 6.3 LTS.
 | 2026-10-16 | 글자 높이 = `ceil(줄 수 × 크기 × (ascent − descent) / pointSize)`, 계수는 FaceInfo (D3) | 맞춤값 1.2109가 아니라 Unity가 보고한 1.2102. 6.3 LTS에 정확하다. 6000.0은 정수를 1 올리고 둘째 줄부터 lineHeight로 내린다 — 기준 버전을 따른다 |
 | 2026-10-16 | 텍스트 코호트를 일반 테스트와 분리(`pnpm test:text`), 실행 못 하면 실패 | happy-dom·jsdom은 글자를 재지 못한다. 건너뛰기를 통과로 세면 측정한 적 없는 숫자가 정답 행세를 한다 |
 | 2026-10-16 | 코호트 분류: 이전 버전에서 기준(6.3)과 같은 값은 (a) 버전 차이, 줄 수 차이가 낳은 높이 차이는 그 줄 수의 분류를 따른다 | 결과를 본 뒤 정한 규칙이라 각각 측정 근거를 확인했다: 6000.0은 Jua를 6.3보다 2~4px 넓게 그리고, 경계 케이스는 자연 폭 1px 차이로 줄이 바뀐다 |
+| 2026-10-16 | `unityEffect.kind`를 `panel-unstyled` → `unstyled-from-here`로 | 검증 지적을 재현: 잘못된 값 앞의 형제는 스타일이 남고 그 요소부터 뒤가 전부 잃는다(`order-*.json`). "패널 전체"는 과장이었다. 미배포 필드라 이름을 바꿨다 |
+| 2026-10-16 | 기본 폰트로 그리는 한글·한자·가나에 경고, 새 `WarningKind` 없이 `unsupported-property` + `subject.missingGlyphs` | Inter에 글리프가 없어 Unity가 폴백 폰트로 1~4px 높게 그린다(코호트). 작성자 폰트의 커버리지 판정은 backlog |
+| 2026-10-16 | 연속 공백은 6.3처럼 하나로 접는다 | `spaces.json`: 6.3은 접고 6000.0은 접지 않는다. 기준 버전과 브라우저 페인팅이 같은 쪽이다. 끝 공백 처리는 미측정 |
+| 2026-10-16 | 페인터의 자간을 측정기와 같게(공백 옆·마지막 글자에 자간 없음) | 검증 지적 재현: 194px 상자에 211.72px를 그렸다. 실제 브라우저 대조(`tests/text-cohort/paint.mjs`)로 고정 |
 
 ## 세션 로그
+
+### 2026-10-16 (적대적 검증 반영)
+
+- Grok의 9개 지적을 고치기 전에 전부 재현했다. #9(스냅샷 재생성의 비교 대상)는 결함이 아니라 설명 요청이라 근거로 답했다.
+  새 Unity 증거: `probe-editor/`의 `lines`·`filter-canary`·`nested-disabled`·`order-{hsl,cubic,filter}`·`spaces`, 예외 로그.
+- 고정 테스트를 먼저 커밋(`b0cdaed`: `tests/contract-060/review-fixes.test.ts`, `tests/text-cohort/paint.mjs`), 구현은 Codex
+  relay(0.2.1, 저장소 인식 — 이번에 실사용 검증), 수정 `95781eb`. 고정 테스트는 라운드 전후 바이트 동일.
+- 틀렸던 것: "텍스트 불일치는 전부 너비" — `ItemDesc.height`는 테마(Label `flex-shrink`) 문제였다. `edit.test`의 단언 둘은
+  구현 공식을 다시 계산하는 동어반복이었다 — Unity 값(13, 37)으로 바꿨다. CHANGELOG·accuracy.md 문구 정정.
+- 고치다 하나 더 찾았다: 측정기가 연속 공백을 그대로 쟀다. 6.3은 접는다(`spaces.json`).
+- 중첩 disabled는 측정만 했다. Unity는 `enabled="false"`인 요소만 흐리게 하고 자식은 곱하지 않는다. 우리는 0.25 — backlog.
+- 소비자 재확인(`95781eb` tarball): vscode 145/146, uxml-author 16건 실패, `7837b78`과 같은 목록. 새 경고·이름 변경은
+  두 소비자 테스트에 닿지 않는다(한글 픽스처·`unityEffect` 참조 없음).
 
 ### 2026-10-16
 
