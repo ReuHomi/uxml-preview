@@ -112,11 +112,31 @@ describe('#4 text the default font has no glyphs for', () => {
       expect(ws.map((w) => (w.subject?.kind === 'property' ? w.subject.missingGlyphs : undefined))).toEqual(['hangul', 'han', 'kana']);
       for (const w of ws) {
         expect(w.kind).toBe('unsupported-property');
-        expect(w.reason).toBe('not-rendered');
+        // Changed 2026-10-16 by the user's decision (A1): the glyphs are drawn,
+        // in another font, so this is not `not-rendered`.
+        expect(w.reason).toBe('font-fallback');
         expect(w.subject).toMatchObject({ affectsLayout: true });
         expect(w.node).toBeDefined();
         expect(w.message).toMatch(/fallback/i);
       }
+    } finally {
+      r.dispose();
+    }
+  });
+
+  it('cannot meet uxml-author\'s exit-3 condition (src/check.js classify: not-rendered + affectsLayout)', () => {
+    // Transcribed from uxml-author master, src/check.js `classify`: a warning
+    // goes to `layoutGaps`, and the run exits 3, exactly when
+    //   w.reason === 'not-rendered' && w.subject.affectsLayout === true.
+    // Korean UXML with no font set is the common case; it must not land there.
+    const exit3 = (w: Warning) =>
+      w.reason === 'not-rendered' && w.subject?.kind === 'property' && w.subject.affectsLayout === true;
+    const r = draw('<ui:Label text="한글" /><ui:Button text="漢字" /><ui:Label text="かな" />');
+    try {
+      const ws = fallback(r.warnings);
+      expect(ws).toHaveLength(3);
+      for (const w of ws) expect(exit3(w)).toBe(false);
+      expect(r.warnings.filter(exit3)).toEqual([]);
     } finally {
       r.dispose();
     }
@@ -162,5 +182,23 @@ describe('#1 (found while pinning it) repeated spaces: Unity 6.3 collapses them,
 
   it('white-space: pre keeps them', () => {
     expect(width('a  b  c', 'pre')).toBeGreaterThan(width('a b c', 'pre'));
+  });
+
+  // A3, 2026-10-16. spaces-prewrap.json, 20px, padding 0, identical on both versions:
+  //   pre-wrap "a  b  c" 58, "a     b     c" 92, "   abc" 52 — the same as pre;
+  //   "a b c" 47, "abc" 35. CSS pre-wrap keeps spaces too, so measuring has to.
+  it('white-space: pre-wrap keeps them, as Unity and the browser both do', () => {
+    for (const version of ['6000.0.40f1', '6000.3.25f1']) {
+      const w = new Map(dump(version, 'spaces-prewrap.json').elements.map((e) => [e.name, (e as unknown as { w: number }).w]));
+      expect([w.get('pw-two'), w.get('pw-five'), w.get('pw-lead')], version).toEqual([w.get('pre-two'), 92, w.get('pre-lead')]);
+      expect(w.get('pw-two')).toBeGreaterThan(w.get('one')!);
+      expect(w.get('pw-lead')).toBeGreaterThan(w.get('abc')!);
+    }
+    for (const ws of ['pre-wrap', 'pre']) {
+      expect(width('a  b  c', ws), ws).toBeGreaterThan(width('a b c', ws));
+      expect(width('a     b     c', ws), ws).toBeGreaterThan(width('a  b  c', ws));
+      expect(width('   abc', ws), ws).toBeGreaterThan(width('abc', ws));
+    }
+    expect(width('a  b  c', 'pre-wrap')).toBe(width('a  b  c', 'pre'));
   });
 });
