@@ -22,7 +22,7 @@ import { loadLayoutEngine, parse, render, resolveStyles } from '../../src/index'
 import type { MeasureText, RenderOptions, RenderResult, Theme, UxmlDocument } from '../../src/index';
 import { layoutDocument } from '../../src/layout/yoga';
 
-const DEFAULT_THEME: Theme = 'editor';
+const DEFAULT_THEME: Theme = 'runtime';
 
 beforeAll(async () => {
   await loadLayoutEngine();
