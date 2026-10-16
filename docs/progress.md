@@ -4,35 +4,28 @@
 
 ## 현재 위치
 
-**0.6.1 배포됨 (2026-10-16).** npm `latest` = `0.6.1`(gitHead `76954ae`, 34파일), 태그 `v0.6.1`, 놀이터 Pages 배포 완료.
-0.7.0은 측정·설계 보고까지(`design/0.7.0`, 푸시 안 함).
+**0.6.1 배포됨 (2026-10-16).** npm `latest` = `0.6.1`. **0.7.0 묶음 A(테마 기반) 완료 — `design/0.7.0`, 푸시 안 함, 미배포.**
 기준 Unity 버전 6.3 LTS.
 
 | | |
 |---|---|
-| 0.6.1 범위 | P1 CJK 글자 사이 줄바꿈 · P2 리치 텍스트 경고 · P3 `font-fallback` 문구(한자·가나 너비). `package.json` 0.6.1, CHANGELOG `unreleased` |
-| 테스트(0.6.1) | 코어 **873 통과 · 1 건너뜀**, tsc, 왕복 33, 텍스트 코호트 (c) 0 · 문서 표 일치, paint 24/24 |
-| 정확도 | 기본 **660/676** 불변 · 템플릿 215/220 · 텍스트 코호트(6.3) 줄 92/92, 높이 84/92, 너비 92/92, 줄바꿈 케이스 157/159 · `aspect-ratio` 52/52 |
-| 0.7.0 측정 | 실제 런타임 패널(PanelSettings + UIDocument, Play 모드) 덤프: `tests/layout/unity/*/probe-panel/`, 에디터 `probe-editor-070/`, 골든 런타임 `6000.3.25f1/golden-panel/` |
-| 소비자 | 0.6.0 tarball 기준 uxml-author 17건·vscode 1건 실패(그대로). 0.6.1은 소비자 판정식에 새 영향 없음(리치 텍스트 경고는 의도대로 exit 3) |
+| 0.7.0 묶음 A | 기본 테마 `'runtime'`(`theme` 옵션), 두 테마의 측정값, `.unity-disabled`, Label·Button `flex-shrink: 0`, 런타임 CJK 금칙 없음, 플레이그라운드 체크무늬. `package.json`은 아직 0.6.1, CHANGELOG `0.7.0 — unreleased` |
+| 테스트 | 코어 **897 통과 · 1 건너뜀**, tsc, 텍스트 코호트 불변(92/92·84/92·92/92·157/159), paint 39/39 |
+| 정확도 | **런타임 테마 662/676**(Unity 6.3 실제 런타임 패널, 새 세트) · 에디터 테마 **662/676**(6000.0.40f1, 660에서) · 템플릿 215/220 · 합산하지 않음 |
+| 소비자 | 0.7.0 tarball: uxml-author 17건 실패(0.6.1과 항목 동일), vscode 4건 실패(0.6.1 대비 +3, 모두 Label 문서의 테마 경고를 issue로 셈). `docs/design/0.7.0-handoff.md` |
 | 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` (그 외는 폴백) |
 
 정확도 세트는 서로 다른 질문을 답하므로 합산하지 않는다. `docs/accuracy.md`.
 
 ## 다음 할 일
 
-0. **GitHub 소개 문구(사람)** — 확정 문안: "Render Unity UI Toolkit UXML/USS in the browser, no Editor needed.
-   Same layout engine as Unity (Yoga), measured against real Unity 6.3 LTS. Differences are reported as warnings,
-   and edits round-trip byte-exact."
-1. (0.6.1 배포 완료 — 아래 "0.6.1 릴리스")
-2. **소비자를 0.6.1에 맞춤** — uxml-author 17건(`font-fallback` 알림 채널, `states-key` `subject.problem`, aspect-ratio 픽스처,
-   번들 안내 버전), vscode 1건(레이아웃 갭 픽스처). `docs/design/0.7.0-design.md` 9절
-3. **0.7.0 설계 결정(사람)** — `docs/design/0.7.0-design.md` 10절 미결 질문 7개, 상호작용은 "상태별 모습만" 권고(8절)
-4. **0.7.0 묶음 A(테마 기반)부터** — 설계 보고 5절. 묶음 D 전 슬라이더 값–손잡이 위치 추가 측정
-5. **0.6.0이 남긴 것** — `docs/backlog.md` 0.6.0 절의 2026-10-16 메모(`unsupported-unit`,
-   `background-position-x/-y`, `-unity-font` 단독, 텍스트 외곽선 그리기)
-6. **backlog 정정** — "`pre` 줄바꿈" 항목 판정 뒤집힘(설계 보고 1-4), 새 행으로
-7. **Playwright Chromium이 이 PC에서 실행되지 않음** — 코호트는 설치된 Chrome으로 측정
+0. **GitHub 소개 문구(사람)** — 확정 문안은 2026-10-16 기록 그대로
+1. **묶음 A 검토(사람)** — 12개 단언 근거 표(아래 2026-10-17 세션 로그), 인계 문서 초안, 플레이그라운드 F5(런타임 체크무늬)
+2. **런타임 테마의 테마 경고를 줄일지(사람)** — 런타임 값은 두 버전이 같은데 Label이 있는 모든 문서에 `version-dependent`가 붙는다(인계 문서 5절)
+3. **0.7.0 다음 묶음(B–F)** — `docs/design/0.7.0-design.md` 5절. 묶음 D 전 슬라이더 값–손잡이 위치 추가 측정
+4. **소비자 갱신(소비자 저장소의 일)** — 인계 문서 4절 목록
+5. **0.6.0이 남긴 것** — `docs/backlog.md` 0.6.0 절의 2026-10-16 메모
+6. **Playwright Chromium이 이 PC에서 실행되지 않음** — 코호트는 설치된 Chrome으로 측정
 
 **미결(0.1.0에서 이월):** 개발 문서를 비공개로 돌릴지. 결론 안 냄.
 
@@ -200,6 +193,17 @@
 
 - 스냅숏 25개 재생성: 상자 변화는 골든 3케이스뿐이고 Unity 쪽으로 움직였거나(`button-sizes-to-text` 높이 29 일치, `ItemDesc` 일치, `text-size` 90→93 대 92) 원래 틀리던 글자 폭(`inventory` 경계 4값). 색 47개는 모두 새로 생긴 값(작성자 색 변경 없음). 투명도는 `visual-nested-disabled` 안쪽 0.5→없음(측정대로)
 - 변이: A0 3/4(남은 하나는 동치), A1 3/3, A2 7/7(Label 여백·`flex-shrink`·비활성 규칙·런타임 글자 크기·스크롤바·`<wbr>`·강제 비활성)
+- (04:05 추가) A3: 예측을 새 규칙(값을 읽는 테스트 목록부터)으로 다시 세움 — 기본 테마를 읽는 테스트 파일 33개, 예측 61–92개 깨짐.
+  하네스 `runCase`에 테마 인자(기본 `'editor'`)를 먼저 넣어 골든·템플릿 40개를 미리 옮겼고, 기본값 전환 뒤 31개가 깨졌다(합 71, 예측 안).
+  31개는 테스트마다 `theme: 'editor'` 설정 줄로 옮겼고 기대값은 하나도 바꾸지 않았다: 그림 하네스(스냅숏 20), `layout`(Label·Button 상자 3),
+  `nonvisual`(UxmlLayoutDump 대조 2), `render`(Button 잎 1), `style/theme`(에디터 여백·출처·버전 경고 5). 런타임 기본 경로는
+  `contract-070`, `golden/runtime.test.ts`, paint 런타임 행, 테마 없이 그리는 나머지(cascade·states·contract-060/061·warning-fields·
+  consumer-contract·템플릿·텍스트 코호트)가 검사한다. 런타임 세트는 전환 전에 이미 662/676(남은 14개는 에디터 알려진 불일치와 같은 자리)
+- A4: accuracy(한·영)에 런타임 세트 절과 행, README 4개 첫 줄 런타임(6.3)·둘째 줄 에디터(6000.0). README 수치 테스트 규칙 확장
+  (`PanelSettings`+6000.3.25f1 줄 = 런타임, 에디터 줄보다 앞, accuracy 런타임 행 분리 — 변이 4/4). supported·api·backlog(`pre` 정정 새 줄)·CHANGELOG
+- 소비자 측정: uxml-author(`d430ff3`) 0.6.1·0.7.0 모두 17건 실패, 항목 동일. vscode(`ce8ea27`) 1 → 4건, 새 3건은 Label 문서의 테마 경고.
+  인계 문서 초안 `docs/design/0.7.0-handoff.md`
+- 변이: A3 4/4(하네스 기본 런타임·런타임 Button 안쪽 여백 0·기본값 에디터·런타임 스크롤바 13)
 
 ### 2026-10-16 (23:07 추가 — 0.6.1 패치 · 0.7.0 측정·설계)
 - 0번: README 수치 테스트는 이미 영·한·일·중 네 파일을 읽고 있었다. 변이 6개(ja·zh 각각 좌표·높이 숫자, 상단 상호 링크) 전부 실패로 잡힘. 테스트 제목만 고침(`d9948aa`). 번역문의 숫자 오류 없음

@@ -369,6 +369,25 @@ describe('accuracy: we match Unity', () => {
   }
 
   /**
+   * The runtime theme's figure (0.7.0): the same comparison against Unity's runtime
+   * panel, tests/golden/unity-runtime/ (runtime.test.ts holds what is left). A separate
+   * set, never added to the editor figure.
+   */
+  function computeRuntimeAccuracy(): { matchingValues: number; comparedValues: number } {
+    let comparedValues = 0;
+    let matchingValues = 0;
+    for (const golden of coordinateCases) {
+      const unity = readJson<UnityDump>(join(HERE, 'unity-runtime', `${golden.name}.json`));
+      if (unity === null) continue;
+      const reproduced = Object.keys(unity.elements).filter((k) => !NOT_REPRODUCED.has(baseName(k)));
+      const mismatches = compare(runCase(golden, unity.panel, 'runtime'), unity);
+      comparedValues += reproduced.length * 4;
+      matchingValues += reproduced.length * 4 - mismatches.length;
+    }
+    return { matchingValues, comparedValues };
+  }
+
+  /**
    * Extracts every markdown table row containing all of `words`, and reads
    * the first `N / M` fraction on that row.
    *
@@ -379,12 +398,13 @@ describe('accuracy: we match Unity', () => {
    * happens to mention the same words (there is exactly one such paragraph,
    * about a past mis-citation) is never mistaken for a data row.
    */
-  function fractionsInRowsContaining(text: string, words: string[]): Array<[number, number]> {
+  function fractionsInRowsContaining(text: string, words: string[], exclude: string[] = []): Array<[number, number]> {
     const out: Array<[number, number]> = [];
     for (const rawLine of text.split('\n')) {
       const line = rawLine.trim();
       if (!line.startsWith('|')) continue;
       if (!words.every((w) => line.includes(w))) continue;
+      if (exclude.some((w) => line.includes(w))) continue;
       const m = /(\d+)\s*\/\s*(\d+)/.exec(line);
       if (m !== null) out.push([Number(m[1]), Number(m[2])]);
     }
@@ -422,8 +442,14 @@ describe('accuracy: we match Unity', () => {
       },
     ];
 
+    // 0.7.0: the runtime set has its own row; the editor rows must not pick it up.
+    const runtime = computeRuntimeAccuracy();
+    const rt = fractionsInRowsContaining(doc, ['런타임', '값', '일치']);
+    expect(rt.length, 'docs/accuracy.md has no runtime "런타임 값 일치" row').toBeGreaterThan(0);
+    for (const fraction of rt) expect(fraction, 'docs/accuracy.md runtime row is stale').toEqual([runtime.matchingValues, runtime.comparedValues]);
+
     for (const { label, words, expected } of checks) {
-      const found = fractionsInRowsContaining(doc, words);
+      const found = fractionsInRowsContaining(doc, words, ['런타임']);
       expect(found.length, `docs/accuracy.md has no "${label}" row — update the doc or the parser`).toBeGreaterThan(0);
       for (const fraction of found) {
         expect(fraction, `docs/accuracy.md's "${label}" row is stale`).toEqual(expected);
@@ -438,10 +464,12 @@ describe('accuracy: we match Unity', () => {
    * Pinned expectations: do not edit the expectations to match an
    * implementation.
    *
-   * README convention, the only one this parser accepts: the coordinate figure
-   * sits on a line that names 6000.0.40f1, the text figures (lines, height,
-   * width, in that order) on a line that names 6000.3.25f1. Any other fraction
-   * in a README is a number nothing checks, and fails.
+   * README convention, the only one this parser accepts: the runtime-theme
+   * coordinate figure sits on a line that names both PanelSettings and
+   * 6000.3.25f1, and comes first (decision 2026-10-17: the default theme's figure
+   * leads); the editor-theme coordinate figure on a line that names 6000.0.40f1;
+   * the text figures (lines, height, width, in that order) on a line that names
+   * 6000.3.25f1. Any other fraction in a README is a number nothing checks, and fails.
    */
   it('matches the figures published in docs/accuracy.en.md and all four READMEs', () => {
     const stats = computeAccuracy();
@@ -450,12 +478,16 @@ describe('accuracy: we match Unity', () => {
     const read = (name: string) => readFileSync(join(root, name), 'utf8');
 
     const en = read('docs/accuracy.en.md');
+    const runtime = computeRuntimeAccuracy();
+    const rtEn = fractionsInRowsContaining(en, ['Runtime', 'values', 'matching']);
+    expect(rtEn.length, 'docs/accuracy.en.md has no "Runtime values matching" row').toBeGreaterThan(0);
+    for (const fraction of rtEn) expect(fraction, 'docs/accuracy.en.md runtime row').toEqual([runtime.matchingValues, runtime.comparedValues]);
     for (const { words, expected } of [
       { words: ['Values', 'matching'], expected: [stats.matchingValues, stats.comparedValues] },
       { words: ['Cases', 'matching'], expected: [stats.fullyMatchingCases, stats.presentCases] },
       { words: ['ground truth', 'available'], expected: [baselinePresent, measured.length] },
     ]) {
-      const found = fractionsInRowsContaining(en, words);
+      const found = fractionsInRowsContaining(en, words, ['Runtime']);
       expect(found.length, `docs/accuracy.en.md has no "${words.join(' ')}" row`).toBeGreaterThan(0);
       for (const fraction of found) expect(fraction, `docs/accuracy.en.md "${words.join(' ')}"`).toEqual(expected);
     }
@@ -485,10 +517,15 @@ describe('accuracy: we match Unity', () => {
       }
       let coordinateLines = 0;
       let textLines = 0;
+      let runtimeLines = 0;
       for (const line of text.split('\n')) {
         const fractions = [...line.matchAll(FRACTION)].map((m) => [Number(m[1]), Number(m[2])]);
         if (fractions.length === 0) continue;
-        if (line.includes('6000.0.40f1')) {
+        if (line.includes('PanelSettings') && line.includes('6000.3.25f1')) {
+          runtimeLines++;
+          expect(coordinateLines, `${name}: the runtime line comes before the editor line`).toBe(0);
+          expect(fractions, `${name}: ${line.trim()}`).toEqual([[runtime.matchingValues, runtime.comparedValues]]);
+        } else if (line.includes('6000.0.40f1')) {
           coordinateLines++;
           expect(fractions, `${name}: ${line.trim()}`).toEqual([[stats.matchingValues, stats.comparedValues]]);
         } else if (line.includes('6000.3.25f1')) {
@@ -498,6 +535,7 @@ describe('accuracy: we match Unity', () => {
           expect.fail(`${name} has a fraction no test holds: ${line.trim()}`);
         }
       }
+      expect(runtimeLines, `${name}: runtime coordinate figure (a line naming PanelSettings and 6000.3.25f1)`).toBeGreaterThan(0);
       expect(coordinateLines, `${name}: coordinate figure (a line naming 6000.0.40f1)`).toBeGreaterThan(0);
       expect(textLines, `${name}: text figures (a line naming 6000.3.25f1)`).toBeGreaterThan(0);
       // npm shows the README without docs/, so a relative link breaks there.

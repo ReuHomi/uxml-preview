@@ -45,7 +45,7 @@ Unity. See "What this number covers" in [Accuracy](accuracy.en.md) for why that 
 |---|---|---|
 | `VisualElement` | verified | most golden cases are built from it (coordinates, measured) |
 | `Label` | verified | layout compared through the golden cases, text boxes through the text cohort (measured). Height follows Unity's FaceInfo formula; letter, word and paragraph spacing follow Unity's rules — see "Text and fonts" below |
-| `Button` | verified | ten golden cases compared by coordinates (measured). Its label is **centred**, found by the eye check. Carries Unity's **default `margin: 1px 3px`** (`src/controls/theme.ts`); honours `:hover` and the other states. Editor theme; the runtime theme is 0.7.0 |
+| `Button` | verified | ten golden cases compared by coordinates (measured). Its label is **centred**, found by the eye check. Carries the theme's margin, padding, border, colours and `:hover`/`:active`/`:focus`/`:disabled` colours on both themes, all from dumps (`src/controls/theme.ts`, 0.7.0); `flex-shrink: 0` |
 | `ScrollView` | verified | reproduces the **three implicit levels** (`unity-content-and-vertical-scroll-container` → `unity-content-viewport` → `unity-content-container`); four golden cases compared by coordinates (measured). The scrollbar's **width is reserved (13px) but nothing is drawn** — dragging, wheeling and scroll position are outside a static render |
 | `Image` | verified | has its own renderer (`unity-image`). The six `Image` elements of the representative screen (`inventory`) match Unity 6000.0.40f1 in all 24 coordinate values (measured), and the default scale mode `stretch-to-fill` was confirmed by eye ([visual check](visual-check.md), item 5). Its picture arrives through USS `background-image` — a texture assigned from C# leaves no path a preview can follow |
 | `TextField` | fallback | its `text` / `label` is not drawn |
@@ -66,7 +66,9 @@ Unity. See "What this number covers" in [Accuracy](accuracy.en.md) for why that 
 >
 > Parsing succeeds either way, and nothing is lost on a round trip.
 
-More control renderers and a runtime theme option are 0.7.0.
+More control renderers are for the bundles after 0.7.0's first.
+
+**Themes (0.7.0).** `render`'s `theme` option picks `'runtime'` (the default, a game screen: the default runtime theme Unity creates for a new PanelSettings) or `'editor'` (the dark editor theme). Both themes' default text size and colour and their Label and Button values are read from dumps (`tests/layout/unity/6000.3.25f1/probe-panel/`, `6000.0.40f1/probe-editor-070/`). The light editor theme is not covered. The core paints nothing behind the panel (transparent, as Unity does); runtime text is dark (#1b1b1b), so the backdrop is the host's to choose.
 
 ## Templates and instances
 
@@ -116,7 +118,7 @@ property exists, inherits, and when it was introduced comes only from the regist
 | `letter-spacing` / `word-spacing` | A | verified | the value is not CSS px but **value × font size / 100**. Measured and painted by that rule (spacing probes, measured). See "Text and fonts" below |
 | `-unity-paragraph-spacing` | A | verified | measured and painted (spacing probes, measured) |
 | `-unity-text-generator` | A | verified | the spacing difference between `standard` and `advanced` is measured and painted (measured) |
-| `white-space` | A | **partial** | space handling is measured (below). Wrapping under `pre` differs — Unity wraps `pre` to the width too (measured); the preview does not |
+| `white-space` | A | verified | space handling is measured (below). Unity does not wrap `pre` to the width either (`pre-wrap2`, both versions and themes, 2026-10-16) — 0.6.0's "Unity wraps `pre`" came from evidence that could not tell them apart |
 | `-unity-font-definition` | B | verified | when the host returns a font through the `resolveFont` hook, text is measured and painted in it (text cohort, measured). Without the hook, or on `null`, it warns and uses the browser's default font |
 | `-unity-font` | B | written | its precedence against `-unity-font-definition` follows Unity's documentation (documented); not measured on its own |
 | `-unity-font-style` | B | written | |
@@ -230,12 +232,12 @@ another is disabled, which a single document-wide set cannot express.
   and a state name Unity never sets are all warned.
 - **`:enabled` applies automatically** to every element that is not disabled — Unity does so
   (measured on 6000.0.40f1 and 6000.3.25f1).
-- **Unity's own state defaults (a `:hover` background, say) are not included.** A layout dump
-  measures geometry, and a colour is not geometry, so there is no way to prove them. Only state
-  styling you wrote yourself applies.
-- **Nested disabled elements differ from Unity.** Unity dims only the element with
-  `enabled="false"` to opacity 0.5 and leaves its descendants alone (measured). The preview
-  compounds it to 0.25. To be fixed with the 0.7.0 theme work.
+- **Button's own state defaults (`:hover`, `:active`, `:focus`, `:disabled` colours) are included since 0.7.0**,
+  measured as resolved styles under forced pseudo-states (`c07-states`, both themes). Other controls' state
+  defaults are measured when those controls get drawn.
+- **Only the element written disabled is dimmed (0.7.0).** Unity gives `unity-disabled` and opacity 0.5
+  to the element with `enabled="false"` and leaves its descendants at 1 (measured, `nested-disabled`); so
+  does the preview. An element forced `disabled` through `states` is dimmed alone too.
 
 `:selected` is not a state: Unity's page says USS does not support it (use `:checked`).
 
@@ -266,4 +268,4 @@ built (`kind`, `reason`, `subject`, `nodes`, `at`) and how a consumer should rea
 - A wrapped `ScrollView`'s content height differs: Unity clamps it to the viewport, Yoga grows it
   to the content. Unity's rule is not identified yet
 - Scrollbars reserve their width but are not drawn, and nothing scrolls
-- The runtime theme (PanelSettings) has not been compared. Every baseline is the editor theme
+- The runtime theme (PanelSettings) is compared as its own set since 0.7.0 (`docs/accuracy.en.md`, "Runtime theme"). The light editor theme is not compared

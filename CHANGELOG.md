@@ -1,5 +1,61 @@
 # Changelog
 
+## 0.7.0 — unreleased
+
+Unity's runtime theme, by default. A preview of a game screen now looks like the
+game: the values come from a real runtime panel (PanelSettings + UIDocument in
+Play mode) on Unity 6.3, and the editor theme stays one option away.
+
+### Behavior changes
+
+- **The default theme is `'runtime'`.** `render`, `resolveStyles` and
+  `layoutDocument` take `theme: 'runtime' | 'editor'`; `RenderResult.theme`
+  says which was drawn. Without the option, every render changes:
+  - text: 14px, colour #1b1b1b (editor: 12px, #d2d2d2)
+  - Label: margin 4 4 2 2, padding 4 2 4 1 (editor: 0; 0 2 0 1)
+  - Button: margin 2 4, padding 10 12, border 1 #959595, background #bcbcbc,
+    radius 0 (editor: margin 1 3, padding 1 6, border 1 #303030 with a
+    #242424 bottom, background #585858, radius 3, text #eeeeee)
+  - a scrolling ScrollView reserves 24px for its scroller (editor: 13px)
+  - the core paints nothing behind the panel, as Unity paints nothing behind
+    a runtime panel. Runtime text is dark: a host drawing on a dark backdrop
+    has to supply one. Pass `theme: 'editor'` for the 0.6.x drawing plus the
+    values below.
+- **Both themes now carry their measured values**, where 0.6.x had only the
+  Button margin and text alignment: panel text size and colour (inherited by
+  every element, origin `builtin-theme`), Label padding, Button padding,
+  border, colours and `:hover` / `:active` / `:focus` / `:disabled` colours.
+- **Label and Button do not shrink** (`flex-shrink: 0`, measured on both
+  themes). `inventory`'s `ItemDesc` now lands where Unity puts it.
+- **Only the element written `enabled="false"` is dimmed.** Unity gives that
+  element `unity-disabled` and opacity 0.5 and leaves its descendants at 1; a
+  disabled button inside a disabled panel was 0.25 here. An element forced
+  `disabled` through `states` is dimmed alone, as before.
+- **The runtime theme paints CJK without kinsoku**, as Unity's runtime panel
+  does. The editor theme keeps the browser's line breaking (a known
+  difference at one 60px Chinese case, Unity 6.3 editor).
+- An unknown `theme` value warns (`malformed`, reason `invalid-value`) and
+  draws the default.
+- **A document with a Label now gets the theme note.** The
+  `version-dependent` warning "Built-in control defaults applied, as measured
+  on Unity <version>" used to appear only where a Button took theme values;
+  Label now takes them too. A host that counts every warning as an issue will
+  count one more (vscode-uxml-preview's diagnostics panel does).
+
+### Accuracy — previous and new figures
+
+| Set | 0.6.1 | 0.7.0 | Why |
+|---|---:|---:|---|
+| Runtime theme coordinates (Unity 6.3 runtime panel) | — | 662 / 676 | new set; the 14 left are the editor set's known divergences |
+| Editor theme coordinates (Unity 6000.0.40f1) | 660 / 676 | 662 / 676 | Label `flex-shrink: 0` (`ItemDesc` y, height) |
+| Template cohort | 215 / 220 | 215 / 220 | unchanged; G3-4 text-width deltas moved by the Label padding |
+| Text cohort (Chromium vs Unity 6.3) | 92/92 · 84/92 · 92/92 · 157/159 | unchanged | |
+
+### Corrections
+
+- `white-space: pre` does not wrap to the width in Unity either. 0.6.0 said it
+  did, from evidence that could not tell the two apart (`pre-wrap2`).
+
 ## 0.6.1 — 2026-10-16
 
 Japanese and Chinese text, first. The Japanese and Simplified Chinese READMEs

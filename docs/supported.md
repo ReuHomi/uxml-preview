@@ -42,8 +42,8 @@
 |---|---|---|
 | `VisualElement` | 검증됨 | 골든 케이스 대부분이 이걸로 짜여 있다 (좌표, 측정) |
 | `Label` | 검증됨 | 배치는 골든 케이스로, 글자 상자는 텍스트 코호트로 Unity와 대조했다(측정). 높이는 Unity의 FaceInfo 공식, 자간·어간·문단 간격은 Unity 규칙을 따른다 — 아래 "텍스트와 폰트" |
-| `Button` | 검증됨 | 골든 케이스 10개 좌표 대조(측정). 라벨은 **가운데 정렬**(육안 대조로 발견). Unity의 **기본 여백 `margin: 1px 3px`**을 적용한다(`src/controls/theme.ts`). `:hover` 등 상태 스타일 해석 지원. 에디터 테마 기준이며 런타임 테마는 0.7.0 |
-| `ScrollView` | 검증됨 | **암묵 계층 3층**(`unity-content-and-vertical-scroll-container` → `unity-content-viewport` → `unity-content-container`)을 재현한다. 골든 케이스 4개 좌표 대조(측정). 스크롤바는 **폭(13px)만 예약**하고 그리지 않는다 — 드래그·휠·스크롤 위치는 정지 렌더 범위 밖 |
+| `Button` | 검증됨 | 골든 케이스 10개 좌표 대조(측정). 라벨은 **가운데 정렬**(육안 대조로 발견). 테마의 바깥·안쪽 여백, 테두리, 색, `:hover`·`:active`·`:focus`·`:disabled` 색을 두 테마 모두 덤프 값으로 적용한다(`src/controls/theme.ts`, 0.7.0). `flex-shrink: 0` |
+| `ScrollView` | 검증됨 | **암묵 계층 3층**(`unity-content-and-vertical-scroll-container` → `unity-content-viewport` → `unity-content-container`)을 재현한다. 골든 케이스 4개 좌표 대조(측정). 스크롤바는 **폭만 예약**(에디터 테마 13px, 런타임 테마 24px, 측정)하고 그리지 않는다 — 드래그·휠·스크롤 위치는 정지 렌더 범위 밖 |
 | `Image` | 검증됨 | 전용 렌더러(`unity-image`). 대표 화면(`inventory`)의 `Image` 6개가 좌표 24값 모두 Unity 6000.0.40f1과 같고(측정), 기본 스케일 모드 `stretch-to-fill`은 육안 대조로 확인했다([육안 대조](visual-check.md) 5번). 그림은 USS `background-image`로 들어온다 — C#에서 할당한 텍스처는 미리보기가 따라갈 경로가 없다 |
 | `TextField` | 폴백 | `text`·`label`이 그려지지 않는다 |
 | `Toggle` | 폴백 | 위와 같다 |
@@ -62,7 +62,9 @@
 >
 > 파싱은 어느 쪽이든 성공하며, 왕복 시 유실되지 않는다.
 
-컨트롤 전용 렌더러를 늘리는 일과 런타임 테마 선택은 0.7.0 범위다.
+컨트롤 전용 렌더러를 늘리는 일은 0.7.0 이후 묶음의 범위다.
+
+**테마 (0.7.0).** `render`의 `theme` 옵션이 `'runtime'`(기본값, 게임 화면: Unity가 새 PanelSettings에 만드는 기본 런타임 테마)과 `'editor'`(어두운 에디터 테마)를 고른다. 두 테마의 기본 글자 크기·색, Label·Button 값은 모두 덤프에서 읽었다(`tests/layout/unity/6000.3.25f1/probe-panel/`, `6000.0.40f1/probe-editor-070/`). 밝은 에디터 테마는 다루지 않는다. 코어는 패널 뒤를 칠하지 않는다(투명, Unity와 같다) — 런타임 테마의 글자는 어두운 색(#1b1b1b)이라 바탕은 화면을 보여 주는 쪽이 정한다.
 
 ## Template / Instance
 
@@ -111,7 +113,7 @@ UXML은 `project://database/Packages/...`로 해석된다(Unity 6000.0.40f1 측�
 | `letter-spacing` / `word-spacing` | A | 검증됨 | 값은 CSS px가 아니라 **값 × 글자 크기 / 100**이다. 측정과 그리기 모두 이 규칙(간격 프로브, 측정). 아래 "텍스트와 폰트" |
 | `-unity-paragraph-spacing` | A | 검증됨 | 측정과 그리기에 반영(간격 프로브, 측정) |
 | `-unity-text-generator` | A | 검증됨 | `standard`와 `advanced`의 간격 규칙 차이를 측정·그리기에 반영(측정) |
-| `white-space` | A | **부분** | 공백 처리는 측정했다(아래). `pre`의 줄바꿈은 Unity와 다르다 — Unity는 `pre`도 폭에 맞춰 줄을 바꾸고(측정) 미리보기는 바꾸지 않는다 |
+| `white-space` | A | 검증됨 | 공백 처리를 측정했다(아래). `pre`는 Unity도 폭에 맞춰 줄을 바꾸지 않는다(`pre-wrap2`, 두 버전·두 테마, 2026-10-16) — 0.6.0의 "Unity는 `pre`도 줄을 바꾼다"는 구분력 없는 증거에서 나온 잘못된 판정이었다 |
 | `-unity-font-definition` | B | 검증됨 | 호스트가 `resolveFont` 훅으로 폰트를 넘기면 그 폰트로 재고 그린다(텍스트 코호트, 측정). 훅이 없거나 `null`이면 경고하고 브라우저 기본 폰트를 쓴다 |
 | `-unity-font` | B | 코드 작성 | `-unity-font-definition`과의 우선순위는 Unity 문서를 따랐다(문서). 단독 측정은 안 했다 |
 | `-unity-font-style` | B | 코드 작성 | |
@@ -217,10 +219,10 @@ render(doc, el, { states: { '#UseButton': ['hover'], '#DropButton': ['disabled']
   상태 이름은 경고한다
 - **`:enabled`는 비활성이 아닌 모든 요소에 자동으로 적용된다** — Unity가 그렇게 한다(6000.0.40f1·
   6000.3.25f1 측정)
-- **상태별 Unity 기본값(예: `:hover` 배경색)은 넣지 않았다.** 좌표 덤프로는 색을 측정할 수 없어
-  증명 수단이 없다. 상태 스타일은 사용자가 USS에 쓴 것만 적용된다
-- **중첩 비활성은 Unity와 다르다.** Unity는 `enabled="false"`를 쓴 요소만 불투명도 0.5로 흐리고 자손은
-  그대로 둔다(측정). 미리보기는 자손까지 겹쳐 0.25가 된다. 0.7.0 테마 작업에서 고친다
+- **Button의 상태별 Unity 기본값(`:hover`·`:active`·`:focus`·`:disabled` 색)은 0.7.0부터 넣었다.** 강제 의사 상태로
+  resolved style을 덤프해 쟀다(`c07-states`, 두 테마). 다른 컨트롤의 상태 기본값은 그 컨트롤을 그릴 때 잰다
+- **비활성은 쓴 요소만 흐린다(0.7.0).** Unity는 `enabled="false"`를 쓴 요소에만 `unity-disabled`와 불투명도 0.5를
+  주고 자손은 1로 둔다(측정, `nested-disabled`). 미리보기도 같다. `states`로 `disabled`를 강제한 요소도 그 요소만 흐린다
 
 `:selected`는 상태 목록에 없다. Unity 문서가 USS 미지원이라 적기 때문이다(`:checked`를 쓴다).
 
@@ -249,4 +251,4 @@ render(doc, el, { states: { '#UseButton': ['hover'], '#DropButton': ['disabled']
 - 줄바꿈된 `ScrollView`의 콘텐츠 높이가 다르다. Unity는 뷰포트에 맞춰 자르고 Yoga는 내용만큼 키운다.
   Unity의 규칙은 아직 찾지 못했다
 - 스크롤바는 폭만 예약하고 그리지 않으며, 아무것도 스크롤되지 않는다
-- 런타임 테마(PanelSettings)는 대조하지 않았다. 모든 기준값은 에디터 테마다
+- 런타임 테마(PanelSettings)는 0.7.0부터 별도 세트로 대조한다(`docs/accuracy.md` "런타임 테마"). 밝은 에디터 테마는 대조하지 않았다
