@@ -5,9 +5,9 @@
 **无需 Unity 编辑器，即可在浏览器中渲染 Unity UI Toolkit 的 UXML/USS——由 UI Toolkit 自身使用的
 Yoga 引擎负责布局，并与 Unity 实测结果进行了比对验证。**
 
-[![演练场界面：上方为预览画面，下方列出每条警告的原因及 Unity 的实际处理方式](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/playground.png)](https://reuhomi.github.io/uxml-preview/)
+[![在线体验页面：上方为预览画面，下方列出每条警告的原因及 Unity 的实际处理方式](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/playground.png)](https://reuhomi.github.io/uxml-preview/)
 
-### ▶ [打开演练场 (Playground)](https://reuhomi.github.io/uxml-preview/)
+### ▶ [打开在线体验 (Playground)](https://reuhomi.github.io/uxml-preview/)
 
 粘贴你自己的 `.uxml` 和 `.uss`，或直接打开示例。所有内容都不会上传，完全在页面本地
 运行。
@@ -18,7 +18,7 @@ Yoga 引擎负责布局，并与 Unity 实测结果进行了比对验证。**
 
 ## 验证方式
 
-- **坐标：** 在包含完整界面在内的 40 个布局用例中，660 / 676 个元素坐标值与 Unity 6000.0.40f1 完全一致。[查看全部差异明细 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md) 在 Unity 6.3（6000.3.25f1）中重新导出这批用例后，所有布局结果均与当天导出的 6000.0.40f1 结果完全吻合。[6.3 重新测量结果 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#unity-63-lts-re-measurement-2026-10-15)
+- **坐标：** 在包含完整界面在内的 40 个布局用例中，660 / 676 个元素坐标值与 Unity 6000.0.40f1 完全一致。[查看全部差异明细 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md) 在 Unity 6.3（6000.3.25f1）中重新导出这批用例后，所有布局结果均与当天导出的 6000.0.40f1 结果一致。[6.3 重新测量结果 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#unity-63-lts-re-measurement-2026-10-15)
 - **文本：** 在真实浏览器中绘制，并与 Unity 6000.3.25f1 逐个 Label 进行比对——行数 60 / 60、高度 52 / 60、宽度 60 / 60（误差在 1px 或 1% 以内）。所有高度存在差异的用例，均是使用了不含韩文字符的拉丁字体 Inter 来排版韩文或混排文本；此时 Unity 会改用回退字体绘制，而本预览工具会针对该情况发出明确警告。[文本测试集 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#text-cohort-separate-set-measured-2026-10-16)
 - **Unity 版本：** 基准版本为 Unity 6.3 LTS。某项属性是否属于 USS，依据 Unity 官方属性表（截至 6.6）判定；6.7 在推出 LTS 版本之前暂不支持。[支持范围 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/supported.en.md)
 - **不一致之处会明确报告，绝不静默忽略。** 遇到不支持的控件、属性或值时，工具会返回警告并说明原因；对于已实测的情况，还会一并告知 Unity 的实际处理方式。[警告说明 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/api.en.md#warnings)
@@ -27,7 +27,7 @@ Yoga 引擎负责布局，并与 Unity 实测结果进行了比对验证。**
 
 | 使用场景 | 推荐方案 |
 |---|---|
-| **设计界面** | 使用浏览器中的[演练场](https://reuhomi.github.io/uxml-preview/)，或在项目文件旁使用 [UXML Preview for VS Code](https://github.com/ReuHomi/vscode-uxml-preview) |
+| **设计界面** | 使用浏览器中的[在线体验](https://reuhomi.github.io/uxml-preview/)，或在项目文件旁使用 [UXML Preview for VS Code](https://github.com/ReuHomi/vscode-uxml-preview) |
 | **让 AI 智能体编写 UI** | [uxml-author](https://github.com/ReuHomi/uxml-author) —— 编写 UXML/USS、调用本库渲染并先验证结果再交付的技能（Skill） |
 | **构建工具** | 直接使用本库：`npm install uxml-preview`，详见 [API 文档](https://github.com/ReuHomi/uxml-preview/blob/main/docs/api.en.md) |
 
@@ -70,7 +70,7 @@ const { uxml, uss } = serialize(doc);     // 若未修改，输出与输入字�
 
 ```bash
 pnpm install
-pnpm dev            # 启动演练场
+pnpm dev            # 在本地启动在线体验页面（Playground）
 pnpm test           # 无需浏览器或 Unity 即可运行的全部测试
 pnpm test:text      # 文本测试集，在真实 Chromium 中运行（见 docs/accuracy.en.md）
 pnpm build
