@@ -11,6 +11,9 @@
  *                    function 'hsl'", the style updater throws
  *                    (ArgumentOutOfRangeException in ApplyGlobalKeyword) and the
  *                    rest of the panel stays unstyled — the canary is 0x0.
+ *                    (Narrowed 2026-10-16 by order-*.json: a sibling BEFORE the
+ *                    value keeps its style; that element and every later one lose
+ *                    theirs. The effect is named unstyled-from-here.)
  *   cubic-bezier()   both: "Unknown function", same throw, panel unstyled.
  *   filter: blur()   6000.0 (filter is 6.3+): "Unknown property 'filter'" and
  *                    "Unknown function 'blur'", same throw. 6000.3: valid.
@@ -72,8 +75,8 @@ function styleOf(result: RenderResult, name: string): CSSStyleDeclaration {
   return result.elements.get(named(result, name))!.style;
 }
 
-describe('values that make Unity unstyle the whole panel', () => {
-  it('hsl(): drawn as written; the warning says 6.3 loses the panel', () => {
+describe('values that make Unity stop styling from that element on', () => {
+  it('hsl(): drawn as written; the warning says 6.3 stops styling from here', () => {
     const r = draw('<ui:VisualElement name="a" />', '#a { width: 10px; height: 10px; background-color: hsl(120, 100%, 50%); }');
     try {
       const ws = aboutProperty(r.warnings, 'background-color');
@@ -84,7 +87,7 @@ describe('values that make Unity unstyle the whole panel', () => {
         kind: 'property',
         property: 'background-color',
         value: 'hsl(120, 100%, 50%)',
-        unityEffect: { kind: 'panel-unstyled', versions: ['6000.3'] },
+        unityEffect: { kind: 'unstyled-from-here', versions: ['6000.3'] },
       });
       expect(ws[0]!.message).toMatch(/Unity/);
       expect(styleOf(r, 'a').backgroundColor).toBe('rgb(0, 255, 0)');
@@ -99,19 +102,19 @@ describe('values that make Unity unstyle the whole panel', () => {
       const ws = aboutProperty(r.warnings, 'transition-timing-function');
       expect(ws).toHaveLength(1);
       expect(ws[0]!.reason).toBe('invalid-value');
-      expect(ws[0]!.subject).toMatchObject({ unityEffect: { kind: 'panel-unstyled', versions: ['6000.0', '6000.3'] } });
+      expect(ws[0]!.subject).toMatchObject({ unityEffect: { kind: 'unstyled-from-here', versions: ['6000.0', '6000.3'] } });
     } finally {
       r.dispose();
     }
   });
 
-  it('filter with a function: still not drawn, and 6000.0 loses the panel', () => {
+  it('filter with a function: still not drawn, and 6000.0 stops styling from here', () => {
     const r = draw('<ui:VisualElement name="a" />', '#a { filter: blur(4px); }');
     try {
       const ws = aboutProperty(r.warnings, 'filter');
       expect(ws).toHaveLength(1);
       expect(ws[0]!.reason).toBe('not-rendered');
-      expect(ws[0]!.subject).toMatchObject({ since: '6000.3', unityEffect: { kind: 'panel-unstyled', versions: ['6000.0'] } });
+      expect(ws[0]!.subject).toMatchObject({ since: '6000.3', unityEffect: { kind: 'unstyled-from-here', versions: ['6000.0'] } });
     } finally {
       r.dispose();
     }

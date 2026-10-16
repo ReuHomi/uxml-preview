@@ -270,7 +270,7 @@ describe('one warning per declaration', () => {
         value: 'blur(2px)',
         since: '6000.3',
         affectsLayout: false,
-        unityEffect: { kind: 'panel-unstyled', versions: ['6000.0'] },
+        unityEffect: { kind: 'unstyled-from-here', versions: ['6000.0'] },
       },
       { kind: 'property', property: 'gap', value: '4px' },
     ]);

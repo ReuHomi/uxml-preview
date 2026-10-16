@@ -157,7 +157,6 @@ const KNOWN_DIVERGENCES: KnownDivergence[] = [
       ['DetailPanel', 'width'],
       ['ItemName', 'width'],
       ['ItemDesc', 'width'],
-      ['ItemDesc', 'height'],
       ['ActionBar', 'x'],
       ['ActionBar', 'width'],
       ['UseButton', 'x'],
@@ -175,6 +174,22 @@ const KNOWN_DIVERGENCES: KnownDivergence[] = [
       'pinning the Labels reduces our excess to the same 3px. Not reproducible: ' +
       'the browser cannot measure Unity\'s font asset.',
   })),
+
+  // Not text measurement (corrected 2026-10-16, adversarial review): ItemDesc has
+  // a fixed `height: 56px`. Unity's editor theme gives every Label
+  // `flex-shrink: 0` (resolvedStyle flexShrink in
+  // tests/layout/unity/<version>/probe-editor/text-ladder.json, both versions);
+  // this preview's theme does not, so the Label shrinks to 54 in the 72px panel
+  // and sits 1px higher. Adding only `Label { flex-shrink: 0 }` to the case made
+  // ItemDesc.height and ItemDesc.y match Unity. A missing theme value, not fixed in 0.6.0.
+  {
+    case: 'inventory',
+    element: 'ItemDesc',
+    field: 'height',
+    reason:
+      'Theme: Unity gives Labels flex-shrink 0 and this preview does not, so the fixed 56px ' +
+      'Label shrinks to 54. Measured; not text measurement.',
+  },
 
   // Sub-pixel by the plan's own standard. Success criterion 2 allows 1px; the
   // comparator holds 0.5 so that real drift is still visible everywhere else,

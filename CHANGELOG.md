@@ -12,7 +12,7 @@ and the published accuracy figures move. No type is removed and no
 
 | Set | 0.5.1 | 0.6.0 | Why |
 |---|---:|---:|---|
-| Base coordinates (Unity 6000.0.40f1) | 660 / 676 | 660 / 676 | unchanged; its text mismatches are widths |
+| Base coordinates (Unity 6000.0.40f1) | 660 / 676 | 660 / 676 | unchanged: the three text-measuring cases are excluded from it, and of its 16 mismatches the 9 caused by text are widths and x. `ItemDesc.height` has a fixed height and shrinks for a theme reason (Unity gives Labels `flex-shrink: 0`), so text height cannot reach it |
 | Template cohort (6000.0.40f1) | 200 / 220 | 215 / 220 | text height from FaceInfo removed 14 Label heights and the `y` they pushed |
 | Text cohort (new; Chromium vs Unity 6.3) | — | lines 60/60, height 52/60, width 60/60, boundary 79/80 | see `docs/accuracy.md`; none unexplained |
 | 6.3 re-dump of the golden set | — | 1012 / 1012 equal to 6000.0 | every golden case lays out the same on 6000.3.25f1 |
@@ -46,9 +46,9 @@ and the published accuracy figures move. No type is removed and no
 - `at.url` / `at.from` on USS locations — the arguments `resolveImport`
   received for that sheet, so `at.sheet` can be mapped without the expanded
   document.
-- `subject.unityEffect` — `panel-unstyled` (Unity's style updater throws and
-  the rest of the panel stays unstyled: `hsl()` on 6000.3, `cubic-bezier()`,
-  `filter` on 6000.0) or `file-inline-dropped` (one bad inline value drops
+- `subject.unityEffect` — `unstyled-from-here` (Unity's style updater throws:
+  `hsl()` on 6000.3, `cubic-bezier()`,
+  `filter` on 6000.0 — measured: the element with the value and every element after it in the panel lose their style, elements before it keep theirs; hence `unstyled-from-here`) or `file-inline-dropped` (one bad inline value drops
   every inline style in that UXML file), with the Unity versions measured.
 - `subject.problem` / `subject.state` on `states-key`; `subject.role: 'font'`
   on `asset`.

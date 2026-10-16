@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:VisualElement name="before" class="box" />
+<ui:VisualElement name="target" class="box f" />
+<ui:VisualElement name="after" class="box" />
+<ui:VisualElement name="canary" />
+</ui:VisualElement>
+</ui:UXML>

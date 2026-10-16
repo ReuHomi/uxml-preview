@@ -77,7 +77,8 @@ loosening it would hide a real 1px error in another case.
 
 | Kind | Values | What it means |
 |---|---|---|
-| **Text metrics** | **10** | **Not a layout defect.** Both engines behave identically; only the ruler differs |
+| **Text metrics** | **9** | **Not a layout defect.** Both engines behave identically; only the ruler differs. All widths and x |
+| Missing theme value (reclassified 2026-10-16) | 1 | `ItemDesc.height`: a fixed 56px Label shrinks because Unity's editor theme gives Labels `flex-shrink: 0` and this preview's theme does not. Adding only that value makes `ItemDesc.height` and `y` match Unity. Not fixed in 0.6.0 |
 | 1px, inside the plan's tolerance | 3 | Named individually rather than tolerated away |
 | `yoga-layout` version difference | 2 | Judged and recorded 2026-08-02 |
 | **Unresolved** | **1** | A wrapped container's height. Unity's rule is not yet identified |
