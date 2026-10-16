@@ -1,6 +1,6 @@
 # uxml-preview
 
-*English · [한국어](https://github.com/ReuHomi/uxml-preview/blob/main/README.ko.md)*
+*English · [한국어](https://github.com/ReuHomi/uxml-preview/blob/main/README.ko.md) · [日本語](https://github.com/ReuHomi/uxml-preview/blob/main/README.ja.md) · [简体中文](https://github.com/ReuHomi/uxml-preview/blob/main/README.zh-CN.md)*
 
 **Render Unity UI Toolkit UXML/USS in a browser, without the Unity Editor — laid
 out by Yoga, the engine UI Toolkit itself uses, and measured against Unity.**
