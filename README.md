@@ -18,8 +18,8 @@ all runs in the page.
 
 ## How it is verified
 
-- **Coordinates:** 660 / 676 element coordinate values identical to Unity 6000.0.40f1, over 40 layout cases including a complete screen. [Every difference, named →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md)
-- **Text:** drawn in a real browser and compared with Unity 6000.3.25f1 Label by Label — line count 60 / 60, height 52 / 60, width 60 / 60 within 1px or 1%. [The text cohort →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#text-cohort-separate-set-measured-2026-10-16)
+- **Coordinates:** 660 / 676 element coordinate values identical to Unity 6000.0.40f1, over 40 layout cases including a complete screen. [Every difference, named →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md) Re-dumped on Unity 6.3 (6000.3.25f1), every one of those cases laid out exactly as in a 6000.0.40f1 dump taken the same day. [The 6.3 re-measurement →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#unity-63-lts-re-measurement-2026-10-15)
+- **Text:** drawn in a real browser and compared with Unity 6000.3.25f1 Label by Label — line count 60 / 60, height 52 / 60, width 60 / 60 within 1px or 1%. Every height that differs is Korean or mixed text set in Inter, a Latin font with no Hangul, which Unity draws with a fallback font; the preview warns about exactly that. [The text cohort →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#text-cohort-separate-set-measured-2026-10-16)
 - **Unity version:** the reference is Unity 6.3 LTS. A property is USS if Unity's official property table lists it, up to 6.6; 6.7 is not supported until it is an LTS. [What is supported →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/supported.en.md)
 - **What does not match is reported, not glossed over.** An unsupported control, property or value comes back as a warning that says why, and — where it was measured — what Unity does instead. [Warnings →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/api.en.md#warnings)
 

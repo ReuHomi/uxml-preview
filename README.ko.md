@@ -18,8 +18,8 @@
 
 ## 어떻게 확인했나
 
-- **좌표:** 완성된 화면 하나를 포함한 배치 케이스 40개에서, 요소 좌표 값 660 / 676이 Unity 6000.0.40f1과 같습니다. [다른 곳은 전부 이름을 붙여 적었습니다 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.md)
-- **텍스트:** 실제 브라우저에서 그려 Unity 6000.3.25f1과 Label 단위로 대조했습니다. 줄 수 60 / 60, 높이 52 / 60, 너비 60 / 60(1px 또는 1% 이내). [텍스트 코호트 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.md#텍스트-코호트-별도-검증-세트-2026-10-16-측정)
+- **좌표:** 완성된 화면 하나를 포함한 배치 케이스 40개에서, 요소 좌표 값 660 / 676이 Unity 6000.0.40f1과 같습니다. [다른 곳은 전부 이름을 붙여 적었습니다 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.md) 같은 케이스를 Unity 6.3(6000.3.25f1)에서 다시 덤프했더니, 같은 날 다시 뜬 6000.0.40f1 덤프와 배치가 모두 같았습니다. [6.3 재측정 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.md#unity-63-lts-재측정-2026-10-15)
+- **텍스트:** 실제 브라우저에서 그려 Unity 6000.3.25f1과 Label 단위로 대조했습니다. 줄 수 60 / 60, 높이 52 / 60, 너비 60 / 60(1px 또는 1% 이내). 높이가 다른 것은 모두 라틴 글꼴 Inter로 쓴 한글·혼합 문장입니다 — Inter에 한글이 없어 Unity가 대체 폰트로 그리고, 미리보기는 바로 그 경우에 경고합니다. [텍스트 코호트 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.md#텍스트-코호트-별도-검증-세트-2026-10-16-측정)
 - **Unity 버전:** 기준은 Unity 6.3 LTS입니다. USS 속성인지는 Unity 공식 속성표(6.6까지)로 판정하고, 6.7은 LTS가 나올 때까지 지원하지 않습니다. [지원 범위 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/supported.md)
 - **맞지 않는 곳은 조용히 넘기지 않고 경고로 알립니다.** 지원하지 않는 컨트롤·속성·값은 이유와 함께, 측정한 경우에는 Unity가 대신 어떻게 하는지까지 경고로 돌아옵니다. [경고 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/api.md#경고)
 

@@ -234,7 +234,7 @@ render(doc, el, { states: { '#UseButton': ['hover'], '#DropButton': ['disabled']
 
 ## 경고
 
-경고의 구조(`kind`, `reason`, `subject`, `nodes`, `at`)와 소비자가 읽는 법은 [API](api.md#경고)에 있다.
+0.6.0에서 이 절("경고 정책")은 [API](api.md#경고)로 옮겼다. 경고의 구조(`kind`, `reason`, `subject`, `nodes`, `at`)와 소비자가 읽는 법은 그곳에 있다.
 
 ## 확인하지 않은 것
 

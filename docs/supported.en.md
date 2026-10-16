@@ -247,8 +247,8 @@ Of these only `aspect-ratio` is laid out; the rest are not drawn, and their warn
 
 ## Warnings
 
-How a warning is built (`kind`, `reason`, `subject`, `nodes`, `at`) and how a consumer should
-read it is in the [API](api.en.md#warnings).
+In 0.6.0 this section ("Warning policy") moved to the [API](api.en.md#warnings): how a warning is
+built (`kind`, `reason`, `subject`, `nodes`, `at`) and how a consumer should read it.
 
 ## Not checked
 
