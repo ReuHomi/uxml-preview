@@ -4,16 +4,17 @@
 
 ## 현재 위치
 
-**0.6.0 배포됨 (2026-10-16).** npm `latest` = `0.6.0`(gitHead `cc3e6cd`, 34파일), 태그 `v0.6.0`(→ `cc3e6cd`),
-놀이터 Pages 배포 완료. 기준 Unity 버전 6.3 LTS.
+**0.6.1 배포됨 (2026-10-16).** npm `latest` = `0.6.1`(gitHead `76954ae`, 34파일), 태그 `v0.6.1`, 놀이터 Pages 배포 완료.
+0.7.0은 측정·설계 보고까지(`design/0.7.0`, 푸시 안 함).
+기준 Unity 버전 6.3 LTS.
 
 | | |
 |---|---|
-| 0.6.0 범위 | 묶음 1(진단 계약) · 묶음 2(텍스트·폰트) · `aspect-ratio`. 컨트롤은 0.7.0 |
-| 테스트 | 코어 **859 통과 · 1 건너뜀**(Windows 로컬). `pnpm test:text`(텍스트 코호트 + 페인트 대조 9/9) 통과 |
-| 정확도 | 기본 **660/676** 불변 · 템플릿 **215/220**(0.5.1: 200/220) · 텍스트 코호트(6.3) 줄 60/60, 높이 52/60, 너비 60/60, 경계 79/80 · `aspect-ratio` 52/52(6.3) |
-| 6.3 코호트 | 골든 44케이스 6.3 재덤프가 같은 날 뜬 6000.0 덤프와 1012/1012 동일(커밋된 기준값과는 `inventory` 1px 9개 차이) |
-| 소비자 | 0.6.0 tarball 기준 vscode-uxml-preview main 145/146, uxml-author master 17건 실패(이전 16 + 번들 빌드 스크립트의 설치 안내 0.5.1→0.6.0). 전부 소비자 쪽 갱신(A) |
+| 0.6.1 범위 | P1 CJK 글자 사이 줄바꿈 · P2 리치 텍스트 경고 · P3 `font-fallback` 문구(한자·가나 너비). `package.json` 0.6.1, CHANGELOG `unreleased` |
+| 테스트(0.6.1) | 코어 **873 통과 · 1 건너뜀**, tsc, 왕복 33, 텍스트 코호트 (c) 0 · 문서 표 일치, paint 24/24 |
+| 정확도 | 기본 **660/676** 불변 · 템플릿 215/220 · 텍스트 코호트(6.3) 줄 92/92, 높이 84/92, 너비 92/92, 줄바꿈 케이스 157/159 · `aspect-ratio` 52/52 |
+| 0.7.0 측정 | 실제 런타임 패널(PanelSettings + UIDocument, Play 모드) 덤프: `tests/layout/unity/*/probe-panel/`, 에디터 `probe-editor-070/`, 골든 런타임 `6000.3.25f1/golden-panel/` |
+| 소비자 | 0.6.0 tarball 기준 uxml-author 17건·vscode 1건 실패(그대로). 0.6.1은 소비자 판정식에 새 영향 없음(리치 텍스트 경고는 의도대로 exit 3) |
 | 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` (그 외는 폴백) |
 
 정확도 세트는 서로 다른 질문을 답하므로 합산하지 않는다. `docs/accuracy.md`.
@@ -23,16 +24,15 @@
 0. **GitHub 소개 문구(사람)** — 확정 문안: "Render Unity UI Toolkit UXML/USS in the browser, no Editor needed.
    Same layout engine as Unity (Yoga), measured against real Unity 6.3 LTS. Differences are reported as warnings,
    and edits round-trip byte-exact."
-1. **소비자 갱신(소비자 저장소 일)** — 0.6.0 tarball 기준 uxml-author 17건·vscode 1건 실패, 전부 계약 변경(A).
-   uxml-author: `font-fallback` case(지금은 모르는 reason이라 exit 1), `states-key`의 `subject.problem`, aspect-ratio
-   레이아웃 갭 픽스처, 번들 스크립트 설치 안내 버전. vscode: 레이아웃 갭 예시 픽스처를 `-unity-text-auto-size`로.
-   자세한 것은 `docs/backlog.md` 0.7.0 절 "소비자 갱신"
-2. (1에 합침)
-3. **0.7.0 컨트롤 + 테마 선택** — 런타임 테마 기준값은 실제 PanelSettings로 다시 덤프
-4. **0.6.0이 남긴 것** — `docs/backlog.md` 0.6.0 절의 2026-10-16 메모(`unsupported-unit`,
+1. (0.6.1 배포 완료 — 아래 "0.6.1 릴리스")
+2. **소비자를 0.6.1에 맞춤** — uxml-author 17건(`font-fallback` 알림 채널, `states-key` `subject.problem`, aspect-ratio 픽스처,
+   번들 안내 버전), vscode 1건(레이아웃 갭 픽스처). `docs/design/0.7.0-design.md` 9절
+3. **0.7.0 설계 결정(사람)** — `docs/design/0.7.0-design.md` 10절 미결 질문 7개, 상호작용은 "상태별 모습만" 권고(8절)
+4. **0.7.0 묶음 A(테마 기반)부터** — 설계 보고 5절. 묶음 D 전 슬라이더 값–손잡이 위치 추가 측정
+5. **0.6.0이 남긴 것** — `docs/backlog.md` 0.6.0 절의 2026-10-16 메모(`unsupported-unit`,
    `background-position-x/-y`, `-unity-font` 단독, 텍스트 외곽선 그리기)
-5. **검증이 남긴 결함 둘(그리는 결과가 바뀌어 0.6.0에서 고치지 않음)** — 중첩 disabled 불투명도(Unity는 `enabled="false"`인 요소만 흐린다, 우리는 곱해서 0.25), Label `flex-shrink: 0` 테마 값(기본 정확도 +2). `docs/backlog.md`
-6. **Playwright Chromium이 이 PC에서 실행되지 않음** — Windows side-by-side 오류. 코호트는 설치된 Chrome으로 측정
+6. **backlog 정정** — "`pre` 줄바꿈" 항목 판정 뒤집힘(설계 보고 1-4), 새 행으로
+7. **Playwright Chromium이 이 PC에서 실행되지 않음** — 코호트는 설치된 Chrome으로 측정
 
 **미결(0.1.0에서 이월):** 개발 문서를 비공개로 돌릴지. 결론 안 냄.
 
@@ -163,8 +163,24 @@
 | 2026-10-16 | 경고 계약은 `docs/api.md`로 옮기고, 지원 범위·정확도 문서는 영·한 같은 내용 | 지원 범위 문서가 API 문서를 겸하면서 두 언어판이 서로 다른 말을 하게 됐다(Image "육안 대조 완료" 대 "Not compared" 등) |
 | 2026-10-16 | `-unity-text-generator`의 등록표 `handling`을 `layout`으로 | 측정·그리기가 이미 읽는다. `none`이면 `not-rendered`+`affectsLayout`로 uxml-author exit 3에 걸렸다 |
 | 2026-10-16 | 없는 속성 이름 경고는 고칠 것이 없었다(반박) | B 보고의 "`colour: red`에 경고 없음"은 내 측정 실수였다 — vitest가 첫 콘솔 줄에 색 코드를 붙여 `grep ^W`가 놓쳤다. 0.5.1부터 `not-uss`(0.5.0은 침묵). 고정 테스트로 묶었다 |
+| 2026-10-16 | 0.6.1 CJK 줄바꿈에 금칙 처리를 넣지 않음 | 측정 전이라 넣지 않았는데, 같은 날 측정해 보니 런타임 패널은 두 버전 모두 금칙이 없고 에디터 6.3만 있다. 게임 화면 기준으로는 지금 동작이 맞다. `zh` 60px는 에디터 6.3 기준의 알려진 차이로 고정 |
+| 2026-10-16 | 리치 텍스트 경고를 `unsupported-property`·`not-rendered`·속성 `enable-rich-text`로 | `affectsLayout`을 실을 수 있는 유일한 kind이고 `font-fallback`이 텍스트 조건에 이미 쓰는 선례. 미리보기가 태그를 글자로 그려 상자가 틀리므로 스킬 exit 3이 맞다 |
+| 2026-10-16 | 텍스트 코호트의 (b) 분류를 좁힘 | 0.6.0의 CJK 결함이 (b)로 분류돼 숨었다. 경계 케이스에서 미리보기 줄 수가 자기 자연 폭과 맞을 때만 (b) |
+| 2026-10-16 | `pre`는 폭에 맞춰 줄을 바꾸지 않는다 — 0.6.0 판정을 뒤집음 | 0.6.0 증거(`te-wrap`)는 12px에서 글이 상자에 들어가 구분력이 없었다. `pre-wrap2`(40px)와 런타임 14px에서 `pre` 1줄·`pre-wrap` 3줄, 두 버전·두 테마 |
+| 2026-10-16 | 0.7.0 런타임 측정은 Play 모드의 실제 PanelSettings로 | 0.6.0 `probe-runtime`은 에디터 창에 테마 시트만 바꿔 끼운 것이라 패널 기본값(글자 설정 등)이 다르다. 실제로 금칙이 패널마다 달랐다 |
+| 2026-10-16 | 0.7.0 상호작용은 "상태별 모습만" 권고 | UI Builder Preview는 조작을 지원하지만, 글자 입력(한글 조합)·끌기는 측정 규율로 검증할 수단이 없고 CLI·스킬 소비자는 쓸 수 없다. 사람 결정 대기 |
+
 
 ## 세션 로그
+
+### 2026-10-16 (23:07 추가 — 0.6.1 패치 · 0.7.0 측정·설계)
+- 0번: README 수치 테스트는 이미 영·한·일·중 네 파일을 읽고 있었다. 변이 6개(ja·zh 각각 좌표·높이 숫자, 상단 상호 링크) 전부 실패로 잡힘. 테스트 제목만 고침(`d9948aa`). 번역문의 숫자 오류 없음
+- 0.6.1(`release/0.6.1`): 고정 테스트 먼저(`077c9f6`) — CJK 측정 산출물을 `tests/text-cohort/`로(probe 47개를 `gen-probes.mjs`가 바이트 단위로 재생성), Unity 리치 텍스트 덤프(`probe-editor/rich-text.json`), `tests/contract-061/` 3파일, paint 대조에 CJK 15건. 구현은 Codex 1라운드(`f008d2b`), 고정 파일 바이트 일치, 변이 6개 직접 확인
+- 발견: 코호트의 (b) 분류가 0.6.0 CJK 결함을 숨겼다(경계 실패 24건이 1px 차이로 분류). 판정을 좁히자 구현 전 38~39건이 (c)
+- 발견: 커밋된 `ProbeDump.cs.txt`가 FaceInfo를 쓰지 않는 옛 사본이었다 — 덤프를 만든 판으로 교체
+- 실수: README 변이를 되돌릴 때 `git checkout`이 막 바꾼 숫자까지 되돌렸다. 다시 넣고 골든 테스트로 확인
+- 0.7.0 측정(`design/0.7.0`, `08f30a3`·`dedf32d`): `PanelDump.cs`로 Play 모드 런타임 패널 덤프. NotInter = Inter FaceInfo, 기본 14px·여백, 컨트롤 10종 구조가 두 테마에서 같음, 중첩 비활성 런타임도 같음, `pre` 판정 뒤집힘, 금칙은 패널별, 기본 테마 전환이 골든 125/1012값을 움직임. UI Builder Preview 조작을 화면으로 확인(값은 저장되지 않음)
+- 설계 보고: `docs/design/0.7.0-design.md`. 사람이 둔 `docs/design/0.7.0-cjk-text.md`는 커밋하지 않았다
 
 ### 2026-10-16 (머지 전 C · 릴리스 준비 D)
 
@@ -723,3 +739,15 @@ S1 전체(Step 1~6)를 한 세션에 끝냈다. 커밋 25개, 테스트 228 → 
 - (배포) PR #8 머지(`553df40`), PR #9 머지(`cc3e6cd`, CI ubuntu·windows 통과). `npm publish --dry-run`으로
   prepublishOnly(self-reference·typecheck·테스트 859·빌드) 확인 뒤 사용자가 직접 배포. npm `0.6.0`이 `latest`
   (2026-10-16T10:57:32Z), 태그 `v0.6.0`. Pages 배포 확인(번들에 새 예제·`font-fallback`, 페이지에 `safe center`).
+
+## 2026-10-16 — 0.6.1 릴리스
+
+- 범위: CJK 글자 사이 줄바꿈(P1), 리치 텍스트 경고(P2), `font-fallback` 문구에 한자·가나 너비(P3). 일본어·중국어 README가
+  이미 공개돼 있어 0.7.0보다 먼저 냈다.
+- 고정 테스트 먼저(`077c9f6`) → Codex 1라운드(`f008d2b`) → 고정 파일 바이트 비교 → 변이 6개. 적대적 검증은 패치 규모라 생략(지시).
+- (배포) PR #12 머지(`76954ae`, CI ubuntu·windows 통과, CHANGELOG 날짜 커밋 `52a6516` 뒤 재통과). `npm publish --dry-run`으로
+  prepublishOnly(테스트 873·빌드) 확인 뒤 사용자가 직접 배포 — 첫 시도는 `--otp`에 액세스 토큰을 넣어 400(업로드 없음),
+  `--auth-type=web`류 브라우저 인증으로 성공. npm `0.6.1`이 `latest`(gitHead `76954ae`, 34파일), 태그 `v0.6.1`,
+  GitHub 릴리스 "v0.6.1 — Japanese and Chinese text, first". Pages 배포 확인(번들에 `enable-rich-text` 경고·`6–87px` 문구).
+- 릴리스 노트에 0.6.0 노트의 정정을 넣었다: Unity도 `white-space: pre`를 폭에 맞춰 줄바꿈하지 않는다(증거는 0.7.0과 함께).
+- 노출된 npm 토큰의 폐기를 사용자에게 권했다(확인하지 않음).
