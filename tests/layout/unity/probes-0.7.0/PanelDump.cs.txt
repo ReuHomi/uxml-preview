@@ -4,6 +4,7 @@
 //
 //   Unity.exe -batchmode -projectPath <p> -executeMethod UxmlPreview.Probe.PanelDump.Run
 //     -probeFolder Assets/Probes -probeOutput <dir> [-panelTheme <tss asset path>]
+//     [-panelSize 400x300] [-panelSkin editor]
 //
 // Theme: the ThemeStyleSheet Unity itself creates for a new PanelSettings
 // (PanelSettingsCreator, via reflection) when that exists; otherwise
@@ -11,8 +12,16 @@
 // @import url("unity-theme://default"); — the same content. The metadata
 // records which one was used, and the text settings the panel resolved.
 //
-// Panel: ConstantPixelSize, scale 1, an 800x600 target texture, so the panel
-// is 800x600 regardless of the batchmode screen. Domain reload is disabled for
+// Panel: ConstantPixelSize, scale 1, an 800x600 target texture (or -panelSize), so
+// the panel has that size regardless of the batchmode screen.
+//
+// -panelSkin editor puts the editor's dark common style sheet on the document root
+// instead of a runtime theme (the ThemeStyleSheet is left empty). That run exists to
+// check this dumper against tools/UxmlLayoutDump.cs on the same theme: any difference
+// left is the dumper or the panel, not the theme.
+//
+// Each case starts with the root's style sheets cleared, so one case's USS never
+// reaches the next. Domain reload is disabled for
 // Play mode so this static state survives entering it.
 #if UNITY_EDITOR
 using System.Collections.Generic;
@@ -37,6 +46,8 @@ namespace UxmlPreview.Probe
         static PanelSettings _ps;
         static string _current;
         static int _ticks, _written, _expected;
+        static int _w = 800, _h = 600;
+        static bool _editorSkin;
 
         public static void Run()
         {
@@ -52,11 +63,21 @@ namespace UxmlPreview.Probe
             EditorSettings.enterPlayModeOptions = EnterPlayModeOptions.DisableDomainReload | EnterPlayModeOptions.DisableSceneReload;
             EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
+            var size = Arg("-panelSize");
+            if (size != null)
+            {
+                var wh = size.Split('x');
+                _w = int.Parse(wh[0], CultureInfo.InvariantCulture);
+                _h = int.Parse(wh[1], CultureInfo.InvariantCulture);
+            }
+            _editorSkin = Arg("-panelSkin") == "editor";
+
             _ps = ScriptableObject.CreateInstance<PanelSettings>();
-            _ps.themeStyleSheet = UnityCreatedTheme() ?? FallbackTheme();
+            if (_editorSkin) { _ps.themeStyleSheet = ScriptableObject.CreateInstance<ThemeStyleSheet>(); _themeSource = "empty ThemeStyleSheet + editor sheet"; }
+            else _ps.themeStyleSheet = UnityCreatedTheme() ?? FallbackTheme();
             _ps.scaleMode = PanelScaleMode.ConstantPixelSize;
             _ps.scale = 1f;
-            _ps.targetTexture = new RenderTexture(800, 600, 24);
+            _ps.targetTexture = new RenderTexture(_w, _h, 24);
             var go = new GameObject("ProbeUI");
             _doc = go.AddComponent<UIDocument>();
             _doc.panelSettings = _ps;
@@ -88,6 +109,26 @@ namespace UxmlPreview.Probe
             return null;
         }
 
+        // The editor's dark common sheet, the one an EditorWindow gets under the dark skin.
+        // Internal, so by reflection; a missing method stops the run rather than dumping
+        // an unthemed panel under the editor label.
+        static StyleSheet _editorSheet;
+        static StyleSheet EditorDarkSheet()
+        {
+            if (_editorSheet != null) return _editorSheet;
+            foreach (var asm in System.AppDomain.CurrentDomain.GetAssemblies())
+            {
+                var t = asm.GetType("UnityEditor.UIElements.UIElementsEditorUtility");
+                var m = t?.GetMethod("GetCommonDarkStyleSheet", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+                if (m == null) continue;
+                _editorSheet = m.Invoke(null, null) as StyleSheet;
+                if (_editorSheet != null) { _themeSource += " (UIElementsEditorUtility.GetCommonDarkStyleSheet: " + _editorSheet.name + ")"; return _editorSheet; }
+            }
+            Debug.LogError("[panel] no editor dark sheet");
+            EditorApplication.Exit(4);
+            return null;
+        }
+
         static ThemeStyleSheet FallbackTheme()
         {
             string path = Arg("-panelTheme") ?? "Assets/UnityDefaultRuntimeTheme.tss";
@@ -116,6 +157,8 @@ namespace UxmlPreview.Probe
                 _current = _queue.Dequeue();
                 var tree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(_current);
                 _doc.visualTreeAsset = tree;
+                _doc.rootVisualElement.styleSheets.Clear();
+                if (_editorSkin) _doc.rootVisualElement.styleSheets.Add(EditorDarkSheet());
                 var sheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(Path.ChangeExtension(_current, ".uss"));
                 if (sheet != null) _doc.rootVisualElement.styleSheets.Add(sheet);
                 _ticks = 0;
@@ -219,10 +262,10 @@ namespace UxmlPreview.Probe
             var sb = new StringBuilder();
             var rb = root.worldBound;
             sb.Append("{\n  \"metadata\": {\"unityVersion\": ").Append(J(Application.unityVersion))
-              .Append(", \"theme\": \"runtime-panel\", \"themeSource\": ").Append(J(_themeSource))
+              .Append(", \"theme\": ").Append(_editorSkin ? "\"editor-on-panel\"" : "\"runtime-panel\"").Append(", \"themeSource\": ").Append(J(_themeSource))
               .Append(", \"themeAsset\": ").Append(J(_ps.themeStyleSheet == null ? "" : AssetDatabase.GetAssetPath(_ps.themeStyleSheet)))
               .Append(", \"textSettings\": ").Append(TextSettingsJson())
-              .Append(", \"panel\": {\"width\": 800, \"height\": 600}, \"root\": {\"w\": ").Append(S(rb.width)).Append(", \"h\": ").Append(S(rb.height)).Append("}},\n  \"elements\": [\n");
+              .Append(", \"panel\": {\"width\": ").Append(_w).Append(", \"height\": ").Append(_h).Append("}, \"root\": {\"w\": ").Append(S(rb.width)).Append(", \"h\": ").Append(S(rb.height)).Append("}},\n  \"elements\": [\n");
             bool first = true;
             Walk(root, "", 0, rb, sb, ref first);
             sb.Append("\n  ]\n}\n");

@@ -1,0 +1,32 @@
+{
+  "metadata": {
+    "unityVersion": "6000.3.25f1",
+    "theme": "runtime-panel",
+    "themeSource": "PanelSettingsCreator.GetFirstThemeOrCreateDefaultTheme",
+    "dumper": "PanelDump"
+  },
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "upper-left": {
+      "x": 2,
+      "y": 4,
+      "width": 120,
+      "height": 60
+    },
+    "middle-center": {
+      "x": 2,
+      "y": 70,
+      "width": 120,
+      "height": 60
+    },
+    "lower-right": {
+      "x": 2,
+      "y": 136,
+      "width": 120,
+      "height": 60
+    }
+  }
+}

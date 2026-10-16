@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "unityVersion": "6000.3.25f1",
+    "theme": "runtime-panel",
+    "themeSource": "PanelSettingsCreator.GetFirstThemeOrCreateDefaultTheme",
+    "dumper": "PanelDump"
+  },
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "button-absolute-in-border-frame": {
+      "x": 0,
+      "y": 0,
+      "width": 200,
+      "height": 200
+    },
+    "button-absolute-in-border-btn": {
+      "x": 14,
+      "y": 12,
+      "width": 50,
+      "height": 30
+    }
+  }
+}

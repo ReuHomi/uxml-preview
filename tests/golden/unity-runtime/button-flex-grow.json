@@ -1,0 +1,32 @@
+{
+  "metadata": {
+    "unityVersion": "6000.3.25f1",
+    "theme": "runtime-panel",
+    "themeSource": "PanelSettingsCreator.GetFirstThemeOrCreateDefaultTheme",
+    "dumper": "PanelDump"
+  },
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "button-flex-grow-row": {
+      "x": 0,
+      "y": 0,
+      "width": 300,
+      "height": 50
+    },
+    "button-flex-grow-fixed": {
+      "x": 4,
+      "y": 2,
+      "width": 100,
+      "height": 46
+    },
+    "button-flex-grow-grow": {
+      "x": 112,
+      "y": 2,
+      "width": 184,
+      "height": 46
+    }
+  }
+}

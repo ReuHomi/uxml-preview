@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "unityVersion": "6000.3.25f1",
+    "theme": "runtime-panel",
+    "themeSource": "PanelSettingsCreator.GetFirstThemeOrCreateDefaultTheme",
+    "dumper": "PanelDump"
+  },
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "button-sizes-to-text-holder": {
+      "x": 0,
+      "y": 0,
+      "width": 300,
+      "height": 100
+    },
+    "button-sizes-to-text-btn": {
+      "x": 4,
+      "y": 2,
+      "width": 101,
+      "height": 47
+    }
+  }
+}
