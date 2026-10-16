@@ -24,7 +24,8 @@ import type { ElementNode, NodeId, Warning } from '../model/types';
 import type { ComputedStyle } from '../style/resolve';
 import { isNonVisual, resolveControl } from '../controls/registry';
 import type { ControlPart } from '../controls/registry';
-import { THEME_UNITY_VERSION, verticalScrollbarWidth } from '../controls/theme';
+import type { Theme } from '../controls/theme';
+import { THEME_UNITY_VERSIONS, verticalScrollbarWidth } from '../controls/theme';
 import { expandShorthand } from '../style/properties';
 import type { ComputedValue, DeclarationLocator } from '../style/resolve';
 import { INITIAL, parseLength, parseNumber } from '../render/values';
@@ -88,6 +89,8 @@ export type MeasureText = (
 ) => TextMetrics;
 
 export interface LayoutOptions {
+  /** Built-in theme; defaults to 'editor'. */
+  theme?: Theme;
   fonts?: ReadonlyMap<ComputedStyle, { family: string; faceInfo?: FaceInfo }>;
   size: { width: number; height: number };
   /**
@@ -201,6 +204,7 @@ export function layoutDocument(
   partStyles: ReadonlyMap<NodeId, ReadonlyMap<string, ComputedStyle>>,
   options: LayoutOptions,
 ): LayoutTree {
+  const theme = options.theme ?? 'editor';
   const yoga = engine;
   if (yoga === null) {
     throw new Error('loadLayoutEngine() must be awaited before rendering');
@@ -522,7 +526,7 @@ export function layoutDocument(
         themeReported = true;
         warnings.push({
           kind: 'version-dependent',
-          message: `<${node.name.local}> drawn with built-in child elements measured on Unity ${THEME_UNITY_VERSION}`,
+          message: `<${node.name.local}> drawn with built-in child elements measured on Unity ${THEME_UNITY_VERSIONS[theme]}`,
           node: node.id,
           reason: 'version-dependent',
           subject: { kind: 'control', type: node.name.local },
@@ -599,7 +603,7 @@ export function layoutDocument(
       // A hair of tolerance: equal heights are not an overflow, and floating
       // point should not decide whether a scrollbar exists.
       const overflows = contentBox.height > viewportBox.height + 0.01;
-      const want = verticalScrollbarWidth(overflows);
+      const want = verticalScrollbarWidth(overflows, theme);
       if ((reserved.get(owner) ?? 0) === want) continue;
 
       reserved.set(owner, want);

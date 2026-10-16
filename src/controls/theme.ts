@@ -54,10 +54,19 @@
  * The selector below is therefore measured, not assumed.
  */
 
-/** Where every value in this file was measured. Theme values move between versions. */
-export const THEME_UNITY_VERSION = '6000.0.40f1';
+export type Theme = 'runtime' | 'editor';
+
+/** Unity version used to measure the editor theme. */
+export const THEME_UNITY_VERSION: string = '6000.0.40f1';
+
+/** Unity measurement version for each theme. */
+export const THEME_UNITY_VERSIONS: Readonly<Record<Theme, string>> = {
+  editor: THEME_UNITY_VERSION,
+  runtime: '6000.3.25f1',
+};
 
 /**
+ * Editor theme stylesheet.
  * Parsed once and spliced in ahead of author sheets, so an author rule of equal
  * specificity wins on order — which is how a theme stylesheet behaves in Unity.
  *
@@ -65,7 +74,7 @@ export const THEME_UNITY_VERSION = '6000.0.40f1';
  * rule at `.unity-button` (0,1,0) beats an author's `Button { }` (0,0,1), and
  * that is a real Unity gotcha worth reproducing rather than smoothing over.
  */
-export const THEME_USS = `:disabled {
+export const THEME_USS: string = `:disabled {
   opacity: 0.5;
 }
 
@@ -74,6 +83,12 @@ export const THEME_USS = `:disabled {
   -unity-text-align: middle-center;
 }
 `;
+
+/** Built-in stylesheet for each theme; runtime values arrive in step A2. */
+export const THEME_SHEETS: Readonly<Record<Theme, string>> = {
+  editor: THEME_USS,
+  runtime: '',
+};
 
 /**
  * Width a visible vertical scrollbar takes from a ScrollView's viewport, in px.
@@ -88,7 +103,8 @@ export const THEME_USS = `:disabled {
  * which on a real screen is most of them. Read it through
  * `verticalScrollbarWidth`, never as a bare constant.
  */
-const VERTICAL_SCROLLBAR_PX = 13;
+// Runtime deliberately retains editor geometry until step A2 supplies its measurement.
+const VERTICAL_SCROLLBAR_PX: Readonly<Record<Theme, number>> = { editor: 13, runtime: 13 };
 
 /**
  * **Unmeasured, and reachable: nested disabled elements.**
@@ -111,6 +127,6 @@ const VERTICAL_SCROLLBAR_PX = 13;
  * Ensures:      0 when the content fits — Unity hides the scroller rather than
  *               shrinking the viewport for a bar nobody can see.
  */
-export function verticalScrollbarWidth(overflows: boolean): number {
-  return overflows ? VERTICAL_SCROLLBAR_PX : 0;
+export function verticalScrollbarWidth(overflows: boolean, theme: Theme = 'editor'): number {
+  return overflows ? VERTICAL_SCROLLBAR_PX[theme] : 0;
 }

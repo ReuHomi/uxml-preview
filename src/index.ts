@@ -31,6 +31,9 @@ export type {
   StyleOrigin,
 } from './model/types';
 
+export type { Theme } from './controls/theme';
+import type { Theme } from './controls/theme';
+
 import type { ElementNode, NodeId, StyleSheet, UxmlDocument, Warning } from './model/types';
 import {
   expandTemplates,
@@ -273,6 +276,12 @@ export function serialize(doc: UxmlDocument): { uxml: string; uss: string } {
 // ---------------------------------------------------------------------------
 
 export interface RenderOptions {
+  /**
+   * 'editor' is Unity's dark editor theme; 'runtime' is the default runtime
+   * theme of a PanelSettings (Unity Manual: Panel Settings, Theme Style Sheet).
+   * Defaults to 'editor' for now; a later step changes the default to 'runtime'.
+   */
+  theme?: Theme;
   /** Resolves font assets once per distinct path and form in each render. */
   resolveFont?: ResolveFont;
   /**
@@ -327,6 +336,8 @@ export { classifyVisibility } from './render/visibility';
 export type { Visibility } from './render/visibility';
 
 export interface RenderResult {
+  /** The theme actually drawn, after option validation. */
+  theme: Theme;
   /** Expanded document used for rendering, separate from the source AST. */
   document?: UxmlDocument;
   /** Computed styles keyed by rendered element id. */
@@ -396,6 +407,17 @@ export function render(
   container: HTMLElement,
   options?: RenderOptions,
 ): RenderResult {
+  const requestedTheme = options?.theme;
+  const theme: Theme = requestedTheme === 'runtime' || requestedTheme === 'editor'
+    ? requestedTheme
+    : 'editor';
+  const optionWarnings: Warning[] = requestedTheme === undefined || requestedTheme === theme
+    ? []
+    : [{
+        kind: 'malformed',
+        reason: 'invalid-value',
+        message: `Unknown theme '${String(requestedTheme)}' in the theme option; drew the default theme '${theme}'. Accepted: 'runtime', 'editor'.`,
+      }];
   const ownerDocument = container.ownerDocument;
   const size = options?.size ?? {
     width: container.clientWidth,
@@ -405,6 +427,7 @@ export function render(
   const expanded = expandTemplates(doc);
   const renderDocument = expanded.document;
   const resolved = resolveStyles(renderDocument, {
+    theme,
     ...(options?.activeStates === undefined ? {} : { activeStates: options.activeStates }),
     ...(options?.states === undefined ? {} : { states: options.states }),
   });
@@ -414,6 +437,7 @@ export function render(
   const fontResult = resolveFonts(resolved.styles, resolved.warnings, locate, options?.resolveFont);
 
   const tree = layoutDocument(renderDocument.root, resolved.styles, resolved.partStyles, {
+    theme,
     size,
     measureText,
     fonts: fontResult.fonts,
@@ -439,7 +463,9 @@ export function render(
 
   let disposed = false;
   return {
+    theme,
     warnings: oncePerDeclaration([
+      ...optionWarnings,
       ...expanded.warnings,
       ...fontResult.warnings,
       ...tree.warnings,

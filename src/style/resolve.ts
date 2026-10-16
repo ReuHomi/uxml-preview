@@ -28,7 +28,8 @@ import type {
   Warning,
 } from '../model/types';
 import { implicitClassesOf, resolveControl, supportedControlNames } from '../controls/registry';
-import { THEME_UNITY_VERSION, THEME_USS } from '../controls/theme';
+import type { Theme } from '../controls/theme';
+import { THEME_UNITY_VERSIONS, THEME_SHEETS } from '../controls/theme';
 import { parseUss } from '../parser/uss';
 import { attributeValueStart, parseDeclarationList } from '../parser/uss';
 import { expandShorthand, isInherited } from './properties';
@@ -53,6 +54,8 @@ export interface ComputedValue {
 export type ComputedStyle = ReadonlyMap<string, ComputedValue>;
 
 export interface ResolveOptions {
+  /** Built-in theme; defaults to 'editor'. */
+  theme?: Theme;
   /**
    * Pseudo-classes to treat as active on every element, e.g. `new Set(['hover'])`.
    *
@@ -163,14 +166,21 @@ interface FlatRule {
  * identical rule in a user's file would be a second cascade, and the bug it
  * produced would be unreproducible from the stylesheet the user can see.
  */
-const THEME_RULES: FlatRule[] = parseUss(THEME_USS, null, -1).sheet.items.flatMap(
-  (item, index) =>
-    item.kind === 'rule' ? [{ rule: item.rule, sheet: -1, item: index, builtin: true }] : [],
-);
+const THEME_RULES: Readonly<Record<Theme, FlatRule[]>> = {
+  editor: parseThemeRules('editor'),
+  runtime: parseThemeRules('runtime'),
+};
+
+function parseThemeRules(theme: Theme): FlatRule[] {
+  return parseUss(THEME_SHEETS[theme], null, -1).sheet.items.flatMap(
+    (item, index) =>
+      item.kind === 'rule' ? [{ rule: item.rule, sheet: -1, item: index, builtin: true }] : [],
+  );
+}
 
 /** The selector text a theme rule was written with, for provenance. */
-function themeSelectorText(rule: Rule): string {
-  return THEME_USS.slice(rule.selectorSpan.start, rule.selectorSpan.end).trim();
+function themeSelectorText(rule: Rule, theme: Theme): string {
+  return THEME_SHEETS[theme].slice(rule.selectorSpan.start, rule.selectorSpan.end).trim();
 }
 
 /**
@@ -266,6 +276,7 @@ function buildStateMap(
 }
 
 interface Prepared {
+  theme: Theme;
   ctx: MatchContext<Target>;
   usable: FlatRule[];
   warnings: Warning[];
@@ -277,7 +288,7 @@ interface Prepared {
  * appears. An imported rule therefore loses a tie to a rule written after the
  * import, which is the order the author sees on the page.
  */
-function cascadeOrder(doc: UxmlDocument): FlatRule[] {
+function cascadeOrder(doc: UxmlDocument, theme: Theme): FlatRule[] {
   const out: FlatRule[] = [];
   const byOrigin = new Map<string, number>();
   doc.sheets.forEach((sheet, index) => {
@@ -286,7 +297,7 @@ function cascadeOrder(doc: UxmlDocument): FlatRule[] {
 
   // Control defaults go first, so an author rule of equal specificity wins on
   // order. That is the whole reason Unity's own theme is overridable.
-  out.push(...THEME_RULES);
+  out.push(...THEME_RULES[theme]);
 
   const visited = new Map<NodeId, Set<number>>();
   const walk = (index: number, scope: NodeId): void => {
@@ -355,6 +366,7 @@ function warningSource(doc: UxmlDocument, sheet: number): Pick<Warning, 'sourceD
  *               so neither caller can accidentally match against one.
  */
 function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
+  const theme = options?.theme ?? 'editor';
   const parents = buildParentMap(doc.root);
   const warnings: Warning[] = [];
   const declarationWarnings = new Map<Warning, string>();
@@ -424,7 +436,7 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
   const usable: FlatRule[] = [];
   let reportedRoot = false;
 
-  for (const flat of cascadeOrder(doc)) {
+  for (const flat of cascadeOrder(doc, theme)) {
     // Built-in rules skip the checks below: they are ours, they cannot contain
     // syntax we do not support, and they are reported when they actually apply
     // to something rather than merely because they exist.
@@ -529,7 +541,7 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
     }
   });
 
-  return { ctx, usable, warnings, declarationWarnings };
+  return { theme, ctx, usable, warnings, declarationWarnings };
 }
 
 /**
@@ -632,7 +644,7 @@ function collectCandidates(
             kind: 'builtin-theme',
             selector: `#${target.name}`,
             property: expanded,
-            unityVersion: THEME_UNITY_VERSION,
+            unityVersion: THEME_UNITY_VERSIONS[prepared.theme],
           },
           Rank.BuiltinTheme,
           [0, 0, 0],
@@ -687,9 +699,9 @@ function collectCandidates(
           flat.builtin === true
             ? {
                 kind: 'builtin-theme',
-                selector: themeSelectorText(flat.rule),
+                selector: themeSelectorText(flat.rule, prepared.theme),
                 property,
-                unityVersion: THEME_UNITY_VERSION,
+                unityVersion: THEME_UNITY_VERSIONS[prepared.theme],
               }
             : {
                 kind: 'rule',
@@ -944,7 +956,7 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
   if (themeApplied) {
     warnings.push({
       kind: 'version-dependent',
-      message: `Built-in control defaults applied, as measured on Unity ${THEME_UNITY_VERSION}`,
+      message: `Built-in control defaults applied, as measured on Unity ${THEME_UNITY_VERSIONS[prepared.theme]}`,
       reason: 'version-dependent',
     });
   }
