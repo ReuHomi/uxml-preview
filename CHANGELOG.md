@@ -1,5 +1,60 @@
 # Changelog
 
+## 0.6.1 — unreleased
+
+Japanese and Chinese text, first. The Japanese and Simplified Chinese READMEs
+are public, and the first defect their readers meet is a paragraph the browser
+wraps inside a box measured as one line. Patch scope: three fixes, all measured
+in Unity (6000.0.40f1, 6000.3.25f1) before any code changed.
+
+### Accuracy — previous and new figures
+
+| Set | 0.6.0 | 0.6.1 | Why |
+|---|---:|---:|---|
+| Base coordinates (Unity 6000.0.40f1) | 660 / 676 | 660 / 676 | unchanged |
+| Text cohort (Chromium vs Unity 6.3) | lines 60/60, height 52/60, width 60/60, boundary 79/80 | lines 92/92, height 84/92, width 92/92, line-break cases 157/159 | Noto Sans JP and SC with Japanese, Chinese and mixed sentences join the cohort (32 rows, all match), plus 64 boundary and 15 fixed-width wrap cases. The one new miss is kinsoku, below. Korean and English rows are unchanged |
+
+### Behavior changes
+
+- **Han and Kana break between characters.** The default measurer split lines
+  at spaces only, so a Japanese or Chinese sentence was always one line while
+  the browser painted several. Hangul and Latin still break at spaces only
+  (measured: the Korean boundary cases pass on that rule). **Kinsoku is not
+  done** — it is not measured. Unity 6.3 draws one Chinese case at 60px in 8
+  lines where character breaking gives 7; a known difference in
+  `docs/accuracy.md`.
+- **Rich text tags are warned.** Unity interprets them by default — with no
+  `enable-rich-text` attribute, exactly as with `"true"` (measured). The
+  preview draws them as characters, so an element whose text has one of the 35
+  tags in Unity's "Supported rich text tags" gets `unsupported-property`,
+  reason `not-rendered`, subject property `enable-rich-text` (value as written,
+  `''` when absent), `affectsLayout: true`. Not with
+  `enable-rich-text="false"`, where Unity draws the characters too, and not for
+  a tag Unity does not know (`<ruby>`).
+- **`font-fallback` message names width for Han and Kana**: Unity's box
+  measured 6–87px narrower than this preview's, and the preview's width depends
+  on the device's fallback font. Message only; no field changes.
+
+### Consumers
+
+- uxml-author: the rich-text warning lands in `layoutGaps` (`not-rendered` +
+  `affectsLayout`), so a UXML with interpreted tags exits 3 — intended, the
+  preview is incomplete there. No other change reaches `classify`.
+- vscode-uxml-preview: grouped with the warnings whose layout may differ. No
+  fixture in either repository has Han, Kana or a rich text tag.
+
+### Tests
+
+- The text cohort's (b) class hid the CJK defect: a line-count flip was
+  counted as a 1px width difference even when the preview kept text wider than
+  the box on one line. (b) now needs the preview's line count to agree with its
+  own natural width; wrap cases get no (b). Known differences live in
+  `tests/text-cohort/spec.json` `known` and fail the run when they start to
+  match.
+- `paint.mjs` checks the 15 CJK wrap cases in a real browser.
+- `ProbeDump.cs.txt` is now the dumper that writes FaceInfo, as the text cohort
+  README already said.
+
 ## 0.6.0 — 2026-10-16
 
 Diagnostics that say what Unity does instead, text measured the way Unity

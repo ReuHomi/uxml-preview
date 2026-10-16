@@ -134,9 +134,12 @@ UXML 네임스페이스는 보통 `ui:` (`<ui:VisualElement>`). 프로젝트 관
 | `text-decoration` (밑줄, 취소선) | — | C | 미지원. 선을 요소로 그리거나 리치텍스트 태그 |
 | `overflow-wrap`, `word-break` | — | C | Unity 6.6까지의 공식 표에 없다 |
 
-**리치텍스트**: `Label`에 `enable-rich-text="true"`를 주면 `<b>`, `<color=#fff>` 같은
-유니티 리치텍스트 태그를 쓸 수 있다. HTML의 인라인 서식(`<strong>`, `<em>`)을
-텍스트 안에 섞어야 할 때 유용하다.
+**리치텍스트**: 텍스트 요소(`Label`, `Button` 등)는 `<b>`, `<color=#fff>` 같은 유니티 리치텍스트 태그를
+**기본으로 해석한다** — `enable-rich-text`를 주지 않아도 `"true"`와 같다. `enable-rich-text="false"`를 주면 태그를
+글자 그대로 그린다(`<noparse>`와 같은 너비). `<size>`·`<voffset>`·`<br>`는 상자 높이를, `<b>`는 너비를 바꾼다.
+Unity가 모르는 태그(`<ruby>` 등)는 어느 쪽이든 글자로 그린다. 측정: `tests/layout/unity/<version>/probe-editor/rich-text.json`
+(6000.0.40f1·6000.3.25f1, 2026-10-16). 태그 이름 35개는 Unity 매뉴얼 "Supported rich text tags"가 출처다.
+이 미리보기는 태그를 해석하지 않고 글자로 그리며, 해석되는 태그가 있으면 경고한다(`not-rendered`, `affectsLayout`).
 
 ---
 

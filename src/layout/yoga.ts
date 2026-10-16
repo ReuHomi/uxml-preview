@@ -435,6 +435,18 @@ export function layoutDocument(
       });
     }
 
+    // USS: rich text is enabled by default (tests/layout/unity/<version>/probe-editor/rich-text.json).
+    const richText = node.attributes.find((attribute) => attribute.name === 'enable-rich-text')?.value ?? '';
+    // Unity Manual 6000.3, Supported rich text tags: exact names, with optional tag arguments.
+    const richTextTag = /<\/?(?:a|align|allcaps|alpha|b|br|color|cspace|font|font-weight|gradient|i|indent|line-height|line-indent|lowercase|margin|mark|mspace|nobr|noparse|pos|s|size|smallcaps|space|sprite|style|sub|sup|u|uppercase|voffset|width|link)(?:[=\s][^<>]*)?>/i;
+    if (drawsText && richText.trim().toLowerCase() !== 'false' && richTextTag.test(text)) {
+      warnings.push({
+        kind: 'unsupported-property', reason: 'not-rendered', node: node.id,
+        message: 'Unity interprets rich text tags here (enable-rich-text is on by default), while this preview draws them as plain characters, so size and position can differ. Use enable-rich-text="false" only if you want literal tags.',
+        subject: { kind: 'property', property: 'enable-rich-text', value: richText, affectsLayout: true },
+      });
+    }
+
     if (drawsText && !style.has('-unity-font-definition') && !style.has('-unity-font')) {
       const first = /[\u1100-\u11ff\u3130-\u318f\uac00-\ud7af\u3400-\u4dbf\u4e00-\u9fff\u3040-\u30ff]/u.exec(text);
       if (first !== null) {
@@ -444,7 +456,8 @@ export function layoutDocument(
         const script = { hangul: 'Hangul', han: 'Han (CJK ideographs)', kana: 'Kana' }[missingGlyphs];
         warnings.push({
           kind: 'unsupported-property', reason: 'font-fallback', node: node.id,
-          message: `The editor default font (Inter-Regular SDF) has no glyphs for ${script}; Unity draws it with a fallback font whose height can differ (measured 1–4px taller).`,
+          message: `The editor default font (Inter-Regular SDF) has no glyphs for ${script}; Unity draws it with a fallback font whose height can differ (measured 1–4px taller).` +
+            (missingGlyphs === 'hangul' ? '' : " Unity's box width was measured 6–87px narrower than this preview's (10–32px font sizes); this preview's width depends on the device's fallback font."),
           subject: { kind: 'property', property: '-unity-font-definition', value: '', affectsLayout: true, missingGlyphs },
         });
       }

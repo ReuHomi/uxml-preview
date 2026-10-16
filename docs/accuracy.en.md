@@ -252,17 +252,17 @@ by Unity and by a real Chromium, and the Label boxes compared. Run it with `pnpm
 | Measured | 2026-10-16 |
 | Preview side | Google Chrome 155.0.8059.79 (Chromium). Playwright Chromium 1140 does not start on this machine (Windows side-by-side error), so the installed Chrome was used |
 | Unity side | 6000.0.40f1, 6000.3.25f1 (editor window, editor theme) |
-| Fonts | Inter, Pretendard, Jua, DungGeunMo (pixel), Wanted Sans Bold |
-| Sentences and sizes | English, Korean, mixed × 10/14/20/32px = 60, plus 80 at the line-break boundary (6000.0 single-line width ±2px) |
+| Fonts | Inter, Pretendard, Jua, DungGeunMo (pixel), Wanted Sans Bold, Noto Sans JP, Noto Sans SC (from 0.6.1) |
+| Sentences and sizes | English, Korean, mixed (five Korean fonts) · Japanese, Chinese, Japanese–Latin mixed, English (two Noto fonts) × 10/14/20/32px = 92; 144 at the line-break boundary (6000.0 single-line width ±2px); 15 fixed-width wraps (Noto Sans JP 20px, 60/100/140/170/220px) |
 | Coefficients | the FaceInfo Unity reports for that font. Not fitted |
 
 Judgement: line count must match, height must match the formula exactly, width within 1px or 1%.
-The failure columns count (a)/(b)/(c) over all 140 rows, boundary cases included.
+The failure columns count (a)/(b)/(c) over all 251 rows, line-break cases included. "Boundary lines" counts the boundary and the fixed-width wrap cases together.
 
 | Unity | Lines | Height | Width (1px/1%) | Boundary lines | Failures (a/b/c): lines · height · width | Width Δ range |
 |---|---:|---:|---:|---:|---|---|
-| 6000.0.40f1 | 60/60 | 28/60 | 57/60 | 74/80 | 5/1/0 · 74/1/0 · 3/0/0 | -4…0 |
-| 6000.3.25f1 | 60/60 | 52/60 | 60/60 | 79/80 | 0/1/0 · 16/1/0 · 0/0/0 | -1…0 |
+| 6000.0.40f1 | 92/92 | 60/92 | 89/92 | 153/159 | 5/1/0 · 74/2/0 · 3/0/0 | -4…0 |
+| 6000.3.25f1 | 92/92 | 84/92 | 92/92 | 157/159 | 1/1/0 · 17/1/0 · 0/0/0 | -1…0 |
 
 **On the reference version (6.3 LTS), (c) is zero.** What the failures are:
 
@@ -275,6 +275,14 @@ The failure columns count (a)/(b)/(c) over all 140 rows, boundary cases included
 - (b) one boundary case on 6.3: `inter-en-32-bm2`. Its natural width is 330 in Unity and 329 in the
   preview (1px), so in a 329px box Unity breaks the line and the preview does not. The height miss
   follows from that
+- (a) one line-break case on 6.3 (lines and height): `noto-jp-zh-20-w60`. From 0.6.1 the measurer
+  breaks between every Han/Kana character and gets 7 lines; Unity 6.3 draws 8 (6000.0: 7). Not
+  starting a line with `，` or `。` (kinsoku) explains it [inferred]. Kinsoku is not measured and not
+  implemented — **a known difference** (`tests/text-cohort/spec.json` `known`). The browser paints
+  this box in 8 lines too, one more than measured (`paint.mjs` holds it for the same reason)
+- Up to 0.6.0 the measurer broke lines at spaces only, so a Japanese or Chinese sentence was always
+  measured as one line. That failure was classified (b) in this table and hidden; from 0.6.1 a
+  boundary case gets (b) only when the preview's line count agrees with its own natural width
 - (a) The rest on 6000.0 is a version difference. 6000.0 adds one to a height that comes out as a
   whole number (Jua, DungGeunMo: 10px → 11), and advances lines after the first by FaceInfo
   `lineHeight` (Jua, two lines at 10px → 23; 6.3 gives 20). 6000.0 also draws Jua's English 2–4px

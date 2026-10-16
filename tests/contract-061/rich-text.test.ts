@@ -36,7 +36,7 @@ import { join } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { loadLayoutEngine, parse, render } from '../../src/index';
-import type { RenderResult, Warning } from '../../src/index';
+import type { ElementNode, RenderResult, Warning } from '../../src/index';
 
 beforeAll(async () => {
   await loadLayoutEngine();
@@ -61,11 +61,11 @@ const rich = (ws: readonly Warning[]) =>
   ws.filter((w) => w.subject?.kind === 'property' && w.subject.property === 'enable-rich-text');
 const nameOf = (r: RenderResult, w: Warning): string | undefined => {
   let found: string | undefined;
-  const walk = (n: RenderResult['document']['root']) => {
+  const walk = (n: ElementNode) => {
     if (n.id === w.node) found = n.attributes.find((a) => a.name === 'name')?.value;
     n.children.forEach(walk);
   };
-  walk(r.document.root);
+  walk(r.document!.root);
   return found;
 };
 
