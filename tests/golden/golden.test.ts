@@ -444,6 +444,74 @@ describe('accuracy: we match Unity', () => {
   });
 
   /**
+   * Purpose: the same guard for every other place a headline number is
+   * printed — the English accuracy page and both READMEs (user decision
+   * 2026-10-16: README carries the numbers, so a test must hold them).
+   * Pinned expectations: do not edit the expectations to match an
+   * implementation.
+   *
+   * README convention, the only one this parser accepts: the coordinate figure
+   * sits on a line that names 6000.0.40f1, the text figures (lines, height,
+   * width, in that order) on a line that names 6000.3.25f1. Any other fraction
+   * in a README is a number nothing checks, and fails.
+   */
+  it('matches the figures published in docs/accuracy.en.md, README.md and README.ko.md', () => {
+    const stats = computeAccuracy();
+    const baselinePresent = measured.filter((c) => existsSync(join(UNITY, `${c.name}.json`))).length;
+    const root = join(HERE, '..', '..');
+    const read = (name: string) => readFileSync(join(root, name), 'utf8');
+
+    const en = read('docs/accuracy.en.md');
+    for (const { words, expected } of [
+      { words: ['Values', 'matching'], expected: [stats.matchingValues, stats.comparedValues] },
+      { words: ['Cases', 'matching'], expected: [stats.fullyMatchingCases, stats.presentCases] },
+      { words: ['ground truth', 'available'], expected: [baselinePresent, measured.length] },
+    ]) {
+      const found = fractionsInRowsContaining(en, words);
+      expect(found.length, `docs/accuracy.en.md has no "${words.join(' ')}" row`).toBeGreaterThan(0);
+      for (const fraction of found) expect(fraction, `docs/accuracy.en.md "${words.join(' ')}"`).toEqual(expected);
+    }
+
+    // The text cohort's own output; `pnpm test:text` rewrites it and holds
+    // docs/accuracy.md to it, so a README that agrees with it agrees with both.
+    const cohort = JSON.parse(read('tests/text-cohort/results.json')) as {
+      summary: Record<string, { lines: string; height: string; width: string; boundaryLines: string }>;
+    };
+    const t63 = cohort.summary['6000.3.25f1']!;
+    const textFigures = [t63.lines, t63.height, t63.width].map((s) => s.split('/').map(Number));
+    const row = (v: string) => {
+      const s = cohort.summary[v]!;
+      return `| ${v} | ${s.lines} | ${s.height} | ${s.width} | ${s.boundaryLines} |`;
+    };
+    for (const v of ['6000.0.40f1', '6000.3.25f1']) expect(en, `docs/accuracy.en.md text cohort row ${v}`).toContain(row(v));
+
+    const FRACTION = /(\d+)\s*\/\s*(\d+)/g;
+    for (const [name, other] of [['README.md', 'README.ko.md'], ['README.ko.md', 'README.md']] as const) {
+      const text = read(name);
+      expect(text.split('\n').slice(0, 5).join('\n'), `${name} links to ${other} at the top`).toContain(other);
+      let coordinateLines = 0;
+      let textLines = 0;
+      for (const line of text.split('\n')) {
+        const fractions = [...line.matchAll(FRACTION)].map((m) => [Number(m[1]), Number(m[2])]);
+        if (fractions.length === 0) continue;
+        if (line.includes('6000.0.40f1')) {
+          coordinateLines++;
+          expect(fractions, `${name}: ${line.trim()}`).toEqual([[stats.matchingValues, stats.comparedValues]]);
+        } else if (line.includes('6000.3.25f1')) {
+          textLines++;
+          expect(fractions, `${name}: ${line.trim()}`).toEqual(textFigures);
+        } else {
+          expect.fail(`${name} has a fraction no test holds: ${line.trim()}`);
+        }
+      }
+      expect(coordinateLines, `${name}: coordinate figure (a line naming 6000.0.40f1)`).toBeGreaterThan(0);
+      expect(textLines, `${name}: text figures (a line naming 6000.3.25f1)`).toBeGreaterThan(0);
+      // npm shows the README without docs/, so a relative link breaks there.
+      expect(text, `${name}: relative link into the repository`).not.toMatch(/\]\((?!https?:|#|mailto:)[^)]*\)/);
+    }
+  });
+
+  /**
    * docs/accuracy.md's "이 수치가 덮는 컨트롤" table, mirrored here so it
    * cannot silently drift the way it already had once. Classification order
    * only matters if a case matches more than one tag — checked directly
