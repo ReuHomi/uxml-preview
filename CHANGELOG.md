@@ -114,7 +114,8 @@ and the published accuracy figures move. No type is removed and no
   missing script, the property to write instead, whether coordinates may
   differ. New examples: Unity text height and spacing with a fallback-font
   warning, `aspect-ratio`, and values Unity cannot apply.
-- README split into `README.md` and `README.ko.md`, with absolute links (npm
+- README split into `README.md` and `README.ko.md`, plus Japanese
+  (`README.ja.md`) and Simplified Chinese (`README.zh-CN.md`), with absolute links (npm
   shows the README without `docs/`). Its figures are checked against a live
   recomputation, as `docs/accuracy.md`'s are.
 - New `docs/api.md` / `docs/api.en.md`; the warning contract moved there from

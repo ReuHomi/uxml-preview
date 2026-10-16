@@ -486,9 +486,15 @@ describe('accuracy: we match Unity', () => {
     for (const v of ['6000.0.40f1', '6000.3.25f1']) expect(en, `docs/accuracy.en.md text cohort row ${v}`).toContain(row(v));
 
     const FRACTION = /(\d+)\s*\/\s*(\d+)/g;
-    for (const [name, other] of [['README.md', 'README.ko.md'], ['README.ko.md', 'README.md']] as const) {
+    // Every translation carries the same figures, so each is held the same way
+    // (2026-10-16: Japanese and Simplified Chinese added), and each names all
+    // the others at the top.
+    const READMES = ['README.md', 'README.ko.md', 'README.ja.md', 'README.zh-CN.md'] as const;
+    for (const name of READMES) {
       const text = read(name);
-      expect(text.split('\n').slice(0, 5).join('\n'), `${name} links to ${other} at the top`).toContain(other);
+      for (const other of READMES.filter((r) => r !== name)) {
+        expect(text.split('\n').slice(0, 5).join('\n'), `${name} links to ${other} at the top`).toContain(`/${other})`);
+      }
       let coordinateLines = 0;
       let textLines = 0;
       for (const line of text.split('\n')) {

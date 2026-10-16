@@ -1,6 +1,6 @@
 # uxml-preview
 
-*[English](https://github.com/ReuHomi/uxml-preview/blob/main/README.md) · 한국어*
+*[English](https://github.com/ReuHomi/uxml-preview/blob/main/README.md) · 한국어 · [日本語](https://github.com/ReuHomi/uxml-preview/blob/main/README.ja.md) · [简体中文](https://github.com/ReuHomi/uxml-preview/blob/main/README.zh-CN.md)*
 
 **Unity UI Toolkit의 UXML/USS를 Unity 에디터 없이 브라우저에서 그립니다. 배치는 UI Toolkit이
 쓰는 엔진인 Yoga가 하고, 결과는 Unity와 대조해 측정했습니다.**
