@@ -394,6 +394,13 @@ export function layoutDocument(
   let bindingsReported = false;
 
   function measure(yg: YogaNode, text: string, style: ComputedStyle, node: ElementNode): void {
+    // Measured: tests/layout/unity/<version>/{probe-panel,probe-editor-070}/c-whitespace.json.
+    const whitespaceText = text.length > 0 && text.trim() === '' &&
+      ['Label', 'Button', 'GroupBox'].includes(node.name.local);
+    if (whitespaceText && (theme === 'runtime' || read(style, '-unity-text-generator') === 'standard')) {
+      yg.setMeasureFunc(() => ({ width: 0, height: 0 }));
+      return;
+    }
     const fontSize = length(style, 'font-size', node);
     const context: TextContext = {
       fontSize: fontSize !== null && fontSize.kind === 'px' ? fontSize.value : 12,
@@ -438,6 +445,13 @@ export function layoutDocument(
         Number.isFinite(availableWidth) ? availableWidth : 0,
       ),
     );
+    if (whitespaceText && theme === 'editor') {
+      warnings.push({
+        kind: 'version-dependent', reason: 'version-dependent', node: node.id,
+        subject: { kind: 'control', type: node.name.local },
+        message: `<${node.name.local}> ${node.name.local === 'GroupBox' ? 'title' : 'text'} of only spaces is 0px high on Unity 6000.0.40f1 and 15px on 6000.3.25f1 (editor theme); drawn as 6000.3.25f1`,
+      });
+    }
   }
 
   function build(node: ElementNode, parent: YogaNode | null): void {
@@ -565,20 +579,7 @@ export function layoutDocument(
         host.insertChild(partNode, host.getChildCount());
         // c07-GroupBox: title is a sibling before file children, never a host.
         if (partText !== undefined) {
-          // Measured: tests/layout/unity/<version>/{probe-panel,probe-editor-070}/c-whitespace.json.
-          const whitespaceTitle = node.name.local === 'GroupBox' && partText.trim() === '';
-          if (whitespaceTitle && (theme === 'runtime' || style.get('-unity-text-generator')?.value === 'standard')) {
-            partNode.setMeasureFunc(() => ({ width: 0, height: 0 }));
-          } else {
-            measure(partNode, partText, style, node);
-            if (whitespaceTitle && theme === 'editor') {
-              warnings.push({
-                kind: 'version-dependent', reason: 'version-dependent', node: node.id,
-                subject: { kind: 'control', type: node.name.local },
-                message: `<${node.name.local}> title of only spaces is 0px high on Unity 6000.0.40f1 and 15px on 6000.3.25f1 (editor theme); drawn as 6000.3.25f1`,
-              });
-            }
-          }
+          measure(partNode, partText, style, node);
         } else host = partNode;
         nodes.push(partNode);
         // Box filled in by `collect`, once layout has actually run.
