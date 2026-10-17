@@ -106,6 +106,9 @@ interface Warning {
   `font-fallback`이 그 첫 예). 소비자는 모르는 값을 위한 분기를 두되, 모르는 값을 곧 실패로 다루면
   새 경고 하나에 모든 실행이 실패한다
 - `reason`이 없는 경고도 있다: 해당 사항이 없을 때(깨진 입력, 호스트가 못 푼 파일)
+- **`:root` 경고의 `kind`는 역사적 이름이다.** `:root` 규칙이 있으면 kind `version-dependent`, reason `matches-unity`로
+  한 번 알린다. 버전 차이가 아니라 USS `:root`가 CSS와 다르다는 안내이고, 미리보기는 Unity와 같게 그린다.
+  **판단 기준은 `reason`(`matches-unity`)이다.** kind는 바꾸면 소비자의 분류가 깨지므로 다음 큰 버전까지 둔다(`docs/backlog.md`)
 - 속성 경고는 **선언마다 한 번**, 그 선언의 위치(`at`)와 함께 나온다. 아무 요소에도 매칭되지 않는
   규칙의 선언도 경고한다. 상속으로 내려온 값에는 다시 경고하지 않는다
 

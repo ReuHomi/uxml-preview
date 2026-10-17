@@ -110,6 +110,10 @@ kept byte for byte (`tests/render/consumer-contract.test.ts`), but they are not 
   every unknown value as a failure makes one new warning fail every run
 - Some warnings have no `reason`, when none applies (malformed input, a file the host could not
   supply)
+- **The `:root` warning's `kind` is a historical name.** A `:root` rule raises one warning with kind
+  `version-dependent` and reason `matches-unity`. Nothing differs by version: it says USS `:root` is not
+  CSS `:root`, and the preview draws what Unity draws. **Go by the `reason` (`matches-unity`).** The kind
+  stays until the next major version, since changing it breaks consumers' classification (`docs/backlog.md`)
 - Property warnings are raised **once per declaration**, with that declaration's `at`, including
   in rules that match nothing. A value that arrived by inheritance is never reported again
 

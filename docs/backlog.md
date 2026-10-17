@@ -174,6 +174,11 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 - **런타임 테마의 금칙**: 런타임 패널은 금칙이 없고 미리보기도 런타임 테마에서는 금칙 없이 그린다(A2). 에디터 테마(6.3)의 금칙은
   알려진 차이로 남는다(`zh` 60px). 에디터 테마 금칙을 재현할지는 측정 범위(어떤 문자 쌍)부터 정해야 한다
 
+- **`:root` 경고에 맞는 kind 신설 — `WarningKind`를 바꿀 수 있는 다음 큰 버전에서**(2026-10-17 결정). 지금은 kind
+  `version-dependent`·reason `matches-unity`이고 버전 차이가 아니다. 기존 17종에는 맞는 것이 없다(`unsupported-selector`도
+  사실과 다르다 — `:root`는 지원된다). `WarningKind`는 닫힌 집합이라(`WarningKindMap`, vscode `assertNever`) 새 kind는 소비자
+  컴파일을 깨므로 메이저에서만. 두 소비자는 reason을 먼저 보므로 그때까지 영향 없음(`docs/api.md` 경고 절)
+
 ### 소비자 갱신 — uxml-author가 0.6.0 이상을 받을 때
 
 - **`font-fallback`(0.6.0에 새로 생긴 reason)** — 스킬의 `src/check.js` `classify`는 모르는 `reason`을 `default`로
