@@ -84,6 +84,16 @@ Play mode) on Unity 6.3, and the editor theme stays one option away.
   not drawn. A host that used Slider as its example of an unsupported
   control loses that example.
 
+### Classes
+
+- **Every drawn control carries Unity's classes**, parts included (A2, held by
+  `tests/contract-070/classes.test.ts` against every 0.7.0 dump). Label and
+  Button gain `unity-text-element`, so an author rule on that class now reaches
+  them as it does in Unity. ScrollView gains `unity-scroll-view--scroll` and a
+  `mode` class (`--vertical`, `--horizontal`, `--vertical-horizontal`), and its
+  three parts their `unity-scroll-view__*` classes. Classes only: no coordinate
+  moved. The scrollers inside a ScrollView are still not built.
+
 ### Accuracy — previous and new figures
 
 | Set | 0.6.1 | 0.7.0 | Why |
