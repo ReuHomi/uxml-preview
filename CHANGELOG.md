@@ -47,6 +47,10 @@ Play mode) on Unity 6.3, and the editor theme stays one option away.
   - letter- or word-spacing with no `-unity-text-generator`: the editor theme's
     default generator is standard on 6000.0.40f1 and advanced on 6000.3.25f1
     (drawn as advanced)
+  - a GroupBox whose `text` is only spaces: its title is 0px high on 6000.0.40f1
+    and 15px on 6000.3.25f1 (advanced generator; drawn as 15). Under an explicit
+    standard generator both versions measure 0 and nothing is warned. The runtime
+    theme draws that title 0px high on both versions, unwarned
   A host that keyed anything off the removed warnings loses that signal.
 - **The runtime theme measures text with the standard generator**, as Unity's
   runtime panel does on both versions (it had used advanced, the 6.3 editor's

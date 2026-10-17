@@ -556,8 +556,22 @@ export function layoutDocument(
         applyStyle(partNode, style, node);
         host.insertChild(partNode, host.getChildCount());
         // c07-GroupBox: title is a sibling before file children, never a host.
-        if (part.kind === 'leading-text') measure(partNode, text!, style, node);
-        else host = partNode;
+        if (part.kind === 'leading-text') {
+          // Measured: tests/layout/unity/<version>/{probe-panel,probe-editor-070}/c-whitespace.json.
+          const whitespaceTitle = node.name.local === 'GroupBox' && text!.trim() === '';
+          if (whitespaceTitle && (theme === 'runtime' || style.get('-unity-text-generator')?.value === 'standard')) {
+            partNode.setMeasureFunc(() => ({ width: 0, height: 0 }));
+          } else {
+            measure(partNode, text!, style, node);
+            if (whitespaceTitle && theme === 'editor') {
+              warnings.push({
+                kind: 'version-dependent', reason: 'version-dependent', node: node.id,
+                subject: { kind: 'control', type: node.name.local },
+                message: `<${node.name.local}> title of only spaces is 0px high on Unity 6000.0.40f1 and 15px on 6000.3.25f1 (editor theme); drawn as 6000.3.25f1`,
+              });
+            }
+          }
+        } else host = partNode;
         nodes.push(partNode);
         // Box filled in by `collect`, once layout has actually run.
         chain.push({
