@@ -78,6 +78,12 @@ namespace UxmlPreview.Probe
             _ps.scaleMode = PanelScaleMode.ConstantPixelSize;
             _ps.scale = 1f;
             _ps.targetTexture = new RenderTexture(_w, _h, 24);
+            if (Arg("-panelPng") != null)
+            {
+                // Pictures only: clear each frame so one probe does not draw over the last.
+                _ps.clearColor = true;
+                _ps.colorClearValue = _editorSkin ? new Color(0.22f, 0.22f, 0.22f, 1f) : Color.white;
+            }
             var go = new GameObject("ProbeUI");
             _doc = go.AddComponent<UIDocument>();
             _doc.panelSettings = _ps;
@@ -167,6 +173,22 @@ namespace UxmlPreview.Probe
             if (_ticks == 2) ForceStates(_doc.rootVisualElement);
             if (_ticks < SettleTicks) return;
             Write(Path.GetFileNameWithoutExtension(_current), _doc.rootVisualElement);
+            // -panelPng <dir>: also save what the panel drew, for judging rule 5 (a person
+            // comparing pictures). The JSON is unchanged.
+            var png = Arg("-panelPng");
+            if (png != null)
+            {
+                var rt = _ps.targetTexture;
+                var previous = RenderTexture.active;
+                RenderTexture.active = rt;
+                var tex = new Texture2D(rt.width, rt.height, TextureFormat.RGBA32, false);
+                tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+                tex.Apply();
+                RenderTexture.active = previous;
+                Directory.CreateDirectory(png);
+                File.WriteAllBytes(Path.Combine(png, Path.GetFileNameWithoutExtension(_current) + ".png"), tex.EncodeToPNG());
+                Object.DestroyImmediate(tex);
+            }
             _current = null;
         }
 
