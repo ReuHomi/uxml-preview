@@ -113,6 +113,8 @@ const unityParts = (dump: Dump, slider: DumpElement): DumpElement[] => dump.elem
 /** The preview's name for a Unity part: Unity's name, else its most specific class. */
 function partName(e: DumpElement): string {
   if (e.name !== '') return e.name;
+  // The nested TextField's inner text is named as in bundle C.
+  if (e.classes.includes('unity-text-element--inner-input-field-component')) return 'unity-text-element--inner-input-field-component';
   const specific = e.classes.filter((c) => /^unity-slider(-int)?__/.test(c));
   if (specific.length !== 1) throw new Error(`${e.path}: no single specific class in ${e.classes.join(' ')}`);
   return specific[0]!;
