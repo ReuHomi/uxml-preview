@@ -300,7 +300,7 @@ for (const theme of ['runtime', 'editor'] as const) {
           for (const f of fieldsOf(dump)) {
             const node = nodeByName(doc.root, f.name);
             expectStyle((p) => resolved.styles.get(node.id)?.get(p)?.value, f, f.path);
-            const parts: LayoutPart[] = tree.parts.get(node.id) ?? [];
+            const parts: readonly LayoutPart[] = tree.parts.get(node.id) ?? [];
             for (const [name, path] of Object.entries(partPaths(dump, f.path))) {
               const p = parts.find((x) => x.name === name);
               expect(p, `${f.path} ${name}`).toBeDefined();
