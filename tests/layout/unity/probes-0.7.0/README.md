@@ -53,3 +53,9 @@ with r2 gave every box, text, measurement and resolved style back unchanged (4 d
 | `c-textfield` | password mask (`iiiiii` against `WWWWWW`, a `mask-character`), placeholder with a value, with a label, disabled; one long sentence single-line and multiline (with and without `white-space: normal`); long and empty labels; auto widths |
 | `c-textfield-hook` (+ `.uss`) | author rules on `#unity-text-input`, `.unity-text-field__input`, `.unity-text-field__label` |
 | `c-whitespace` | text `" "` in a Label, a GroupBox title and a Button, with no, standard and advanced generator |
+
+## Bundle D (2026-10-17, dumper 0.7.0-r2)
+
+| Probe | What it settles |
+|---|---|
+| `d-slider`, `d-sliderint` | the dragger position: values 0-10 in eleven steps, horizontal (300px column) and vertical (120 high); a 30-144 range, a label, an input field, a value out of range (12), a reversed range (10 to 0), and for Slider 0.7 in 0-1 |
