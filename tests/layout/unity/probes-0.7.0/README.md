@@ -24,3 +24,17 @@ in 60px boxes, three characters per line, one candidate character at the break);
 `pre-wrap2` (a 40px box where `white-space` values separate); `nested-disabled` and
 `te-wrap` are the 0.6.0 probes, re-run on the runtime panel. Fonts are the text
 cohort's (`tests/text-cohort/README.md`), at `Assets/Fonts/`.
+
+## Cleanup round R1 (2026-10-17)
+
+`r1-*` probes, dumped on both versions with both dumpers (`probe-panel/` and
+`probe-editor-070/`). From this round every dump names its dumper in the metadata:
+`"dumper": "PanelDump" | "ProbeDump" | "UxmlLayoutDump"` and `"dumperVersion": "0.7.0-r1"`
+(bump the version string whenever a dumper changes what it writes). Earlier dumps carry
+neither field.
+
+| Probe | What it settles |
+|---|---|
+| `r1-text-spacing` | the 0.6.0 `text-spacing` probe unchanged, on the runtime panel: letter- and word-spacing widths with no `-unity-text-generator` written |
+| `r1-groupbox-empty` | GroupBox `text=""` (with and without a child) and `text=" "`: whether a title is built |
+| `r1-groupbox-author` (+ `.uss`) | an author rule on `.unity-group-box__label` (margin-left 17px, red) reaching the title |

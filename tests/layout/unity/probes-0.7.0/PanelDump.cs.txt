@@ -261,7 +261,7 @@ namespace UxmlPreview.Probe
         {
             var sb = new StringBuilder();
             var rb = root.worldBound;
-            sb.Append("{\n  \"metadata\": {\"unityVersion\": ").Append(J(Application.unityVersion))
+            sb.Append("{\n  \"metadata\": {\"dumper\": \"PanelDump\", \"dumperVersion\": \"0.7.0-r1\", \"unityVersion\": ").Append(J(Application.unityVersion))
               .Append(", \"theme\": ").Append(_editorSkin ? "\"editor-on-panel\"" : "\"runtime-panel\"").Append(", \"themeSource\": ").Append(J(_themeSource))
               .Append(", \"themeAsset\": ").Append(J(_ps.themeStyleSheet == null ? "" : AssetDatabase.GetAssetPath(_ps.themeStyleSheet)))
               .Append(", \"textSettings\": ").Append(TextSettingsJson())

@@ -176,7 +176,7 @@ namespace UxmlPreview.Probe
         void Write(string name)
         {
             var sb = new StringBuilder();
-            sb.Append("{\n  \"metadata\": {\"unityVersion\": ").Append(J(Application.unityVersion))
+            sb.Append("{\n  \"metadata\": {\"dumper\": \"ProbeDump\", \"dumperVersion\": \"0.7.0-r1\", \"unityVersion\": ").Append(J(Application.unityVersion))
               .Append(", \"theme\": ").Append(J(_theme))
               .Append(", \"panel\": {\"width\": 800, \"height\": 600}},\n  \"elements\": [\n");
             var origin = _stage.worldBound;
