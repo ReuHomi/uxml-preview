@@ -99,8 +99,9 @@ const CONTROLS: Readonly<Record<string, ControlSpec>> = {
   SliderInt: { hasText: false, classes: [], parts: [] },
   TextField: { hasText: false, classes: ['unity-base-field', 'unity-base-text-field', 'unity-text-field'], parts: [] },
   Box: { hasText: false, classes: ['unity-box'], parts: [] },
-  Label: { hasText: true, classes: ['unity-label'], parts: [] },
-  Button: { hasText: true, classes: ['unity-button'], parts: [] },
+  // Measured: a2-hook.json in both versions' panel/editor probes.
+  Label: { hasText: true, classes: ['unity-text-element', 'unity-label'], parts: [] },
+  Button: { hasText: true, classes: ['unity-text-element', 'unity-button'], parts: [] },
   // Image draws a texture, not text. Its picture reaches this renderer through
   // `background-image` in USS, which `resolveAsset` can turn into something a
   // browser will load; a texture assigned from C# has no path to follow here.
@@ -183,7 +184,8 @@ export function resolveControl(node: ElementNode): ResolvedControl {
   if (node.derived?.kind === 'template-container') return { spec: FALLBACK, fallback: false };
   const spec = CONTROLS[node.name.local];
   if (spec !== undefined) return { spec: node.name.local === 'TextField' ? textFieldSpec(node, spec) :
-    node.name.local === 'Slider' || node.name.local === 'SliderInt' ? sliderSpec(node) : spec, fallback: false };
+    node.name.local === 'Slider' || node.name.local === 'SliderInt' ? sliderSpec(node) :
+    node.name.local === 'ScrollView' ? scrollViewSpec(node, spec) : spec, fallback: false };
   if (isRoot(node)) return { spec: FALLBACK, fallback: false };
   return { spec: FALLBACK, fallback: true };
 }
@@ -207,6 +209,23 @@ export function implicitClassesOf(node: ElementNode): readonly string[] {
 /** Controls with a renderer of their own. Everything else still draws. */
 export function supportedControlNames(): string[] {
   return Object.keys(CONTROLS);
+}
+
+// Measured: both versions' {probe-panel,probe-editor-070}/{a2-scrollview,c07-existing}.json.
+// Mode changes class hooks only here; retain the measured wrapper geometry.
+function scrollViewSpec(node: ElementNode, base: ControlSpec): ControlSpec {
+  const mode = node.attributes.find((a) => a.name === 'mode')?.value;
+  const suffix = mode === 'Horizontal' ? 'horizontal' :
+    mode === 'VerticalAndHorizontal' ? 'vertical-horizontal' : 'vertical';
+  return {
+    ...base,
+    classes: [...base.classes, 'unity-scroll-view--scroll', `unity-scroll-view--${suffix}`],
+    parts: base.parts.map((part) => {
+      const className = part.name.replace('unity-', 'unity-scroll-view__');
+      return { ...part, classes: part.name === 'unity-content-and-vertical-scroll-container'
+        ? [className] : [className, `${className}--${suffix}`] };
+    }),
+  };
 }
 
 // Unity evidence: 6000.3.25f1/{probe-panel,probe-editor-070}/c07-TextField.json
