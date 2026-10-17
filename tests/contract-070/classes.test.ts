@@ -34,7 +34,7 @@ import type { ElementNode, Theme } from '../../src/index';
 import { implicitClassesOf, resolveControl } from '../../src/controls/registry';
 import { layoutDocument } from '../../src/layout/yoga';
 
-const CONTROLS = ['GroupBox', 'Box', 'TextField'];
+const CONTROLS = ['GroupBox', 'Box', 'TextField', 'Slider', 'SliderInt'];
 
 const UNITY = join(process.cwd(), 'tests', 'layout', 'unity');
 const PROBES = join(UNITY, 'probes-0.7.0');
