@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:RadioButton name="r-both" label="Label" text="Text" />
+<ui:RadioButton name="r-both-checked" label="Label" text="Text" value="true" />
+<ui:RadioButton name="r-long" label="A much longer label than the minimum" value="true" />
+<ui:RadioButton name="r-hover" label="Label" class="force-hover" />
+<ui:RadioButton name="r-focus" label="Label" class="force-focus" />
+<ui:RadioButton name="r-active" label="Label" value="true" class="force-active" />
+<ui:RadioButton name="r-checked-text" text="Text" value="true" />
+</ui:VisualElement>
+<ui:VisualElement name="free" style="align-items: flex-start;">
+<ui:RadioButton name="r-auto-both" label="Label" text="Text" />
+<ui:RadioButton name="r-auto-checked" value="true" />
+</ui:VisualElement>
+</ui:UXML>

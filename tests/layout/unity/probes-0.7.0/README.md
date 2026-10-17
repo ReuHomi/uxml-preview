@@ -59,3 +59,20 @@ with r2 gave every box, text, measurement and resolved style back unchanged (4 d
 | Probe | What it settles |
 |---|---|
 | `d-slider`, `d-sliderint` | the dragger position: values 0-10 in eleven steps, horizontal (300px column) and vertical (120 high); a 30-144 range, a label, an input field, a value out of range (12), a reversed range (10 to 0), and for Slider 0.7 in 0-1 |
+
+## A2 and bundle E (2026-10-17, dumper 0.7.0-r3)
+
+Dumper 0.7.0-r3 also forces `Disabled` on an element with class `force-disabled` (the
+internal pseudoStates bit, as for hover/active/focus). That is the "forced pseudo-state"
+of the bundle E check; `enabled="false"` is SetEnabled(false). Re-running c07-Toggle,
+c07-RadioButton, c07-states and c07-existing with r3 gave them back unchanged, except one
+value that moved between runs: 6000.0.40f1 editor `c07-existing` `free/label-auto` width 92
+(committed 91). The committed files stand.
+
+| Probe | What it settles |
+|---|---|
+| `a2-hook` (+ `.uss`) | an author rule on `.unity-text-element` reaching a Label, a Button, a TextField's label and value, a GroupBox title |
+| `a2-scrollview` | ScrollView classes per `mode` (default, Vertical, Horizontal, VerticalAndHorizontal) |
+| `d-slider-children` | where a Slider's own file children go (Unity's contentContainer) |
+| `e-disabled` | `enabled="false"` against a forced Disabled pseudo-state, on a VisualElement with a child, Label, Button, Toggle, RadioButton, TextField, Slider |
+| `e-toggle`, `e-radio` | label with text, long label, forced hover/focus/active, checked with text, auto widths |

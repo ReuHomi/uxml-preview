@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:Label name="h-label" text="Label" />
+<ui:Button name="h-button" text="Button" />
+<ui:TextField name="h-field" label="Field" value="Value" />
+<ui:GroupBox name="h-group" text="Group" />
+</ui:VisualElement>
+</ui:UXML>

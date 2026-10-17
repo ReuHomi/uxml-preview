@@ -181,7 +181,7 @@ namespace UxmlPreview.Probe
             root.Query<VisualElement>().ForEach(e =>
             {
                 int bits = System.Convert.ToInt32(prop.GetValue(e));
-                foreach (var s in new[] { "Hover", "Active", "Focus" })
+                foreach (var s in new[] { "Hover", "Active", "Focus", "Disabled" })
                     if (e.ClassListContains("force-" + s.ToLowerInvariant())) bits |= System.Convert.ToInt32(System.Enum.Parse(enumType, s));
                 prop.SetValue(e, System.Enum.ToObject(enumType, bits));
             });
@@ -272,7 +272,7 @@ namespace UxmlPreview.Probe
         {
             var sb = new StringBuilder();
             var rb = root.worldBound;
-            sb.Append("{\n  \"metadata\": {\"dumper\": \"PanelDump\", \"dumperVersion\": \"0.7.0-r2\", \"unityVersion\": ").Append(J(Application.unityVersion))
+            sb.Append("{\n  \"metadata\": {\"dumper\": \"PanelDump\", \"dumperVersion\": \"0.7.0-r3\", \"unityVersion\": ").Append(J(Application.unityVersion))
               .Append(", \"theme\": ").Append(_editorSkin ? "\"editor-on-panel\"" : "\"runtime-panel\"").Append(", \"themeSource\": ").Append(J(_themeSource))
               .Append(", \"themeAsset\": ").Append(J(_ps.themeStyleSheet == null ? "" : AssetDatabase.GetAssetPath(_ps.themeStyleSheet)))
               .Append(", \"textSettings\": ").Append(TextSettingsJson())

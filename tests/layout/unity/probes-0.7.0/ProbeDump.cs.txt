@@ -75,7 +75,7 @@ namespace UxmlPreview.Probe
             root.Query<VisualElement>().ForEach(e =>
             {
                 int bits = System.Convert.ToInt32(prop.GetValue(e));
-                foreach (var s in new[] { "Hover", "Active", "Focus" })
+                foreach (var s in new[] { "Hover", "Active", "Focus", "Disabled" })
                     if (e.ClassListContains("force-" + s.ToLowerInvariant())) bits |= System.Convert.ToInt32(System.Enum.Parse(enumType, s));
                 prop.SetValue(e, System.Enum.ToObject(enumType, bits));
             });
@@ -187,7 +187,7 @@ namespace UxmlPreview.Probe
         void Write(string name)
         {
             var sb = new StringBuilder();
-            sb.Append("{\n  \"metadata\": {\"dumper\": \"ProbeDump\", \"dumperVersion\": \"0.7.0-r2\", \"unityVersion\": ").Append(J(Application.unityVersion))
+            sb.Append("{\n  \"metadata\": {\"dumper\": \"ProbeDump\", \"dumperVersion\": \"0.7.0-r3\", \"unityVersion\": ").Append(J(Application.unityVersion))
               .Append(", \"theme\": ").Append(J(_theme))
               .Append(", \"panel\": {\"width\": 800, \"height\": 600}},\n  \"elements\": [\n");
             var origin = _stage.worldBound;
