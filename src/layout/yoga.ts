@@ -556,10 +556,8 @@ export function layoutDocument(
     // Laying it out would add a phantom box to the flow and report it as an
     // unsupported control, which names the wrong problem — the stylesheet is
     // handled in `parse`, and if it could not be loaded that is what warns.
-    // A control's own parts go between it and the file's children, so the
-    // children are built into the innermost part rather than into the element.
-    // Skipping this is exactly the bug that puts every descendant of a
-    // ScrollView in the wrong place.
+    // File children default to the last non-text part (ScrollView's content
+    // container); controls can instead keep them directly under the owner.
     let host = yg;
     if (spec.parts.length > 0) {
       // golden and golden-panel dumps agree across 6000.0.40f1 and 6000.3.25f1:
@@ -587,7 +585,7 @@ export function layoutDocument(
         // c07-GroupBox: title is a sibling before file children, never a host.
         if (partText !== undefined) {
           measure(partNode, partText, style, node);
-        } else host = partNode;
+        } else if (spec.fileChildrenHost !== 'owner') host = partNode;
         nodes.push(partNode);
         // Box filled in by `collect`, once layout has actually run.
         chain.push({
@@ -659,8 +657,8 @@ export function layoutDocument(
   }
 
   // Yoga reports each box relative to its parent; the painter wants panel
-  // coordinates, so offsets accumulate on the way down — through the parts as
-  // well, since a child sits inside the innermost one.
+  // coordinates, so offsets accumulate through the file-child host: the owner
+  // when declared, otherwise the last non-text part.
   function collect(node: ElementNode, offsetX: number, offsetY: number): void {
     const yg = yogaOf.get(node);
     if (yg === undefined) return;
@@ -671,13 +669,14 @@ export function layoutDocument(
 
     const chain = parts.get(node.id);
     const nodes = partNodes.get(node.id);
+    const { spec } = resolveControl(node);
     if (chain !== undefined && nodes !== undefined) {
       chain.forEach((part, index) => {
         const partBox = nodes[index]!.getComputedLayout();
         const parentBox = part.parent === null || part.parent === undefined ? boxes.get(node.id)! : chain[part.parent]!.box;
         part.box = { left: parentBox.left + partBox.left, top: parentBox.top + partBox.top,
           width: partBox.width, height: partBox.height };
-        if (part.text === undefined) {
+        if (part.text === undefined && spec.fileChildrenHost !== 'owner') {
           left = part.box.left;
           top = part.box.top;
         }

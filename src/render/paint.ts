@@ -237,9 +237,8 @@ export function paint(
     if (spec.hasText && text !== undefined && text.length > 0) {
       paintText(el, decodeEntities(text), style, css);
     } else {
-      // The control's own parts nest between this element and the file's
-      // children, so `host` walks inward and the children are appended to the
-      // innermost one — matching the tree Unity actually builds.
+      // Match Yoga's file-child host: owner when declared, otherwise the last
+      // non-text part. All parts are appended before the file children.
       let host = el;
       let hostBox = box;
       let hostBorder = borderOrigin(node);
@@ -283,7 +282,9 @@ export function paint(
           host = partEl;
           hostBox = part.box;
           hostBorder = partBorderOrigin(part);
-          childHost = { el: host, box: hostBox, border: hostBorder };
+          if (spec.fileChildrenHost !== 'owner') {
+            childHost = { el: host, box: hostBox, border: hostBorder };
+          }
         }
       }
 

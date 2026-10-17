@@ -61,6 +61,8 @@ export interface ControlSpec {
    * parts are siblings before them and exist only for non-empty owner text.
    */
   parts: readonly ControlPart[];
+  /** File children follow all parts; omitted uses the last non-text part, or owner. */
+  fileChildrenHost?: 'owner' | 'last-part';
   /**
    * USS classes Unity's own constructor puts on this control, which the theme
    * stylesheet then targets. Not in the `class` attribute and not in the model:
@@ -309,6 +311,8 @@ function sliderSpec(node: ElementNode): ControlSpec {
       kind: 'text', textValue: String(value), typeName: 'TextElement', unnamed: true,
       classes: ['unity-text-element', 'unity-text-element__selectable', 'unity-text-element--inner-input-field-component'], style: {} });
   }
-  return { hasText: false, classes: ['unity-base-field', ...(!labelled ? ['unity-base-field--no-label'] : []),
+  // Measured: tests/layout/unity/6000.3.25f1/{probe-panel,probe-editor-070}/
+  // d-slider-children.json: contentContainer is the slider itself, after its parts.
+  return { hasText: false, fileChildrenHost: 'owner', classes: ['unity-base-field', ...(!labelled ? ['unity-base-field--no-label'] : []),
     'unity-base-slider', specific, attr('direction') === 'Vertical' ? 'unity-base-slider--vertical' : 'unity-base-slider--horizontal'], parts };
 }
