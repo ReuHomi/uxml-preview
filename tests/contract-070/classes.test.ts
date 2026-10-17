@@ -21,7 +21,13 @@
  *
  * The classes compared are the ones the cascade matches selectors against: written
  * classes plus `implicitClassesOf` for an element, the part's `classes` for a part.
- * Add each newly drawn control to CONTROLS (bundles D-F).
+ * CONTROLS is the renderer registry (supportedControlNames), so every drawn control is in.
+ *
+ * One exclusion, by decision rather than by measurement: Unity's scrollers inside a
+ * ScrollView (an element with class `unity-scroller`, and everything in it — repeat
+ * buttons, a Slider). This preview reserves their width and does not build them (S1
+ * decision; the golden tests skip the same elements as NOT_REPRODUCED). Whether to build
+ * them is open (A2 report). Every other element Unity builds is judged.
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -31,10 +37,11 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 import { loadLayoutEngine, parse, resolveStyles } from '../../src/index';
 import type { ElementNode, Theme } from '../../src/index';
-import { implicitClassesOf, resolveControl } from '../../src/controls/registry';
+import { implicitClassesOf, resolveControl, supportedControlNames } from '../../src/controls/registry';
 import { layoutDocument } from '../../src/layout/yoga';
 
-const CONTROLS = ['GroupBox', 'Box', 'TextField', 'Slider', 'SliderInt'];
+// Every control this preview draws, from the renderer registry: a newly drawn control joins without an edit here.
+const CONTROLS = supportedControlNames();
 
 const UNITY = join(process.cwd(), 'tests', 'layout', 'unity');
 const PROBES = join(UNITY, 'probes-0.7.0');
@@ -102,22 +109,27 @@ describe('classes — the controls this preview draws carry Unity\'s, parts incl
         size: { width: 800, height: 600 },
         measureText: () => ({ width: 0, height: 0 }),
       });
+      // Every mismatch in the file is collected, so a failure lists all of them.
+      const problems: string[] = [];
+      const same = (a: readonly string[], b: readonly string[]): boolean => JSON.stringify(sorted(a)) === JSON.stringify(sorted(b));
       try {
         for (const u of targets) {
-          const node = nodes.get(u.name);
-          expect(node, `${u.path}: no element named ${u.name}`).toBeDefined();
-          expect(sorted(elementClasses(node!)), `${u.path} classes`).toEqual(sorted(u.classes));
+          const node = nodes.get(u.name)!;
+          if (!same(elementClasses(node), u.classes)) problems.push(`${u.path} classes: ours [${sorted(elementClasses(node)).join(' ')}], Unity [${sorted(u.classes).join(' ')}]`);
 
           const inside = els.filter((e) => e.path.startsWith(`${u.path}/`));
-          const spec = resolveControl(node!).spec.parts;
-          const built = tree.parts.get(node!.id) ?? [];
+          const spec = resolveControl(node).spec.parts;
+          const built = tree.parts.get(node.id) ?? [];
           const used = new Set<string>();
           for (const part of built) {
             const classes = spec.find((p) => p.name === part.name)?.classes ?? [];
             const twin = inside.find((e) => !used.has(e.path) && (e.name === part.name || (e.name === '' && e.classes.includes(part.name))));
-            expect(twin, `${u.path}: Unity has no part ${part.name}`).toBeDefined();
-            used.add(twin!.path);
-            expect(sorted(classes), `${u.path} part ${part.name} classes`).toEqual(sorted(twin!.classes));
+            if (twin === undefined) {
+              problems.push(`${u.path}: Unity has no part ${part.name}`);
+              continue;
+            }
+            used.add(twin.path);
+            if (!same(classes, twin.classes)) problems.push(`${u.path} part ${part.name} classes: ours [${sorted(classes).join(' ')}], Unity [${sorted(twin.classes).join(' ')}]`);
           }
           // The file's own children (and everything under them) are not parts.
           const fileRoots: string[] = [];
@@ -133,10 +145,14 @@ describe('classes — the controls this preview draws carry Unity\'s, parts incl
               else fileWalk(child);
             }
           };
-          fileWalk(node!);
-          const unityParts = inside.filter((e) => !fileRoots.some((r) => e.path === r || e.path.startsWith(`${r}/`)));
-          expect(unityParts.filter((e) => !used.has(e.path)).map((e) => e.path), `${u.path}: Unity parts the preview did not build`).toEqual([]);
+          fileWalk(node);
+          const scrollers = inside.filter((e) => e.classes.includes('unity-scroller')).map((e) => e.path);
+          const unityParts = inside.filter((e) => !fileRoots.some((r) => e.path === r || e.path.startsWith(`${r}/`)) &&
+            !scrollers.some((r) => e.path === r || e.path.startsWith(`${r}/`)));
+          for (const e of unityParts.filter((x) => !used.has(x.path))) problems.push(`${u.path}: Unity built ${e.path.slice(u.path.length + 1)} [${sorted(e.classes).join(' ')}], the preview did not`);
         }
+        if (problems.length > 0) console.info(`CLASSES ${version} ${theme} ${probe}\n  ${problems.join('\n  ')}`);
+        expect(problems).toEqual([]);
       } finally {
         tree.dispose();
       }
