@@ -274,8 +274,9 @@ for (const theme of ['editor', 'runtime'] as const) {
 
 describe('bundle B — author USS', () => {
   it('reaches the title through its measured class', () => {
-    // Unity's own theme styles the title through `.unity-group-box__label` (the margin
-    // -5 above is that rule); an author rule on the same class reaches it the same way.
+    // An author rule on `.unity-group-box__label` reaches the title: measured 2026-10-17,
+    // r1-groupbox-author.json on both versions and both themes (r1-measured.test.ts holds
+    // the dump values). Which selector gives the theme's margin -5 is not in the dumps.
     const doc = parse(
       '<ui:UXML xmlns:ui="UnityEngine.UIElements"><ui:GroupBox name="g" text="Group" /></ui:UXML>',
       '.unity-group-box__label { margin-left: 17px; }',
