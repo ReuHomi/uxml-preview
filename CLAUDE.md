@@ -198,7 +198,7 @@ TypeScript (strict) / pnpm / Vite / Vitest / yoga-layout
 ## 스코프 경계
 
 **전용 렌더러**가 있는 컨트롤은 `VisualElement`, `Label`, `Button`, `Image`,
-S1 Step 5의 `ScrollView`, 그리고 0.7.0 묶음 B의 `GroupBox`·`Box`, 묶음 C의 `TextField`, 묶음 D의 `Slider`·`SliderInt`까지다.
+S1 Step 5의 `ScrollView`, 그리고 0.7.0 묶음 B의 `GroupBox`·`Box`, 묶음 C의 `TextField`, 묶음 D의 `Slider`·`SliderInt`, 묶음 E의 `Toggle`·`RadioButton`까지다.
 **목록에 없는 컨트롤을 추가하자는 제안은 거절하고** `docs/backlog.md`에 적는다.
 0.7.0의 나머지 묶음(C–F)은 `docs/design/0.7.0-design.md`에서 사람이 승인한 범위이고, 묶음마다 이 목록에 더한다.
 

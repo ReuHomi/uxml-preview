@@ -202,7 +202,7 @@ function buildStateMap(
   warnings: Warning[],
 ): {
   states: Map<ElementNode, ReadonlySet<string>>;
-  forcedDisabled: ReadonlySet<ElementNode>;
+  disabledSubtree: ReadonlySet<ElementNode>;
 } {
   const global = options?.activeStates ?? new Set<string>();
   const entries = Object.entries(options?.states ?? {});
@@ -246,16 +246,15 @@ function buildStateMap(
   }
 
   const map = new Map<ElementNode, ReadonlySet<string>>();
-  const forcedDisabled = new Set<ElementNode>();
+  const disabledSubtree = new Set<ElementNode>();
 
   /**
    * `enabled="false"` in the file is a state the document declares about itself,
    * so it applies without anyone passing `states`. Measured: `states-disabled`
    * writes it and Unity comes back 120 wide, having matched `:disabled`.
    *
-   * It descends, because Unity's `SetEnabled(false)` disables the subtree. That
-   * part is documented rather than measured, so `disabled-inherits` exists to
-   * judge it — if Unity says otherwise, this inheritance is what comes out.
+   * Measured: e-disabled.json in both 6000.3.25f1 themes confirms that
+   * SetEnabled(false) disables file descendants and physical parts.
    */
   const disabledHere = (node: ElementNode): boolean =>
     node.attributes.some((a) => a.name === 'enabled' && a.value === 'false');
@@ -263,7 +262,7 @@ function buildStateMap(
   const visit = (node: ElementNode, inheritedDisabled: boolean): void => {
     const disabled = inheritedDisabled || disabledHere(node);
     const set = new Set(global);
-    let forcedDisabledHere = global.has('disabled');
+    if (disabled) disabledSubtree.add(node);
     if (disabled) set.add('disabled');
     // Measured 2026-10-15: tests/layout/unity/probes-0.6.0 and
     // tests/layout/unity/<version>/probe-editor (6000.0.40f1, 6000.3.25f1).
@@ -271,15 +270,15 @@ function buildStateMap(
     for (const entry of parsed) {
       if (entry.selectors.some((s) => matchesSelector<Target>(s, { kind: 'element', node }, base))) {
         for (const state of entry.states) set.add(state);
-        if (entry.states.includes('disabled')) forcedDisabledHere = true;
       }
     }
-    if (forcedDisabledHere) forcedDisabled.add(node);
+    if ((node.name.local === 'Toggle' || node.name.local === 'RadioButton') &&
+      node.attributes.some((a) => a.name === 'value' && a.value === 'true')) set.add('checked');
     map.set(node, set);
     for (const child of node.children) visit(child, disabled);
   };
   visit(doc.root, false);
-  return { states: map, forcedDisabled };
+  return { states: map, disabledSubtree };
 }
 
 interface Prepared {
@@ -433,22 +432,21 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
   // the stylesheet is matched against. Using one context for both would let a
   // key like `Button:hover` turn itself on.
   const base: MatchContext<Target> = { ...shared, statesOf: () => NO_STATES };
-  const { states: stateMap, forcedDisabled } = buildStateMap(doc, base, options, warnings);
+  const { states: stateMap, disabledSubtree } = buildStateMap(doc, base, options, warnings);
   const ctx: MatchContext<Target> = {
     ...shared,
-    classesOf: (target) => {
-      const classes = shared.classesOf(target);
-      // Inferred, not measured: Unity disables an element via SetEnabled(false),
-      // which gives it unity-disabled. Forcing disabled requests that same own
-      // state; inherited disabled alone must not add the class (nested-disabled.json).
-      return target.kind === 'element' && forcedDisabled.has(target.node) &&
-        !classes.includes('unity-disabled')
-        ? [...classes, 'unity-disabled'] : classes;
+    // e-{toggle,radio,disabled}.json (6000.3.25f1, both themes): forced
+    // states belong only to the matched element. SetEnabled disables all parts;
+    // the value's Checked bit belongs only to the control and its input.
+    statesOf: (target) => {
+      if (target.kind === 'element') return stateMap.get(target.node) ?? NO_STATES;
+      const states = new Set<string>([disabledSubtree.has(target.owner) ? 'disabled' : 'enabled']);
+      const part = resolveControl(target.owner).spec.parts[target.depth];
+      if ((target.owner.name.local === 'Toggle' || target.owner.name.local === 'RadioButton') &&
+        part?.classes?.includes(target.owner.name.local === 'Toggle' ? 'unity-toggle__input' : 'unity-radio-button__input') &&
+        target.owner.attributes.some((a) => a.name === 'value' && a.value === 'true')) states.add('checked');
+      return states;
     },
-    // A part inherits its owner's states: `SetEnabled(false)` disables the whole
-    // subtree, and a part is inside it.
-    statesOf: (target) =>
-      stateMap.get(target.kind === 'element' ? target.node : target.owner) ?? NO_STATES,
   };
 
   const usable: FlatRule[] = [];

@@ -4,26 +4,25 @@
 
 ## 현재 위치
 
-**0.6.1 배포됨 (2026-10-16).** npm `latest` = `0.6.1`. **0.7.0 묶음 A·B·C·D와 검토 뒤 정리 라운드(R1–R4) 완료 — `design/0.7.0`, 푸시 안 함, 미배포.**
+**0.6.1 배포됨 (2026-10-16).** npm `latest` = `0.6.1`. **0.7.0 묶음 A·B·C·D·A2·E와 검토 뒤 정리 라운드(R1–R4) 완료 — `design/0.7.0`, 푸시 안 함, 미배포.**
 기준 Unity 버전 6.3 LTS.
 
 | | |
 |---|---|
-| 0.7.0 | 묶음 A: 기본 테마 `'runtime'`(`theme` 옵션), 두 테마의 측정값, `.unity-disabled`, Label·Button `flex-shrink: 0`, 런타임 CJK 금칙 없음, 런타임 생성기 standard. 묶음 B: GroupBox·Box. 묶음 C: TextField. 묶음 D: Slider·SliderInt. `package.json`은 아직 0.6.1, CHANGELOG `0.7.0 — unreleased` |
-| 테스트 | 코어 **1123 통과 · 1 건너뜀**, tsc 0 |
+| 0.7.0 | 묶음 A: 기본 테마 `'runtime'`(`theme` 옵션), 두 테마의 측정값, `.unity-disabled`, Label·Button `flex-shrink: 0`, 런타임 CJK 금칙 없음, 런타임 생성기 standard. 묶음 B: GroupBox·Box. 묶음 C: TextField. 묶음 D: Slider·SliderInt. A2: 클래스 정합. 묶음 E: Toggle·RadioButton, 강제 상태 모델. `package.json`은 아직 0.6.1, CHANGELOG `0.7.0 — unreleased` |
+| 테스트 | 코어 **1176 통과 · 1 건너뜀**, tsc 0 |
 | 정확도 | **런타임 테마 662/676**(Unity 6.3 실제 런타임 패널) · 에디터 테마 **662/676**(6000.0.40f1) · 템플릿 215/220 · 합산하지 않음 |
-| 소비자 | 묶음 D 뒤 측정: vscode 3건 실패(0.6.1의 1 + Slider를 미지원 예로 쓴 테스트 2), uxml-author 24건(0.6.1의 17 + 버전 채널 표본 1 + 지원 목록 docs 6). `docs/design/0.7.0-handoff.md` |
-| 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` `GroupBox` `Box` `TextField` `Slider` `SliderInt` (그 외는 폴백) |
+| 소비자 | 묶음 E 뒤 측정: vscode 4건 실패(0.6.1의 1 + Slider·Toggle을 미지원 예로 쓴 테스트 3), uxml-author 29건(0.6.1의 17 + 버전 채널 표본 1 + 지원 목록 docs 8 + Toggle 표본 conditions 3). `docs/design/0.7.0-handoff.md` |
+| 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` `GroupBox` `Box` `TextField` `Slider` `SliderInt` `Toggle` `RadioButton` (그 외는 폴백) |
 
 정확도 세트는 서로 다른 질문을 답하므로 합산하지 않는다. `docs/accuracy.md`.
 
 ## 다음 할 일
 
 0. **GitHub 소개 문구(사람)** — 확정 문안은 2026-10-16 기록 그대로
-1. **묶음 D 확인(사람)** — 확인 뒤 묶음 E(Toggle·RadioButton, 비활성 두 방식 덤프 포함). 플레이그라운드 F5(런타임 체크무늬)도 남아 있다
+1. **A2·묶음 E 확인(사람)** — 확인 뒤 묶음 F(ProgressBar·TextElement·RepeatButton). 에디터 테마 꺼진 Toggle 상자, ScrollView 스크롤바를 만들지 여부도 사람 판단. 플레이그라운드 F5도 남아 있다
 2. **T. 런타임 텍스트 코호트** — 묶음 G 전(계획서 19절). 런타임 패널의 MeasureTextSize 대 레이아웃 폭 1–2px 차이의 원인도
-3. **Label·Button에 `unity-text-element` 클래스가 없다(사람)** — Unity는 붙인다. 클래스 테스트의 범위(GroupBox·Box·TextField) 밖이라 고치지 않았다
-4. **0.7.0 다음 묶음(E–F)** — `docs/design/0.7.0-design.md` 5절. 묶음 D 전 슬라이더 값–손잡이 위치 추가 측정
+3. **0.7.0 다음 묶음(F–G)과 T** — `docs/design/0.7.0-design.md` 5절, T는 묶음 G 전(계획서 19절)
 4. **소비자 갱신(소비자 저장소의 일)** — 인계 문서 4절 목록
 5. **0.6.0이 남긴 것** — `docs/backlog.md` 0.6.0 절의 2026-10-16 메모
 6. **Playwright Chromium이 이 PC에서 실행되지 않음** — 코호트는 설치된 Chrome으로 측정
@@ -185,6 +184,10 @@
 | 2026-10-17 | 슬라이더 손잡이 위치는 측정한 식으로, 열한 단계를 고정 | `d-slider`·`d-sliderint` 네 덤프 모든 행이 t × (끌기 칸 − 손잡이)(세로 1 − t)와 0.01px 안. 설계의 "최소·중간·최대만 보증" 제한을 푼다 |
 | 2026-10-17 | 부품 모델에 부모 색인 | Slider의 끌기 칸 안 형제 셋과 부품 안 TextField는 사슬로 표현되지 않는다. 사슬·앞 글자는 부모 색인이 없을 때의 기본으로 남겨 GroupBox·TextField·ScrollView는 그대로 |
 | 2026-10-17 | 손잡이 위치는 레이아웃 상자가 아니라 `translate` 값으로 | Unity 상자는 translate를 포함하지만 이 미리보기에서 translate는 그리기다(다른 요소와 같다). 테스트는 상자 − translate와 translate 값을 따로 본다 |
+| 2026-10-17 | 클래스 테스트 대상 = 렌더러 등록표 전부, Unity 스크롤바만 결정으로 제외 | 손으로 관리하는 목록은 새 컨트롤을 빠뜨린다. 스크롤바는 S1부터 만들지 않는 요소(골든 NOT_REPRODUCED)라 클래스 문제가 아니다 — 만들지는 사람 판단 |
+| 2026-10-17 | 강제 상태(`states`)는 그 요소에만, 강제 `disabled`는 흐리지 않는다 — A2 추론 뒤집음 | `e-disabled`(덤퍼 r3, 강제 Disabled 의사 상태 대 `enabled="false"`, 두 버전·두 테마): 강제는 클래스·흐림 없음, 자식·부품 비활성 아님. 강제 hover·active·focus도 부품에 닿지 않음. `forced-disabled.test.ts`를 측정으로 다시 씀(사람 지시) |
+| 2026-10-17 | `:checked`는 Toggle·RadioButton의 `value="true"`에서, 요소와 입력 부품에만 | `e-toggle`·`e-radio`의 pseudoStates |
+| 2026-10-17 | 미지원 예로 쓰는 테스트 컨트롤은 0.7.0 묶음에 없는 것(MinMaxSlider) | 묶음 C·D에서 Toggle로 옮긴 9개가 묶음 E에서 다시 깨졌다 |
 
 ## 세션 로그
 
@@ -269,6 +272,12 @@
   - 예측(계획서 20절, 읽는 테스트 9파일, 깨짐 4·뜻 잃음 1) → 고정 `bundle-d.test.ts` 22 + `classes.test.ts`에 Slider·SliderInt → Codex 1라운드 → 테스트 부품 이름 함수 정정(기대값 불변) → 예측대로 4개 깨지고 1개 뜻 잃음, 옮김. 변이 7/7. 1123 통과
   - 소비자: vscode 1 → 3(Slider를 미지원 예로 쓴 테스트), uxml-author 22 → 24. 결과 계획서 21절
   - 지시 밖: `supported`의 Toggle 행이 "위와 같다"로 TextField(이제 검증됨)를 가리키던 것을 고침(묶음 C에서 생긴 잘못)
+- (14:11 추가) A2(클래스 정합)·Slider 자식·묶음 E
+  - A2: `classes.test.ts` 대상 = `supportedControlNames()`, 실패 64파일·420건(Label 288, Button 52, ScrollView 80) → Codex 1라운드(Label·Button `unity-text-element`, ScrollView mode·부품 클래스) → 0. 수치 불변, 기존 테스트 변경 0(예측대로). 훅 `a2-text-element.test.ts`(덤프 `a2-hook`). 변이 5/5
+  - 덤퍼 r3: `force-disabled`(Disabled 의사 상태 강제). 덤프 `a2-hook`·`a2-scrollview`·`d-slider-children`·`e-disabled`·`e-toggle`·`e-radio`. r3로 다시 뜬 c07 넷 중 6000.0 에디터 `c07-existing` `free/label-auto` 폭 하나가 91 → 92(실행마다 1px 흔들림, T에서 본다)
+  - Slider 자식: 측정대로 Slider 자신의 자식, 부품 뒤. Codex 2라운드, 변이 2/3(그리기 DOM 부모만 바꾼 변이는 상자 테스트가 못 잡음)
+  - 묶음 E: 예측(17파일) 대로 11 깨짐 + 1 뜻 잃음 + 고정 교체 1 + 스냅숏 1. Codex 3라운드, 측정 입력 정정 1(별도 커밋). 변이 5/5. 1176 통과
+  - 그림: PanelDump `-panelPng`로 Unity 6.3 패널 그림을 떠서 미리보기와 나란히(`docs/design/0.7.0-bundle-E-shots/`). 에디터 테마 꺼진 Toggle 상자를 그리지 않는 차이를 찾음 — 상한 3라운드라 보고만
 
 ### 2026-10-16 (23:07 추가 — 0.6.1 패치 · 0.7.0 측정·설계)
 - 0번: README 수치 테스트는 이미 영·한·일·중 네 파일을 읽고 있었다. 변이 6개(ja·zh 각각 좌표·높이 숫자, 상단 상호 링크) 전부 실패로 잡힘. 테스트 제목만 고침(`d9948aa`). 번역문의 숫자 오류 없음

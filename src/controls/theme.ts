@@ -100,6 +100,46 @@ const SLIDER_RUNTIME = `
 .unity-base-slider--vertical .unity-base-slider__dragger { width: 24px; height: 8px; left: 50%; margin-left: -12px; }
 `;
 
+// Measured resolved styles: tests/layout/unity/6000.3.25f1/
+// {probe-panel,probe-editor-070}/{c07-Toggle,c07-RadioButton,e-toggle,e-radio,e-disabled}.json.
+const CHECK_COMMON = `
+.unity-toggle, .unity-radio-button { flex-direction: row; flex-shrink: 0; }
+.unity-toggle__input, .unity-radio-button__input { flex-direction: row; flex-grow: 1; flex-shrink: 0; }
+.unity-toggle__label, .unity-radio-button__label { white-space: nowrap; text-overflow: ellipsis; }
+.unity-toggle__text, .unity-radio-button__text { align-self: center; margin-top: 0; margin-left: 1px; white-space: nowrap; }
+.unity-toggle__checkmark, .unity-radio-button__checkmark-background, .unity-radio-button__checkmark { align-self: center; flex-shrink: 0; }
+/* Unchecked dumps resolve display: None; Yoga keeps its zero box at the background origin. */
+.unity-radio-button__checkmark { display: none; width: 0; height: 0; }
+.unity-radio-button__input:checked .unity-radio-button__checkmark { display: flex; }
+`;
+const CHECK_RUNTIME = `
+.unity-toggle, .unity-radio-button { margin: 2px 4px; }
+.unity-radio-button { margin-bottom: 3px; }
+.unity-toggle__label, .unity-radio-button__label { min-width: 150px; }
+.unity-radio-button__label { padding-top: 0; padding-bottom: 0; }
+.unity-toggle:focus > .unity-toggle__label, .unity-radio-button:focus > .unity-radio-button__label { color: #00526a; }
+.unity-toggle__checkmark, .unity-radio-button__checkmark-background { width: 24px; height: 24px; border-width: 1px; border-color: #646464; background-color: #f0f0f0; }
+.unity-toggle__checkmark { -unity-background-image-tint-color: #323232; }
+/* e-toggle t-focus: only the owner is focused; e-radio r-focus keeps its base border. */
+.unity-toggle:focus .unity-toggle__checkmark { border-color: #006aa6; }
+/* e-disabled: forced radio state colours both parts; Toggle keys on the part's own state. */
+.unity-toggle__checkmark:disabled, .unity-radio-button:disabled .unity-radio-button__checkmark-background { background-color: #959595; border-color: #7e7e7e; }
+.unity-radio-button__checkmark-background { border-radius: 12px; padding-top: 5px; }
+.unity-radio-button__checkmark { border-radius: 6px; background-color: #323232; }
+.unity-radio-button:disabled .unity-radio-button__checkmark { background-color: #000000; }
+.unity-radio-button__input:checked .unity-radio-button__checkmark { width: 12px; height: 12px; }
+`;
+const CHECK_EDITOR = `
+.unity-toggle, .unity-radio-button { margin: 1px 3px 3px 3px; }
+.unity-toggle__label, .unity-radio-button__label { min-width: 120px; margin-right: 2px; color: #c4c4c4; }
+.unity-toggle:focus > .unity-toggle__label, .unity-radio-button:focus > .unity-radio-button__label { color: #81b4ff; }
+.unity-toggle__text { flex-grow: 1; }
+.unity-toggle__checkmark { width: 14px; height: 14px; }
+.unity-radio-button__checkmark-background { width: 12px; height: 12px; border-radius: 6px; margin-right: 2px; padding-top: 2px; border-width: 1px; border-color: #212121; background-color: #2a2a2a; }
+.unity-radio-button__checkmark { border-radius: 3px; background-color: #c4c4c4; }
+.unity-radio-button__input:checked .unity-radio-button__checkmark { width: 6px; height: 6px; }
+`;
+
 /**
  * Editor theme stylesheet; kept as the legacy editor-sheet export.
  * Parsed once and spliced in ahead of author sheets, so equal specificity lets
@@ -183,7 +223,7 @@ export const THEME_USS: string = `${PANEL_TEXT_DEFAULTS_SELECTOR} {
   border-top-color: #0d0d0d;
 }
 .unity-button:focus { border-color: #7baefa; }
-${SLIDER_COMMON}${SLIDER_EDITOR}`;
+${SLIDER_COMMON}${SLIDER_EDITOR}${CHECK_COMMON}${CHECK_EDITOR}`;
 
 // probe-panel/*.json: Standard on both 6000.0.40f1 and 6000.3.25f1.
 // Editor probe-editor-070/*.json changes Standard -> Advanced; retain the 6.3 default.
@@ -271,7 +311,7 @@ export const THEME_SHEETS: Readonly<Record<Theme, string>> = {
   background-color: #959595;
   border-color: #7e7e7e;
 }
-${SLIDER_COMMON}${SLIDER_RUNTIME}`,
+${SLIDER_COMMON}${SLIDER_RUNTIME}${CHECK_COMMON}${CHECK_RUNTIME}`,
 };
 
 /**

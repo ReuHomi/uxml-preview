@@ -75,6 +75,16 @@ Play mode) on Unity 6.3, and the editor theme stays one option away.
   `c-textfield-hook` dumps on both themes. The caret, the selection and editing
   are not drawn. A host that counted TextField's `unsupported-control` warning
   loses it.
+- **Toggle and RadioButton are drawn** (bundle E): label, text, checked
+  (`value="true"`), disabled. Checked is the `:checked` state on the control and
+  its input part, as in Unity; the radio checkmark appears only when checked.
+  The check mark is this preview's drawing (Unity's textures cannot be loaded).
+- **A state forced through `states` stays on that element.** Measured
+  (e-disabled, both versions): a forced `disabled` neither dims (no
+  `unity-disabled`) nor reaches the element's parts or children; forced
+  hover/focus/active do not reach parts either. 0.7.0's earlier handling dimmed
+  a forced-disabled element at 0.5 (an inference, now reversed).
+  `enabled="false"` still disables the whole subtree and dims once.
 - **Slider and SliderInt are drawn** (bundle D): label, input, drag container,
   tracker, dragger and its border, and with `show-input-field` a TextField
   showing the value. The dragger sits where Unity puts it for any value —

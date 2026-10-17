@@ -269,6 +269,27 @@ export function paint(
           partEl.style.setProperty(property, value);
         }
 
+        // e-toggle.json: Unity's built-in check/d_toggle_on textures are not
+        // loadable assets here. Substitute a mark without an asset warning.
+        if (node.name.local === 'Toggle' && part.name === 'unity-checkmark' &&
+          node.attributes.some((a) => a.name === 'value' && a.value === 'true')) {
+          const svg = options.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          svg.setAttribute('viewBox', '0 0 24 24');
+          svg.setAttribute('width', '100%');
+          svg.setAttribute('height', '100%');
+          svg.style.display = 'block';
+          const path = options.document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', 'M5 12 L10 17 L19 6');
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke', options.theme === 'editor' ? '#eeeeee' :
+            part.style.get('-unity-background-image-tint-color')?.value ?? '#323232');
+          path.setAttribute('stroke-width', '2.5');
+          path.setAttribute('stroke-linecap', 'round');
+          path.setAttribute('stroke-linejoin', 'round');
+          svg.appendChild(path);
+          partEl.appendChild(svg);
+        }
+
         host.appendChild(partEl);
         builtParts.push({ el: partEl, box: part.box, border: partBorderOrigin(part) });
         if (part.text !== undefined) {

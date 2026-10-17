@@ -214,6 +214,15 @@ const ALLOWED_DELETIONS = new Set([
   'fragment:.unity-base-slider__dragger-border',
   'fragment:.unity-base-slider__input',
   'fragment:.unity-base-slider__tracker',
+  // 0.7.0 bundle E: Toggle and RadioButton are drawn now with Unity's parts
+  // (tests/contract-070/bundle-e.test.ts, c07-Toggle/e-toggle dumps); "has no renderer"
+  // no longer holds, and these toggle rules now reach the parts they name.
+  'control-fallback:Toggle',
+  'control-fallback:RadioButton',
+  'fragment:.unity-toggle',
+  'fragment:.unity-toggle__checkmark',
+  'fragment:.unity-toggle__input',
+  'fragment:.unity-toggle__text',
 ]);
 
 type Verdict = 'preserved' | 'merged' | 'reclassified' | 'deleted';

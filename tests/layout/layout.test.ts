@@ -242,8 +242,8 @@ describe('controls with no renderer', () => {
 
   it('nest, so an unknown control inside an unknown control still draws', () => {
     const { doc, tree } = build(
-      // 0.7.0 bundle D: Slider has a renderer now; Toggle is still a fallback.
-      '<ui:Foldout name="f"><ui:Toggle name="s"><ui:Label name="l" text="x" /></ui:Toggle></ui:Foldout>',
+      // 0.7.0 bundle E: Toggle has a renderer now; MinMaxSlider is not drawn in 0.7.0.
+      '<ui:Foldout name="f"><ui:MinMaxSlider name="s"><ui:Label name="l" text="x" /></ui:MinMaxSlider></ui:Foldout>',
     );
     for (const name of ['f', 's', 'l']) {
       expect(tree.boxes.has(named(doc.root, name).id)).toBe(true);
@@ -262,22 +262,23 @@ describe('controls with no renderer', () => {
   // Everything deriving from BaseField calls its caption `label`, so a warning
   // that only looked at `text` would let a Toggle's caption vanish in silence.
   it('say the same about a label attribute', () => {
-    const { tree } = build('<ui:Toggle name="t" label="Enabled" />');
+    // 0.7.0 bundle E: Toggle has a renderer now; MinMaxSlider is not drawn in 0.7.0.
+    const { tree } = build('<ui:MinMaxSlider name="t" label="Enabled" />');
     const warning = tree.warnings.find((w) => w.kind === 'unsupported-control')!;
     expect(warning.message).toContain('label attribute is not drawn');
     tree.dispose();
   });
 
   it('name both when a control carries both', () => {
-    // 0.7.0 bundle C: TextField has a renderer now; Toggle is still a fallback and takes both.
-    const { tree } = build('<ui:Toggle name="t" label="Name" text="typed" />');
+    // 0.7.0 bundle E: Toggle has a renderer now; MinMaxSlider is not drawn in 0.7.0.
+    const { tree } = build('<ui:MinMaxSlider name="t" label="Name" text="typed" />');
     const warning = tree.warnings.find((w) => w.kind === 'unsupported-control')!;
     expect(warning.message).toContain('text and label attributes are not drawn');
     tree.dispose();
   });
 
   it('stay quiet about an empty caption', () => {
-    const { tree } = build('<ui:Toggle name="t" label="" />');
+    const { tree } = build('<ui:MinMaxSlider name="t" label="" />');
     const warning = tree.warnings.find((w) => w.kind === 'unsupported-control')!;
     expect(warning.message).not.toContain('not drawn');
     tree.dispose();

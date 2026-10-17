@@ -97,6 +97,8 @@ const CONTROLS: Readonly<Record<string, ControlSpec>> = {
     parts: [{ name: 'unity-group-box__label', kind: 'leading-text',
       classes: ['unity-text-element', 'unity-label', 'unity-group-box__label'], style: {} }],
   },
+  Toggle: { hasText: false, classes: [], parts: [] },
+  RadioButton: { hasText: false, classes: [], parts: [] },
   Slider: { hasText: false, classes: [], parts: [] },
   SliderInt: { hasText: false, classes: [], parts: [] },
   TextField: { hasText: false, classes: ['unity-base-field', 'unity-base-text-field', 'unity-text-field'], parts: [] },
@@ -143,7 +145,7 @@ const CONTROLS: Readonly<Record<string, ControlSpec>> = {
  * What an unrecognised control is drawn as: a box that lays its children out.
  *
  * `hasText: false` is deliberate. The controls most likely to land here —
- * `Toggle`, `Foldout` — put their label in a child `TextElement`
+ * `Foldout` — put their label in a child `TextElement`
  * rather than drawing it themselves, so guessing `true` would paint text where
  * Unity paints a child and put every coordinate below it in the wrong place.
  */
@@ -186,6 +188,7 @@ export function resolveControl(node: ElementNode): ResolvedControl {
   if (node.derived?.kind === 'template-container') return { spec: FALLBACK, fallback: false };
   const spec = CONTROLS[node.name.local];
   if (spec !== undefined) return { spec: node.name.local === 'TextField' ? textFieldSpec(node, spec) :
+    node.name.local === 'Toggle' || node.name.local === 'RadioButton' ? checkFieldSpec(node) :
     node.name.local === 'Slider' || node.name.local === 'SliderInt' ? sliderSpec(node) :
     node.name.local === 'ScrollView' ? scrollViewSpec(node, spec) : spec, fallback: false };
   if (isRoot(node)) return { spec: FALLBACK, fallback: false };
@@ -315,4 +318,29 @@ function sliderSpec(node: ElementNode): ControlSpec {
   // d-slider-children.json: contentContainer is the slider itself, after its parts.
   return { hasText: false, fileChildrenHost: 'owner', classes: ['unity-base-field', ...(!labelled ? ['unity-base-field--no-label'] : []),
     'unity-base-slider', specific, attr('direction') === 'Vertical' ? 'unity-base-slider--vertical' : 'unity-base-slider--horizontal'], parts };
+}
+
+// Measured: 6000.3.25f1/{probe-panel,probe-editor-070}/{c07-Toggle,c07-RadioButton,e-toggle,e-radio}.json.
+function checkFieldSpec(node: ElementNode): ControlSpec {
+  const attr = (name: string): string => decodeEntities(node.attributes.find((a) => a.name === name)?.value ?? '');
+  const specific = node.name.local === 'Toggle' ? 'unity-toggle' : 'unity-radio-button';
+  const labelled = attr('label') !== '';
+  const parts: ControlPart[] = [];
+  if (labelled) parts.push({ name: `${specific}__label`, parent: null, kind: 'leading-text',
+    textAttribute: 'label', typeName: 'Label', unnamed: true,
+    classes: ['unity-text-element', 'unity-label', 'unity-base-field__label', `${specific}__label`], style: {} });
+  const input = parts.length;
+  parts.push({ name: `${specific}__input`, parent: null, unnamed: true,
+    classes: ['unity-base-field__input', `${specific}__input`], style: {} });
+  let checkParent = input;
+  if (node.name.local === 'RadioButton') {
+    checkParent = parts.length;
+    parts.push({ name: `${specific}__checkmark-background`, parent: input, unnamed: true,
+      classes: [`${specific}__checkmark-background`], style: {} });
+  }
+  parts.push({ name: 'unity-checkmark', parent: checkParent, classes: [`${specific}__checkmark`], style: {} });
+  if (attr('text') !== '') parts.push({ name: `${specific}__text`, parent: input, kind: 'text',
+    textAttribute: 'text', typeName: 'Label', unnamed: true,
+    classes: ['unity-text-element', 'unity-label', `${specific}__text`], style: {} });
+  return { hasText: false, classes: ['unity-base-field', ...(!labelled ? ['unity-base-field--no-label'] : []), specific], parts };
 }

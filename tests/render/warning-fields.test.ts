@@ -74,7 +74,7 @@ describe('selectors', () => {
   it('no warning text sends the reader to a source file they do not have', () => {
     const texts = [
       ...warningsOf('<ui:Button /><ui:ScrollView />', ':root { --a: 1px; }'),
-      ...warningsOf('<ui:Toggle label="x" />'),
+      ...warningsOf('<ui:MinMaxSlider label="x" />'), // 0.7.0 bundle E: Toggle has a renderer now; MinMaxSlider is not drawn in 0.7.0.
       ...warningsOf('<ui:Foldout /><ui:DropdownField />'), // 0.7.0: ScrollView, Button and (bundle D) Slider no longer warn; keep the sample above three
     ].map((w) => w.message);
     expect(texts.length).toBeGreaterThan(3);
@@ -141,8 +141,8 @@ describe('values', () => {
 
 describe('controls and versions', () => {
   it('a control with no renderer is not rendered, about its type', () => {
-    const w = only(warningsOf('<ui:Toggle />'), 'unsupported-control');
-    expect(fields(w)).toEqual({ reason: 'not-rendered', subject: { kind: 'control', type: 'Toggle' } });
+    const w = only(warningsOf('<ui:MinMaxSlider />'), 'unsupported-control'); // 0.7.0 bundle E: Toggle has a renderer now; MinMaxSlider is not drawn in 0.7.0.
+    expect(fields(w)).toEqual({ reason: 'not-rendered', subject: { kind: 'control', type: 'MinMaxSlider' } });
   });
 
   it('children of a text control are not rendered', () => {
