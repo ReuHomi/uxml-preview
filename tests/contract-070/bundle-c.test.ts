@@ -44,6 +44,13 @@
  *   "One
 Two words" (tf-auto-ml: measured 72, layout 74). Corrected after Codex round 1.
  *   These box-read sizes are taken from c-textfield of the same theme for every probe.
+ *   **What this does not check (2026-10-17, human instruction):** the sizes read from
+ *   boxes — "******", "Type here", the wrapped height, the long sentence and
+ *   "One
+Two words" — come from the very boxes the layout is held to, so for them this
+ *   file checks the structure around the text (padding, borders, parts, wrap width), not
+ *   the text width. Why Unity's MeasureTextSize and its layout width differ by 1-2px on
+ *   the runtime panel is not known; item T (the runtime text cohort) looks into it.
  *   [추론] "######" (mask-character="#") is given the width of "******": no box judged
  *   here depends on it (its row is stretched to the column).
  * Not drawn, not judged: the caret, the selection, editing (0.8 candidates).
