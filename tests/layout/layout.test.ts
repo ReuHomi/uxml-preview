@@ -242,7 +242,8 @@ describe('controls with no renderer', () => {
 
   it('nest, so an unknown control inside an unknown control still draws', () => {
     const { doc, tree } = build(
-      '<ui:Foldout name="f"><ui:Slider name="s"><ui:Label name="l" text="x" /></ui:Slider></ui:Foldout>',
+      // 0.7.0 bundle D: Slider has a renderer now; Toggle is still a fallback.
+      '<ui:Foldout name="f"><ui:Toggle name="s"><ui:Label name="l" text="x" /></ui:Toggle></ui:Foldout>',
     );
     for (const name of ['f', 's', 'l']) {
       expect(tree.boxes.has(named(doc.root, name).id)).toBe(true);

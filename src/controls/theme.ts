@@ -56,6 +56,50 @@ export const THEME_UNITY_VERSIONS: Readonly<Record<Theme, string>> = {
 /** Panel defaults inherited by the rendered elements. */
 export const PANEL_TEXT_DEFAULTS_SELECTOR = 'UXML';
 
+// Unity evidence: tests/layout/unity/6000.3.25f1/{probe-panel,probe-editor-070}/
+// {c07-Slider,c07-SliderInt,d-slider,d-sliderint,c07-states}.json.
+// Runtime centres absolute parts; editor horizontal parts retain normal flow.
+const SLIDER_COMMON = `
+.unity-base-slider { flex-shrink: 0; }
+.unity-base-slider--horizontal { flex-direction: row; }
+.unity-base-slider__input { flex-grow: 1; flex-shrink: 0; }
+.unity-base-slider--horizontal .unity-base-slider__input { flex-direction: row; }
+.unity-base-slider__drag-container { flex-grow: 1; }
+.unity-base-slider__dragger-border { width: 0; height: 0; }
+.unity-base-slider__text-field { margin: 0 0 0 4px; }
+`;
+const SLIDER_EDITOR = `
+.unity-base-slider { margin: 1px 3px; }
+.unity-base-slider__label { min-width: 120px; margin-right: 2px; padding-top: 2px; color: #c4c4c4; }
+.unity-base-slider--horizontal .unity-base-slider__drag-container { min-width: 20px; }
+.unity-base-slider__tracker { background-color: #5e5e5e; margin: 2px 1px 2px 0; }
+.unity-base-slider--horizontal .unity-base-slider__tracker { height: 2px; top: 6px; }
+.unity-base-slider__dragger { width: 10px; height: 10px; border-width: 1px; border-color: #999999; background-color: #999999; border-radius: 5px; }
+.unity-base-slider--horizontal .unity-base-slider__dragger { margin-top: -2px; }
+.unity-base-slider__dragger-border { position: absolute; margin-left: -4px; background-color: rgba(16,111,205,0.5); border-radius: 8px; }
+.unity-base-slider__text-field { width: 50px; }
+.unity-base-slider__tracker:disabled { background-color: #575757; }
+.unity-base-slider__dragger:disabled { background-color: #666666; border-color: #666666; }
+.unity-base-slider--vertical { flex-direction: column; margin: 1px; padding-left: 4px; width: 20px; }
+.unity-base-slider--vertical .unity-base-slider__drag-container { min-height: 20px; }
+.unity-base-slider--vertical .unity-base-slider__tracker { position: absolute; width: 2px; left: 4px; top: 0; bottom: 0; }
+.unity-base-slider--vertical .unity-base-slider__dragger-border { margin-top: -4px; }
+`;
+const SLIDER_RUNTIME = `
+.unity-base-slider { margin: 2px 4px; }
+.unity-base-slider--horizontal { min-height: 24px; }
+.unity-base-slider__label { min-width: 150px; }
+.unity-base-slider__tracker { position: absolute; border-width: 1px; border-color: #646464; background-color: #7e7e7e; }
+.unity-base-slider--horizontal .unity-base-slider__tracker { left: 0; right: 0; top: 50%; height: 6px; margin-top: -3px; }
+.unity-base-slider__dragger { position: absolute; border-width: 1px; border-color: #646464; background-color: #f0f0f0; }
+.unity-base-slider--horizontal .unity-base-slider__dragger { width: 8px; height: 24px; top: 50%; margin-top: -12px; }
+.unity-base-slider__text-field { width: 55px; }
+.unity-base-slider__dragger:disabled { background-color: #808080; border-color: #7e7e7e; }
+.unity-base-slider--vertical { flex-direction: column; margin: 2px 1px; min-width: 24px; width: 40px; }
+.unity-base-slider--vertical .unity-base-slider__tracker { top: 0; bottom: 0; left: 50%; width: 6px; margin-left: -3px; }
+.unity-base-slider--vertical .unity-base-slider__dragger { width: 24px; height: 8px; left: 50%; margin-left: -12px; }
+`;
+
 /**
  * Editor theme stylesheet; kept as the legacy editor-sheet export.
  * Parsed once and spliced in ahead of author sheets, so equal specificity lets
@@ -139,7 +183,7 @@ export const THEME_USS: string = `${PANEL_TEXT_DEFAULTS_SELECTOR} {
   border-top-color: #0d0d0d;
 }
 .unity-button:focus { border-color: #7baefa; }
-`;
+${SLIDER_COMMON}${SLIDER_EDITOR}`;
 
 // probe-panel/*.json: Standard on both 6000.0.40f1 and 6000.3.25f1.
 // Editor probe-editor-070/*.json changes Standard -> Advanced; retain the 6.3 default.
@@ -227,7 +271,7 @@ export const THEME_SHEETS: Readonly<Record<Theme, string>> = {
   background-color: #959595;
   border-color: #7e7e7e;
 }
-`,
+${SLIDER_COMMON}${SLIDER_RUNTIME}`,
 };
 
 /**

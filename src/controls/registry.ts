@@ -31,6 +31,9 @@ import { decodeEntities } from '../parser/entities';
 export interface ControlPart {
   /** Unity name, or class identity for the unnamed GroupBox title. */
   name: string;
+  /** Earlier part index, or null for the owner; omitted preserves the wrapper chain. */
+  parent?: number | null;
+  textValue?: string;
   /** Text parts are measured leaves; a leading Label is a sibling of the wrapper chain. */
   kind?: 'leading-text' | 'text';
   /** Attribute text is decoded only for the derived rendering, never in the AST. */
@@ -52,7 +55,8 @@ export interface ControlSpec {
   /** Renders the `text` attribute as its own content. */
   hasText: boolean;
   /**
-   * Elements the control inserts between itself and the file's children,
+   * Parts are parent-before-child. Explicit parent indices describe branches.
+   * Otherwise these are elements inserted between the control and file children,
    * outermost first. File children go inside the last wrapper; leading text
    * parts are siblings before them and exist only for non-empty owner text.
    */
@@ -91,6 +95,8 @@ const CONTROLS: Readonly<Record<string, ControlSpec>> = {
     parts: [{ name: 'unity-group-box__label', kind: 'leading-text',
       classes: ['unity-text-element', 'unity-label', 'unity-group-box__label'], style: {} }],
   },
+  Slider: { hasText: false, classes: [], parts: [] },
+  SliderInt: { hasText: false, classes: [], parts: [] },
   TextField: { hasText: false, classes: ['unity-base-field', 'unity-base-text-field', 'unity-text-field'], parts: [] },
   Box: { hasText: false, classes: ['unity-box'], parts: [] },
   Label: { hasText: true, classes: ['unity-label'], parts: [] },
@@ -176,7 +182,8 @@ export function isNonVisual(node: ElementNode): boolean {
 export function resolveControl(node: ElementNode): ResolvedControl {
   if (node.derived?.kind === 'template-container') return { spec: FALLBACK, fallback: false };
   const spec = CONTROLS[node.name.local];
-  if (spec !== undefined) return { spec: node.name.local === 'TextField' ? textFieldSpec(node, spec) : spec, fallback: false };
+  if (spec !== undefined) return { spec: node.name.local === 'TextField' ? textFieldSpec(node, spec) :
+    node.name.local === 'Slider' || node.name.local === 'SliderInt' ? sliderSpec(node) : spec, fallback: false };
   if (isRoot(node)) return { spec: FALLBACK, fallback: false };
   return { spec: FALLBACK, fallback: true };
 }
@@ -233,10 +240,56 @@ function textFieldSpec(node: ElementNode, base: ControlSpec): ControlSpec {
 
 /** Ensures: password values are masked before measurement or DOM painting. */
 export function partTextOf(node: ElementNode, part: ControlPart): string | undefined {
+  if (part.textValue !== undefined) return part.textValue;
   if (part.kind === undefined) return undefined;
   const attr = (name: string): string => decodeEntities(node.attributes.find((a) => a.name === name)?.value ?? '');
   const text = attr(part.textAttribute ?? 'text');
   if (part.textAttribute !== 'value') return text;
   if (text === '') return attr('placeholder-text');
   return attr('password') === 'true' ? (attr('mask-character') || '*').charAt(0).repeat(text.length) : text;
+}
+
+/** Ensures: legacy wrapper chains and explicit part trees share one parent contract. */
+export function partParentIndex(parts: readonly ControlPart[], index: number): number | null {
+  const part = parts[index]!;
+  if (part.parent !== undefined) return part.parent;
+  if (part.kind === 'leading-text') return null;
+  for (let i = index - 1; i >= 0; i--) if (parts[i]!.kind !== 'leading-text') return i;
+  return null;
+}
+
+// Unity evidence: tests/layout/unity/6000.3.25f1/{probe-panel,probe-editor-070}/
+// {c07-Slider,c07-SliderInt,d-slider,d-sliderint}.json: physical siblings and nested TextField.
+function sliderSpec(node: ElementNode): ControlSpec {
+  const attr = (name: string): string => decodeEntities(node.attributes.find((a) => a.name === name)?.value ?? '');
+  const specific = node.name.local === 'SliderInt' ? 'unity-slider-int' : 'unity-slider';
+  const labelled = attr('label') !== '';
+  const parts: ControlPart[] = [];
+  if (labelled) parts.push({ name: `${specific}__label`, parent: null, kind: 'leading-text',
+    textAttribute: 'label', typeName: 'Label', unnamed: true,
+    classes: ['unity-text-element', 'unity-label', 'unity-base-field__label', 'unity-base-slider__label',
+      'unity-base-field__label--with-dragger', `${specific}__label`], style: {} });
+  const input = parts.length;
+  parts.push({ name: `${specific}__input`, parent: null, unnamed: true,
+    classes: ['unity-base-field__input', 'unity-base-slider__input', `${specific}__input`], style: {} });
+  const drag = parts.length;
+  parts.push({ name: 'unity-drag-container', parent: input, classes: ['unity-base-slider__drag-container'], style: {} });
+  for (const name of ['tracker', 'dragger-border', 'dragger']) parts.push({ name: `unity-${name}`,
+    parent: drag, classes: [`unity-base-slider__${name}`], style: {} });
+  if (attr('show-input-field') === 'true') {
+    const field = parts.length;
+    parts.push({ name: 'unity-text-field', parent: input, typeName: 'TextField',
+      classes: ['unity-base-field', 'unity-base-field--no-label', 'unity-base-text-field', 'unity-text-field', 'unity-base-slider__text-field'], style: {} });
+    const textInput = parts.length;
+    parts.push({ name: 'unity-text-input', parent: field, typeName: 'TextInput',
+      classes: ['unity-base-text-field__input', 'unity-base-field__input', 'unity-text-field__input', 'unity-base-text-field__input--single-line'], style: {} });
+    const low = Number(attr('low-value') || '0');
+    const high = Number(attr('high-value') || '10');
+    const value = Math.min(Math.max(low, high), Math.max(Math.min(low, high), Number(attr('value') || String(low))));
+    parts.push({ name: 'unity-text-element--inner-input-field-component', parent: textInput,
+      kind: 'text', textValue: String(value), typeName: 'TextElement', unnamed: true,
+      classes: ['unity-text-element', 'unity-text-element__selectable', 'unity-text-element--inner-input-field-component'], style: {} });
+  }
+  return { hasText: false, classes: ['unity-base-field', ...(!labelled ? ['unity-base-field--no-label'] : []),
+    'unity-base-slider', specific, attr('direction') === 'Vertical' ? 'unity-base-slider--vertical' : 'unity-base-slider--horizontal'], parts };
 }

@@ -27,7 +27,7 @@ import type {
   UxmlDocument,
   Warning,
 } from '../model/types';
-import { implicitClassesOf, partTextOf, resolveControl, supportedControlNames } from '../controls/registry';
+import { implicitClassesOf, partParentIndex, partTextOf, resolveControl, supportedControlNames } from '../controls/registry';
 import type { Theme } from '../controls/theme';
 import { DEFAULT_THEME, THEME_SHEETS, THEME_UNITY_VERSIONS } from '../controls/theme';
 import { parseUss } from '../parser/uss';
@@ -110,7 +110,7 @@ type Target =
       readonly kind: 'part';
       readonly owner: ElementNode;
       readonly name: string;
-      /** Index in the owner's part chain; 0 is outermost. */
+      /** Index in the owner's parent-before-child part list. */
       readonly depth: number;
     };
 
@@ -394,8 +394,8 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
      * An element from the file gets its *file* parent, even when its layout
      * parent is a part — `#Grid > .slot` reaches a slot inside a ScrollView in
      * Unity, so parts are transparent here. Parts themselves follow the real
-     * chain: each sits inside the one before it, and the outermost inside its
-     * owner. That is the hierarchy the dumps show, so descendant selectors like
+     * physical hierarchy through partParentIndex, with roots inside their owner.
+     * That is the hierarchy the dumps show, so descendant selectors like
      * `.panel #unity-content-viewport` behave as they do in Unity.
      */
     parentOf: (target: Target): Target | null => {
@@ -403,13 +403,9 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
         const parent = parents.get(target.node) ?? null;
         return parent === null ? null : { kind: 'element', node: parent };
       }
-      if (target.depth === 0 || resolveControl(target.owner).spec.parts[target.depth]?.kind === 'leading-text') {
-        return { kind: 'element', node: target.owner };
-      }
       const chain = resolveControl(target.owner).spec.parts;
-      let depth = target.depth - 1;
-      while (depth >= 0 && chain[depth]?.kind === 'leading-text') depth--;
-      if (depth < 0) return { kind: 'element', node: target.owner };
+      const depth = partParentIndex(chain, target.depth);
+      if (depth === null) return { kind: 'element', node: target.owner };
       return { kind: 'part', owner: target.owner, name: chain[depth]!.name, depth };
     },
     isRoot: (target: Target): boolean =>
@@ -950,14 +946,16 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
     const chain = resolveControl(node).spec.parts;
     if (chain.length > 0) {
       const byName = new Map<string, ComputedStyle>();
+      const inheritance = new Map<number, Map<string, ComputedValue>>();
       chain.forEach((part, depth) => {
         if (part.kind === 'leading-text' && !partTextOf(node, part)) return;
         const resolved = computeFor(
           { kind: 'part', owner: node, name: part.name, depth },
-          part.kind === 'leading-text' ? self.forChildren : downstream,
+          inheritance.get(partParentIndex(chain, depth) ?? -1) ?? self.forChildren,
           node.id,
         );
         byName.set(part.name, resolved.computed);
+        inheritance.set(depth, resolved.forChildren);
         // c07-GroupBox: the title's style must not flow into its following siblings.
         if (part.kind !== 'leading-text') downstream = resolved.forChildren;
       });

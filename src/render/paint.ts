@@ -244,7 +244,13 @@ export function paint(
       let hostBox = box;
       let hostBorder = borderOrigin(node);
 
+      let childHost = { el: host, box: hostBox, border: hostBorder };
+      const builtParts: Array<{ el: HTMLDivElement; box: LayoutBox; border: { left: number; top: number } }> = [];
       for (const part of parts.get(node.id) ?? []) {
+        const parent = part.parent === null || part.parent === undefined ? undefined : builtParts[part.parent];
+        host = parent?.el ?? el;
+        hostBox = parent?.box ?? box;
+        hostBorder = parent?.border ?? borderOrigin(node);
         const partEl = options.document.createElement('div');
         partEl.setAttribute(PART_ATTRIBUTE, part.name);
         partEl.setAttribute(PART_OWNER_ATTRIBUTE, String(node.id));
@@ -265,6 +271,7 @@ export function paint(
         }
 
         host.appendChild(partEl);
+        builtParts.push({ el: partEl, box: part.box, border: partBorderOrigin(part) });
         if (part.text !== undefined) {
           paintText(partEl, part.text, part.style, partCss);
           // Unity evidence: 6000.3.25f1/{probe-panel,probe-editor-070}/
@@ -276,9 +283,11 @@ export function paint(
           host = partEl;
           hostBox = part.box;
           hostBorder = partBorderOrigin(part);
+          childHost = { el: host, box: hostBox, border: hostBorder };
         }
       }
 
+      host = childHost.el; hostBox = childHost.box; hostBorder = childHost.border;
       for (const child of node.children) {
         const childEl = build(child, hostBox, hostBorder);
         // Appended in document order: later siblings paint on top, which is

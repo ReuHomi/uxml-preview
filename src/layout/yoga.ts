@@ -22,7 +22,7 @@ import type { Node as YogaNode, Yoga } from 'yoga-layout/load';
 
 import type { ElementNode, NodeId, Warning } from '../model/types';
 import type { ComputedStyle } from '../style/resolve';
-import { isNonVisual, partTextOf, resolveControl } from '../controls/registry';
+import { isNonVisual, partParentIndex, partTextOf, resolveControl } from '../controls/registry';
 import type { Theme } from '../controls/theme';
 import { DEFAULT_THEME, verticalScrollbarWidth } from '../controls/theme';
 import type { ComputedValue, DeclarationLocator } from '../style/resolve';
@@ -117,6 +117,8 @@ export interface LayoutPart {
   name: string;
   /** The element whose control built it. */
   owner: NodeId;
+  /** Index in this owner’s laid-out parts, null for the owner itself. */
+  parent?: number | null;
   /** Present for a measured text leaf; wrappers omit it. Text is entity-decoded. */
   text?: string;
   box: LayoutBox;
@@ -565,7 +567,8 @@ export function layoutDocument(
       const chain: LayoutPart[] = [];
       const nodes: YogaNode[] = [];
       const resolvedParts = partStyles.get(node.id);
-      for (const part of spec.parts) {
+      const builtIndices = new Map<number, number>();
+      for (const [index, part] of spec.parts.entries()) {
         const partText = partTextOf(node, part);
         if (part.kind === 'leading-text' && !partText) continue;
         // Falls back to nothing rather than to the registry defaults: if the
@@ -576,7 +579,11 @@ export function layoutDocument(
         created++;
         liveNodes++;
         applyStyle(partNode, style, node);
-        host.insertChild(partNode, host.getChildCount());
+        const parentIndex = partParentIndex(spec.parts, index);
+        const parent = parentIndex === null ? null : builtIndices.get(parentIndex) ?? null;
+        const partHost = parent === null ? yg : nodes[parent]!;
+        partHost.insertChild(partNode, partHost.getChildCount());
+        builtIndices.set(index, nodes.length);
         // c07-GroupBox: title is a sibling before file children, never a host.
         if (partText !== undefined) {
           measure(partNode, partText, style, node);
@@ -586,6 +593,7 @@ export function layoutDocument(
         chain.push({
           name: part.name,
           owner: node.id,
+          parent,
           ...(partText !== undefined ? { text: partText } : {}),
           box: { left: 0, top: 0, width: 0, height: 0 },
           style,
@@ -666,7 +674,8 @@ export function layoutDocument(
     if (chain !== undefined && nodes !== undefined) {
       chain.forEach((part, index) => {
         const partBox = nodes[index]!.getComputedLayout();
-        part.box = { left: left + partBox.left, top: top + partBox.top,
+        const parentBox = part.parent === null || part.parent === undefined ? boxes.get(node.id)! : chain[part.parent]!.box;
+        part.box = { left: parentBox.left + partBox.left, top: parentBox.top + partBox.top,
           width: partBox.width, height: partBox.height };
         if (part.text === undefined) {
           left = part.box.left;
@@ -678,6 +687,27 @@ export function layoutDocument(
     for (const child of node.children) collect(child, left, top);
   }
   collect(root, 0, 0);
+
+  // Unity evidence: 6000.3.25f1/{probe-panel,probe-editor-070}/d-slider*.json.
+  // Depends on completed Yoga sizes. Translation affects paint only, never layout boxes.
+  for (const [owner, chain] of parts) {
+    const container = chain.find((p) => p.name === 'unity-drag-container');
+    const dragger = chain.find((p) => p.name === 'unity-dragger');
+    if (container === undefined || dragger === undefined) continue;
+    const node = [...yogaOf.keys()].find((n) => n.id === owner)!;
+    const attr = (name: string, fallback: number): number => Number(node.attributes.find((a) => a.name === name)?.value ?? fallback);
+    const low = attr('low-value', 0), high = attr('high-value', 10);
+    const t = Math.min(1, Math.max(0, high === low ? 0 : (attr('value', low) - low) / (high - low)));
+    const vertical = node.attributes.some((a) => a.name === 'direction' && a.value === 'Vertical');
+    const value = vertical ? `0px ${(1 - t) * (container.box.height - dragger.box.height)}px`
+      : `${t * (container.box.width - dragger.box.width)}px 0px`;
+    for (const part of chain.filter((p) => p.name === 'unity-dragger' || p.name === 'unity-dragger-border')) {
+      const style = new Map(part.style);
+      style.set('translate', { value, origin: { kind: 'builtin-theme', selector: `#${part.name}`,
+        property: 'translate', unityVersion: '6000.3.25f1' } });
+      part.style = style;
+    }
+  }
 
   return {
     boxes,

@@ -405,7 +405,8 @@ describe('controls with no renderer', () => {
   });
 
   it('keeps provenance, so an editor can still trace the DOM back to the tree', () => {
-    const { doc, result } = draw('<ui:Foldout name="f"><ui:Slider name="s" /></ui:Foldout>');
+    // 0.7.0 bundle D: Slider has a renderer now; Toggle is still a fallback.
+    const { doc, result } = draw('<ui:Foldout name="f"><ui:Toggle name="s" /></ui:Foldout>');
     for (const name of ['f', 's']) {
       const node = named(doc.root, name);
       const el = result.elements.get(node.id)!;

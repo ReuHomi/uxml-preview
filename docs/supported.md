@@ -49,7 +49,7 @@
 | `Image` | 검증됨 | 전용 렌더러(`unity-image`). 대표 화면(`inventory`)의 `Image` 6개가 좌표 24값 모두 Unity 6000.0.40f1과 같고(측정), 기본 스케일 모드 `stretch-to-fill`은 육안 대조로 확인했다([육안 대조](visual-check.md) 5번). 그림은 USS `background-image`로 들어온다 — C#에서 할당한 텍스처는 미리보기가 따라갈 경로가 없다 |
 | `TextField` | 검증됨 | 0.7.0 묶음 C. 한 줄·여러 줄(`multiline`)·placeholder·비밀번호(`password`, `mask-character`, 기본 `*`)·비활성·라벨 있음/없음, 두 테마. Unity처럼 라벨(`label`이 있을 때, 부품 이름 `unity-text-field__label`), `#unity-text-input`, 여러 줄이면 `unity-base-text-field__multiline-container`, 안쪽 글자 `unity-text-element--inner-input-field-component`를 만든다. 값이 비면 placeholder 글을 그리고 그 색을 쓴다. 비밀번호는 가림 글자만 그리고 값은 DOM에 넣지 않는다. 빈 칸도 한 줄 높이. 여러 줄은 `white-space: normal`일 때만 줄을 바꾼다. 덤프 `c07-TextField`·`c-textfield`·`c-textfield-hook`(6.3) 두 테마의 상자·부품·resolved style·hover/focus 테두리 일치. 작성자 USS는 `#unity-text-input`·`.unity-text-field__input`·`.unity-text-field__label`로 닿는다(측정). **그리지 않는 것:** 커서(깜빡이는 막대), 글자 선택 표시, 입력·편집, 여러 줄의 스크롤바 — 상호작용은 0.8 후보 |
 | `Toggle` | 폴백 | 위와 같다 |
-| `Slider` / `SliderInt` | 폴백 | 위와 같다 |
+| `Slider` / `SliderInt` | 검증됨 | 0.7.0 묶음 D. 가로·세로(`direction`), 라벨, 입력 칸(`show-input-field`), 비활성, 두 테마. 라벨(`unity-slider__label`), 입력(`unity-slider__input`), `#unity-drag-container` 안의 `#unity-tracker`·`#unity-dragger-border`·`#unity-dragger`, 입력 칸이면 TextField `#unity-text-field`(값을 보여 준다). 손잡이 위치: t = clamp((value − low) / (high − low), 0, 1), 가로 translate-x = t × (끌기 칸 폭 − 손잡이 폭), 세로 translate-y = (1 − t) × (끌기 칸 높이 − 손잡이 높이) — 값 0–10 열한 단계·세로·범위 30–144·뒤집힌 범위·범위 밖 값으로 측정(`d-slider`·`d-sliderint`). 덤프 `c07-Slider`·`c07-SliderInt`·`d-*`(6.3) 두 테마의 상자·부품·resolved style·클래스 일치. **그리지 않는 것:** 끌기·값 바꾸기(상호작용, 0.8 후보) |
 | `Foldout` | 폴백 | 위와 같다 |
 | `DropdownField` | 폴백 | 위와 같다 |
 | `ListView` | 폴백 | 미정 |

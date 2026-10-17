@@ -4,23 +4,23 @@
 
 ## 현재 위치
 
-**0.6.1 배포됨 (2026-10-16).** npm `latest` = `0.6.1`. **0.7.0 묶음 A·B·C와 검토 뒤 정리 라운드(R1–R4) 완료 — `design/0.7.0`, 푸시 안 함, 미배포.**
+**0.6.1 배포됨 (2026-10-16).** npm `latest` = `0.6.1`. **0.7.0 묶음 A·B·C·D와 검토 뒤 정리 라운드(R1–R4) 완료 — `design/0.7.0`, 푸시 안 함, 미배포.**
 기준 Unity 버전 6.3 LTS.
 
 | | |
 |---|---|
-| 0.7.0 | 묶음 A: 기본 테마 `'runtime'`(`theme` 옵션), 두 테마의 측정값, `.unity-disabled`, Label·Button `flex-shrink: 0`, 런타임 CJK 금칙 없음, 런타임 생성기 standard. 묶음 B: GroupBox·Box. 묶음 C: TextField. `package.json`은 아직 0.6.1, CHANGELOG `0.7.0 — unreleased` |
-| 테스트 | 코어 **999 통과 · 1 건너뜀**, tsc 0 |
+| 0.7.0 | 묶음 A: 기본 테마 `'runtime'`(`theme` 옵션), 두 테마의 측정값, `.unity-disabled`, Label·Button `flex-shrink: 0`, 런타임 CJK 금칙 없음, 런타임 생성기 standard. 묶음 B: GroupBox·Box. 묶음 C: TextField. 묶음 D: Slider·SliderInt. `package.json`은 아직 0.6.1, CHANGELOG `0.7.0 — unreleased` |
+| 테스트 | 코어 **1123 통과 · 1 건너뜀**, tsc 0 |
 | 정확도 | **런타임 테마 662/676**(Unity 6.3 실제 런타임 패널) · 에디터 테마 **662/676**(6000.0.40f1) · 템플릿 215/220 · 합산하지 않음 |
-| 소비자 | 묶음 C 뒤 측정: vscode 1건 실패(0.6.1과 같음), uxml-author 22건(0.6.1의 17 + 버전 채널 표본 1 + 지원 목록 docs 4). `docs/design/0.7.0-handoff.md` |
-| 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` `GroupBox` `Box` `TextField` (그 외는 폴백) |
+| 소비자 | 묶음 D 뒤 측정: vscode 3건 실패(0.6.1의 1 + Slider를 미지원 예로 쓴 테스트 2), uxml-author 24건(0.6.1의 17 + 버전 채널 표본 1 + 지원 목록 docs 6). `docs/design/0.7.0-handoff.md` |
+| 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` `GroupBox` `Box` `TextField` `Slider` `SliderInt` (그 외는 폴백) |
 
 정확도 세트는 서로 다른 질문을 답하므로 합산하지 않는다. `docs/accuracy.md`.
 
 ## 다음 할 일
 
 0. **GitHub 소개 문구(사람)** — 확정 문안은 2026-10-16 기록 그대로
-1. **묶음 D(Slider, SliderInt)** — 값–손잡이 위치 측정(0–10, 11단계, 가로·세로) 먼저. 플레이그라운드 F5(런타임 체크무늬)도 남아 있다
+1. **묶음 D 확인(사람)** — 확인 뒤 묶음 E(Toggle·RadioButton, 비활성 두 방식 덤프 포함). 플레이그라운드 F5(런타임 체크무늬)도 남아 있다
 2. **T. 런타임 텍스트 코호트** — 묶음 G 전(계획서 19절). 런타임 패널의 MeasureTextSize 대 레이아웃 폭 1–2px 차이의 원인도
 3. **Label·Button에 `unity-text-element` 클래스가 없다(사람)** — Unity는 붙인다. 클래스 테스트의 범위(GroupBox·Box·TextField) 밖이라 고치지 않았다
 4. **0.7.0 다음 묶음(E–F)** — `docs/design/0.7.0-design.md` 5절. 묶음 D 전 슬라이더 값–손잡이 위치 추가 측정
@@ -182,6 +182,9 @@
 | 2026-10-17 | 공백뿐인 Label·Button 글자도 GroupBox 제목 규칙(사람 결정) | 같은 `c-whitespace` 측정. 런타임 공백 Label 25 → 8(Unity와 같음). 규칙은 `measure()` 한 곳 |
 | 2026-10-17 | 판정 기준 2(클래스)를 테스트로 — 부품 전부, 두 테마·두 버전, 덤프의 상태 전부(사람 결정) | `--no-label` 하나만 메우면 다음 클래스가 또 빠진다. `classes.test.ts`의 `CONTROLS`에 묶음마다 컨트롤을 더한다 |
 | 2026-10-17 | bundle-c의 상자에서 읽은 측정 입력은 글자 폭을 검사하지 않는다고 명시 | 그 값은 테스트가 대조하는 상자 자체에서 왔다. 그 행들은 글자 주변 구조(여백·테두리·부품·줄바꿈 폭)만 검사한다. 런타임 1–2px 차이의 원인은 모름 → T |
+| 2026-10-17 | 슬라이더 손잡이 위치는 측정한 식으로, 열한 단계를 고정 | `d-slider`·`d-sliderint` 네 덤프 모든 행이 t × (끌기 칸 − 손잡이)(세로 1 − t)와 0.01px 안. 설계의 "최소·중간·최대만 보증" 제한을 푼다 |
+| 2026-10-17 | 부품 모델에 부모 색인 | Slider의 끌기 칸 안 형제 셋과 부품 안 TextField는 사슬로 표현되지 않는다. 사슬·앞 글자는 부모 색인이 없을 때의 기본으로 남겨 GroupBox·TextField·ScrollView는 그대로 |
+| 2026-10-17 | 손잡이 위치는 레이아웃 상자가 아니라 `translate` 값으로 | Unity 상자는 translate를 포함하지만 이 미리보기에서 translate는 그리기다(다른 요소와 같다). 테스트는 상자 − translate와 translate 값을 따로 본다 |
 
 ## 세션 로그
 
@@ -261,6 +264,11 @@
   - 발견: Label·Button에 Unity의 `unity-text-element` 클래스가 없다(범위 밖 컨트롤을 넣어 보면 89 중 48 실패). 고치지 않음
   - **bundle-c의 측정 스텁 중 상자에서 읽은 값(가림 글자·placeholder·줄바꿈 높이·긴 문장·두 줄 글)은 글자 폭을 검사하지 않는다.** 그 행들은 구조만 검사한다. 런타임 패널에서 Unity 글자 측정값과 배치 폭이 1–2px 다른 이유는 아직 모른다 — T에서 본다
   - 인계 문서 4절에 스킬 할 일(TextField "그릴 수 없다" 서술), 계획서 19절에 T 일정
+- (13:17 추가) 묶음 D(Slider, SliderInt)
+  - 측정 `d-slider`·`d-sliderint`(두 버전 × 두 덤퍼): 손잡이 식이 모든 행에서 맞음. 구조는 끌기 칸 안 형제 셋 + 부품 안 TextField
+  - 예측(계획서 20절, 읽는 테스트 9파일, 깨짐 4·뜻 잃음 1) → 고정 `bundle-d.test.ts` 22 + `classes.test.ts`에 Slider·SliderInt → Codex 1라운드 → 테스트 부품 이름 함수 정정(기대값 불변) → 예측대로 4개 깨지고 1개 뜻 잃음, 옮김. 변이 7/7. 1123 통과
+  - 소비자: vscode 1 → 3(Slider를 미지원 예로 쓴 테스트), uxml-author 22 → 24. 결과 계획서 21절
+  - 지시 밖: `supported`의 Toggle 행이 "위와 같다"로 TextField(이제 검증됨)를 가리키던 것을 고침(묶음 C에서 생긴 잘못)
 
 ### 2026-10-16 (23:07 추가 — 0.6.1 패치 · 0.7.0 측정·설계)
 - 0번: README 수치 테스트는 이미 영·한·일·중 네 파일을 읽고 있었다. 변이 6개(ja·zh 각각 좌표·높이 숫자, 상단 상호 링크) 전부 실패로 잡힘. 테스트 제목만 고침(`d9948aa`). 번역문의 숫자 오류 없음

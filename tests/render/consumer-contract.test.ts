@@ -91,7 +91,7 @@ describe('warning text consumers match on', () => {
       <ui:VisualElement style="width: 360px; padding: 12px; background-color: #2b2b2b;">
         <ui:Label text="Supported label" style="color: #ffffff;" />
         <ui:Toggle label="Unsupported control" />
-        <ui:Slider low-value="0" high-value="10" />
+        <ui:DropdownField label="Unsupported dropdown" />
         <ui:VisualElement style="height: 40px; background-color: #4f8fd9; rotate: 45deg;" />
       </ui:VisualElement>`);
     expect(warnings.filter((w) => w.kind === 'unsupported-control')).toHaveLength(2);

@@ -202,6 +202,18 @@ const ALLOWED_DELETIONS = new Set([
   // it is still warned, under its own fragment.
   'control-fallback:TextField',
   'fragment:.unity-text-input, .unity-text-field__input, .unity-base-text-field__input, .unity-base-field__input',
+  // 0.7.0 bundle D: Slider and SliderInt are drawn now with Unity's parts
+  // (tests/contract-070/bundle-d.test.ts, d-slider/c07-Slider dumps). "has no renderer"
+  // no longer holds, and these rules now reach the parts they name in the documents
+  // that have sliders (a deleted single-fragment warning means the rule matched).
+  'control-fallback:Slider',
+  'control-fallback:SliderInt',
+  'fragment:#unity-drag-container, .unity-base-slider__drag-container',
+  'fragment:.unity-base-field__label',
+  'fragment:.unity-base-slider__dragger',
+  'fragment:.unity-base-slider__dragger-border',
+  'fragment:.unity-base-slider__input',
+  'fragment:.unity-base-slider__tracker',
 ]);
 
 type Verdict = 'preserved' | 'merged' | 'reclassified' | 'deleted';

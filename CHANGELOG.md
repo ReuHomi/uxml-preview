@@ -75,6 +75,14 @@ Play mode) on Unity 6.3, and the editor theme stays one option away.
   `c-textfield-hook` dumps on both themes. The caret, the selection and editing
   are not drawn. A host that counted TextField's `unsupported-control` warning
   loses it.
+- **Slider and SliderInt are drawn** (bundle D): label, input, drag container,
+  tracker, dragger and its border, and with `show-input-field` a TextField
+  showing the value. The dragger sits where Unity puts it for any value —
+  t = clamp((value - low) / (high - low), 0, 1) along the drag container less
+  the dragger, upward for `direction="Vertical"` — measured in eleven steps
+  both ways, a range, a reversed range and an out-of-range value. Dragging is
+  not drawn. A host that used Slider as its example of an unsupported
+  control loses that example.
 
 ### Accuracy — previous and new figures
 
