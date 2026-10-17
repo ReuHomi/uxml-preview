@@ -255,13 +255,24 @@ namespace UxmlPreview.Probe
             return "{\"source\": " + J(src) + ", \"name\": " + J(ts.name) + ", \"defaultFontAsset\": " + FaceJson(ts.defaultFontAsset) + "}";
         }
 
+        /// <summary>The internal text an element draws, read by reflection; null where it does not exist.</summary>
+        static string RenderedText(TextElement te)
+        {
+            for (var t = te.GetType(); t != null; t = t.BaseType)
+            {
+                var p = t.GetProperty("renderedText", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                if (p != null) { try { return p.GetValue(te) as string; } catch (System.Exception) { return null; } }
+            }
+            return null;
+        }
+
         static string J(string s) => "\"" + (s ?? "").Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "") + "\"";
 
         static void Write(string name, VisualElement root)
         {
             var sb = new StringBuilder();
             var rb = root.worldBound;
-            sb.Append("{\n  \"metadata\": {\"dumper\": \"PanelDump\", \"dumperVersion\": \"0.7.0-r1\", \"unityVersion\": ").Append(J(Application.unityVersion))
+            sb.Append("{\n  \"metadata\": {\"dumper\": \"PanelDump\", \"dumperVersion\": \"0.7.0-r2\", \"unityVersion\": ").Append(J(Application.unityVersion))
               .Append(", \"theme\": ").Append(_editorSkin ? "\"editor-on-panel\"" : "\"runtime-panel\"").Append(", \"themeSource\": ").Append(J(_themeSource))
               .Append(", \"themeAsset\": ").Append(J(_ps.themeStyleSheet == null ? "" : AssetDatabase.GetAssetPath(_ps.themeStyleSheet)))
               .Append(", \"textSettings\": ").Append(TextSettingsJson())
@@ -304,6 +315,26 @@ namespace UxmlPreview.Probe
                         sb.Append(", \"measured\": {\"w\": ").Append(S(m.x)).Append(", \"h\": ").Append(S(m.y)).Append("}");
                     }
                     catch (System.Exception ex) { sb.Append(", \"measureError\": ").Append(J(ex.GetType().Name)); }
+                    // 0.7.0-r2: what the element draws (a password mask, a placeholder) is not te.text.
+                    var rendered = RenderedText(te);
+                    if (rendered != null)
+                    {
+                        sb.Append(", \"renderedText\": ").Append(J(rendered));
+                        try
+                        {
+                            var mr = te.MeasureTextSize(rendered, 0, VisualElement.MeasureMode.Undefined, 0, VisualElement.MeasureMode.Undefined);
+                            sb.Append(", \"measuredRendered\": {\"w\": ").Append(S(mr.x)).Append(", \"h\": ").Append(S(mr.y)).Append("}");
+                        }
+                        catch (System.Exception) { }
+                    }
+                }
+                if (c is TextField tf)
+                {
+                    sb.Append(", \"field\": {\"value\": ").Append(J(tf.value))
+                      .Append(", \"isPasswordField\": ").Append(tf.isPasswordField ? "true" : "false")
+                      .Append(", \"maskChar\": ").Append(J(tf.maskChar.ToString()))
+                      .Append(", \"multiline\": ").Append(tf.multiline ? "true" : "false")
+                      .Append(", \"placeholder\": ").Append(J(tf.textEdition.placeholder)).Append("}");
                 }
                 sb.Append(", \"style\": {");
                 bool f2 = true;

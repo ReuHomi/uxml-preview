@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:Label name="ws-plain" text=" " />
+<ui:Label name="ws-std" text=" " style="-unity-text-generator: standard;" />
+<ui:Label name="ws-adv" text=" " style="-unity-text-generator: advanced;" />
+<ui:GroupBox name="g-plain" text=" " />
+<ui:GroupBox name="g-std" text=" " style="-unity-text-generator: standard;" />
+<ui:GroupBox name="g-adv" text=" " style="-unity-text-generator: advanced;" />
+<ui:Button name="b-space" text=" " />
+</ui:VisualElement>
+</ui:UXML>

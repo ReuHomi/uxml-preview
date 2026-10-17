@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:TextField name="tf-hook" label="Label" value="Hello" />
+<ui:TextField name="tf-hook-nolabel" value="Hello" />
+</ui:VisualElement>
+</ui:UXML>

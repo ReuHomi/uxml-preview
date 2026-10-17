@@ -38,3 +38,18 @@ neither field.
 | `r1-text-spacing` | the 0.6.0 `text-spacing` probe unchanged, on the runtime panel: letter- and word-spacing widths with no `-unity-text-generator` written |
 | `r1-groupbox-empty` | GroupBox `text=""` (with and without a child) and `text=" "`: whether a title is built |
 | `r1-groupbox-author` (+ `.uss`) | an author rule on `.unity-group-box__label` (margin-left 17px, red) reaching the title |
+
+## Bundle C and the whitespace title (2026-10-17, dumper 0.7.0-r2)
+
+Dumper 0.7.0-r2 adds, for a `TextField`, `"field": {value, isPasswordField, maskChar,
+multiline, placeholder}`, and for a text element the drawn text (`renderedText`) when the
+internal property exists. On 6000.0.40f1 and 6000.3.25f1 it does not, so no dump has
+`renderedText`: a mask or a placeholder shows only in the boxes. Re-running `c07-TextField`
+with r2 gave every box, text, measurement and resolved style back unchanged (4 dumps,
+0 differences); the committed files are replaced by the r2 run for the new fields.
+
+| Probe | What it settles |
+|---|---|
+| `c-textfield` | password mask (`iiiiii` against `WWWWWW`, a `mask-character`), placeholder with a value, with a label, disabled; one long sentence single-line and multiline (with and without `white-space: normal`); long and empty labels; auto widths |
+| `c-textfield-hook` (+ `.uss`) | author rules on `#unity-text-input`, `.unity-text-field__input`, `.unity-text-field__label` |
+| `c-whitespace` | text `" "` in a Label, a GroupBox title and a Button, with no, standard and advanced generator |
