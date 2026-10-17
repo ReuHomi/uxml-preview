@@ -77,6 +77,18 @@ function unityMeasure(dump: Dump): MeasureText {
   for (const e of dump.elements) {
     if (e.measured !== undefined && e.text !== undefined) sizes.set(`${e.text}|${Number(e.style['fontSize'])}`, { width: e.measured.w, height: e.measured.h });
   }
+  // Where Unity's layout gave a Label's text 1-2px more than its MeasureTextSize (the
+  // runtime-panel difference found in bundle C, item T), the stub uses the layout width,
+  // read from the box less padding and border. Only rows 1-2px over count, so a Label
+  // stretched by min-width or flex is not read. Such a row checks the structure, not
+  // the text width. In these dumps: c07-RadioButton runtime "Text" (29 -> 30).
+  for (const e of dump.elements) {
+    if (e.measured === undefined || e.text === undefined) continue;
+    const s = e.style;
+    const inner = e.w - Number(s['paddingLeft']) - Number(s['paddingRight']) - Number(s['borderLeftWidth']) - Number(s['borderRightWidth']);
+    const over = inner - e.measured.w;
+    if (over >= 1 && over <= 2) sizes.set(`${e.text}|${Number(s['fontSize'])}`, { width: inner, height: e.measured.h });
+  }
   return (text, context) => {
     const hit = sizes.get(`${text}|${context.fontSize}`);
     if (hit === undefined) throw new Error(`no Unity measurement for ${JSON.stringify(text)} at ${context.fontSize}px`);
