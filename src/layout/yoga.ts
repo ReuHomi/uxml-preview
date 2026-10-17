@@ -22,12 +22,13 @@ import type { Node as YogaNode, Yoga } from 'yoga-layout/load';
 
 import type { ElementNode, NodeId, Warning } from '../model/types';
 import type { ComputedStyle } from '../style/resolve';
-import { isNonVisual, resolveControl } from '../controls/registry';
+import { isNonVisual, partTextOf, resolveControl } from '../controls/registry';
 import type { Theme } from '../controls/theme';
 import { DEFAULT_THEME, verticalScrollbarWidth } from '../controls/theme';
 import type { ComputedValue, DeclarationLocator } from '../style/resolve';
 import { INITIAL, parseLength, parseNumber } from '../render/values';
 import type { Length } from '../render/values';
+import { textHeight, EDITOR_DEFAULT_FACE_INFO } from '../render/measure';
 import type { FaceInfo } from '../render/measure';
 import { decodeEntities } from '../parser/entities';
 
@@ -116,7 +117,7 @@ export interface LayoutPart {
   name: string;
   /** The element whose control built it. */
   owner: NodeId;
-  /** Present for a leading Label; wrappers omit it. Text is entity-decoded. */
+  /** Present for a measured text leaf; wrappers omit it. Text is entity-decoded. */
   text?: string;
   box: LayoutBox;
   /** Cascade output, including inheritance, theme and author rules. */
@@ -424,6 +425,12 @@ export function layoutDocument(
         message: "Unity 6000.0.40f1's editor theme spaces this text with the standard text generator and 6000.3.25f1's with advanced; drawn as advanced",
       });
     }
+    // Unity evidence: c07-TextField.json, both 6.3 themes: an empty input
+    // retains a line box even though Unity's text measurement reports zero.
+    if (text === '' && node.name.local === 'TextField') {
+      yg.setMeasureFunc(() => ({ width: 0, height: textHeight(1, context.fontSize, context.faceInfo ?? EDITOR_DEFAULT_FACE_INFO) }));
+      return;
+    }
     yg.setMeasureFunc((availableWidth) =>
       options.measureText(
         text,
@@ -545,7 +552,8 @@ export function layoutDocument(
       const nodes: YogaNode[] = [];
       const resolvedParts = partStyles.get(node.id);
       for (const part of spec.parts) {
-        if (part.kind === 'leading-text' && (text === undefined || text.length === 0)) continue;
+        const partText = partTextOf(node, part);
+        if (part.kind === 'leading-text' && !partText) continue;
         // Falls back to nothing rather than to the registry defaults: if the
         // cascade did not resolve this part, styling it from a second source
         // here is exactly the divergence this refactor removed.
@@ -556,13 +564,13 @@ export function layoutDocument(
         applyStyle(partNode, style, node);
         host.insertChild(partNode, host.getChildCount());
         // c07-GroupBox: title is a sibling before file children, never a host.
-        if (part.kind === 'leading-text') {
+        if (partText !== undefined) {
           // Measured: tests/layout/unity/<version>/{probe-panel,probe-editor-070}/c-whitespace.json.
-          const whitespaceTitle = node.name.local === 'GroupBox' && text!.trim() === '';
+          const whitespaceTitle = node.name.local === 'GroupBox' && partText.trim() === '';
           if (whitespaceTitle && (theme === 'runtime' || style.get('-unity-text-generator')?.value === 'standard')) {
             partNode.setMeasureFunc(() => ({ width: 0, height: 0 }));
           } else {
-            measure(partNode, text!, style, node);
+            measure(partNode, partText, style, node);
             if (whitespaceTitle && theme === 'editor') {
               warnings.push({
                 kind: 'version-dependent', reason: 'version-dependent', node: node.id,
@@ -577,7 +585,7 @@ export function layoutDocument(
         chain.push({
           name: part.name,
           owner: node.id,
-          ...(part.kind === 'leading-text' ? { text: text! } : {}),
+          ...(partText !== undefined ? { text: partText } : {}),
           box: { left: 0, top: 0, width: 0, height: 0 },
           style,
         });

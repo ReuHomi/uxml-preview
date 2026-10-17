@@ -74,6 +74,41 @@ export const THEME_USS: string = `${PANEL_TEXT_DEFAULTS_SELECTOR} {
   padding: 0 2px 0 1px;
   flex-shrink: 0;
 }
+/* Unity evidence: tests/layout/unity/6000.3.25f1/probe-editor-070/c07-TextField.json
+   and c-textfield.json: field, label, input, multiline wrapper and inner text. */
+.unity-base-text-field {
+  margin: 1px 3px;
+  flex-direction: row;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.unity-text-field__label {
+  min-width: 120px;
+  margin-right: 2px; padding-top: 2px; color: #c4c4c4;
+}
+.unity-base-text-field__input {
+  flex-direction: row;
+  flex-grow: 1;
+  flex-shrink: 1;
+  padding: 1px 2px 0 2px;
+  border-width: 1px;
+  border-color: #212121;
+  border-top-color: #0d0d0d;
+  background-color: #2a2a2a;
+  overflow: hidden;
+}
+.unity-base-text-field__multiline-container { flex-grow: 1; flex-shrink: 0; }
+.unity-text-element--inner-input-field-component {
+  padding: 0 2px;
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+/* Unity evidence: tests/layout/unity/6000.3.25f1/probe-editor-070/c-textfield.json:
+   placeholder colour inherits into the inner text; disabled is inherited state. */
+.unity-base-text-field__input--placeholder { color: #a6a6a6; }
+/* Unity evidence: tests/layout/unity/6000.3.25f1/probe-editor-070/c07-states.json. */
+.unity-base-text-field:hover > .unity-base-text-field__input { border-color: #656565; }
+.unity-base-text-field:focus > .unity-base-text-field__input { border-color: #3a79bb; }
 .unity-group-box {
   margin: 6px 3px 1px 3px;
   padding: 5px 0 5px 3px;
@@ -121,6 +156,42 @@ export const THEME_SHEETS: Readonly<Record<Theme, string>> = {
   padding: 4px 2px 4px 1px;
   flex-shrink: 0;
 }
+/* Unity evidence: tests/layout/unity/6000.3.25f1/probe-panel/c07-TextField.json
+   and c-textfield.json: field, label, input, multiline wrapper and inner text. */
+.unity-base-text-field {
+  margin: 2px 4px;
+  flex-direction: row;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.unity-text-field__label {
+  min-width: 150px;
+
+}
+.unity-base-text-field__input {
+  flex-direction: row;
+  flex-grow: 1;
+  flex-shrink: 1;
+  padding: 10px;
+  border-width: 1px;
+  border-color: #646464;
+
+  background-color: #f0f0f0;
+  overflow: hidden;
+}
+.unity-base-text-field__multiline-container { flex-grow: 1; flex-shrink: 0; }
+.unity-text-element--inner-input-field-component {
+  padding: 0 2px;
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+/* Unity evidence: tests/layout/unity/6000.3.25f1/probe-panel/c-textfield.json:
+   placeholder colour inherits into the inner text; disabled is inherited state. */
+.unity-base-text-field__input--placeholder { color: #585858; }
+.unity-base-text-field__input:disabled { background-color: #d1d1d1; }
+/* Unity evidence: tests/layout/unity/6000.3.25f1/probe-panel/c07-states.json. */
+.unity-base-text-field:hover > .unity-base-text-field__input { border-color: #323232; }
+.unity-base-text-field:focus > .unity-base-text-field__input { border-color: #006aa6; }
 .unity-group-box {
   margin: 6px 4px 2px 4px;
   padding: 5px 0 5px 3px;

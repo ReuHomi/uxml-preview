@@ -27,7 +27,7 @@ import type {
   UxmlDocument,
   Warning,
 } from '../model/types';
-import { implicitClassesOf, resolveControl, supportedControlNames } from '../controls/registry';
+import { implicitClassesOf, partTextOf, resolveControl, supportedControlNames } from '../controls/registry';
 import type { Theme } from '../controls/theme';
 import { DEFAULT_THEME, THEME_SHEETS, THEME_UNITY_VERSIONS } from '../controls/theme';
 import { parseUss } from '../parser/uss';
@@ -407,8 +407,10 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
         return { kind: 'element', node: target.owner };
       }
       const chain = resolveControl(target.owner).spec.parts;
-      const outer = chain[target.depth - 1]!;
-      return { kind: 'part', owner: target.owner, name: outer.name, depth: target.depth - 1 };
+      let depth = target.depth - 1;
+      while (depth >= 0 && chain[depth]?.kind === 'leading-text') depth--;
+      if (depth < 0) return { kind: 'element', node: target.owner };
+      return { kind: 'part', owner: target.owner, name: chain[depth]!.name, depth };
     },
     isRoot: (target: Target): boolean =>
       target.kind === 'element' && target.node === doc.root,
@@ -416,10 +418,11 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
     // c07-GroupBox dumps measure the leading part as an unnamed Label.
     typeNameOf: (target: Target): string =>
       target.kind === 'element' ? target.node.name.local
-        : resolveControl(target.owner).spec.parts[target.depth]?.kind === 'leading-text' ? 'Label' : 'VisualElement',
+        : resolveControl(target.owner).spec.parts[target.depth]?.typeName ??
+          (resolveControl(target.owner).spec.parts[target.depth]?.kind === 'leading-text' ? 'Label' : 'VisualElement'),
     idOf: (target: Target): string | undefined =>
       target.kind === 'element' ? attributeNamed(target.node, 'name')
-        : resolveControl(target.owner).spec.parts[target.depth]?.kind === 'leading-text' ? undefined : target.name,
+        : resolveControl(target.owner).spec.parts[target.depth]?.kind === 'leading-text' || resolveControl(target.owner).spec.parts[target.depth]?.unnamed ? undefined : target.name,
     // Implicit classes are as real as written ones for matching: in Unity the
     // element genuinely carries them, which is why `.unity-button` in author USS
     // hits a plain `<ui:Button />`. Leading Label classes are measured in c07-GroupBox.
@@ -948,7 +951,7 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
     if (chain.length > 0) {
       const byName = new Map<string, ComputedStyle>();
       chain.forEach((part, depth) => {
-        if (part.kind === 'leading-text' && !node.attributes.some((a) => a.name === 'text' && a.value.length > 0)) return;
+        if (part.kind === 'leading-text' && !partTextOf(node, part)) return;
         const resolved = computeFor(
           { kind: 'part', owner: node, name: part.name, depth },
           part.kind === 'leading-text' ? self.forChildren : downstream,

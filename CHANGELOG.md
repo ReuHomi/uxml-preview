@@ -64,6 +64,15 @@ Play mode) on Unity 6.3, and the editor theme stays one option away.
   `unity-group-box__label`, reachable from author USS by that class); Box
   carries its border and background. Both match the `c07-GroupBox` and
   `c07-Box` dumps on both themes.
+- **TextField is drawn** (bundle C): single-line and multiline, placeholder,
+  password (the mask only; the value never reaches the DOM), disabled, with or
+  without a label. It builds Unity's parts — the label (`unity-text-field__label`),
+  `#unity-text-input`, the multiline container and the inner text
+  (`unity-text-element--inner-input-field-component`) — which author USS reaches
+  by Unity's names. Matches the 6.3 `c07-TextField`, `c-textfield` and
+  `c-textfield-hook` dumps on both themes. The caret, the selection and editing
+  are not drawn. A host that counted TextField's `unsupported-control` warning
+  loses it.
 
 ### Accuracy — previous and new figures
 

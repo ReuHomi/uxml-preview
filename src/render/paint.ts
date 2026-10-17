@@ -267,6 +267,11 @@ export function paint(
         host.appendChild(partEl);
         if (part.text !== undefined) {
           paintText(partEl, part.text, part.style, partCss);
+          // Unity evidence: 6000.3.25f1/{probe-panel,probe-editor-070}/
+          // c07-TextField.json: multiline value newlines survive NoWrap.
+          if (part.name === 'unity-text-element--inner-input-field-component') {
+            partEl.style.whiteSpace = part.style.get('white-space')?.value === 'normal' ? 'pre-wrap' : 'pre';
+          }
         } else {
           host = partEl;
           hostBox = part.box;

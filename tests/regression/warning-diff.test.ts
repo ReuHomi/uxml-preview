@@ -194,6 +194,14 @@ const ALLOWED_DELETIONS = new Set([
   // Same decision: "<ScrollView> drawn with built-in child elements measured on Unity ..." -
   // the parts measured the same on both versions and both themes (golden, golden-panel).
   'control-parts:ScrollView',
+  // 0.7.0 bundle C: TextField is drawn now (tests/contract-070/bundle-c.test.ts, from the
+  // c07-TextField and c-textfield dumps), so "has no renderer" no longer holds — the same
+  // kind of correction as aspect-ratio. The 0.5.0 fragment warning named four classes as
+  // parts nothing builds; three are TextField's input classes and match now. Only
+  // `.unity-text-input` still matches nothing (no Unity element carries that class), and
+  // it is still warned, under its own fragment.
+  'control-fallback:TextField',
+  'fragment:.unity-text-input, .unity-text-field__input, .unity-base-text-field__input, .unity-base-field__input',
 ]);
 
 type Verdict = 'preserved' | 'merged' | 'reclassified' | 'deleted';

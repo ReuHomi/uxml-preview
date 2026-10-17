@@ -47,7 +47,7 @@
 | `GroupBox` | 검증됨 | 0.7.0 묶음 B. `unity-group-box`, 바깥·안쪽 여백(두 테마, 측정). `text`가 있으면 Unity처럼 자식 앞에 제목 Label을 만든다(부품 이름 `unity-group-box__label` — Unity는 이름을 주지 않아 클래스로 부른다). 덤프 `c07-GroupBox` 두 테마의 상자·제목·resolved style 일치. `text=""`(빈 문자열)이면 제목을 만들지 않고 `text=" "`(공백)이면 만든다 — 두 버전·두 테마 측정(`r1-groupbox-empty`). 공백뿐인 제목의 높이: 런타임 0, 에디터 테마는 6.3 값(15)으로 그리고 `version-dependent`(6000.0은 0). standard 생성기면 두 버전 0(`c-whitespace`). 작성자 USS의 `.unity-group-box__label` 규칙은 제목에 닿는다(`r1-groupbox-author`) |
 | `Box` | 검증됨 | 0.7.0 묶음 B. `unity-box`, 테두리 1·테두리색·배경(두 테마, 측정). 덤프 `c07-Box` 두 테마 일치 |
 | `Image` | 검증됨 | 전용 렌더러(`unity-image`). 대표 화면(`inventory`)의 `Image` 6개가 좌표 24값 모두 Unity 6000.0.40f1과 같고(측정), 기본 스케일 모드 `stretch-to-fill`은 육안 대조로 확인했다([육안 대조](visual-check.md) 5번). 그림은 USS `background-image`로 들어온다 — C#에서 할당한 텍스처는 미리보기가 따라갈 경로가 없다 |
-| `TextField` | 폴백 | `text`·`label`이 그려지지 않는다 |
+| `TextField` | 검증됨 | 0.7.0 묶음 C. 한 줄·여러 줄(`multiline`)·placeholder·비밀번호(`password`, `mask-character`, 기본 `*`)·비활성·라벨 있음/없음, 두 테마. Unity처럼 라벨(`label`이 있을 때, 부품 이름 `unity-text-field__label`), `#unity-text-input`, 여러 줄이면 `unity-base-text-field__multiline-container`, 안쪽 글자 `unity-text-element--inner-input-field-component`를 만든다. 값이 비면 placeholder 글을 그리고 그 색을 쓴다. 비밀번호는 가림 글자만 그리고 값은 DOM에 넣지 않는다. 빈 칸도 한 줄 높이. 여러 줄은 `white-space: normal`일 때만 줄을 바꾼다. 덤프 `c07-TextField`·`c-textfield`·`c-textfield-hook`(6.3) 두 테마의 상자·부품·resolved style·hover/focus 테두리 일치. 작성자 USS는 `#unity-text-input`·`.unity-text-field__input`·`.unity-text-field__label`로 닿는다(측정). **그리지 않는 것:** 커서(깜빡이는 막대), 글자 선택 표시, 입력·편집, 여러 줄의 스크롤바 — 상호작용은 0.8 후보 |
 | `Toggle` | 폴백 | 위와 같다 |
 | `Slider` / `SliderInt` | 폴백 | 위와 같다 |
 | `Foldout` | 폴백 | 위와 같다 |

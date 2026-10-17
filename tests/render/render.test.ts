@@ -416,12 +416,13 @@ describe('controls with no renderer', () => {
 
   it('draws them as plain boxes: styles still apply, text does not', () => {
     const { doc, result } = draw(
-      '<ui:TextField name="t" text="typed" />',
+      // 0.7.0 bundle C: TextField has a renderer now; Toggle is still drawn as a plain box.
+      '<ui:Toggle name="t" text="typed" />',
       '#t { background-color: rgb(1, 2, 3); }',
     );
     const el = result.elements.get(named(doc.root, 't').id)!;
     expect(el.style.backgroundColor).toBe('rgb(1, 2, 3)');
-    // Unity draws a TextField's text through a child element, so a fallback box
+    // Unity draws a Toggle's text through a child element, so a fallback box
     // that painted it itself would put the text in the wrong place.
     expect(el.textContent).toBe('');
     result.dispose();

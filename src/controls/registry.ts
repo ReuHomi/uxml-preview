@@ -15,6 +15,7 @@
  */
 
 import type { ElementNode } from '../model/types';
+import { decodeEntities } from '../parser/entities';
 
 /**
  * An element a control builds for itself, which the file never mentions.
@@ -30,8 +31,12 @@ import type { ElementNode } from '../model/types';
 export interface ControlPart {
   /** Unity name, or class identity for the unnamed GroupBox title. */
   name: string;
-  /** Omitted for nested wrappers; a leading Label draws the owner text. */
-  kind?: 'leading-text';
+  /** Text parts are measured leaves; a leading Label is a sibling of the wrapper chain. */
+  kind?: 'leading-text' | 'text';
+  /** Attribute text is decoded only for the derived rendering, never in the AST. */
+  textAttribute?: 'text' | 'label' | 'value';
+  typeName?: string;
+  unnamed?: boolean;
   classes?: readonly string[];
   /**
    * USS this part always carries, because the control fixes it.
@@ -86,6 +91,7 @@ const CONTROLS: Readonly<Record<string, ControlSpec>> = {
     parts: [{ name: 'unity-group-box__label', kind: 'leading-text',
       classes: ['unity-text-element', 'unity-label', 'unity-group-box__label'], style: {} }],
   },
+  TextField: { hasText: false, classes: ['unity-base-field', 'unity-base-text-field', 'unity-text-field'], parts: [] },
   Box: { hasText: false, classes: ['unity-box'], parts: [] },
   Label: { hasText: true, classes: ['unity-label'], parts: [] },
   Button: { hasText: true, classes: ['unity-button'], parts: [] },
@@ -128,7 +134,7 @@ const CONTROLS: Readonly<Record<string, ControlSpec>> = {
  * What an unrecognised control is drawn as: a box that lays its children out.
  *
  * `hasText: false` is deliberate. The controls most likely to land here —
- * `TextField`, `Toggle`, `Foldout` — put their label in a child `TextElement`
+ * `Toggle`, `Foldout` — put their label in a child `TextElement`
  * rather than drawing it themselves, so guessing `true` would paint text where
  * Unity paints a child and put every coordinate below it in the wrong place.
  */
@@ -170,7 +176,7 @@ export function isNonVisual(node: ElementNode): boolean {
 export function resolveControl(node: ElementNode): ResolvedControl {
   if (node.derived?.kind === 'template-container') return { spec: FALLBACK, fallback: false };
   const spec = CONTROLS[node.name.local];
-  if (spec !== undefined) return { spec, fallback: false };
+  if (spec !== undefined) return { spec: node.name.local === 'TextField' ? textFieldSpec(node, spec) : spec, fallback: false };
   if (isRoot(node)) return { spec: FALLBACK, fallback: false };
   return { spec: FALLBACK, fallback: true };
 }
@@ -194,4 +200,43 @@ export function implicitClassesOf(node: ElementNode): readonly string[] {
 /** Controls with a renderer of their own. Everything else still draws. */
 export function supportedControlNames(): string[] {
   return Object.keys(CONTROLS);
+}
+
+// Unity evidence: 6000.3.25f1/{probe-panel,probe-editor-070}/c07-TextField.json
+// and c-textfield.json: physical parts are derived, never written into the AST.
+function textFieldSpec(node: ElementNode, base: ControlSpec): ControlSpec {
+  const attr = (name: string): string => node.attributes.find((a) => a.name === name)?.value ?? '';
+  const labelled = attr('label') !== '';
+  const multiline = attr('multiline') === 'true';
+  const placeholder = attr('value') === '' && attr('placeholder-text') !== '';
+  return {
+    ...base,
+    classes: labelled ? base.classes : [...base.classes, 'unity-base-field--no-label'],
+    parts: [
+      ...(labelled ? [{ name: 'unity-text-field__label', kind: 'leading-text' as const,
+        textAttribute: 'label' as const, typeName: 'Label', unnamed: true,
+        classes: ['unity-text-element', 'unity-label', 'unity-base-field__label',
+          'unity-base-text-field__label', 'unity-text-field__label'], style: {} }] : []),
+      { name: 'unity-text-input', typeName: 'TextInput',
+        classes: ['unity-base-text-field__input', 'unity-base-field__input', 'unity-text-field__input',
+          multiline ? 'unity-base-text-field__input--multiline' : 'unity-base-text-field__input--single-line',
+          ...(placeholder ? ['unity-base-text-field__input--placeholder'] : [])], style: {} },
+      ...(multiline ? [{ name: 'unity-base-text-field__multiline-container', unnamed: true,
+        classes: ['unity-base-text-field__multiline-container'], style: {} }] : []),
+      { name: 'unity-text-element--inner-input-field-component', kind: 'text',
+        textAttribute: 'value', typeName: 'TextElement', unnamed: true,
+        classes: ['unity-text-element', 'unity-text-element__selectable',
+          'unity-text-element--inner-input-field-component'], style: {} },
+    ],
+  };
+}
+
+/** Ensures: password values are masked before measurement or DOM painting. */
+export function partTextOf(node: ElementNode, part: ControlPart): string | undefined {
+  if (part.kind === undefined) return undefined;
+  const attr = (name: string): string => decodeEntities(node.attributes.find((a) => a.name === name)?.value ?? '');
+  const text = attr(part.textAttribute ?? 'text');
+  if (part.textAttribute !== 'value') return text;
+  if (text === '') return attr('placeholder-text');
+  return attr('password') === 'true' ? (attr('mask-character') || '*').charAt(0).repeat(text.length) : text;
 }

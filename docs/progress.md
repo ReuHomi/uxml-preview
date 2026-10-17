@@ -4,25 +4,25 @@
 
 ## 현재 위치
 
-**0.6.1 배포됨 (2026-10-16).** npm `latest` = `0.6.1`. **0.7.0 묶음 A·B와 검토 뒤 정리 라운드(R1–R4) 완료 — `design/0.7.0`, 푸시 안 함, 미배포.**
+**0.6.1 배포됨 (2026-10-16).** npm `latest` = `0.6.1`. **0.7.0 묶음 A·B·C와 검토 뒤 정리 라운드(R1–R4) 완료 — `design/0.7.0`, 푸시 안 함, 미배포.**
 기준 Unity 버전 6.3 LTS.
 
 | | |
 |---|---|
-| 0.7.0 | 묶음 A: 기본 테마 `'runtime'`(`theme` 옵션), 두 테마의 측정값, `.unity-disabled`, Label·Button `flex-shrink: 0`, 런타임 CJK 금칙 없음, 런타임 생성기 standard. 묶음 B: GroupBox·Box. `package.json`은 아직 0.6.1, CHANGELOG `0.7.0 — unreleased` |
-| 테스트 | 코어 **972 통과 · 1 건너뜀**, tsc 0 |
+| 0.7.0 | 묶음 A: 기본 테마 `'runtime'`(`theme` 옵션), 두 테마의 측정값, `.unity-disabled`, Label·Button `flex-shrink: 0`, 런타임 CJK 금칙 없음, 런타임 생성기 standard. 묶음 B: GroupBox·Box. 묶음 C: TextField. `package.json`은 아직 0.6.1, CHANGELOG `0.7.0 — unreleased` |
+| 테스트 | 코어 **999 통과 · 1 건너뜀**, tsc 0 |
 | 정확도 | **런타임 테마 662/676**(Unity 6.3 실제 런타임 패널) · 에디터 테마 **662/676**(6000.0.40f1) · 템플릿 215/220 · 합산하지 않음 |
-| 소비자 | 묶음 B 뒤 측정: vscode 1건 실패(0.6.1과 같음), uxml-author 21건(0.6.1의 17 + 버전 채널 표본 1 + 지원 목록 docs 3). `docs/design/0.7.0-handoff.md` |
-| 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` `GroupBox` `Box` (그 외는 폴백) |
+| 소비자 | 묶음 C 뒤 측정: vscode 1건 실패(0.6.1과 같음), uxml-author 22건(0.6.1의 17 + 버전 채널 표본 1 + 지원 목록 docs 4). `docs/design/0.7.0-handoff.md` |
+| 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` `GroupBox` `Box` `TextField` (그 외는 폴백) |
 
 정확도 세트는 서로 다른 질문을 답하므로 합산하지 않는다. `docs/accuracy.md`.
 
 ## 다음 할 일
 
 0. **GitHub 소개 문구(사람)** — 확정 문안은 2026-10-16 기록 그대로
-1. **R1–R4 확인(사람)** — 확인 뒤 묶음 C. 플레이그라운드 F5(런타임 체크무늬)도 남아 있다
-2. **`:root` 경고 kind(사람)** — `unsupported-selector` 제안(인계 문서 5절). 아직 바꾸지 않음
-3. **0.7.0 다음 묶음(C–F)** — `docs/design/0.7.0-design.md` 5절. 묶음 D 전 슬라이더 값–손잡이 위치 추가 측정
+1. **묶음 C 확인(사람)** — 확인 뒤 묶음 D. 플레이그라운드 F5(런타임 체크무늬)도 남아 있다
+2. **공백뿐인 Label·Button 글자(사람)** — GroupBox 제목과 같은 Unity 측정(런타임 0, 에디터 0 대 15)이지만 고치지 않았다(결정 범위 밖). 지금 런타임에서 Label `" "`은 25 대 Unity 8
+3. **0.7.0 다음 묶음(D–F)** — `docs/design/0.7.0-design.md` 5절. 묶음 D 전 슬라이더 값–손잡이 위치 추가 측정
 4. **소비자 갱신(소비자 저장소의 일)** — 인계 문서 4절 목록
 5. **0.6.0이 남긴 것** — `docs/backlog.md` 0.6.0 절의 2026-10-16 메모
 6. **Playwright Chromium이 이 PC에서 실행되지 않음** — 코호트는 설치된 Chrome으로 측정
@@ -173,6 +173,11 @@
 | 2026-10-17 | 지시 밖 변경은 별도 커밋, 보고 맨 위 절에 근거와 함께(CLAUDE.md 검증 규율 6) | 검토에서 지시 밖 변경 7건(생성기 포함)이 다른 커밋에 섞여 있었다. 섞이면 검토가 지시 범위를 다시 가려내야 하고, 그 변경을 검사하는 테스트가 같은 근거에서 나와 아무것도 증명하지 않는다 |
 | 2026-10-17 | 덤프 파일 머리말에 덤퍼 이름과 판(`dumper`·`dumperVersion`) | 검토 5-2에서 골든 덤프가 어느 덤퍼에서 왔는지 실행 스크립트로 추론해야 했다. 판 문자열은 덤퍼가 쓰는 내용을 바꿀 때 손으로 올린다 |
 | 2026-10-17 | `:root` 경고 kind는 아직 바꾸지 않는다 — `unsupported-selector` 제안만 | 버전 차이가 아니라 `version-dependent`가 틀렸다. 기존 kind 중 셀렉터 주제는 `unsupported-selector`뿐이고, 두 소비자는 reason(`matches-unity`)으로 먼저 나눠서 영향이 없다(코드 읽기). 인계 문서 5절 |
+| 2026-10-17 | `:root` 경고 kind는 그대로, reason이 기준(사람 결정) | `unsupported-selector`도 사실과 다르고 두 소비자 모두 reason을 먼저 본다. api.md에 "역사적 이름", backlog에 다음 메이저의 새 kind |
+| 2026-10-17 | 공백뿐인 GroupBox 제목: 런타임 0·경고 없음, 에디터 6.3 값 15·`version-dependent`(사람 결정) | `c-whitespace`: 런타임 두 버전·모든 생성기 0, 에디터 6000.0 0, 6.3 advanced 15, 6.3 standard 0. standard는 두 버전 같아서 0·경고 없음(결정이 다루지 않은 경우, 덤프대로) |
+| 2026-10-17 | 묶음 C의 기대값은 두 테마 모두 6.3 덤프 | 6000.0은 글자 측정(생성기)에서 온 1px만 다르고, 측정값과 상자가 1px 어긋나는 행이 있다(`tf-label-long` 218 대 220). 판정하는 테마 값·클래스는 두 버전 같음을 고정 테스트 첫 줄이 확인 |
+| 2026-10-17 | TextField 부품 이름: Unity가 이름을 준 것만 이름(`unity-text-input`), 나머지는 가장 구체적인 클래스 | GroupBox 제목(묶음 B)과 같은 규칙. 덤프 경로와 이어 붙일 키가 필요하다 |
+| 2026-10-17 | 측정 스텁이 Unity의 MeasureTextSize 대신 상자 폭을 쓰는 곳을 머리말에 적는다 | 가림 글자·placeholder는 MeasureTextSize가 재지 않고, 런타임 패널에서 레이아웃 폭과 1–2px 다른 행이 3/7. 기대값은 그대로 두고 입력만 고쳐 별도 커밋으로 |
 
 ## 세션 로그
 
@@ -240,6 +245,12 @@
 | 같은 경고 — 에디터 부품 resolved style | `probe-editor-070/c07-existing.json` `col/scroll` 아래 23요소 | 상자·style 전부 | 53: y +15(위의 글자 없는 Button), 생성기, Scroller·dragger 색 알파 0.051/0.05·0.102/0.1·0.502/0.5 | 알파는 같은 값의 출력 반올림(13/255 등)이고 미리보기는 그 색을 그리지 않는다. x·w·h 차이 0 |
 
   되돌린 경고 없음.
+- (12:38 추가) 사람 결정 둘과 묶음 C
+  - `:root` kind 결정 기록(`ff0dec1`). 공백뿐인 GroupBox 제목: 덤프 `c-whitespace` → 고정 `whitespace-title.test.ts` 7 → Codex 1라운드 → 변이 4/4(`8ecd2a3`)
+  - 덤퍼 r2: TextField의 value·password·maskChar·multiline·placeholder. 그린 글(`renderedText`)은 두 버전 모두 내부 속성이 없어 기록되지 않음. r2로 다시 뜬 `c07-TextField`는 4벌 모두 차이 0
+  - 묶음 C: 예측(계획서 17절, 읽는 테스트 10파일) → 덤프 `c-textfield`·`c-textfield-hook` → 고정 `bundle-c.test.ts` 20 → Codex 1라운드 → 측정 입력 3개 정정(기대값 불변) → 깨진 3개를 Toggle로 옮김, warning-diff 삭제 허용 2개. 변이 6/7. 999 통과. 결과 계획서 18절
+  - 발견: 런타임 패널에서 Unity MeasureTextSize와 레이아웃이 TextElement에 준 폭이 1–2px 다르다(3/7 행). 에디터 창은 0/7
+  - 발견: 공백뿐인 Label·Button도 GroupBox 제목과 같은 측정(런타임 0, 에디터 6.3 advanced 15). 손대지 않았다
 
 ### 2026-10-16 (23:07 추가 — 0.6.1 패치 · 0.7.0 측정·설계)
 - 0번: README 수치 테스트는 이미 영·한·일·중 네 파일을 읽고 있었다. 변이 6개(ja·zh 각각 좌표·높이 숫자, 상단 상호 링크) 전부 실패로 잡힘. 테스트 제목만 고침(`d9948aa`). 번역문의 숫자 오류 없음

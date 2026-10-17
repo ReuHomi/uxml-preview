@@ -268,7 +268,8 @@ describe('controls with no renderer', () => {
   });
 
   it('name both when a control carries both', () => {
-    const { tree } = build('<ui:TextField name="t" label="Name" text="typed" />');
+    // 0.7.0 bundle C: TextField has a renderer now; Toggle is still a fallback and takes both.
+    const { tree } = build('<ui:Toggle name="t" label="Name" text="typed" />');
     const warning = tree.warnings.find((w) => w.kind === 'unsupported-control')!;
     expect(warning.message).toContain('text and label attributes are not drawn');
     tree.dispose();

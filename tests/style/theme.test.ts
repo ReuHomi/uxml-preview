@@ -255,9 +255,10 @@ describe('the unreachable part-selector warning', () => {
   // boxes still have none, so `#unity-text-input` goes on doing nothing — the
   // same silent failure in a different control, which rule 6 forbids.
   it('fires for a part name no control in the document builds', () => {
-    const messages = unity('<ui:TextField name="t" />', '#unity-text-input { width: 40px; }');
+    // 0.7.0 bundle C: TextField builds #unity-text-input now; Toggle (a fallback) builds nothing.
+    const messages = unity('<ui:Toggle name="t" />', '#unity-checkmark { width: 40px; }');
     expect(messages).toHaveLength(1);
-    expect(messages[0]).toContain('#unity-text-input');
+    expect(messages[0]).toContain('#unity-checkmark');
     // Says why, not just that: only controls with their own renderer have parts.
     expect(messages[0]).toContain('ScrollView');
   });
