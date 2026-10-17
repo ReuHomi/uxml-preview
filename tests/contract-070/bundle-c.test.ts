@@ -38,6 +38,12 @@
  *   "******" from tf-auto-pw-i, the placeholder "Type here" from tf-auto-ph, and the
  *   wrapped sentence from tf-ml-long-wrap (its height; the width is whatever the preview
  *   asks to wrap at, which the test checks is Unity's).
+ *   Two more are read from boxes because Unity's own layout used a different width
+ *   from its MeasureTextSize, on the runtime panel only (standard generator; the editor
+ *   rows agree exactly): the long sentence (tf-long: measured 551, layout 552) and
+ *   "One
+Two words" (tf-auto-ml: measured 72, layout 74). Corrected after Codex round 1.
+ *   These box-read sizes are taken from c-textfield of the same theme for every probe.
  *   [추론] "######" (mask-character="#") is given the width of "******": no box judged
  *   here depends on it (its row is stretched to the column).
  * Not drawn, not judged: the caret, the selection, editing (0.8 candidates).
@@ -78,7 +84,7 @@ interface DumpElement {
   style: Record<string, string>;
 }
 interface Dump {
-  metadata: { panel: { width: number; height: number } };
+  metadata: { theme: string; panel: { width: number; height: number } };
   elements: DumpElement[];
 }
 
@@ -116,19 +122,27 @@ function unityMeasure(dump: Dump, wrapWidths: number[] = []): MeasureText {
   for (const e of dump.elements) {
     if (e.measured !== undefined && e.text !== undefined) sizes.set(`${e.text}|${Number(e.style['fontSize'])}`, { width: e.measured.w, height: e.measured.h });
   }
+  // The box-read sizes come from c-textfield of the same theme, whichever probe is drawn:
+  // c07-TextField has a placeholder but no auto-width row to read it from.
+  const source = readDump(BASE, dump.metadata.theme === 'editor' ? 'editor' : 'runtime', 'c-textfield');
   const fromBox = (path: string): { width: number; height: number } => {
-    const t = find(dump, path);
+    const t = find(source, path);
     return t === undefined ? { width: 0, height: 0 } : { width: t.w - 4, height: t.h };
   };
-  const fs = (path: string): number => Number(find(dump, path)?.style['fontSize'] ?? NaN);
+  const fs = (path: string): number => Number(find(source, path)?.style['fontSize'] ?? NaN);
   const pw = 'free/tf-auto-pw-i/unity-text-input/TextElement[0]';
   const ph = 'free/tf-auto-ph/unity-text-input/TextElement[0]';
-  const wrap = find(dump, 'col/tf-ml-long-wrap/unity-text-input/VisualElement[0]/TextElement[0]');
-  if (find(dump, pw) !== undefined) {
+  const wrap = find(source, 'col/tf-ml-long-wrap/unity-text-input/VisualElement[0]/TextElement[0]');
+  const long = 'col/tf-long/unity-text-input/TextElement[0]';
+  if (find(source, pw) !== undefined) {
     sizes.set(`******|${fs(pw)}`, fromBox(pw));
     sizes.set(`######|${fs(pw)}`, fromBox(pw));
   }
-  if (find(dump, ph) !== undefined) sizes.set(`Type here|${fs(ph)}`, fromBox(ph));
+  if (find(source, ph) !== undefined) sizes.set(`Type here|${fs(ph)}`, fromBox(ph));
+  if (find(source, long) !== undefined) sizes.set(`${WRAPPED}|${fs(long)}`, fromBox(long));
+  const ml = 'free/tf-auto-ml/unity-text-input/VisualElement[0]/TextElement[0]';
+  if (find(source, ml) !== undefined) sizes.set(`One
+Two words|${fs(ml)}`, fromBox(ml));
   return (text, context, availableWidth) => {
     const hit = sizes.get(`${text}|${context.fontSize}`);
     if (hit === undefined) throw new Error(`no Unity measurement for ${JSON.stringify(text)} at ${context.fontSize}px`);
