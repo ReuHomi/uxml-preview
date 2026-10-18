@@ -9210,5 +9210,9257 @@
    "dh": 0,
    "widthOk": true
   }
- ]
+ ],
+ "runtime": {
+  "unity": [
+   "6000.0.40f1",
+   "6000.3.25f1"
+  ],
+  "summary": {
+   "6000.0.40f1": {
+    "lines": "92/92",
+    "height": "60/92",
+    "width": "89/92",
+    "boundaryLines": "153/159",
+    "failuresABC": {
+     "lines": "5/1/0",
+     "height": "74/1/1",
+     "width": "3/0/0"
+    },
+    "widthDelta": {
+     "min": -4,
+     "max": 0
+    },
+    "unexplained": [
+     "noto-jp-zh-20-w60"
+    ]
+   },
+   "6000.3.25f1": {
+    "lines": "92/92",
+    "height": "60/92",
+    "width": "89/92",
+    "boundaryLines": "153/159",
+    "failuresABC": {
+     "lines": "5/1/0",
+     "height": "74/1/1",
+     "width": "3/0/0"
+    },
+    "widthDelta": {
+     "min": -4,
+     "max": 0
+    },
+    "unexplained": [
+     "noto-jp-zh-20-w60"
+    ]
+   }
+  },
+  "rows": [
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-en-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 94,
+     "h": 21
+    },
+    "preview": {
+     "w": 94,
+     "h": 20
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-en-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 98,
+     "h": 11
+    },
+    "preview": {
+     "w": 98,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-en-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 132,
+     "h": 29
+    },
+    "preview": {
+     "w": 132,
+     "h": 28
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-en-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 136,
+     "h": 15
+    },
+    "preview": {
+     "w": 136,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-en-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 189,
+     "h": 41
+    },
+    "preview": {
+     "w": 189,
+     "h": 40
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-en-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 193,
+     "h": 21
+    },
+    "preview": {
+     "w": 193,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-en-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 303,
+     "h": 65
+    },
+    "preview": {
+     "w": 303,
+     "h": 64
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-en-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 307,
+     "h": 33
+    },
+    "preview": {
+     "w": 307,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-ko-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 124,
+     "h": 21
+    },
+    "preview": {
+     "w": 124,
+     "h": 20
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-ko-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 128,
+     "h": 11
+    },
+    "preview": {
+     "w": 128,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-ko-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 174,
+     "h": 29
+    },
+    "preview": {
+     "w": 174,
+     "h": 28
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-ko-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 178,
+     "h": 15
+    },
+    "preview": {
+     "w": 178,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-ko-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 249,
+     "h": 41
+    },
+    "preview": {
+     "w": 249,
+     "h": 40
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-ko-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 253,
+     "h": 21
+    },
+    "preview": {
+     "w": 253,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-ko-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 399,
+     "h": 65
+    },
+    "preview": {
+     "w": 399,
+     "h": 64
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-ko-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 403,
+     "h": 33
+    },
+    "preview": {
+     "w": 403,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-en-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 102,
+     "h": 25
+    },
+    "preview": {
+     "w": 102,
+     "h": 25
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-en-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 106,
+     "h": 13
+    },
+    "preview": {
+     "w": 106,
+     "h": 13
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-en-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 143,
+     "h": 34
+    },
+    "preview": {
+     "w": 143,
+     "h": 34
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-en-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 147,
+     "h": 17
+    },
+    "preview": {
+     "w": 147,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-en-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 205,
+     "h": 49
+    },
+    "preview": {
+     "w": 205,
+     "h": 49
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-en-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 209,
+     "h": 25
+    },
+    "preview": {
+     "w": 209,
+     "h": 25
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-en-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 329,
+     "h": 78
+    },
+    "preview": {
+     "w": 329,
+     "h": 39
+    },
+    "linesU": 2,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -39,
+    "widthOk": true,
+    "linesCls": "b",
+    "heightCls": "b"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-en-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 333,
+     "h": 39
+    },
+    "preview": {
+     "w": 333,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-ko-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 117,
+     "h": 27
+    },
+    "preview": {
+     "w": 117,
+     "h": 25
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -2,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-ko-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 121,
+     "h": 14
+    },
+    "preview": {
+     "w": 121,
+     "h": 13
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-ko-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 164,
+     "h": 38
+    },
+    "preview": {
+     "w": 164,
+     "h": 34
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -4,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-ko-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 168,
+     "h": 19
+    },
+    "preview": {
+     "w": 168,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -2,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-ko-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 235,
+     "h": 54
+    },
+    "preview": {
+     "w": 235,
+     "h": 49
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -5,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-ko-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 239,
+     "h": 27
+    },
+    "preview": {
+     "w": 239,
+     "h": 25
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -2,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-ko-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 378,
+     "h": 86
+    },
+    "preview": {
+     "w": 378,
+     "h": 78
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -8,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-ko-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 382,
+     "h": 43
+    },
+    "preview": {
+     "w": 382,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -4,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-en-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 91,
+     "h": 23
+    },
+    "preview": {
+     "w": 91,
+     "h": 20
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -3,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-en-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 95,
+     "h": 11
+    },
+    "preview": {
+     "w": 95,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-en-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 128,
+     "h": 32
+    },
+    "preview": {
+     "w": 128,
+     "h": 14
+    },
+    "linesU": 2,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -18,
+    "widthOk": true,
+    "linesCls": "a",
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-en-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 132,
+     "h": 15
+    },
+    "preview": {
+     "w": 132,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-en-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 183,
+     "h": 46
+    },
+    "preview": {
+     "w": 183,
+     "h": 20
+    },
+    "linesU": 2,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -26,
+    "widthOk": true,
+    "linesCls": "a",
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-en-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 187,
+     "h": 21
+    },
+    "preview": {
+     "w": 187,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-en-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 294,
+     "h": 73
+    },
+    "preview": {
+     "w": 294,
+     "h": 32
+    },
+    "linesU": 2,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -41,
+    "widthOk": true,
+    "linesCls": "a",
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-en-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 298,
+     "h": 33
+    },
+    "preview": {
+     "w": 298,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-ko-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 99,
+     "h": 23
+    },
+    "preview": {
+     "w": 99,
+     "h": 20
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -3,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-ko-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 103,
+     "h": 11
+    },
+    "preview": {
+     "w": 103,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-ko-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 139,
+     "h": 32
+    },
+    "preview": {
+     "w": 139,
+     "h": 28
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -4,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-ko-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 143,
+     "h": 15
+    },
+    "preview": {
+     "w": 143,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-ko-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 200,
+     "h": 46
+    },
+    "preview": {
+     "w": 200,
+     "h": 40
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -6,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-ko-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 204,
+     "h": 21
+    },
+    "preview": {
+     "w": 204,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-ko-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 320,
+     "h": 73
+    },
+    "preview": {
+     "w": 320,
+     "h": 64
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -9,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-ko-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 324,
+     "h": 33
+    },
+    "preview": {
+     "w": 324,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-en-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 101,
+     "h": 29
+    },
+    "preview": {
+     "w": 101,
+     "h": 29
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-en-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 105,
+     "h": 15
+    },
+    "preview": {
+     "w": 105,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-en-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 142,
+     "h": 41
+    },
+    "preview": {
+     "w": 142,
+     "h": 41
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-en-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 146,
+     "h": 21
+    },
+    "preview": {
+     "w": 146,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-en-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 203,
+     "h": 58
+    },
+    "preview": {
+     "w": 203,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-en-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 207,
+     "h": 29
+    },
+    "preview": {
+     "w": 207,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-en-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 326,
+     "h": 93
+    },
+    "preview": {
+     "w": 326,
+     "h": 93
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-en-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 330,
+     "h": 47
+    },
+    "preview": {
+     "w": 330,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-ja-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 159,
+     "h": 29
+    },
+    "preview": {
+     "w": 159,
+     "h": 29
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-ja-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 163,
+     "h": 15
+    },
+    "preview": {
+     "w": 163,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-ja-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 223,
+     "h": 41
+    },
+    "preview": {
+     "w": 223,
+     "h": 41
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-ja-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 227,
+     "h": 21
+    },
+    "preview": {
+     "w": 227,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-ja-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 319,
+     "h": 58
+    },
+    "preview": {
+     "w": 319,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-ja-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 323,
+     "h": 29
+    },
+    "preview": {
+     "w": 323,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-ja-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 511,
+     "h": 93
+    },
+    "preview": {
+     "w": 511,
+     "h": 93
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-ja-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 515,
+     "h": 47
+    },
+    "preview": {
+     "w": 515,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-jamix-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 159,
+     "h": 29
+    },
+    "preview": {
+     "w": 159,
+     "h": 29
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-jamix-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 163,
+     "h": 15
+    },
+    "preview": {
+     "w": 163,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-jamix-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 223,
+     "h": 41
+    },
+    "preview": {
+     "w": 223,
+     "h": 41
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-jamix-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 227,
+     "h": 21
+    },
+    "preview": {
+     "w": 227,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-jamix-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 319,
+     "h": 58
+    },
+    "preview": {
+     "w": 319,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-jamix-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 323,
+     "h": 29
+    },
+    "preview": {
+     "w": 323,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-jamix-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 511,
+     "h": 93
+    },
+    "preview": {
+     "w": 511,
+     "h": 93
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-jamix-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 515,
+     "h": 47
+    },
+    "preview": {
+     "w": 515,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-zh-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 199,
+     "h": 29
+    },
+    "preview": {
+     "w": 199,
+     "h": 29
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-zh-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 203,
+     "h": 15
+    },
+    "preview": {
+     "w": 203,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-zh-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 279,
+     "h": 41
+    },
+    "preview": {
+     "w": 279,
+     "h": 41
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-zh-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 283,
+     "h": 21
+    },
+    "preview": {
+     "w": 283,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-zh-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 399,
+     "h": 58
+    },
+    "preview": {
+     "w": 399,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-zh-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 403,
+     "h": 29
+    },
+    "preview": {
+     "w": 403,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-zh-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 639,
+     "h": 93
+    },
+    "preview": {
+     "w": 639,
+     "h": 93
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-zh-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 643,
+     "h": 47
+    },
+    "preview": {
+     "w": 643,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-en-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 101,
+     "h": 29
+    },
+    "preview": {
+     "w": 101,
+     "h": 29
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-en-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 105,
+     "h": 15
+    },
+    "preview": {
+     "w": 105,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-en-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 142,
+     "h": 41
+    },
+    "preview": {
+     "w": 142,
+     "h": 41
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-en-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 146,
+     "h": 21
+    },
+    "preview": {
+     "w": 146,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-en-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 203,
+     "h": 58
+    },
+    "preview": {
+     "w": 203,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-en-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 207,
+     "h": 29
+    },
+    "preview": {
+     "w": 207,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-en-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 326,
+     "h": 93
+    },
+    "preview": {
+     "w": 326,
+     "h": 93
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-en-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 330,
+     "h": 47
+    },
+    "preview": {
+     "w": 330,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-ja-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 159,
+     "h": 29
+    },
+    "preview": {
+     "w": 159,
+     "h": 29
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-ja-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 163,
+     "h": 15
+    },
+    "preview": {
+     "w": 163,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-ja-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 223,
+     "h": 41
+    },
+    "preview": {
+     "w": 223,
+     "h": 41
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-ja-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 227,
+     "h": 21
+    },
+    "preview": {
+     "w": 227,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-ja-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 319,
+     "h": 58
+    },
+    "preview": {
+     "w": 319,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-ja-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 323,
+     "h": 29
+    },
+    "preview": {
+     "w": 323,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-ja-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 511,
+     "h": 93
+    },
+    "preview": {
+     "w": 511,
+     "h": 93
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-ja-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 515,
+     "h": 47
+    },
+    "preview": {
+     "w": 515,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-jamix-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 159,
+     "h": 29
+    },
+    "preview": {
+     "w": 159,
+     "h": 29
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-jamix-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 163,
+     "h": 15
+    },
+    "preview": {
+     "w": 163,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-jamix-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 223,
+     "h": 41
+    },
+    "preview": {
+     "w": 223,
+     "h": 41
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-jamix-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 227,
+     "h": 21
+    },
+    "preview": {
+     "w": 227,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-jamix-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 319,
+     "h": 58
+    },
+    "preview": {
+     "w": 319,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-jamix-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 323,
+     "h": 29
+    },
+    "preview": {
+     "w": 323,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-jamix-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 511,
+     "h": 93
+    },
+    "preview": {
+     "w": 511,
+     "h": 93
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-jamix-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 515,
+     "h": 47
+    },
+    "preview": {
+     "w": 515,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-zh-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 199,
+     "h": 29
+    },
+    "preview": {
+     "w": 199,
+     "h": 29
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-zh-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 203,
+     "h": 15
+    },
+    "preview": {
+     "w": 203,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-zh-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 279,
+     "h": 41
+    },
+    "preview": {
+     "w": 279,
+     "h": 41
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-zh-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 283,
+     "h": 21
+    },
+    "preview": {
+     "w": 283,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-zh-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 399,
+     "h": 58
+    },
+    "preview": {
+     "w": 399,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-zh-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 403,
+     "h": 29
+    },
+    "preview": {
+     "w": 403,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-zh-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 639,
+     "h": 93
+    },
+    "preview": {
+     "w": 639,
+     "h": 93
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-zh-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 643,
+     "h": 47
+    },
+    "preview": {
+     "w": 643,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-en-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 96,
+     "h": 24
+    },
+    "preview": {
+     "w": 96,
+     "h": 24
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-en-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 100,
+     "h": 12
+    },
+    "preview": {
+     "w": 100,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-en-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 136,
+     "h": 34
+    },
+    "preview": {
+     "w": 136,
+     "h": 34
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-en-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 140,
+     "h": 17
+    },
+    "preview": {
+     "w": 140,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-en-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 194,
+     "h": 48
+    },
+    "preview": {
+     "w": 194,
+     "h": 48
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-en-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 198,
+     "h": 24
+    },
+    "preview": {
+     "w": 198,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-en-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 312,
+     "h": 77
+    },
+    "preview": {
+     "w": 312,
+     "h": 39
+    },
+    "linesU": 2,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -38,
+    "widthOk": true,
+    "linesCls": "a",
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-en-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 316,
+     "h": 39
+    },
+    "preview": {
+     "w": 316,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-ko-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 101,
+     "h": 24
+    },
+    "preview": {
+     "w": 101,
+     "h": 24
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-ko-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 105,
+     "h": 12
+    },
+    "preview": {
+     "w": 105,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-ko-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 142,
+     "h": 34
+    },
+    "preview": {
+     "w": 142,
+     "h": 34
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-ko-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 146,
+     "h": 17
+    },
+    "preview": {
+     "w": 146,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-ko-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 204,
+     "h": 48
+    },
+    "preview": {
+     "w": 204,
+     "h": 48
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-ko-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 208,
+     "h": 24
+    },
+    "preview": {
+     "w": 208,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-ko-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 327,
+     "h": 77
+    },
+    "preview": {
+     "w": 327,
+     "h": 77
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-ko-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 331,
+     "h": 39
+    },
+    "preview": {
+     "w": 331,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-en-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 105,
+     "h": 24
+    },
+    "preview": {
+     "w": 105,
+     "h": 24
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-en-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 109,
+     "h": 12
+    },
+    "preview": {
+     "w": 109,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-en-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 147,
+     "h": 34
+    },
+    "preview": {
+     "w": 147,
+     "h": 34
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-en-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 151,
+     "h": 17
+    },
+    "preview": {
+     "w": 151,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-en-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 211,
+     "h": 48
+    },
+    "preview": {
+     "w": 211,
+     "h": 48
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-en-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 215,
+     "h": 24
+    },
+    "preview": {
+     "w": 215,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-en-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 339,
+     "h": 77
+    },
+    "preview": {
+     "w": 339,
+     "h": 39
+    },
+    "linesU": 2,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -38,
+    "widthOk": true,
+    "linesCls": "a",
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-en-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 343,
+     "h": 39
+    },
+    "preview": {
+     "w": 343,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-ko-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 101,
+     "h": 24
+    },
+    "preview": {
+     "w": 101,
+     "h": 24
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-ko-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 105,
+     "h": 12
+    },
+    "preview": {
+     "w": 105,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-ko-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 142,
+     "h": 34
+    },
+    "preview": {
+     "w": 142,
+     "h": 34
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-ko-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 146,
+     "h": 17
+    },
+    "preview": {
+     "w": 146,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-ko-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 203,
+     "h": 48
+    },
+    "preview": {
+     "w": 203,
+     "h": 48
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-ko-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 207,
+     "h": 24
+    },
+    "preview": {
+     "w": 207,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-ko-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 326,
+     "h": 77
+    },
+    "preview": {
+     "w": 326,
+     "h": 77
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-ko-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 330,
+     "h": 39
+    },
+    "preview": {
+     "w": 330,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-en-10",
+    "boundary": false,
+    "unity": {
+     "w": 96,
+     "h": 11
+    },
+    "preview": {
+     "w": 95,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-en-14",
+    "boundary": false,
+    "unity": {
+     "w": 134,
+     "h": 15
+    },
+    "preview": {
+     "w": 133,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-en-20",
+    "boundary": false,
+    "unity": {
+     "w": 191,
+     "h": 21
+    },
+    "preview": {
+     "w": 190,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-en-32",
+    "boundary": false,
+    "unity": {
+     "w": 305,
+     "h": 33
+    },
+    "preview": {
+     "w": 304,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-ko-10",
+    "boundary": false,
+    "unity": {
+     "w": 126,
+     "h": 11
+    },
+    "preview": {
+     "w": 125,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-ko-14",
+    "boundary": false,
+    "unity": {
+     "w": 176,
+     "h": 15
+    },
+    "preview": {
+     "w": 175,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-ko-20",
+    "boundary": false,
+    "unity": {
+     "w": 251,
+     "h": 21
+    },
+    "preview": {
+     "w": 250,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-ko-32",
+    "boundary": false,
+    "unity": {
+     "w": 401,
+     "h": 33
+    },
+    "preview": {
+     "w": 400,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-mix-10",
+    "boundary": false,
+    "unity": {
+     "w": 121,
+     "h": 11
+    },
+    "preview": {
+     "w": 120,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-mix-14",
+    "boundary": false,
+    "unity": {
+     "w": 169,
+     "h": 15
+    },
+    "preview": {
+     "w": 168,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-mix-20",
+    "boundary": false,
+    "unity": {
+     "w": 241,
+     "h": 21
+    },
+    "preview": {
+     "w": 240,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "dunggeunmo-mix-32",
+    "boundary": false,
+    "unity": {
+     "w": 385,
+     "h": 33
+    },
+    "preview": {
+     "w": 384,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-en-10",
+    "boundary": false,
+    "unity": {
+     "w": 104,
+     "h": 13
+    },
+    "preview": {
+     "w": 103,
+     "h": 13
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-en-14",
+    "boundary": false,
+    "unity": {
+     "w": 145,
+     "h": 17
+    },
+    "preview": {
+     "w": 144,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-en-20",
+    "boundary": false,
+    "unity": {
+     "w": 207,
+     "h": 25
+    },
+    "preview": {
+     "w": 206,
+     "h": 25
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-en-32",
+    "boundary": false,
+    "unity": {
+     "w": 331,
+     "h": 39
+    },
+    "preview": {
+     "w": 329,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -2,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-ko-10",
+    "boundary": false,
+    "unity": {
+     "w": 119,
+     "h": 14
+    },
+    "preview": {
+     "w": 119,
+     "h": 13
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-ko-14",
+    "boundary": false,
+    "unity": {
+     "w": 166,
+     "h": 19
+    },
+    "preview": {
+     "w": 166,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -2,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-ko-20",
+    "boundary": false,
+    "unity": {
+     "w": 237,
+     "h": 27
+    },
+    "preview": {
+     "w": 237,
+     "h": 25
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -2,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-ko-32",
+    "boundary": false,
+    "unity": {
+     "w": 380,
+     "h": 43
+    },
+    "preview": {
+     "w": 379,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -4,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-mix-10",
+    "boundary": false,
+    "unity": {
+     "w": 117,
+     "h": 14
+    },
+    "preview": {
+     "w": 117,
+     "h": 13
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-mix-14",
+    "boundary": false,
+    "unity": {
+     "w": 163,
+     "h": 19
+    },
+    "preview": {
+     "w": 163,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -2,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-mix-20",
+    "boundary": false,
+    "unity": {
+     "w": 233,
+     "h": 27
+    },
+    "preview": {
+     "w": 233,
+     "h": 25
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -2,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "inter-mix-32",
+    "boundary": false,
+    "unity": {
+     "w": 373,
+     "h": 43
+    },
+    "preview": {
+     "w": 372,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -4,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-en-10",
+    "boundary": false,
+    "unity": {
+     "w": 93,
+     "h": 11
+    },
+    "preview": {
+     "w": 92,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-en-14",
+    "boundary": false,
+    "unity": {
+     "w": 130,
+     "h": 15
+    },
+    "preview": {
+     "w": 128,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -2,
+    "dh": -1,
+    "widthOk": false,
+    "heightCls": "a",
+    "widthCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-en-20",
+    "boundary": false,
+    "unity": {
+     "w": 185,
+     "h": 21
+    },
+    "preview": {
+     "w": 183,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -2,
+    "dh": -1,
+    "widthOk": false,
+    "heightCls": "a",
+    "widthCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-en-32",
+    "boundary": false,
+    "unity": {
+     "w": 296,
+     "h": 33
+    },
+    "preview": {
+     "w": 292,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -4,
+    "dh": -1,
+    "widthOk": false,
+    "heightCls": "a",
+    "widthCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-ko-10",
+    "boundary": false,
+    "unity": {
+     "w": 101,
+     "h": 11
+    },
+    "preview": {
+     "w": 101,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-ko-14",
+    "boundary": false,
+    "unity": {
+     "w": 141,
+     "h": 15
+    },
+    "preview": {
+     "w": 141,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-ko-20",
+    "boundary": false,
+    "unity": {
+     "w": 202,
+     "h": 21
+    },
+    "preview": {
+     "w": 202,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-ko-32",
+    "boundary": false,
+    "unity": {
+     "w": 322,
+     "h": 33
+    },
+    "preview": {
+     "w": 322,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-mix-10",
+    "boundary": false,
+    "unity": {
+     "w": 102,
+     "h": 11
+    },
+    "preview": {
+     "w": 101,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-mix-14",
+    "boundary": false,
+    "unity": {
+     "w": 142,
+     "h": 15
+    },
+    "preview": {
+     "w": 141,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-mix-20",
+    "boundary": false,
+    "unity": {
+     "w": 203,
+     "h": 21
+    },
+    "preview": {
+     "w": 202,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "jua-mix-32",
+    "boundary": false,
+    "unity": {
+     "w": 324,
+     "h": 33
+    },
+    "preview": {
+     "w": 322,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -2,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-ja-10",
+    "boundary": false,
+    "unity": {
+     "w": 161,
+     "h": 15
+    },
+    "preview": {
+     "w": 160,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-ja-14",
+    "boundary": false,
+    "unity": {
+     "w": 225,
+     "h": 21
+    },
+    "preview": {
+     "w": 224,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-ja-20",
+    "boundary": false,
+    "unity": {
+     "w": 321,
+     "h": 29
+    },
+    "preview": {
+     "w": 320,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-ja-32",
+    "boundary": false,
+    "unity": {
+     "w": 513,
+     "h": 47
+    },
+    "preview": {
+     "w": 512,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-zh-10",
+    "boundary": false,
+    "unity": {
+     "w": 201,
+     "h": 15
+    },
+    "preview": {
+     "w": 200,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-zh-14",
+    "boundary": false,
+    "unity": {
+     "w": 281,
+     "h": 21
+    },
+    "preview": {
+     "w": 280,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-zh-20",
+    "boundary": false,
+    "unity": {
+     "w": 401,
+     "h": 29
+    },
+    "preview": {
+     "w": 400,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-zh-32",
+    "boundary": false,
+    "unity": {
+     "w": 641,
+     "h": 47
+    },
+    "preview": {
+     "w": 640,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-jamix-10",
+    "boundary": false,
+    "unity": {
+     "w": 161,
+     "h": 15
+    },
+    "preview": {
+     "w": 161,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-jamix-14",
+    "boundary": false,
+    "unity": {
+     "w": 225,
+     "h": 21
+    },
+    "preview": {
+     "w": 225,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-jamix-20",
+    "boundary": false,
+    "unity": {
+     "w": 321,
+     "h": 29
+    },
+    "preview": {
+     "w": 321,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-jamix-32",
+    "boundary": false,
+    "unity": {
+     "w": 513,
+     "h": 47
+    },
+    "preview": {
+     "w": 513,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-en-10",
+    "boundary": false,
+    "unity": {
+     "w": 103,
+     "h": 15
+    },
+    "preview": {
+     "w": 102,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-en-14",
+    "boundary": false,
+    "unity": {
+     "w": 144,
+     "h": 21
+    },
+    "preview": {
+     "w": 143,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-en-20",
+    "boundary": false,
+    "unity": {
+     "w": 205,
+     "h": 29
+    },
+    "preview": {
+     "w": 204,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-en-32",
+    "boundary": false,
+    "unity": {
+     "w": 328,
+     "h": 47
+    },
+    "preview": {
+     "w": 327,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-ja-10",
+    "boundary": false,
+    "unity": {
+     "w": 161,
+     "h": 15
+    },
+    "preview": {
+     "w": 160,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-ja-14",
+    "boundary": false,
+    "unity": {
+     "w": 225,
+     "h": 21
+    },
+    "preview": {
+     "w": 224,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-ja-20",
+    "boundary": false,
+    "unity": {
+     "w": 321,
+     "h": 29
+    },
+    "preview": {
+     "w": 320,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-ja-32",
+    "boundary": false,
+    "unity": {
+     "w": 513,
+     "h": 47
+    },
+    "preview": {
+     "w": 512,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-zh-10",
+    "boundary": false,
+    "unity": {
+     "w": 201,
+     "h": 15
+    },
+    "preview": {
+     "w": 200,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-zh-14",
+    "boundary": false,
+    "unity": {
+     "w": 281,
+     "h": 21
+    },
+    "preview": {
+     "w": 280,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-zh-20",
+    "boundary": false,
+    "unity": {
+     "w": 401,
+     "h": 29
+    },
+    "preview": {
+     "w": 400,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-zh-32",
+    "boundary": false,
+    "unity": {
+     "w": 641,
+     "h": 47
+    },
+    "preview": {
+     "w": 640,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-jamix-10",
+    "boundary": false,
+    "unity": {
+     "w": 161,
+     "h": 15
+    },
+    "preview": {
+     "w": 161,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-jamix-14",
+    "boundary": false,
+    "unity": {
+     "w": 225,
+     "h": 21
+    },
+    "preview": {
+     "w": 225,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-jamix-20",
+    "boundary": false,
+    "unity": {
+     "w": 321,
+     "h": 29
+    },
+    "preview": {
+     "w": 321,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-jamix-32",
+    "boundary": false,
+    "unity": {
+     "w": 513,
+     "h": 47
+    },
+    "preview": {
+     "w": 513,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-en-10",
+    "boundary": false,
+    "unity": {
+     "w": 103,
+     "h": 15
+    },
+    "preview": {
+     "w": 102,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-en-14",
+    "boundary": false,
+    "unity": {
+     "w": 144,
+     "h": 21
+    },
+    "preview": {
+     "w": 143,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-en-20",
+    "boundary": false,
+    "unity": {
+     "w": 205,
+     "h": 29
+    },
+    "preview": {
+     "w": 204,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-sc-en-32",
+    "boundary": false,
+    "unity": {
+     "w": 328,
+     "h": 47
+    },
+    "preview": {
+     "w": 327,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-en-10",
+    "boundary": false,
+    "unity": {
+     "w": 98,
+     "h": 12
+    },
+    "preview": {
+     "w": 98,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-en-14",
+    "boundary": false,
+    "unity": {
+     "w": 138,
+     "h": 17
+    },
+    "preview": {
+     "w": 137,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-en-20",
+    "boundary": false,
+    "unity": {
+     "w": 196,
+     "h": 24
+    },
+    "preview": {
+     "w": 195,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-en-32",
+    "boundary": false,
+    "unity": {
+     "w": 314,
+     "h": 39
+    },
+    "preview": {
+     "w": 312,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -2,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-ko-10",
+    "boundary": false,
+    "unity": {
+     "w": 103,
+     "h": 12
+    },
+    "preview": {
+     "w": 103,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-ko-14",
+    "boundary": false,
+    "unity": {
+     "w": 144,
+     "h": 17
+    },
+    "preview": {
+     "w": 144,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-ko-20",
+    "boundary": false,
+    "unity": {
+     "w": 206,
+     "h": 24
+    },
+    "preview": {
+     "w": 206,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-ko-32",
+    "boundary": false,
+    "unity": {
+     "w": 329,
+     "h": 39
+    },
+    "preview": {
+     "w": 329,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-mix-10",
+    "boundary": false,
+    "unity": {
+     "w": 105,
+     "h": 12
+    },
+    "preview": {
+     "w": 105,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-mix-14",
+    "boundary": false,
+    "unity": {
+     "w": 147,
+     "h": 17
+    },
+    "preview": {
+     "w": 147,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-mix-20",
+    "boundary": false,
+    "unity": {
+     "w": 210,
+     "h": 24
+    },
+    "preview": {
+     "w": 209,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "pretendard-mix-32",
+    "boundary": false,
+    "unity": {
+     "w": 336,
+     "h": 39
+    },
+    "preview": {
+     "w": 335,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-en-10",
+    "boundary": false,
+    "unity": {
+     "w": 107,
+     "h": 12
+    },
+    "preview": {
+     "w": 106,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-en-14",
+    "boundary": false,
+    "unity": {
+     "w": 149,
+     "h": 17
+    },
+    "preview": {
+     "w": 148,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-en-20",
+    "boundary": false,
+    "unity": {
+     "w": 213,
+     "h": 24
+    },
+    "preview": {
+     "w": 212,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-en-32",
+    "boundary": false,
+    "unity": {
+     "w": 341,
+     "h": 39
+    },
+    "preview": {
+     "w": 339,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -2,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-ko-10",
+    "boundary": false,
+    "unity": {
+     "w": 103,
+     "h": 12
+    },
+    "preview": {
+     "w": 103,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-ko-14",
+    "boundary": false,
+    "unity": {
+     "w": 144,
+     "h": 17
+    },
+    "preview": {
+     "w": 144,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-ko-20",
+    "boundary": false,
+    "unity": {
+     "w": 205,
+     "h": 24
+    },
+    "preview": {
+     "w": 205,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-ko-32",
+    "boundary": false,
+    "unity": {
+     "w": 328,
+     "h": 39
+    },
+    "preview": {
+     "w": 328,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-mix-10",
+    "boundary": false,
+    "unity": {
+     "w": 108,
+     "h": 12
+    },
+    "preview": {
+     "w": 108,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-mix-14",
+    "boundary": false,
+    "unity": {
+     "w": 151,
+     "h": 17
+    },
+    "preview": {
+     "w": 151,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-mix-20",
+    "boundary": false,
+    "unity": {
+     "w": 216,
+     "h": 24
+    },
+    "preview": {
+     "w": 215,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "wanted-bold-mix-32",
+    "boundary": false,
+    "unity": {
+     "w": 346,
+     "h": 39
+    },
+    "preview": {
+     "w": 344,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -2,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-ja-20-w60",
+    "boundary": true,
+    "unity": {
+     "w": 60,
+     "h": 174
+    },
+    "preview": {
+     "w": 60,
+     "h": 174
+    },
+    "linesU": 6,
+    "linesP": 6,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-ja-20-w100",
+    "boundary": true,
+    "unity": {
+     "w": 100,
+     "h": 116
+    },
+    "preview": {
+     "w": 100,
+     "h": 116
+    },
+    "linesU": 4,
+    "linesP": 4,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-ja-20-w140",
+    "boundary": true,
+    "unity": {
+     "w": 140,
+     "h": 87
+    },
+    "preview": {
+     "w": 140,
+     "h": 87
+    },
+    "linesU": 3,
+    "linesP": 3,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-ja-20-w170",
+    "boundary": true,
+    "unity": {
+     "w": 170,
+     "h": 58
+    },
+    "preview": {
+     "w": 170,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-ja-20-w220",
+    "boundary": true,
+    "unity": {
+     "w": 220,
+     "h": 58
+    },
+    "preview": {
+     "w": 220,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-jamix-20-w60",
+    "boundary": true,
+    "unity": {
+     "w": 60,
+     "h": 174
+    },
+    "preview": {
+     "w": 60,
+     "h": 174
+    },
+    "linesU": 6,
+    "linesP": 6,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-jamix-20-w100",
+    "boundary": true,
+    "unity": {
+     "w": 100,
+     "h": 116
+    },
+    "preview": {
+     "w": 100,
+     "h": 116
+    },
+    "linesU": 4,
+    "linesP": 4,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-jamix-20-w140",
+    "boundary": true,
+    "unity": {
+     "w": 140,
+     "h": 87
+    },
+    "preview": {
+     "w": 140,
+     "h": 87
+    },
+    "linesU": 3,
+    "linesP": 3,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-jamix-20-w170",
+    "boundary": true,
+    "unity": {
+     "w": 170,
+     "h": 58
+    },
+    "preview": {
+     "w": 170,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-jamix-20-w220",
+    "boundary": true,
+    "unity": {
+     "w": 220,
+     "h": 58
+    },
+    "preview": {
+     "w": 220,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-zh-20-w60",
+    "boundary": true,
+    "unity": {
+     "w": 60,
+     "h": 201
+    },
+    "preview": {
+     "w": 60,
+     "h": 203
+    },
+    "linesU": 7,
+    "linesP": 7,
+    "dw": 0,
+    "dh": 2,
+    "widthOk": true,
+    "heightCls": "c"
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-zh-20-w100",
+    "boundary": true,
+    "unity": {
+     "w": 100,
+     "h": 116
+    },
+    "preview": {
+     "w": 100,
+     "h": 116
+    },
+    "linesU": 4,
+    "linesP": 4,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-zh-20-w140",
+    "boundary": true,
+    "unity": {
+     "w": 140,
+     "h": 87
+    },
+    "preview": {
+     "w": 140,
+     "h": 87
+    },
+    "linesU": 3,
+    "linesP": 3,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-zh-20-w170",
+    "boundary": true,
+    "unity": {
+     "w": 170,
+     "h": 87
+    },
+    "preview": {
+     "w": 170,
+     "h": 87
+    },
+    "linesU": 3,
+    "linesP": 3,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.0.40f1",
+    "name": "noto-jp-zh-20-w220",
+    "boundary": true,
+    "unity": {
+     "w": 220,
+     "h": 58
+    },
+    "preview": {
+     "w": 220,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-en-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 94,
+     "h": 21
+    },
+    "preview": {
+     "w": 94,
+     "h": 20
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-en-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 98,
+     "h": 11
+    },
+    "preview": {
+     "w": 98,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-en-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 132,
+     "h": 29
+    },
+    "preview": {
+     "w": 132,
+     "h": 28
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-en-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 136,
+     "h": 15
+    },
+    "preview": {
+     "w": 136,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-en-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 189,
+     "h": 41
+    },
+    "preview": {
+     "w": 189,
+     "h": 40
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-en-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 193,
+     "h": 21
+    },
+    "preview": {
+     "w": 193,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-en-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 303,
+     "h": 65
+    },
+    "preview": {
+     "w": 303,
+     "h": 64
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-en-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 307,
+     "h": 33
+    },
+    "preview": {
+     "w": 307,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-ko-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 124,
+     "h": 21
+    },
+    "preview": {
+     "w": 124,
+     "h": 20
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-ko-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 128,
+     "h": 11
+    },
+    "preview": {
+     "w": 128,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-ko-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 174,
+     "h": 29
+    },
+    "preview": {
+     "w": 174,
+     "h": 28
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-ko-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 178,
+     "h": 15
+    },
+    "preview": {
+     "w": 178,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-ko-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 249,
+     "h": 41
+    },
+    "preview": {
+     "w": 249,
+     "h": 40
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-ko-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 253,
+     "h": 21
+    },
+    "preview": {
+     "w": 253,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-ko-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 399,
+     "h": 65
+    },
+    "preview": {
+     "w": 399,
+     "h": 64
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-ko-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 403,
+     "h": 33
+    },
+    "preview": {
+     "w": 403,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-en-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 102,
+     "h": 25
+    },
+    "preview": {
+     "w": 102,
+     "h": 25
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-en-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 106,
+     "h": 13
+    },
+    "preview": {
+     "w": 106,
+     "h": 13
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-en-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 143,
+     "h": 34
+    },
+    "preview": {
+     "w": 143,
+     "h": 34
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-en-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 147,
+     "h": 17
+    },
+    "preview": {
+     "w": 147,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-en-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 205,
+     "h": 49
+    },
+    "preview": {
+     "w": 205,
+     "h": 49
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-en-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 209,
+     "h": 25
+    },
+    "preview": {
+     "w": 209,
+     "h": 25
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-en-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 329,
+     "h": 78
+    },
+    "preview": {
+     "w": 329,
+     "h": 39
+    },
+    "linesU": 2,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -39,
+    "widthOk": true,
+    "linesCls": "b",
+    "heightCls": "b"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-en-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 333,
+     "h": 39
+    },
+    "preview": {
+     "w": 333,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-ko-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 117,
+     "h": 27
+    },
+    "preview": {
+     "w": 117,
+     "h": 25
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -2,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-ko-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 121,
+     "h": 14
+    },
+    "preview": {
+     "w": 121,
+     "h": 13
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-ko-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 164,
+     "h": 38
+    },
+    "preview": {
+     "w": 164,
+     "h": 34
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -4,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-ko-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 168,
+     "h": 19
+    },
+    "preview": {
+     "w": 168,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -2,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-ko-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 235,
+     "h": 54
+    },
+    "preview": {
+     "w": 235,
+     "h": 49
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -5,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-ko-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 239,
+     "h": 27
+    },
+    "preview": {
+     "w": 239,
+     "h": 25
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -2,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-ko-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 378,
+     "h": 86
+    },
+    "preview": {
+     "w": 378,
+     "h": 78
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -8,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-ko-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 382,
+     "h": 43
+    },
+    "preview": {
+     "w": 382,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -4,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-en-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 91,
+     "h": 23
+    },
+    "preview": {
+     "w": 91,
+     "h": 20
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -3,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-en-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 95,
+     "h": 11
+    },
+    "preview": {
+     "w": 95,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-en-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 128,
+     "h": 32
+    },
+    "preview": {
+     "w": 128,
+     "h": 14
+    },
+    "linesU": 2,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -18,
+    "widthOk": true,
+    "linesCls": "a",
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-en-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 132,
+     "h": 15
+    },
+    "preview": {
+     "w": 132,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-en-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 183,
+     "h": 46
+    },
+    "preview": {
+     "w": 183,
+     "h": 20
+    },
+    "linesU": 2,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -26,
+    "widthOk": true,
+    "linesCls": "a",
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-en-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 187,
+     "h": 21
+    },
+    "preview": {
+     "w": 187,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-en-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 294,
+     "h": 73
+    },
+    "preview": {
+     "w": 294,
+     "h": 32
+    },
+    "linesU": 2,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -41,
+    "widthOk": true,
+    "linesCls": "a",
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-en-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 298,
+     "h": 33
+    },
+    "preview": {
+     "w": 298,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-ko-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 99,
+     "h": 23
+    },
+    "preview": {
+     "w": 99,
+     "h": 20
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -3,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-ko-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 103,
+     "h": 11
+    },
+    "preview": {
+     "w": 103,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-ko-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 139,
+     "h": 32
+    },
+    "preview": {
+     "w": 139,
+     "h": 28
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -4,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-ko-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 143,
+     "h": 15
+    },
+    "preview": {
+     "w": 143,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-ko-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 200,
+     "h": 46
+    },
+    "preview": {
+     "w": 200,
+     "h": 40
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -6,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-ko-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 204,
+     "h": 21
+    },
+    "preview": {
+     "w": 204,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-ko-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 320,
+     "h": 73
+    },
+    "preview": {
+     "w": 320,
+     "h": 64
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": -9,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-ko-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 324,
+     "h": 33
+    },
+    "preview": {
+     "w": 324,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-en-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 101,
+     "h": 29
+    },
+    "preview": {
+     "w": 101,
+     "h": 29
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-en-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 105,
+     "h": 15
+    },
+    "preview": {
+     "w": 105,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-en-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 142,
+     "h": 41
+    },
+    "preview": {
+     "w": 142,
+     "h": 41
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-en-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 146,
+     "h": 21
+    },
+    "preview": {
+     "w": 146,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-en-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 203,
+     "h": 58
+    },
+    "preview": {
+     "w": 203,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-en-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 207,
+     "h": 29
+    },
+    "preview": {
+     "w": 207,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-en-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 326,
+     "h": 93
+    },
+    "preview": {
+     "w": 326,
+     "h": 93
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-en-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 330,
+     "h": 47
+    },
+    "preview": {
+     "w": 330,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-ja-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 159,
+     "h": 29
+    },
+    "preview": {
+     "w": 159,
+     "h": 29
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-ja-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 163,
+     "h": 15
+    },
+    "preview": {
+     "w": 163,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-ja-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 223,
+     "h": 41
+    },
+    "preview": {
+     "w": 223,
+     "h": 41
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-ja-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 227,
+     "h": 21
+    },
+    "preview": {
+     "w": 227,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-ja-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 319,
+     "h": 58
+    },
+    "preview": {
+     "w": 319,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-ja-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 323,
+     "h": 29
+    },
+    "preview": {
+     "w": 323,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-ja-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 511,
+     "h": 93
+    },
+    "preview": {
+     "w": 511,
+     "h": 93
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-ja-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 515,
+     "h": 47
+    },
+    "preview": {
+     "w": 515,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-jamix-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 159,
+     "h": 29
+    },
+    "preview": {
+     "w": 159,
+     "h": 29
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-jamix-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 163,
+     "h": 15
+    },
+    "preview": {
+     "w": 163,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-jamix-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 223,
+     "h": 41
+    },
+    "preview": {
+     "w": 223,
+     "h": 41
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-jamix-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 227,
+     "h": 21
+    },
+    "preview": {
+     "w": 227,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-jamix-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 319,
+     "h": 58
+    },
+    "preview": {
+     "w": 319,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-jamix-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 323,
+     "h": 29
+    },
+    "preview": {
+     "w": 323,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-jamix-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 511,
+     "h": 93
+    },
+    "preview": {
+     "w": 511,
+     "h": 93
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-jamix-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 515,
+     "h": 47
+    },
+    "preview": {
+     "w": 515,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-zh-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 199,
+     "h": 29
+    },
+    "preview": {
+     "w": 199,
+     "h": 29
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-zh-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 203,
+     "h": 15
+    },
+    "preview": {
+     "w": 203,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-zh-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 279,
+     "h": 41
+    },
+    "preview": {
+     "w": 279,
+     "h": 41
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-zh-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 283,
+     "h": 21
+    },
+    "preview": {
+     "w": 283,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-zh-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 399,
+     "h": 58
+    },
+    "preview": {
+     "w": 399,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-zh-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 403,
+     "h": 29
+    },
+    "preview": {
+     "w": 403,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-zh-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 639,
+     "h": 93
+    },
+    "preview": {
+     "w": 639,
+     "h": 93
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-zh-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 643,
+     "h": 47
+    },
+    "preview": {
+     "w": 643,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-en-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 101,
+     "h": 29
+    },
+    "preview": {
+     "w": 101,
+     "h": 29
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-en-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 105,
+     "h": 15
+    },
+    "preview": {
+     "w": 105,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-en-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 142,
+     "h": 41
+    },
+    "preview": {
+     "w": 142,
+     "h": 41
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-en-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 146,
+     "h": 21
+    },
+    "preview": {
+     "w": 146,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-en-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 203,
+     "h": 58
+    },
+    "preview": {
+     "w": 203,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-en-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 207,
+     "h": 29
+    },
+    "preview": {
+     "w": 207,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-en-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 326,
+     "h": 93
+    },
+    "preview": {
+     "w": 326,
+     "h": 93
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-en-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 330,
+     "h": 47
+    },
+    "preview": {
+     "w": 330,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-ja-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 159,
+     "h": 29
+    },
+    "preview": {
+     "w": 159,
+     "h": 29
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-ja-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 163,
+     "h": 15
+    },
+    "preview": {
+     "w": 163,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-ja-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 223,
+     "h": 41
+    },
+    "preview": {
+     "w": 223,
+     "h": 41
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-ja-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 227,
+     "h": 21
+    },
+    "preview": {
+     "w": 227,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-ja-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 319,
+     "h": 58
+    },
+    "preview": {
+     "w": 319,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-ja-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 323,
+     "h": 29
+    },
+    "preview": {
+     "w": 323,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-ja-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 511,
+     "h": 93
+    },
+    "preview": {
+     "w": 511,
+     "h": 93
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-ja-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 515,
+     "h": 47
+    },
+    "preview": {
+     "w": 515,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-jamix-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 159,
+     "h": 29
+    },
+    "preview": {
+     "w": 159,
+     "h": 29
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-jamix-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 163,
+     "h": 15
+    },
+    "preview": {
+     "w": 163,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-jamix-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 223,
+     "h": 41
+    },
+    "preview": {
+     "w": 223,
+     "h": 41
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-jamix-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 227,
+     "h": 21
+    },
+    "preview": {
+     "w": 227,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-jamix-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 319,
+     "h": 58
+    },
+    "preview": {
+     "w": 319,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-jamix-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 323,
+     "h": 29
+    },
+    "preview": {
+     "w": 323,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-jamix-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 511,
+     "h": 93
+    },
+    "preview": {
+     "w": 511,
+     "h": 93
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-jamix-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 515,
+     "h": 47
+    },
+    "preview": {
+     "w": 515,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-zh-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 199,
+     "h": 29
+    },
+    "preview": {
+     "w": 199,
+     "h": 29
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-zh-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 203,
+     "h": 15
+    },
+    "preview": {
+     "w": 203,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-zh-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 279,
+     "h": 41
+    },
+    "preview": {
+     "w": 279,
+     "h": 41
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-zh-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 283,
+     "h": 21
+    },
+    "preview": {
+     "w": 283,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-zh-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 399,
+     "h": 58
+    },
+    "preview": {
+     "w": 399,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-zh-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 403,
+     "h": 29
+    },
+    "preview": {
+     "w": 403,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-zh-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 639,
+     "h": 93
+    },
+    "preview": {
+     "w": 639,
+     "h": 93
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-zh-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 643,
+     "h": 47
+    },
+    "preview": {
+     "w": 643,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-en-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 96,
+     "h": 24
+    },
+    "preview": {
+     "w": 96,
+     "h": 24
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-en-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 100,
+     "h": 12
+    },
+    "preview": {
+     "w": 100,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-en-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 136,
+     "h": 34
+    },
+    "preview": {
+     "w": 136,
+     "h": 34
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-en-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 140,
+     "h": 17
+    },
+    "preview": {
+     "w": 140,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-en-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 194,
+     "h": 48
+    },
+    "preview": {
+     "w": 194,
+     "h": 48
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-en-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 198,
+     "h": 24
+    },
+    "preview": {
+     "w": 198,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-en-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 312,
+     "h": 77
+    },
+    "preview": {
+     "w": 312,
+     "h": 39
+    },
+    "linesU": 2,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -38,
+    "widthOk": true,
+    "linesCls": "a",
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-en-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 316,
+     "h": 39
+    },
+    "preview": {
+     "w": 316,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-ko-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 101,
+     "h": 24
+    },
+    "preview": {
+     "w": 101,
+     "h": 24
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-ko-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 105,
+     "h": 12
+    },
+    "preview": {
+     "w": 105,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-ko-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 142,
+     "h": 34
+    },
+    "preview": {
+     "w": 142,
+     "h": 34
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-ko-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 146,
+     "h": 17
+    },
+    "preview": {
+     "w": 146,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-ko-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 204,
+     "h": 48
+    },
+    "preview": {
+     "w": 204,
+     "h": 48
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-ko-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 208,
+     "h": 24
+    },
+    "preview": {
+     "w": 208,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-ko-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 327,
+     "h": 77
+    },
+    "preview": {
+     "w": 327,
+     "h": 77
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-ko-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 331,
+     "h": 39
+    },
+    "preview": {
+     "w": 331,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-en-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 105,
+     "h": 24
+    },
+    "preview": {
+     "w": 105,
+     "h": 24
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-en-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 109,
+     "h": 12
+    },
+    "preview": {
+     "w": 109,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-en-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 147,
+     "h": 34
+    },
+    "preview": {
+     "w": 147,
+     "h": 34
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-en-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 151,
+     "h": 17
+    },
+    "preview": {
+     "w": 151,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-en-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 211,
+     "h": 48
+    },
+    "preview": {
+     "w": 211,
+     "h": 48
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-en-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 215,
+     "h": 24
+    },
+    "preview": {
+     "w": 215,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-en-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 339,
+     "h": 77
+    },
+    "preview": {
+     "w": 339,
+     "h": 39
+    },
+    "linesU": 2,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -38,
+    "widthOk": true,
+    "linesCls": "a",
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-en-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 343,
+     "h": 39
+    },
+    "preview": {
+     "w": 343,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-ko-10-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 101,
+     "h": 24
+    },
+    "preview": {
+     "w": 101,
+     "h": 24
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-ko-10-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 105,
+     "h": 12
+    },
+    "preview": {
+     "w": 105,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-ko-14-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 142,
+     "h": 34
+    },
+    "preview": {
+     "w": 142,
+     "h": 34
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-ko-14-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 146,
+     "h": 17
+    },
+    "preview": {
+     "w": 146,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-ko-20-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 203,
+     "h": 48
+    },
+    "preview": {
+     "w": 203,
+     "h": 48
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-ko-20-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 207,
+     "h": 24
+    },
+    "preview": {
+     "w": 207,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-ko-32-bm2",
+    "boundary": true,
+    "unity": {
+     "w": 326,
+     "h": 77
+    },
+    "preview": {
+     "w": 326,
+     "h": 77
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-ko-32-bp2",
+    "boundary": true,
+    "unity": {
+     "w": 330,
+     "h": 39
+    },
+    "preview": {
+     "w": 330,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-en-10",
+    "boundary": false,
+    "unity": {
+     "w": 96,
+     "h": 11
+    },
+    "preview": {
+     "w": 95,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-en-14",
+    "boundary": false,
+    "unity": {
+     "w": 134,
+     "h": 15
+    },
+    "preview": {
+     "w": 133,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-en-20",
+    "boundary": false,
+    "unity": {
+     "w": 191,
+     "h": 21
+    },
+    "preview": {
+     "w": 190,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-en-32",
+    "boundary": false,
+    "unity": {
+     "w": 305,
+     "h": 33
+    },
+    "preview": {
+     "w": 304,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-ko-10",
+    "boundary": false,
+    "unity": {
+     "w": 126,
+     "h": 11
+    },
+    "preview": {
+     "w": 125,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-ko-14",
+    "boundary": false,
+    "unity": {
+     "w": 176,
+     "h": 15
+    },
+    "preview": {
+     "w": 175,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-ko-20",
+    "boundary": false,
+    "unity": {
+     "w": 251,
+     "h": 21
+    },
+    "preview": {
+     "w": 250,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-ko-32",
+    "boundary": false,
+    "unity": {
+     "w": 401,
+     "h": 33
+    },
+    "preview": {
+     "w": 400,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-mix-10",
+    "boundary": false,
+    "unity": {
+     "w": 121,
+     "h": 11
+    },
+    "preview": {
+     "w": 120,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-mix-14",
+    "boundary": false,
+    "unity": {
+     "w": 169,
+     "h": 15
+    },
+    "preview": {
+     "w": 168,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-mix-20",
+    "boundary": false,
+    "unity": {
+     "w": 241,
+     "h": 21
+    },
+    "preview": {
+     "w": 240,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "dunggeunmo-mix-32",
+    "boundary": false,
+    "unity": {
+     "w": 385,
+     "h": 33
+    },
+    "preview": {
+     "w": 384,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-en-10",
+    "boundary": false,
+    "unity": {
+     "w": 104,
+     "h": 13
+    },
+    "preview": {
+     "w": 103,
+     "h": 13
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-en-14",
+    "boundary": false,
+    "unity": {
+     "w": 145,
+     "h": 17
+    },
+    "preview": {
+     "w": 144,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-en-20",
+    "boundary": false,
+    "unity": {
+     "w": 207,
+     "h": 25
+    },
+    "preview": {
+     "w": 206,
+     "h": 25
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-en-32",
+    "boundary": false,
+    "unity": {
+     "w": 331,
+     "h": 39
+    },
+    "preview": {
+     "w": 329,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -2,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-ko-10",
+    "boundary": false,
+    "unity": {
+     "w": 119,
+     "h": 14
+    },
+    "preview": {
+     "w": 119,
+     "h": 13
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-ko-14",
+    "boundary": false,
+    "unity": {
+     "w": 166,
+     "h": 19
+    },
+    "preview": {
+     "w": 166,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -2,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-ko-20",
+    "boundary": false,
+    "unity": {
+     "w": 237,
+     "h": 27
+    },
+    "preview": {
+     "w": 237,
+     "h": 25
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -2,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-ko-32",
+    "boundary": false,
+    "unity": {
+     "w": 380,
+     "h": 43
+    },
+    "preview": {
+     "w": 379,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -4,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-mix-10",
+    "boundary": false,
+    "unity": {
+     "w": 117,
+     "h": 14
+    },
+    "preview": {
+     "w": 117,
+     "h": 13
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-mix-14",
+    "boundary": false,
+    "unity": {
+     "w": 163,
+     "h": 19
+    },
+    "preview": {
+     "w": 163,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -2,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-mix-20",
+    "boundary": false,
+    "unity": {
+     "w": 233,
+     "h": 27
+    },
+    "preview": {
+     "w": 233,
+     "h": 25
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -2,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "inter-mix-32",
+    "boundary": false,
+    "unity": {
+     "w": 373,
+     "h": 43
+    },
+    "preview": {
+     "w": 372,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -4,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-en-10",
+    "boundary": false,
+    "unity": {
+     "w": 93,
+     "h": 11
+    },
+    "preview": {
+     "w": 92,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-en-14",
+    "boundary": false,
+    "unity": {
+     "w": 130,
+     "h": 15
+    },
+    "preview": {
+     "w": 128,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -2,
+    "dh": -1,
+    "widthOk": false,
+    "heightCls": "a",
+    "widthCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-en-20",
+    "boundary": false,
+    "unity": {
+     "w": 185,
+     "h": 21
+    },
+    "preview": {
+     "w": 183,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -2,
+    "dh": -1,
+    "widthOk": false,
+    "heightCls": "a",
+    "widthCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-en-32",
+    "boundary": false,
+    "unity": {
+     "w": 296,
+     "h": 33
+    },
+    "preview": {
+     "w": 292,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -4,
+    "dh": -1,
+    "widthOk": false,
+    "heightCls": "a",
+    "widthCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-ko-10",
+    "boundary": false,
+    "unity": {
+     "w": 101,
+     "h": 11
+    },
+    "preview": {
+     "w": 101,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-ko-14",
+    "boundary": false,
+    "unity": {
+     "w": 141,
+     "h": 15
+    },
+    "preview": {
+     "w": 141,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-ko-20",
+    "boundary": false,
+    "unity": {
+     "w": 202,
+     "h": 21
+    },
+    "preview": {
+     "w": 202,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-ko-32",
+    "boundary": false,
+    "unity": {
+     "w": 322,
+     "h": 33
+    },
+    "preview": {
+     "w": 322,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-mix-10",
+    "boundary": false,
+    "unity": {
+     "w": 102,
+     "h": 11
+    },
+    "preview": {
+     "w": 101,
+     "h": 10
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-mix-14",
+    "boundary": false,
+    "unity": {
+     "w": 142,
+     "h": 15
+    },
+    "preview": {
+     "w": 141,
+     "h": 14
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-mix-20",
+    "boundary": false,
+    "unity": {
+     "w": 203,
+     "h": 21
+    },
+    "preview": {
+     "w": 202,
+     "h": 20
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "jua-mix-32",
+    "boundary": false,
+    "unity": {
+     "w": 324,
+     "h": 33
+    },
+    "preview": {
+     "w": 322,
+     "h": 32
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -2,
+    "dh": -1,
+    "widthOk": true,
+    "heightCls": "a"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-ja-10",
+    "boundary": false,
+    "unity": {
+     "w": 161,
+     "h": 15
+    },
+    "preview": {
+     "w": 160,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-ja-14",
+    "boundary": false,
+    "unity": {
+     "w": 225,
+     "h": 21
+    },
+    "preview": {
+     "w": 224,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-ja-20",
+    "boundary": false,
+    "unity": {
+     "w": 321,
+     "h": 29
+    },
+    "preview": {
+     "w": 320,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-ja-32",
+    "boundary": false,
+    "unity": {
+     "w": 513,
+     "h": 47
+    },
+    "preview": {
+     "w": 512,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-zh-10",
+    "boundary": false,
+    "unity": {
+     "w": 201,
+     "h": 15
+    },
+    "preview": {
+     "w": 200,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-zh-14",
+    "boundary": false,
+    "unity": {
+     "w": 281,
+     "h": 21
+    },
+    "preview": {
+     "w": 280,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-zh-20",
+    "boundary": false,
+    "unity": {
+     "w": 401,
+     "h": 29
+    },
+    "preview": {
+     "w": 400,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-zh-32",
+    "boundary": false,
+    "unity": {
+     "w": 641,
+     "h": 47
+    },
+    "preview": {
+     "w": 640,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-jamix-10",
+    "boundary": false,
+    "unity": {
+     "w": 161,
+     "h": 15
+    },
+    "preview": {
+     "w": 161,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-jamix-14",
+    "boundary": false,
+    "unity": {
+     "w": 225,
+     "h": 21
+    },
+    "preview": {
+     "w": 225,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-jamix-20",
+    "boundary": false,
+    "unity": {
+     "w": 321,
+     "h": 29
+    },
+    "preview": {
+     "w": 321,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-jamix-32",
+    "boundary": false,
+    "unity": {
+     "w": 513,
+     "h": 47
+    },
+    "preview": {
+     "w": 513,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-en-10",
+    "boundary": false,
+    "unity": {
+     "w": 103,
+     "h": 15
+    },
+    "preview": {
+     "w": 102,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-en-14",
+    "boundary": false,
+    "unity": {
+     "w": 144,
+     "h": 21
+    },
+    "preview": {
+     "w": 143,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-en-20",
+    "boundary": false,
+    "unity": {
+     "w": 205,
+     "h": 29
+    },
+    "preview": {
+     "w": 204,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-en-32",
+    "boundary": false,
+    "unity": {
+     "w": 328,
+     "h": 47
+    },
+    "preview": {
+     "w": 327,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-ja-10",
+    "boundary": false,
+    "unity": {
+     "w": 161,
+     "h": 15
+    },
+    "preview": {
+     "w": 160,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-ja-14",
+    "boundary": false,
+    "unity": {
+     "w": 225,
+     "h": 21
+    },
+    "preview": {
+     "w": 224,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-ja-20",
+    "boundary": false,
+    "unity": {
+     "w": 321,
+     "h": 29
+    },
+    "preview": {
+     "w": 320,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-ja-32",
+    "boundary": false,
+    "unity": {
+     "w": 513,
+     "h": 47
+    },
+    "preview": {
+     "w": 512,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-zh-10",
+    "boundary": false,
+    "unity": {
+     "w": 201,
+     "h": 15
+    },
+    "preview": {
+     "w": 200,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-zh-14",
+    "boundary": false,
+    "unity": {
+     "w": 281,
+     "h": 21
+    },
+    "preview": {
+     "w": 280,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-zh-20",
+    "boundary": false,
+    "unity": {
+     "w": 401,
+     "h": 29
+    },
+    "preview": {
+     "w": 400,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-zh-32",
+    "boundary": false,
+    "unity": {
+     "w": 641,
+     "h": 47
+    },
+    "preview": {
+     "w": 640,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-jamix-10",
+    "boundary": false,
+    "unity": {
+     "w": 161,
+     "h": 15
+    },
+    "preview": {
+     "w": 161,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-jamix-14",
+    "boundary": false,
+    "unity": {
+     "w": 225,
+     "h": 21
+    },
+    "preview": {
+     "w": 225,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-jamix-20",
+    "boundary": false,
+    "unity": {
+     "w": 321,
+     "h": 29
+    },
+    "preview": {
+     "w": 321,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-jamix-32",
+    "boundary": false,
+    "unity": {
+     "w": 513,
+     "h": 47
+    },
+    "preview": {
+     "w": 513,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-en-10",
+    "boundary": false,
+    "unity": {
+     "w": 103,
+     "h": 15
+    },
+    "preview": {
+     "w": 102,
+     "h": 15
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-en-14",
+    "boundary": false,
+    "unity": {
+     "w": 144,
+     "h": 21
+    },
+    "preview": {
+     "w": 143,
+     "h": 21
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-en-20",
+    "boundary": false,
+    "unity": {
+     "w": 205,
+     "h": 29
+    },
+    "preview": {
+     "w": 204,
+     "h": 29
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-sc-en-32",
+    "boundary": false,
+    "unity": {
+     "w": 328,
+     "h": 47
+    },
+    "preview": {
+     "w": 327,
+     "h": 47
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-en-10",
+    "boundary": false,
+    "unity": {
+     "w": 98,
+     "h": 12
+    },
+    "preview": {
+     "w": 98,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-en-14",
+    "boundary": false,
+    "unity": {
+     "w": 138,
+     "h": 17
+    },
+    "preview": {
+     "w": 137,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-en-20",
+    "boundary": false,
+    "unity": {
+     "w": 196,
+     "h": 24
+    },
+    "preview": {
+     "w": 195,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-en-32",
+    "boundary": false,
+    "unity": {
+     "w": 314,
+     "h": 39
+    },
+    "preview": {
+     "w": 312,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -2,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-ko-10",
+    "boundary": false,
+    "unity": {
+     "w": 103,
+     "h": 12
+    },
+    "preview": {
+     "w": 103,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-ko-14",
+    "boundary": false,
+    "unity": {
+     "w": 144,
+     "h": 17
+    },
+    "preview": {
+     "w": 144,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-ko-20",
+    "boundary": false,
+    "unity": {
+     "w": 206,
+     "h": 24
+    },
+    "preview": {
+     "w": 206,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-ko-32",
+    "boundary": false,
+    "unity": {
+     "w": 329,
+     "h": 39
+    },
+    "preview": {
+     "w": 329,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-mix-10",
+    "boundary": false,
+    "unity": {
+     "w": 105,
+     "h": 12
+    },
+    "preview": {
+     "w": 105,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-mix-14",
+    "boundary": false,
+    "unity": {
+     "w": 147,
+     "h": 17
+    },
+    "preview": {
+     "w": 147,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-mix-20",
+    "boundary": false,
+    "unity": {
+     "w": 210,
+     "h": 24
+    },
+    "preview": {
+     "w": 209,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "pretendard-mix-32",
+    "boundary": false,
+    "unity": {
+     "w": 336,
+     "h": 39
+    },
+    "preview": {
+     "w": 335,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-en-10",
+    "boundary": false,
+    "unity": {
+     "w": 107,
+     "h": 12
+    },
+    "preview": {
+     "w": 106,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-en-14",
+    "boundary": false,
+    "unity": {
+     "w": 149,
+     "h": 17
+    },
+    "preview": {
+     "w": 148,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-en-20",
+    "boundary": false,
+    "unity": {
+     "w": 213,
+     "h": 24
+    },
+    "preview": {
+     "w": 212,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-en-32",
+    "boundary": false,
+    "unity": {
+     "w": 341,
+     "h": 39
+    },
+    "preview": {
+     "w": 339,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -2,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-ko-10",
+    "boundary": false,
+    "unity": {
+     "w": 103,
+     "h": 12
+    },
+    "preview": {
+     "w": 103,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-ko-14",
+    "boundary": false,
+    "unity": {
+     "w": 144,
+     "h": 17
+    },
+    "preview": {
+     "w": 144,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-ko-20",
+    "boundary": false,
+    "unity": {
+     "w": 205,
+     "h": 24
+    },
+    "preview": {
+     "w": 205,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-ko-32",
+    "boundary": false,
+    "unity": {
+     "w": 328,
+     "h": 39
+    },
+    "preview": {
+     "w": 328,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-mix-10",
+    "boundary": false,
+    "unity": {
+     "w": 108,
+     "h": 12
+    },
+    "preview": {
+     "w": 108,
+     "h": 12
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-mix-14",
+    "boundary": false,
+    "unity": {
+     "w": 151,
+     "h": 17
+    },
+    "preview": {
+     "w": 151,
+     "h": 17
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-mix-20",
+    "boundary": false,
+    "unity": {
+     "w": 216,
+     "h": 24
+    },
+    "preview": {
+     "w": 215,
+     "h": 24
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -1,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "wanted-bold-mix-32",
+    "boundary": false,
+    "unity": {
+     "w": 346,
+     "h": 39
+    },
+    "preview": {
+     "w": 344,
+     "h": 39
+    },
+    "linesU": 1,
+    "linesP": 1,
+    "dw": -2,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-ja-20-w60",
+    "boundary": true,
+    "unity": {
+     "w": 60,
+     "h": 174
+    },
+    "preview": {
+     "w": 60,
+     "h": 174
+    },
+    "linesU": 6,
+    "linesP": 6,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-ja-20-w100",
+    "boundary": true,
+    "unity": {
+     "w": 100,
+     "h": 116
+    },
+    "preview": {
+     "w": 100,
+     "h": 116
+    },
+    "linesU": 4,
+    "linesP": 4,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-ja-20-w140",
+    "boundary": true,
+    "unity": {
+     "w": 140,
+     "h": 87
+    },
+    "preview": {
+     "w": 140,
+     "h": 87
+    },
+    "linesU": 3,
+    "linesP": 3,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-ja-20-w170",
+    "boundary": true,
+    "unity": {
+     "w": 170,
+     "h": 58
+    },
+    "preview": {
+     "w": 170,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-ja-20-w220",
+    "boundary": true,
+    "unity": {
+     "w": 220,
+     "h": 58
+    },
+    "preview": {
+     "w": 220,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-jamix-20-w60",
+    "boundary": true,
+    "unity": {
+     "w": 60,
+     "h": 174
+    },
+    "preview": {
+     "w": 60,
+     "h": 174
+    },
+    "linesU": 6,
+    "linesP": 6,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-jamix-20-w100",
+    "boundary": true,
+    "unity": {
+     "w": 100,
+     "h": 116
+    },
+    "preview": {
+     "w": 100,
+     "h": 116
+    },
+    "linesU": 4,
+    "linesP": 4,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-jamix-20-w140",
+    "boundary": true,
+    "unity": {
+     "w": 140,
+     "h": 87
+    },
+    "preview": {
+     "w": 140,
+     "h": 87
+    },
+    "linesU": 3,
+    "linesP": 3,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-jamix-20-w170",
+    "boundary": true,
+    "unity": {
+     "w": 170,
+     "h": 58
+    },
+    "preview": {
+     "w": 170,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-jamix-20-w220",
+    "boundary": true,
+    "unity": {
+     "w": 220,
+     "h": 58
+    },
+    "preview": {
+     "w": 220,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-zh-20-w60",
+    "boundary": true,
+    "unity": {
+     "w": 60,
+     "h": 201
+    },
+    "preview": {
+     "w": 60,
+     "h": 203
+    },
+    "linesU": 7,
+    "linesP": 7,
+    "dw": 0,
+    "dh": 2,
+    "widthOk": true,
+    "heightCls": "c"
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-zh-20-w100",
+    "boundary": true,
+    "unity": {
+     "w": 100,
+     "h": 116
+    },
+    "preview": {
+     "w": 100,
+     "h": 116
+    },
+    "linesU": 4,
+    "linesP": 4,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-zh-20-w140",
+    "boundary": true,
+    "unity": {
+     "w": 140,
+     "h": 87
+    },
+    "preview": {
+     "w": 140,
+     "h": 87
+    },
+    "linesU": 3,
+    "linesP": 3,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-zh-20-w170",
+    "boundary": true,
+    "unity": {
+     "w": 170,
+     "h": 87
+    },
+    "preview": {
+     "w": 170,
+     "h": 87
+    },
+    "linesU": 3,
+    "linesP": 3,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   },
+   {
+    "version": "6000.3.25f1",
+    "name": "noto-jp-zh-20-w220",
+    "boundary": true,
+    "unity": {
+     "w": 220,
+     "h": 58
+    },
+    "preview": {
+     "w": 220,
+     "h": 58
+    },
+    "linesU": 2,
+    "linesP": 2,
+    "dw": 0,
+    "dh": 0,
+    "widthOk": true
+   }
+  ]
+ }
 }

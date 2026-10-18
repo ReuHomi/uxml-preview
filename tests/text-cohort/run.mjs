@@ -9,6 +9,13 @@
  * fails for an unexplained (c) reason, or docs/accuracy.md does not carry the
  * table this run produced.
  *
+ * Sets (0.7.0 item T): `unity/<version>/` is the editor-theme set (ProbeDump in an editor
+ * window), drawn with theme 'editor'; `unity-runtime/<version>/` is the runtime-panel set
+ * (PanelDump, each probe in its own Unity process — tests/layout/unity/dump-solo.sh), drawn
+ * with theme 'runtime'. Each set has its own table in docs/accuracy.md; they are never added.
+ * spec.known keys are "<version> <name>" for the editor set, "runtime <version> <name>" for
+ * the runtime one.
+ *
  * Criteria (2026-10-16 instruction): line count must match; height must match
  * the FaceInfo formula exactly; width passes within 1px or 1%; the line-break
  * boundary cases get their own table. Coefficients come from FaceInfo as Unity
@@ -47,19 +54,25 @@ try {
 }
 
 // --- Unity side -------------------------------------------------------------
-const VERSIONS = readdirSync(join(HERE, 'unity')).sort();
-const REFERENCE = VERSIONS.at(-1);
-const unity = {};
+const SETS = [
+  { id: 'editor', dir: 'unity', theme: 'editor', title: 'Unity', known: (v, name) => `${v} ${name}` },
+  { id: 'runtime', dir: 'unity-runtime', theme: 'runtime', title: 'Unity (런타임 패널)', known: (v, name) => `runtime ${v} ${name}` },
+].filter((set) => existsSync(join(HERE, set.dir)));
 const faceInfo = {};
-for (const v of VERSIONS) {
-  unity[v] = {};
-  for (const file of readdirSync(join(HERE, 'unity', v))) {
-    const json = JSON.parse(readFileSync(join(HERE, 'unity', v, file), 'utf8').replace(/\bNaN\b/g, 'null'));
-    for (const e of json.elements) {
-      if (e.type !== 'Label' || e.name.startsWith('default-')) continue;
-      unity[v][e.name] = { w: e.w, h: e.h, fontSize: Number(e.style.fontSize), faceInfo: e.faceInfo };
-      const id = spec.fonts.find((f) => e.name.startsWith(`${f.id}-`))?.id;
-      if (id !== undefined && v === VERSIONS.at(-1)) faceInfo[id] = e.faceInfo;
+for (const set of SETS) {
+  set.versions = readdirSync(join(HERE, set.dir)).sort();
+  set.unity = {};
+  for (const v of set.versions) {
+    set.unity[v] = {};
+    for (const file of readdirSync(join(HERE, set.dir, v)).filter((f) => f.endsWith('.json'))) {
+      const json = JSON.parse(readFileSync(join(HERE, set.dir, v, file), 'utf8').replace(/\bNaN\b/g, 'null'));
+      for (const e of json.elements) {
+        if (e.type !== 'Label' || e.name.startsWith('default-')) continue;
+        set.unity[v][e.name] = { w: e.w, h: e.h, fontSize: Number(e.style.fontSize), faceInfo: e.faceInfo, generator: e.style.unityTextGenerator };
+        const id = spec.fonts.find((f) => e.name.startsWith(`${f.id}-`))?.id;
+        // Fonts register with the editor set's reference FaceInfo, as before T.
+        if (id !== undefined && set.id === 'editor' && v === set.versions.at(-1)) faceInfo[id] = e.faceInfo;
+      }
     }
   }
 }
@@ -92,17 +105,20 @@ await page.route('http://cohort.test/**', (route) => {
   return route.fulfill({ status: 404, body: '' });
 });
 await page.goto('http://cohort.test/');
-const preview = await page.evaluate(async ({ docs, fonts }) => {
+const preview = await page.evaluate(async ({ docs, fonts, themes }) => {
   await Promise.all(fonts.map((f) => document.fonts.load(`20px "${f.family}"`, 'Ag한漢あ')));
   const core = globalThis.UxmlCore;
   await core.loadLayoutEngine();
   const byFile = Object.fromEntries(fonts.map((f) => [f.file, f]));
   const boxes = {};
+  for (const theme of themes) {
+  boxes[theme] = {};
   for (const d of docs) {
     const host = document.createElement('div');
     document.body.append(host);
     const doc = core.parse(d.uxml, d.uss);
     const r = core.render(doc, host, {
+      theme,
       size: { width: 800, height: 600 },
       resolveFont: (path) => {
         const f = byFile[path.split('/').pop()];
@@ -112,12 +128,13 @@ const preview = await page.evaluate(async ({ docs, fonts }) => {
     const walk = (n) => {
       const name = n.attributes.find((a) => a.name === 'name')?.value;
       const box = r.boxes.get(n.id);
-      if (name !== undefined && box !== undefined) boxes[name] = { w: box.width, h: box.height };
+      if (name !== undefined && box !== undefined) boxes[theme][name] = { w: box.width, h: box.height };
       n.children.forEach(walk);
     };
     walk(r.document.root);
     r.dispose();
     host.remove();
+  }
   }
   // Canvas metrics, for fonts given without FaceInfo (instruction 8).
   const ctx = document.createElement('canvas').getContext('2d');
@@ -128,7 +145,7 @@ const preview = await page.evaluate(async ({ docs, fonts }) => {
     canvas[f.id] = { ascent: m.fontBoundingBoxAscent, descent: m.fontBoundingBoxDescent };
   }
   return { boxes, canvas };
-}, { docs, fonts });
+}, { docs, fonts, themes: SETS.map((set) => set.theme) });
 await browser.close();
 
 // --- Judgement ----------------------------------------------------------------
@@ -142,16 +159,30 @@ const LINE_BREAK_CASE = /-(b[pm]\d+|w\d+)$/;
 const KNOWN = spec.known ?? {};
 const lines = (h, fs, fi) => Math.max(1, Math.round(h / (fs * ratio(fi))));
 
-/** 6000.0's measured height rule (README): exact integers round up by one, lines advance by lineHeight. */
+/**
+ * The Standard text generator's measured height rule (README): exact integers round up by one,
+ * lines advance by lineHeight. Found on 6000.0's editor (Standard there); item T found the same
+ * rule on the runtime panel of both versions (Standard on both), so it is the generator's rule,
+ * not the version's.
+ */
 function height60(n, fs, fi) {
   const x = fs * ratio(fi) + (n - 1) * fs * (fi.lineHeight / fi.pointSize);
   return Math.floor(x) + 1;
 }
 
-function judge(v) {
+// The Advanced generator's values, the reference a Standard row is explained against: the editor
+// set's newest version (6.3, Advanced). Before item T this was "the newest version of the same set".
+const ADVANCED = (() => {
+  const editor = SETS.find((set) => set.id === 'editor');
+  return editor === undefined ? {} : editor.unity[editor.versions.at(-1)];
+})();
+
+function judge(set, v) {
+  const unity = set.unity;
+  const boxes = preview.boxes[set.theme];
   const rows = [];
   for (const [name, u] of Object.entries(unity[v])) {
-    const p = preview.boxes[name];
+    const p = boxes[name];
     if (p === undefined) {
       rows.push({ name, missing: true, cls: 'c' });
       continue;
@@ -161,9 +192,9 @@ function judge(v) {
     const dw = p.w - u.w;
     const dh = p.h - u.h;
     const widthOk = Math.abs(dw) <= Math.max(1, u.w * 0.01);
-    // The newest version is the reference (6.3 LTS). On an older one, a value the
-    // preview shares with the reference within tolerance is a Unity version
-    // difference, (a) — measured: 6000.0 draws Jua 2-4px wider than 6000.3.
+    // A row Unity laid out with the Standard generator is explained against the Advanced
+    // reference (6.3 editor): a value the preview shares with it within tolerance is a
+    // generator difference, (a) — measured: Standard draws Jua 2-4px wider than Advanced.
     const matchesRef = (field) => ref !== undefined && Math.abs(p[field] - ref[field]) <= Math.max(1, ref[field] * 0.01);
     const why = (delta, versionRule) => {
       if (noGlyphs(name)) return 'a';
@@ -171,7 +202,8 @@ function judge(v) {
       if (Math.abs(delta) <= 1) return 'b';
       return 'c';
     };
-    const ref = v === REFERENCE ? undefined : unity[REFERENCE][name];
+    const standard = u.generator === 'Standard';
+    const ref = standard ? ADVANCED[name] : undefined;
     const row = { name, boundary: LINE_BREAK_CASE.test(name), unity: { w: u.w, h: u.h }, preview: p, linesU: nU, linesP: nP, dw, dh, widthOk };
     // A line count that flips at a boundary case because the natural widths differ
     // by at most 1px is (b); the boundary cases sit 2px from Unity 6000.0's width.
@@ -181,45 +213,47 @@ function judge(v) {
     // The wrap cases (-wN, several lines) have no 1px explanation at all.
     if (nU !== nP) {
       const natural = name.replace(LINE_BREAK_CASE, '');
-      // On an older version the 1px test also runs against the reference's natural
-      // width: a 1px preview difference stacked on a 6000.0-vs-6.3 one is still 1px.
-      const widthGap = (table) => (table[natural] !== undefined && preview.boxes[natural] !== undefined
-        ? Math.abs(preview.boxes[natural].w - table[natural].w) : Infinity);
-      const nw = Math.min(widthGap(unity[v]), v === REFERENCE ? Infinity : widthGap(unity[REFERENCE]));
+      // A Standard row also runs the 1px test against the Advanced reference's natural
+      // width: a 1px preview difference stacked on a generator difference is still 1px.
+      const widthGap = (table) => (table[natural] !== undefined && boxes[natural] !== undefined
+        ? Math.abs(boxes[natural].w - table[natural].w) : Infinity);
+      const nw = Math.min(widthGap(unity[v]), standard ? widthGap(ADVANCED) : Infinity);
       const refLines = ref === undefined ? undefined : lines(ref.h, u.fontSize, u.faceInfo);
-      const pN = preview.boxes[natural]?.w;
+      const pN = boxes[natural]?.w;
       const consistent = pN !== undefined && (nP > 1) === (pN > p.w);
       const bOk = /-b[pm]\d+$/.test(name) && consistent && nw <= 1;
-      row.linesCls = noGlyphs(name) || refLines === nP || KNOWN[`${v} ${name}`] !== undefined ? 'a' : bOk ? 'b' : 'c';
-    } else if (KNOWN[`${v} ${name}`] !== undefined) {
+      row.linesCls = noGlyphs(name) || refLines === nP || KNOWN[set.known(v, name)] !== undefined ? 'a' : bOk ? 'b' : 'c';
+    } else if (KNOWN[set.known(v, name)] !== undefined) {
       row.staleKnown = true;
     }
     // A height that differs because the line count differs is that difference, not another one.
-    if (dh !== 0) row.heightCls = row.linesCls ?? why(dh, (v.startsWith('6000.0') && height60(nU, u.fontSize, u.faceInfo) === u.h) || matchesRef('h'));
+    if (dh !== 0) row.heightCls = row.linesCls ?? why(dh, (standard && height60(nU, u.fontSize, u.faceInfo) === u.h) || matchesRef('h'));
     if (!widthOk) row.widthCls = why(dw, matchesRef('w'));
     rows.push(row);
   }
   return rows;
 }
 
-const summary = {};
-const report = [];
-for (const v of VERSIONS) {
-  const rows = judge(v);
-  const plain = rows.filter((r) => !r.boundary);
-  const bound = rows.filter((r) => r.boundary);
-  const count = (list, ok) => `${list.filter(ok).length}/${list.length}`;
-  const classes = (key) => ['a', 'b', 'c'].map((c) => rows.filter((r) => r[key] === c).length).join('/');
-  summary[v] = {
-    lines: count(plain, (r) => r.linesCls === undefined),
-    height: count(plain, (r) => r.heightCls === undefined),
-    width: count(plain, (r) => r.widthOk),
-    boundaryLines: count(bound, (r) => r.linesCls === undefined),
-    failuresABC: { lines: classes('linesCls'), height: classes('heightCls'), width: classes('widthCls') },
-    widthDelta: { min: Math.min(...rows.map((r) => r.dw)), max: Math.max(...rows.map((r) => r.dw)) },
-    unexplained: rows.filter((r) => r.missing || r.staleKnown || r.linesCls === 'c' || r.heightCls === 'c' || r.widthCls === 'c').map((r) => r.name),
-  };
-  report.push(...rows.map((r) => ({ version: v, ...r })));
+for (const set of SETS) {
+  set.summary = {};
+  set.report = [];
+  for (const v of set.versions) {
+    const rows = judge(set, v);
+    const plain = rows.filter((r) => !r.boundary);
+    const bound = rows.filter((r) => r.boundary);
+    const count = (list, ok) => `${list.filter(ok).length}/${list.length}`;
+    const classes = (key) => ['a', 'b', 'c'].map((c) => rows.filter((r) => r[key] === c).length).join('/');
+    set.summary[v] = {
+      lines: count(plain, (r) => r.linesCls === undefined),
+      height: count(plain, (r) => r.heightCls === undefined),
+      width: count(plain, (r) => r.widthOk),
+      boundaryLines: count(bound, (r) => r.linesCls === undefined),
+      failuresABC: { lines: classes('linesCls'), height: classes('heightCls'), width: classes('widthCls') },
+      widthDelta: { min: Math.min(...rows.map((r) => r.dw)), max: Math.max(...rows.map((r) => r.dw)) },
+      unexplained: rows.filter((r) => r.missing || r.staleKnown || r.linesCls === 'c' || r.heightCls === 'c' || r.widthCls === 'c').map((r) => r.name),
+    };
+    set.report.push(...rows.map((r) => ({ version: v, ...r })));
+  }
 }
 
 const canvasVsFaceInfo = Object.fromEntries(
@@ -229,30 +263,36 @@ const canvasVsFaceInfo = Object.fromEntries(
   }),
 );
 
-const result = { chromium: chromiumVersion, unity: VERSIONS, summary, canvasVsFaceInfo, rows: report };
+const editorSet = SETS.find((set) => set.id === 'editor');
+const result = { chromium: chromiumVersion, unity: editorSet.versions, summary: editorSet.summary, canvasVsFaceInfo, rows: editorSet.report };
+const runtimeSet = SETS.find((set) => set.id === 'runtime');
+if (runtimeSet !== undefined) result.runtime = { unity: runtimeSet.versions, summary: runtimeSet.summary, rows: runtimeSet.report };
 writeFileSync(join(HERE, 'results.json'), JSON.stringify(result, null, 1) + '\n');
 
-const table = [
-  `| Unity | 줄 수 | 높이 | 너비(1px/1%) | 경계 줄 수 | 실패 (a/b/c): 줄·높이·너비 | 너비 Δ 범위 |`,
+const tableOf = (set) => [
+  `| ${set.title} | 줄 수 | 높이 | 너비(1px/1%) | 경계 줄 수 | 실패 (a/b/c): 줄·높이·너비 | 너비 Δ 범위 |`,
   '|---|---:|---:|---:|---:|---|---|',
-  ...VERSIONS.map((v) => {
-    const s = summary[v];
+  ...set.versions.map((v) => {
+    const s = set.summary[v];
     return `| ${v} | ${s.lines} | ${s.height} | ${s.width} | ${s.boundaryLines} | ${s.failuresABC.lines} · ${s.failuresABC.height} · ${s.failuresABC.width} | ${s.widthDelta.min}…${s.widthDelta.max} |`;
   }),
 ].join('\n');
-console.log(`Chromium ${chromiumVersion}\n\n${table}\n`);
+console.log(`Chromium ${chromiumVersion}\n`);
+for (const set of SETS) console.log(`${tableOf(set)}\n`);
 console.log('canvas vs FaceInfo (ascent+descent)/size:', JSON.stringify(canvasVsFaceInfo));
 
 let failed = false;
-for (const v of VERSIONS) {
-  if (summary[v].unexplained.length > 0) {
-    failed = true;
-    console.error(`${v}: unexplained (c): ${summary[v].unexplained.join(', ')}`);
-  }
-}
 const accuracy = readFileSync(join(ROOT, 'docs', 'accuracy.md'), 'utf8');
-if (!UPDATE && !accuracy.includes(table)) {
-  failed = true;
-  console.error('docs/accuracy.md does not carry this table under "텍스트 코호트" (rerun with UXML_TEXT_UPDATE=1 to only print it).');
+for (const set of SETS) {
+  for (const v of set.versions) {
+    if (set.summary[v].unexplained.length > 0) {
+      failed = true;
+      console.error(`${set.id} ${v}: unexplained (c): ${set.summary[v].unexplained.join(', ')}`);
+    }
+  }
+  if (!UPDATE && !accuracy.includes(tableOf(set))) {
+    failed = true;
+    console.error(`docs/accuracy.md does not carry the ${set.id} table (rerun with UXML_TEXT_UPDATE=1 to only print it).`);
+  }
 }
 process.exit(failed ? 1 : 0);

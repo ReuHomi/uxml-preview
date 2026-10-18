@@ -307,7 +307,7 @@ The failure columns count (a)/(b)/(c) over all 251 rows, line-break cases includ
 - Up to 0.6.0 the measurer broke lines at spaces only, so a Japanese or Chinese sentence was always
   measured as one line. That failure was classified (b) in this table and hidden; from 0.6.1 a
   boundary case gets (b) only when the preview's line count agrees with its own natural width
-- (a) The rest on 6000.0 is a version difference. 6000.0 adds one to a height that comes out as a
+- (a) The rest on 6000.0 is a **text generator** difference, not a version one (confirmed 2026-10-19 by item T: the 6000.0 editor uses Standard, the 6.3 editor Advanced, and the runtime panel, Standard, gives the same values on 6.3 too). 6000.0 adds one to a height that comes out as a
   whole number (Jua, DungGeunMo: 10px → 11), and advances lines after the first by FaceInfo
   `lineHeight` (Jua, two lines at 10px → 23; 6.3 gives 20). 6000.0 also draws Jua's English 2–4px
   wider than 6.3. The preview matches 6.3
@@ -333,6 +333,36 @@ With the canvas values, one line comes out 1px taller at some sizes. Between 8 a
 Pretendard differs at 31, 36, 41, 46, 51, 56, 57, 61, 62, 66, 67, 71 and 72px, Inter at 19, 38
 and 57px (the cohort's 10/14/20/32px are the same either way). A host that passes FaceInfo is
 exact.
+
+### Runtime panel (separate set, measured 2026-10-19 — item T)
+
+0.7.0's default theme is the runtime one (a game screen). The table above was measured in an editor
+window, so the same cohort was measured again on **a real runtime panel**. It is **never added** to
+the table above.
+
+| Item | Value |
+|---|---|
+| Unity side | 6000.0.40f1, 6000.3.25f1, PanelDump (PanelSettings + UIDocument, default runtime theme), **a fresh Unity process per probe** (`tests/layout/unity/dump-solo.sh`) — `tests/text-cohort/unity-runtime/` |
+| Preview side | the same Chrome, `theme: 'runtime'` |
+| Criteria | as above (line count equal, height equal, width within 1px or 1%). The boundary cases are the same files (6000.0 editor one-line width ±2px) |
+
+| Unity (런타임 패널) | 줄 수 | 높이 | 너비(1px/1%) | 경계 줄 수 | 실패 (a/b/c): 줄·높이·너비 | 너비 Δ 범위 |
+|---|---:|---:|---:|---:|---|---|
+| 6000.0.40f1 | 92/92 | 60/92 | 89/92 | 153/159 | 5/1/0 · 74/1/1 · 3/0/0 | -4…0 |
+| 6000.3.25f1 | 92/92 | 60/92 | 89/92 | 153/159 | 5/1/0 · 74/1/1 · 3/0/0 | -4…0 |
+
+- **The runtime panel gives the same values on both versions, and the same as the 6000.0 editor above.** All three use the
+  Standard generator. The height rule (a whole-number height +1, later lines by `lineHeight`) and Jua's English 2-4px wider are
+  the Standard generator's, not a version's. So classification moved from version to generator: a Standard row is explained
+  against the Advanced reference (the 6.3 editor). The editor table does not change
+- **The preview gives Advanced heights and widths on the runtime theme too.** That is the 32 heights and 3 widths of the plain rows and the 6 line
+  counts of the boundary rows ((a), except two boundary (b) and the (c) below). The runtime theme's default generator is Standard (bundle A), but the measurer switches only the spacing rule to
+  Standard; heights and widths use the Advanced formula
+- **One unexplained row (c):** `noto-jp-zh-20-w60` (Noto Sans JP 20px in 60px, 7 lines). Unity's runtime panel 201 (both
+  versions), the 6000.0 editor, also Standard, 202 (202 dumped alone too), the preview 203. The line count agrees. This row makes
+  `pnpm test:text` end in failure
+- Kinsoku: the runtime panel has none, so the 6.3 editor's `known` row (8 lines) agrees here at 7
+- The editor set's 6000.0 dumps taken again alone have the same boxes (only 11 Jua measured widths differ, not used to judge)
 
 ## Why geometry and not pixels
 
