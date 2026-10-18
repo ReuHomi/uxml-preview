@@ -97,9 +97,24 @@ function unityMeasure(dump: Dump): MeasureText {
   for (const e of dump.elements) {
     if (e.measured !== undefined && e.text !== undefined) sizes.set(`${e.text}|${Number(e.style['fontSize'])}`, { width: e.measured.w, height: e.measured.h });
   }
-  return (text, context) => {
-    const hit = sizes.get(`${text}|${context.fontSize}`);
+  // A text Unity wrapped (its box holds more than one measured line, f-states te-long): asked to
+  // fit a narrower width with white-space normal, it answers Unity's wrapped height, as
+  // bundle-c.test.ts does for its wrapping row. MeasureTextSize itself is one line.
+  const wrapped = new Map<string, number>();
+  for (const e of dump.elements) {
+    if (e.measured === undefined || e.text === undefined) continue;
+    const s = e.style;
+    const content = e.h - Number(s['paddingTop']) - Number(s['paddingBottom']) - Number(s['borderTopWidth']) - Number(s['borderBottomWidth']);
+    if (s['whiteSpace'] === 'Normal' && content >= 2 * e.measured.h) wrapped.set(`${e.text}|${Number(s['fontSize'])}`, content);
+  }
+  return (text, context, availableWidth) => {
+    const key = `${text}|${context.fontSize}`;
+    const hit = sizes.get(key);
     if (hit === undefined) throw new Error(`no Unity measurement for ${JSON.stringify(text)} at ${context.fontSize}px`);
+    const lines = wrapped.get(key);
+    if (lines !== undefined && context.whiteSpace === 'normal' && Number.isFinite(availableWidth) && availableWidth > 0 && availableWidth < hit.width) {
+      return { width: availableWidth, height: lines };
+    }
     return hit;
   };
 }
