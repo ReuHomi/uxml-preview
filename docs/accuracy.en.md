@@ -241,6 +241,8 @@ Before the theme values went in (0.6.x behaviour) this set read 609/676. The val
 spacing (4·4·2·2 / 4·2·4·1), the Button margin, padding and border, 14px text and a 24px vertical scroller, all read from
 dumps (`probe-panel/`, `probe-editor-070/`).
 
+**Known difference (measured 2026-10-18, `g-clamp`):** on the runtime panel, when a no-wrap text's width is set from outside, Unity gives the text 12-13px of height (one line is 17px). The preview keeps 17px, so that Label is 4-6px taller. None of the 44 golden cases has this, so it is not in the figure above. Unity's rule is not known — item T.
+
 ## Unity 6.3 LTS re-measurement (2026-10-15)
 
 The reference version is 6.3 LTS, but the figures above were measured on 6000.0.40f1. The 44
