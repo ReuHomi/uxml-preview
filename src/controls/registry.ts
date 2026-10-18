@@ -37,7 +37,7 @@ export interface ControlPart {
   /** Text parts are measured leaves; a leading Label is a sibling of the wrapper chain. */
   kind?: 'leading-text' | 'text';
   /** Attribute text is decoded only for the derived rendering, never in the AST. */
-  textAttribute?: 'text' | 'label' | 'value';
+  textAttribute?: 'text' | 'label' | 'value' | 'title';
   typeName?: string;
   unnamed?: boolean;
   classes?: readonly string[];
@@ -96,6 +96,21 @@ const CONTROLS: Readonly<Record<string, ControlSpec>> = {
     hasText: false, classes: ['unity-group-box'],
     parts: [{ name: 'unity-group-box__label', kind: 'leading-text',
       classes: ['unity-text-element', 'unity-label', 'unity-group-box__label'], style: {} }],
+  },
+  // Measured: c07-TextElement.json, c07-RepeatButton.json and f-states.json (both 6.3 themes).
+  TextElement: { hasText: true, classes: ['unity-text-element'], parts: [] },
+  RepeatButton: { hasText: true, classes: ['unity-text-element', 'unity-repeat-button'], parts: [] },
+  // Measured: c07-ProgressBar.json and f-states.json (both 6.3 themes); file children stay on owner.
+  ProgressBar: {
+    hasText: false, classes: ['unity-progress-bar'], fileChildrenHost: 'owner',
+    parts: [
+      { name: 'unity-progress-bar', parent: null, classes: ['unity-progress-bar__container'], style: {} },
+      { name: 'unity-progress-bar__background', parent: 0, unnamed: true, classes: ['unity-progress-bar__background'], style: {} },
+      { name: 'unity-progress-bar__progress', parent: 1, unnamed: true, classes: ['unity-progress-bar__progress'], style: {} },
+      { name: 'unity-progress-bar__title-container', parent: 1, unnamed: true, classes: ['unity-progress-bar__title-container'], style: {} },
+      { name: 'unity-progress-bar__title', parent: 3, unnamed: true, kind: 'text', textAttribute: 'title',
+        typeName: 'Label', classes: ['unity-text-element', 'unity-label', 'unity-progress-bar__title'], style: {} },
+    ],
   },
   Toggle: { hasText: false, classes: [], parts: [] },
   RadioButton: { hasText: false, classes: [], parts: [] },

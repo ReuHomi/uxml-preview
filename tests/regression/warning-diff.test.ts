@@ -223,6 +223,14 @@ const ALLOWED_DELETIONS = new Set([
   'fragment:.unity-toggle__checkmark',
   'fragment:.unity-toggle__input',
   'fragment:.unity-toggle__text',
+  // 0.7.0 bundle F: ProgressBar is drawn now with Unity's parts (tests/contract-070/bundle-f.test.ts,
+  // c07-ProgressBar/f-progress dumps); "has no renderer" no longer holds, and these progress-bar
+  // rules (debug-ui, design-system fixtures) now reach the parts they name.
+  'control-fallback:ProgressBar',
+  'fragment:.unity-progress-bar',
+  'fragment:.unity-progress-bar__background',
+  'fragment:.unity-progress-bar__progress',
+  'fragment:.unity-progress-bar__title',
 ]);
 
 type Verdict = 'preserved' | 'merged' | 'reclassified' | 'deleted';

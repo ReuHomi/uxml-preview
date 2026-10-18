@@ -542,7 +542,10 @@ export function layoutDocument(
       }
     }
 
-    if (drawsText) {
+    // Measured: f-states.json rb-child / te-child size from file children alone.
+    const childrenSizeText = ['TextElement', 'RepeatButton'].includes(node.name.local) &&
+      node.children.some((child) => !isNonVisual(child));
+    if (drawsText && !childrenSizeText) {
       // Yoga refuses to measure a node that has children, and would not ask for
       // an intrinsic size anyway. Text wins; dropping it silently would be worse.
       if (node.children.some((child) => !isNonVisual(child))) {
@@ -657,6 +660,31 @@ export function layoutDocument(
       changed = true;
     }
     if (!changed) break;
+    rootNode.calculateLayout(options.size.width, options.size.height, Direction.LTR);
+  }
+
+  // Measured: 6000.3.25f1/{probe-panel,probe-editor-070}/f-progress.json; AbstractProgressBar sets right after layout.
+  for (const [node] of yogaOf) {
+    if (node.name.local !== 'ProgressBar') continue;
+    const chain = parts.get(node.id)!;
+    const nodes = partNodes.get(node.id)!;
+    const background = nodes[chain.findIndex((p) => p.name === 'unity-progress-bar__background')]!;
+    const progress = nodes[chain.findIndex((p) => p.name === 'unity-progress-bar__progress')]!;
+    const attr = (name: string, fallback: number): number => Number(node.attributes.find((a) => a.name === name)?.value ?? fallback);
+    const low = attr('low-value', 0), high = attr('high-value', 100);
+    const value = Math.min(high, Math.max(low, attr('value', 0)));
+    const width = Math.floor(background.getComputedLayout().width - 2);
+    const filled = value <= low ? 0 : width * value / high;
+    progress.setPosition(Edge.Right, width - filled);
+    if (theme === 'editor' && value <= low) {
+      warnings.push({
+        kind: 'version-dependent', reason: 'version-dependent', node: node.id,
+        subject: { kind: 'control', type: 'ProgressBar' },
+        message: '<ProgressBar> at or below low-value is 1px wide on Unity 6000.0.40f1 and 0px on 6000.3.25f1 (editor theme); drawn as 6000.3.25f1',
+      });
+    }
+  }
+  if ([...yogaOf.keys()].some((node) => node.name.local === 'ProgressBar')) {
     rootNode.calculateLayout(options.size.width, options.size.height, Direction.LTR);
   }
 

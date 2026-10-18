@@ -18,7 +18,7 @@ import type { FaceInfo } from './measure';
 import type { ElementNode, NodeId, Warning } from '../model/types';
 import type { ComputedStyle } from '../style/resolve';
 import type { LayoutBox, LayoutPart } from '../layout/yoga';
-import { resolveControl } from '../controls/registry';
+import { isNonVisual, resolveControl } from '../controls/registry';
 import { decodeEntities } from '../parser/entities';
 import { toCss } from './css-map';
 import type { CssMapOptions } from './css-map';
@@ -234,9 +234,12 @@ export function paint(
 
     const { spec } = resolveControl(node);
     const text = node.attributes.find((a) => a.name === 'text')?.value;
-    if (spec.hasText && text !== undefined && text.length > 0) {
-      paintText(el, decodeEntities(text), style, css);
-    } else {
+    // Measured: f-states.json rb-child / te-child retain their file children.
+    const childrenSizeText = ['TextElement', 'RepeatButton'].includes(node.name.local) &&
+      node.children.some((child) => !isNonVisual(child));
+    const drawsText = spec.hasText && text !== undefined && text.length > 0;
+    if (drawsText) paintText(el, decodeEntities(text), style, css);
+    if (!drawsText || childrenSizeText) {
       // Match Yoga's file-child host: owner when declared, otherwise the last
       // non-text part. All parts are appended before the file children.
       let host = el;

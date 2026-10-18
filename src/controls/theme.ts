@@ -140,6 +140,28 @@ const CHECK_EDITOR = `
 .unity-radio-button__input:checked .unity-radio-button__checkmark { width: 6px; height: 6px; }
 `;
 
+// Measured: 6000.3.25f1/{probe-panel,probe-editor-070}/{c07-ProgressBar,f-progress,f-hook}.json.
+const PROGRESS_COMMON = `
+.unity-progress-bar { flex-shrink: 0; }
+.unity-progress-bar__background { border-width: 1px; }
+.unity-progress-bar__progress { position: absolute; left: 0; top: 0; bottom: 0; }
+.unity-progress-bar__title-container { flex-grow: 1; flex-direction: row; justify-content: center; }
+.unity-progress-bar__title { white-space: nowrap; -unity-text-align: middle-center; }
+`;
+const PROGRESS_RUNTIME = `
+.unity-progress-bar { margin: 4px; }
+.unity-progress-bar__container { min-height: 24px; max-height: 24px; }
+.unity-progress-bar__background { flex-grow: 1; border-color: #808080; background-color: #bcbcbc; }
+.unity-progress-bar__progress { margin: 2px; background-color: #e7e7e7; }
+.unity-progress-bar__title { margin: 0; padding: 10px 12px; }
+`;
+const PROGRESS_EDITOR = `
+.unity-progress-bar { margin: 1px 3px; padding-bottom: 1px; }
+.unity-progress-bar__background { height: 19px; border-color: #252525; background-color: #303030; }
+.unity-progress-bar__progress { background-color: #2c5d87; }
+.unity-progress-bar__title { margin: 1px 0; flex-grow: 1; color: #ffffff; }
+`;
+
 /**
  * Editor theme stylesheet; kept as the legacy editor-sheet export.
  * Parsed once and spliced in ahead of author sheets, so equal specificity lets
@@ -223,7 +245,7 @@ export const THEME_USS: string = `${PANEL_TEXT_DEFAULTS_SELECTOR} {
   border-top-color: #0d0d0d;
 }
 .unity-button:focus { border-color: #7baefa; }
-${SLIDER_COMMON}${SLIDER_EDITOR}${CHECK_COMMON}${CHECK_EDITOR}`;
+${SLIDER_COMMON}${SLIDER_EDITOR}${CHECK_COMMON}${CHECK_EDITOR}${PROGRESS_COMMON}${PROGRESS_EDITOR}`;
 
 // probe-panel/*.json: Standard on both 6000.0.40f1 and 6000.3.25f1.
 // Editor probe-editor-070/*.json changes Standard -> Advanced; retain the 6.3 default.
@@ -311,7 +333,7 @@ export const THEME_SHEETS: Readonly<Record<Theme, string>> = {
   background-color: #959595;
   border-color: #7e7e7e;
 }
-${SLIDER_COMMON}${SLIDER_RUNTIME}${CHECK_COMMON}${CHECK_RUNTIME}`,
+${SLIDER_COMMON}${SLIDER_RUNTIME}${CHECK_COMMON}${CHECK_RUNTIME}${PROGRESS_COMMON}${PROGRESS_RUNTIME}`,
 };
 
 /**
