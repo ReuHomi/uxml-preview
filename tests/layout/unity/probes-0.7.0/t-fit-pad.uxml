@@ -1,0 +1,23 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="wide" style="width: 300px;">
+<ui:Label name="w-theme" text="The quick brown fox jumps" />
+</ui:VisualElement>
+<ui:VisualElement name="narrow" style="width: 100px;">
+<ui:Label name="n-theme" text="The quick brown fox jumps" />
+<ui:Label name="n-pad0" text="The quick brown fox jumps" style="padding: 0;" />
+<ui:Label name="n-top0" text="The quick brown fox jumps" style="padding-top: 0;" />
+<ui:Label name="n-bottom0" text="The quick brown fox jumps" style="padding-bottom: 0;" />
+<ui:Label name="n-side0" text="The quick brown fox jumps" style="padding-left: 0; padding-right: 0;" />
+<ui:Label name="n-margin0" text="The quick brown fox jumps" style="margin: 0;" />
+<ui:Label name="n-pad8" text="The quick brown fox jumps" style="padding-top: 8px; padding-bottom: 8px;" />
+</ui:VisualElement>
+<ui:VisualElement name="exact" style="width: 182px;">
+<ui:Label name="x-theme" text="The quick brown fox jumps" />
+</ui:VisualElement>
+<ui:VisualElement name="exact1" style="width: 181px;">
+<ui:Label name="x1-theme" text="The quick brown fox jumps" />
+</ui:VisualElement>
+<ui:VisualElement name="exact2" style="width: 188px;">
+<ui:Label name="x2-theme" text="The quick brown fox jumps" />
+</ui:VisualElement>
+</ui:UXML>

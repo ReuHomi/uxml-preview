@@ -1,0 +1,23 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="set-a">
+<ui:VisualElement name="box-a-m3" class="box-a-m3"><ui:Label name="t-a-m3" class="t" text="Hamburgefonts Quick" style="font-size: 20px;" /></ui:VisualElement>
+<ui:VisualElement name="box-a-m2" class="box-a-m2"><ui:Label name="t-a-m2" class="t" text="Hamburgefonts Quick" style="font-size: 20px;" /></ui:VisualElement>
+<ui:VisualElement name="box-a-m1" class="box-a-m1"><ui:Label name="t-a-m1" class="t" text="Hamburgefonts Quick" style="font-size: 20px;" /></ui:VisualElement>
+<ui:VisualElement name="box-a-p0" class="box-a-p0"><ui:Label name="t-a-p0" class="t" text="Hamburgefonts Quick" style="font-size: 20px;" /></ui:VisualElement>
+<ui:VisualElement name="box-a-p1" class="box-a-p1"><ui:Label name="t-a-p1" class="t" text="Hamburgefonts Quick" style="font-size: 20px;" /></ui:VisualElement>
+<ui:VisualElement name="box-a-p2" class="box-a-p2"><ui:Label name="t-a-p2" class="t" text="Hamburgefonts Quick" style="font-size: 20px;" /></ui:VisualElement>
+<ui:VisualElement name="box-a-p3" class="box-a-p3"><ui:Label name="t-a-p3" class="t" text="Hamburgefonts Quick" style="font-size: 20px;" /></ui:VisualElement>
+<ui:VisualElement name="box-a-p50" class="box-a-p50"><ui:Label name="t-a-p50" class="t" text="Hamburgefonts Quick" style="font-size: 20px;" /></ui:VisualElement>
+</ui:VisualElement>
+<ui:VisualElement name="set-b">
+<ui:VisualElement name="box-b-m3" class="box-b-m3"><ui:Label name="t-b-m3" class="t" text="The quick brown fox jumps" style="font-size: 14px;" /></ui:VisualElement>
+<ui:VisualElement name="box-b-m2" class="box-b-m2"><ui:Label name="t-b-m2" class="t" text="The quick brown fox jumps" style="font-size: 14px;" /></ui:VisualElement>
+<ui:VisualElement name="box-b-m1" class="box-b-m1"><ui:Label name="t-b-m1" class="t" text="The quick brown fox jumps" style="font-size: 14px;" /></ui:VisualElement>
+<ui:VisualElement name="box-b-p0" class="box-b-p0"><ui:Label name="t-b-p0" class="t" text="The quick brown fox jumps" style="font-size: 14px;" /></ui:VisualElement>
+<ui:VisualElement name="box-b-p1" class="box-b-p1"><ui:Label name="t-b-p1" class="t" text="The quick brown fox jumps" style="font-size: 14px;" /></ui:VisualElement>
+<ui:VisualElement name="box-b-p2" class="box-b-p2"><ui:Label name="t-b-p2" class="t" text="The quick brown fox jumps" style="font-size: 14px;" /></ui:VisualElement>
+<ui:VisualElement name="box-b-p3" class="box-b-p3"><ui:Label name="t-b-p3" class="t" text="The quick brown fox jumps" style="font-size: 14px;" /></ui:VisualElement>
+<ui:VisualElement name="box-b-p50" class="box-b-p50"><ui:Label name="t-b-p50" class="t" text="The quick brown fox jumps" style="font-size: 14px;" /></ui:VisualElement>
+</ui:VisualElement>
+<ui:VisualElement name="free" style="flex-direction: row; align-items: flex-start;"><ui:Label name="t-free" class="t" text="The quick brown fox jumps" style="font-size: 14px;" /></ui:VisualElement>
+</ui:UXML>

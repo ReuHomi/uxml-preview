@@ -243,7 +243,7 @@ Before the theme values went in (0.6.x behaviour) this set read 609/676. The val
 spacing (4·4·2·2 / 4·2·4·1), the Button margin, padding and border, 14px text and a 24px vertical scroller, all read from
 dumps (`probe-panel/`, `probe-editor-070/`).
 
-**Known difference (measured 2026-10-18, `g-clamp`):** on the runtime panel, when a no-wrap text's width is set from outside, Unity gives the text 12-13px of height (one line is 17px). The preview keeps 17px, so that Label is 4-6px taller. None of the 44 golden cases has this, so it is not in the figure above. Unity's rule is not known — item T.
+**A Unity-side effect (seen 2026-10-18, cause found 2026-10-19):** on the runtime panel, when the same text was laid out earlier with a different wrap setting, a later element with that text comes out 4-8px shorter (`g-clamp` 20-21px). Remove the earlier same text and it is 25px again, as the preview draws it (`t-bis-*`, `t-cache-*`, `t-fit*` dumps). It has nothing to do with the width being set from outside (`t-fit-pad`: a Label stretched in a narrow column is 25px). None of the 44 golden cases has this, so it is not in the figure above. Dumping each probe alone does not stop contamination **within** one document — probes avoid writing the same text twice with different wrapping.
 
 ## Unity 6.3 LTS re-measurement (2026-10-15)
 

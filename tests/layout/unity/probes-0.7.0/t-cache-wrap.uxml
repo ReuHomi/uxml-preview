@@ -1,0 +1,5 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="before" style="width: 100px; align-items: flex-start;"><ui:Label name="first" text="The quick brown fox jumps" style="white-space: normal;" /></ui:VisualElement>
+<ui:VisualElement name="after" style="width: 100px;"><ui:Label name="stretch" text="The quick brown fox jumps" /></ui:VisualElement>
+<ui:VisualElement name="after-row" style="width: 100px; flex-direction: row;"><ui:Label name="row" text="The quick brown fox jumps" /></ui:VisualElement>
+</ui:UXML>

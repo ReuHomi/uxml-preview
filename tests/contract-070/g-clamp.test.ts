@@ -23,12 +23,14 @@
  *     letter-spacing 3px and word-spacing 5px widen its box (78 -> 82, 79). With letter-spacing
  *     20px both generators exceed 100 and are clipped on the runtime panel (94 and 94).
  *
- * Not judged here, found by this probe: on the runtime panel (both versions) a no-wrap text whose
- *   final width is set from outside (Exactly: st-label stretched, row-label and rh-label after the
- *   row shrinks them, free-label which a row sizes to its own width) is 12-13px high instead of
- *   its 17px line; laid out by AtMost alone (cs-label) or absolutely (abs-label) it keeps 17. So
- *   it is not part of the clipping. The heights of those four are not judged on the runtime theme. The editor theme keeps 15 everywhere. Unity's rule for that height is
- *   not identified; the second test pins the observation so it stays visible (plan section 27).
+ * Not judged here, found by this probe: on the runtime panel (both versions) four no-wrap Labels
+ *   (st-label, row-label, rh-label, free-label) are 12-13px high instead of their 17px line. Cause
+ *   found 2026-10-19 (t-bis-*, t-cache-*, t-fit* dumps): this probe writes the same text earlier
+ *   with white-space normal (cs-te, cs-wrap), and Unity's later layouts of that string come out
+ *   short — remove cs-te and cs-wrap and all four are 25px, as the preview draws them. A Unity-side
+ *   contamination within one document, not part of the clipping and not reproduced. The heights of
+ *   those four are not judged on the runtime theme; the second test pins the observation. The
+ *   editor theme keeps 15 everywhere.
  *
  * Expected boxes: the 6000.3.25f1 dumps, judged exactly (human decision 2026-10-18: the solo dump
  * is the reference and no tolerance is widened). The stub answers MeasureTextSize, except where
@@ -120,7 +122,7 @@ describe('text clipping — the dumps', () => {
     }
   });
 
-  it('the open finding: runtime no-wrap text set narrower from outside is 12-13px high', () => {
+  it('the contamination: runtime no-wrap text after the same text wrapped is 12-13px high', () => {
     for (const version of ['6000.0.40f1', '6000.3.25f1']) {
       const d = readDump(version, 'runtime');
       const text = (p: string): number => at(d, p).h - Number(at(d, p).style['paddingTop']) - Number(at(d, p).style['paddingBottom']);

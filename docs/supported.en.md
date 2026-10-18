@@ -267,7 +267,7 @@ built (`kind`, `reason`, `subject`, `nodes`, `at`) and how a consumer should rea
 
 ## Not checked
 
-- **Known difference (runtime theme):** when a no-wrap text's width is set from outside (a stretched column, inside a row, a row of auto width), Unity's runtime panel gives the text 12-13px of height instead of its 17px line (14px text). The preview keeps 17px, so that Label is 4-6px taller (`g-clamp` dumps: Unity 20-21, preview 25-26). The editor theme keeps 15px in Unity too, and matches. Unity's rule is not identified yet; item T looks at it
+- **A Unity-side effect (runtime panel, cause found 2026-10-19):** when the **same text** was laid out earlier in the same panel with a different wrap setting (a TextElement or Label with `white-space: normal`), a later element with that text comes out 4-8px shorter, and the earlier element's own line count goes wrong too (`g-clamp`'s 20-21px; the `t-bis-*` dumps separate the cause: remove the earlier same text and it is 25px again). With no same text before it, Unity matches the preview. The preview does not reproduce the contamination; Unity appears to reuse a string's text layout [inferred]. Not seen on the 6.3 editor theme
 - Colour, borders and corners rest on one eye comparison of one screen ([visual check](visual-check.md)).
   Anything that screen did not contain is unmeasured
 - A wrapped `ScrollView`'s content height differs: Unity clamps it to the viewport, Yoga grows it

@@ -107,3 +107,11 @@ Every baseline is now dumped by `../dump-solo.sh`: one probe (with its same-name
 depends on what the same process drew before (0-2px, plan section 27); a solo dump is deterministic
 and is the reference. The committed files that differed from their solo dump were replaced
 (plan section 27-3).
+
+## Item T: the runtime short text height (2026-10-19, solo dumps)
+
+| Probe | What it settles |
+|---|---|
+| `t-fit`, `t-fit-default`, `t-fit-pad` | a no-wrap Label laid out 3px narrower to 50px wider than its text, Inter and the default font, with and without the theme padding: always its full line height |
+| `t-cache-*` | one earlier element with the same text (wrapping Label, ellipsis Label, Button) or another text: no effect alone |
+| `t-bis-*` (6.3) | `g-clamp` with elements removed: the short heights come from writing the same text earlier with `white-space: normal` (`cs-te`, `cs-wrap`); without them every Label is 25px |

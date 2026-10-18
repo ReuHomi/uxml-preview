@@ -1,0 +1,17 @@
+.t { padding: 0; margin: 0; white-space: nowrap; }
+.box-a-m3 { width: 203px; }
+.box-a-m2 { width: 204px; }
+.box-a-m1 { width: 205px; }
+.box-a-p0 { width: 206px; }
+.box-a-p1 { width: 207px; }
+.box-a-p2 { width: 208px; }
+.box-a-p3 { width: 209px; }
+.box-a-p50 { width: 256px; }
+.box-b-m3 { width: 175px; }
+.box-b-m2 { width: 176px; }
+.box-b-m1 { width: 177px; }
+.box-b-p0 { width: 178px; }
+.box-b-p1 { width: 179px; }
+.box-b-p2 { width: 180px; }
+.box-b-p3 { width: 181px; }
+.box-b-p50 { width: 228px; }
