@@ -26,8 +26,12 @@
  * One exclusion, by decision rather than by measurement: Unity's scrollers inside a
  * ScrollView (an element with class `unity-scroller`, and everything in it — repeat
  * buttons, a Slider). This preview reserves their width and does not build them (S1
- * decision; the golden tests skip the same elements as NOT_REPRODUCED). Whether to build
- * them is open (A2 report). Every other element Unity builds is judged.
+ * decision; the golden tests skip the same elements as NOT_REPRODUCED). Decided
+ * 2026-10-18 (human, after the A2 report): 0.7.0 does not draw them — a known difference
+ * written in docs/supported.md and docs/accuracy.md ("scrollbars reserve their width and
+ * are not drawn") — and building them is the next version's first candidate
+ * (docs/backlog.md). When they are built, drop this exclusion. Every other element Unity
+ * builds is judged.
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';

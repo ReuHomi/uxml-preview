@@ -161,6 +161,13 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
     `transition-duration`, `transition-property`, `transition-timing-function`,
     `animation-play-state`(6.6+), `-unity-animation-clip`(6.6+)
 
+## 다음 버전(0.8) 후보 — 순서대로
+
+1. **ScrollView 스크롤바 그리기** — 0.7.0은 폭만 확보하고 그리지 않는다(알려진 차이, `docs/supported.md`·`docs/accuracy.md`).
+   Unity는 `unity-scroller` 아래에 반복 버튼 둘과 Slider를 만든다(`a2-scrollview` 덤프). 만들면 클래스 테스트의 제외
+   (`tests/contract-070/classes.test.ts` 머리말)와 골든의 `NOT_REPRODUCED`를 함께 걷어낸다. 넘칠 때만 보이는 조건부 표시가
+   먼저 측정돼 있다(`accuracy.md` ScrollView 절). 2026-10-18 사람 결정
+
 ## 0.7.0 — 컨트롤·테마
 
 - **중첩 비활성의 투명도** — 측정됨(`tests/layout/unity/<version>/probe-editor/nested-disabled.json`, 6000.0.40f1·

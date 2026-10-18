@@ -43,7 +43,7 @@
 | `VisualElement` | 검증됨 | 골든 케이스 대부분이 이걸로 짜여 있다 (좌표, 측정) |
 | `Label` | 검증됨 | 배치는 골든 케이스로, 글자 상자는 텍스트 코호트로 Unity와 대조했다(측정). 높이는 Unity의 FaceInfo 공식, 자간·어간·문단 간격은 Unity 규칙을 따른다 — 아래 "텍스트와 폰트" |
 | `Button` | 검증됨 | 골든 케이스 10개 좌표 대조(측정). 라벨은 **가운데 정렬**(육안 대조로 발견). 테마의 바깥·안쪽 여백, 테두리, 색, `:hover`·`:active`·`:focus`·`:disabled` 색을 두 테마 모두 덤프 값으로 적용한다(`src/controls/theme.ts`, 0.7.0). `flex-shrink: 0` |
-| `ScrollView` | 검증됨 | **암묵 계층 3층**(`unity-content-and-vertical-scroll-container` → `unity-content-viewport` → `unity-content-container`)을 재현한다. 골든 케이스 4개 좌표 대조(측정). 스크롤바는 **폭만 예약**(에디터 테마 13px, 런타임 테마 24px, 측정)하고 그리지 않는다 — 드래그·휠·스크롤 위치는 정지 렌더 범위 밖 |
+| `ScrollView` | 검증됨 | **암묵 계층 3층**(`unity-content-and-vertical-scroll-container` → `unity-content-viewport` → `unity-content-container`)을 재현한다. 골든 케이스 4개 좌표 대조(측정). **알려진 차이: 스크롤바는 폭만 확보하고 그리지 않는다**(폭은 에디터 테마 13px, 런타임 테마 24px, 측정). Unity가 만드는 스크롤바 부품(`unity-scroller` 이하)은 만들지 않고, 클래스 테스트와 골든 대조에서 제외한다(2026-10-18 사람 결정, 다음 버전 첫 후보 — `docs/backlog.md`). 드래그·휠·스크롤 위치는 정지 렌더 범위 밖 |
 | `GroupBox` | 검증됨 | 0.7.0 묶음 B. `unity-group-box`, 바깥·안쪽 여백(두 테마, 측정). `text`가 있으면 Unity처럼 자식 앞에 제목 Label을 만든다(부품 이름 `unity-group-box__label` — Unity는 이름을 주지 않아 클래스로 부른다). 덤프 `c07-GroupBox` 두 테마의 상자·제목·resolved style 일치. `text=""`(빈 문자열)이면 제목을 만들지 않고 `text=" "`(공백)이면 만든다 — 두 버전·두 테마 측정(`r1-groupbox-empty`). 공백뿐인 제목의 높이: 런타임 0, 에디터 테마는 6.3 값(15)으로 그리고 `version-dependent`(6000.0은 0). standard 생성기면 두 버전 0(`c-whitespace`). 공백뿐인 Label·Button 글자도 같은 규칙. 작성자 USS의 `.unity-group-box__label` 규칙은 제목에 닿는다(`r1-groupbox-author`) |
 | `Box` | 검증됨 | 0.7.0 묶음 B. `unity-box`, 테두리 1·테두리색·배경(두 테마, 측정). 덤프 `c07-Box` 두 테마 일치 |
 | `Image` | 검증됨 | 전용 렌더러(`unity-image`). 대표 화면(`inventory`)의 `Image` 6개가 좌표 24값 모두 Unity 6000.0.40f1과 같고(측정), 기본 스케일 모드 `stretch-to-fill`은 육안 대조로 확인했다([육안 대조](visual-check.md) 5번). 그림은 USS `background-image`로 들어온다 — C#에서 할당한 텍스처는 미리보기가 따라갈 경로가 없다 |
@@ -252,5 +252,5 @@ render(doc, el, { states: { '#UseButton': ['hover'], '#DropButton': ['disabled']
   없던 것은 측정하지 않았다
 - 줄바꿈된 `ScrollView`의 콘텐츠 높이가 다르다. Unity는 뷰포트에 맞춰 자르고 Yoga는 내용만큼 키운다.
   Unity의 규칙은 아직 찾지 못했다
-- 스크롤바는 폭만 예약하고 그리지 않으며, 아무것도 스크롤되지 않는다
+- **알려진 차이:** 스크롤바는 폭만 확보하고 그리지 않으며, 아무것도 스크롤되지 않는다(0.7.0 결정, 다음 버전 첫 후보)
 - 런타임 테마(PanelSettings)는 0.7.0부터 별도 세트로 대조한다(`docs/accuracy.md` "런타임 테마"). 밝은 에디터 테마는 대조하지 않았다

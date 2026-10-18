@@ -157,6 +157,8 @@ That last rule is the substance. The old fallback squeezed three 60px children i
 and produced 33/34/33; Unity grows the container to 180, keeps the children at 60 and lets the
 viewport clip. **Whole child sizes were wrong, not positions by a few pixels.**
 
+**Known difference: scrollbars reserve their width and are not drawn** (through 0.7.0, human decision
+2026-10-18; first candidate for the next version).
 The scrollbar's seven internal parts are not reproduced — outside a static render — and sit in an
 **explicit list**, `NOT_REPRODUCED` in `golden.test.ts`. Excusing a `unity-` pattern would have
 excused `unity-content-viewport` too, which has to match.
