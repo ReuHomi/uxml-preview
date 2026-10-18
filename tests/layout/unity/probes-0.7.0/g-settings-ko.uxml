@@ -1,0 +1,36 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="settings" class="settings">
+<ui:VisualElement name="left" class="left">
+<ui:GroupBox name="graphics" text="그래픽">
+<ui:Toggle name="fullscreen" label="전체 화면" value="true" />
+<ui:Toggle name="vsync" label="수직 동기화" />
+<ui:RadioButton name="res-720" label="1280x720" />
+<ui:RadioButton name="res-1080" label="1920x1080" value="true" />
+<ui:RadioButton name="res-1440" label="2560x1440" />
+<ui:Slider name="brightness" label="밝기" low-value="0" high-value="1" value="0.7" show-input-field="true" />
+<ui:SliderInt name="fps" label="프레임 제한" low-value="30" high-value="144" value="60" />
+</ui:GroupBox>
+<ui:GroupBox name="audio" text="오디오">
+<ui:Slider name="master" label="전체 음량" low-value="0" high-value="100" value="80" />
+<ui:Slider name="effects" label="효과음" low-value="0" high-value="100" value="0" />
+<ui:Toggle name="mute" label="음소거" value="true" enabled="false" />
+</ui:GroupBox>
+</ui:VisualElement>
+<ui:VisualElement name="right" class="right">
+<ui:Box name="account" class="account">
+<ui:TextField name="player-name" label="이름" value="플레이어 1" />
+<ui:TextField name="player-tag" label="태그" placeholder-text="선택 사항" />
+<ui:TextField name="player-password" label="비밀번호" password="true" value="secret" />
+<ui:TextElement name="account-note" text="다시 시작하면 적용됩니다." />
+<ui:ProgressBar name="download" title="내려받기" value="50" />
+</ui:Box>
+<ui:Slider name="vertical" direction="Vertical" low-value="0" high-value="10" value="4" class="vertical" />
+<ui:VisualElement name="footer" class="footer">
+<ui:Button name="apply" text="적용" />
+<ui:Button name="cancel" text="취소" enabled="false" />
+<ui:RepeatButton name="minus" text="-" />
+<ui:RepeatButton name="plus" text="+" />
+</ui:VisualElement>
+</ui:VisualElement>
+</ui:VisualElement>
+</ui:UXML>

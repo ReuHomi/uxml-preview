@@ -1,0 +1,36 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="settings" class="settings">
+<ui:VisualElement name="left" class="left">
+<ui:GroupBox name="graphics" text="Graphics">
+<ui:Toggle name="fullscreen" label="Fullscreen" value="true" />
+<ui:Toggle name="vsync" label="VSync" />
+<ui:RadioButton name="res-720" label="1280x720" />
+<ui:RadioButton name="res-1080" label="1920x1080" value="true" />
+<ui:RadioButton name="res-1440" label="2560x1440" />
+<ui:Slider name="brightness" label="Brightness" low-value="0" high-value="1" value="0.7" show-input-field="true" />
+<ui:SliderInt name="fps" label="FPS limit" low-value="30" high-value="144" value="60" />
+</ui:GroupBox>
+<ui:GroupBox name="audio" text="Audio">
+<ui:Slider name="master" label="Master" low-value="0" high-value="100" value="80" />
+<ui:Slider name="effects" label="Effects" low-value="0" high-value="100" value="0" />
+<ui:Toggle name="mute" label="Mute" value="true" enabled="false" />
+</ui:GroupBox>
+</ui:VisualElement>
+<ui:VisualElement name="right" class="right">
+<ui:Box name="account" class="account">
+<ui:TextField name="player-name" label="Name" value="Player One" />
+<ui:TextField name="player-tag" label="Tag" placeholder-text="Optional" />
+<ui:TextField name="player-password" label="Password" password="true" value="secret" />
+<ui:TextElement name="account-note" text="Changes apply after a restart." />
+<ui:ProgressBar name="download" title="Download" value="50" />
+</ui:Box>
+<ui:Slider name="vertical" direction="Vertical" low-value="0" high-value="10" value="4" class="vertical" />
+<ui:VisualElement name="footer" class="footer">
+<ui:Button name="apply" text="Apply" />
+<ui:Button name="cancel" text="Cancel" enabled="false" />
+<ui:RepeatButton name="minus" text="-" />
+<ui:RepeatButton name="plus" text="+" />
+</ui:VisualElement>
+</ui:VisualElement>
+</ui:VisualElement>
+</ui:UXML>
