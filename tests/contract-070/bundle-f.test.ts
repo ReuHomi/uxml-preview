@@ -27,10 +27,18 @@
  *     side; editor 0). [측정]
  *   Forced hover/active/focus/disabled change no value of these three (f-states).
  *   The title Label is no wider than its container even when its text is (p-long: text 346,
- *     box 290 on the runtime theme): Unity's TextElement measure returns at most the width it
- *     is offered. Here that is judged on the title only.
+ *     box 290 on the runtime theme): Unity clips a text to the width it is offered
+ *     (g-clamp.test.ts has where it does and does not).
  *   Author USS reaches the parts by their classes, and a `TextElement` type selector does not
  *     reach a Label or a RepeatButton (f-hook).
+ *
+ * Text widths on the runtime theme. Unity lays a text out 0-2px wider than its MeasureTextSize,
+ * and how much depends on what the same Unity process drew before (plan section 27: the same
+ * probe gives te-auto 104 alone, 103 after other probes; f-states p-forced title 71 or 70). The
+ * measurement (MeasureTextSize) does not move. So the stub uses the measurement, and on the
+ * runtime theme (the Standard text generator) x and width are judged within 2px; y and height,
+ * and everything on the editor theme (6.3, Advanced, no such dependence found), exactly.
+ * The title clip (p-long) is the general rule of g-clamp.test.ts.
  *
  * Version difference (first test): on the editor theme a bar at or below low-value is 1px wide
  * on 6000.0.40f1 and 0 on 6000.3.25f1 (c07-ProgressBar p-plain, f-progress p-0, p-under). The
@@ -89,19 +97,9 @@ function unityMeasure(dump: Dump): MeasureText {
   for (const e of dump.elements) {
     if (e.measured !== undefined && e.text !== undefined) sizes.set(`${e.text}|${Number(e.style['fontSize'])}`, { width: e.measured.w, height: e.measured.h });
   }
-  // As bundle-e.test.ts: where Unity's layout gave a text 1-2px more than its MeasureTextSize
-  // (the runtime-panel difference, item T), use the layout width. Stretched rows are not read.
-  for (const e of dump.elements) {
-    if (e.measured === undefined || e.text === undefined) continue;
-    const s = e.style;
-    const inner = e.w - Number(s['paddingLeft']) - Number(s['paddingRight']) - Number(s['borderLeftWidth']) - Number(s['borderRightWidth']);
-    const over = inner - e.measured.w;
-    if (over >= 1 && over <= 2) sizes.set(`${e.text}|${Number(s['fontSize'])}`, { width: inner, height: e.measured.h });
-  }
   return (text, context) => {
     const hit = sizes.get(`${text}|${context.fontSize}`);
     if (hit === undefined) throw new Error(`no Unity measurement for ${JSON.stringify(text)} at ${context.fontSize}px`);
-    // A wrapping text offered less than its one-line width: Unity's line count from the dump.
     return hit;
   };
 }
@@ -194,6 +192,16 @@ function layout(theme: Theme, probe: string) {
   return { dump, doc, resolved, tree };
 }
 
+/** Exact, except x and width within 2px on the runtime theme (header). */
+function expectBox(theme: Theme, ours: number[], unity: number[], label: string): void {
+  if (theme === 'editor') {
+    expect(ours, label).toEqual(unity);
+    return;
+  }
+  expect([ours[1], ours[3]], `${label} y, height`).toEqual([unity[1], unity[3]]);
+  [0, 2].forEach((i) => expect(Math.abs(ours[i]! - unity[i]!), `${label} ${i === 0 ? 'x' : 'width'} ours ${ours[i]}, Unity ${unity[i]}`).toBeLessThanOrEqual(2));
+}
+
 const controlsOf = (dump: Dump, nodes: Map<string, ElementNode>): DumpElement[] =>
   dump.elements.filter((e) => F.includes(e.type) && nodes.has(e.name));
 
@@ -253,17 +261,17 @@ for (const theme of ['runtime', 'editor'] as const) {
           for (const c of controls) {
             const node = nodes.get(c.name)!;
             const b = tree.boxes.get(node.id)!;
-            expect([b.left, b.top, b.width, b.height], c.path).toEqual([c.x, c.y, c.w, c.h]);
+            expectBox(theme, [b.left, b.top, b.width, b.height], [c.x, c.y, c.w, c.h], c.path);
             const parts = tree.parts.get(node.id) ?? [];
             const unity = unityParts(dump, c, nodes);
             expect(parts.map((p) => p.name).sort(), `${c.path} parts`).toEqual(unity.map(partName).sort());
             for (const u of unity) {
               const p = parts.find((x) => x.name === partName(u))!;
-              expect([p.box.left, p.box.top, p.box.width, p.box.height], `${c.path} ${p.name}`).toEqual([u.x, u.y, u.w, u.h]);
+              expectBox(theme, [p.box.left, p.box.top, p.box.width, p.box.height], [u.x, u.y, u.w, u.h], `${c.path} ${p.name}`);
             }
             for (const e of dump.elements.filter((x) => x.path.startsWith(`${c.path}/`) && nodes.has(x.name))) {
               const fb = tree.boxes.get(nodes.get(e.name)!.id)!;
-              expect([fb.left, fb.top, fb.width, fb.height], `${e.path} (file child)`).toEqual([e.x, e.y, e.w, e.h]);
+              expectBox(theme, [fb.left, fb.top, fb.width, fb.height], [e.x, e.y, e.w, e.h], `${e.path} (file child)`);
             }
           }
           expect(tree.warnings.filter((w) => w.kind === 'unsupported-control')).toEqual([]);
