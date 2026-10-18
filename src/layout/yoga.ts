@@ -17,7 +17,7 @@
  * is wrong in a way no type checker can see.
  */
 
-import { loadYoga, Align, Direction, Display, Edge, FlexDirection, Justify, Overflow, PositionType, Wrap, BoxSizing } from 'yoga-layout/load';
+import { loadYoga, Align, Direction, Display, Edge, FlexDirection, Justify, MeasureMode, Overflow, PositionType, Wrap, BoxSizing } from 'yoga-layout/load';
 import type { Node as YogaNode, Yoga } from 'yoga-layout/load';
 
 import type { ElementNode, NodeId, Warning } from '../model/types';
@@ -395,7 +395,7 @@ export function layoutDocument(
   /** The bindings notice is about the document, so it is raised once. */
   let bindingsReported = false;
 
-  function measure(yg: YogaNode, text: string, style: ComputedStyle, node: ElementNode): void {
+  function measure(yg: YogaNode, text: string, style: ComputedStyle, node: ElementNode, partName?: string): void {
     // Measured: tests/layout/unity/<version>/{probe-panel,probe-editor-070}/c-whitespace.json.
     const whitespaceText = text.length > 0 && text.trim() === '' &&
       ['Label', 'Button', 'GroupBox'].includes(node.name.local);
@@ -440,13 +440,17 @@ export function layoutDocument(
       yg.setMeasureFunc(() => ({ width: 0, height: textHeight(1, context.fontSize, context.faceInfo ?? EDITOR_DEFAULT_FACE_INFO) }));
       return;
     }
-    yg.setMeasureFunc((availableWidth) =>
-      options.measureText(
+    yg.setMeasureFunc((availableWidth, widthMode) => {
+      const measured = options.measureText(
         text,
         context,
         Number.isFinite(availableWidth) ? availableWidth : 0,
-      ),
-    );
+      );
+      // Measured: g-clamp.json — AtMost clips text except absolute elements and TextField inner text.
+      const clip = widthMode === MeasureMode.AtMost && Number.isFinite(availableWidth) &&
+        read(style, 'position') !== 'absolute' && partName !== 'unity-text-element--inner-input-field-component';
+      return { width: clip ? Math.min(measured.width, availableWidth) : measured.width, height: measured.height };
+    });
     if (whitespaceText && theme === 'editor') {
       warnings.push({
         kind: 'version-dependent', reason: 'version-dependent', node: node.id,
@@ -584,7 +588,7 @@ export function layoutDocument(
         builtIndices.set(index, nodes.length);
         // c07-GroupBox: title is a sibling before file children, never a host.
         if (partText !== undefined) {
-          measure(partNode, partText, style, node);
+          measure(partNode, partText, style, node, part.name);
         } else if (spec.fileChildrenHost !== 'owner') host = partNode;
         nodes.push(partNode);
         // Box filled in by `collect`, once layout has actually run.
