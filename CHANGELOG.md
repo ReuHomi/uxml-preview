@@ -58,6 +58,13 @@ Play mode) on Unity 6.3, and the editor theme stays one option away.
   runtime panel does on both versions (it had used advanced, the 6.3 editor's
   default). This only moves text with letter- or word-spacing.
 
+- **A text wider than the width it is offered is clipped to it**, as Unity
+  does (measured, `g-clamp`, both versions and themes): in a row, in a column
+  with `align-items: flex-start`, with or without `overflow: hidden`. An
+  absolutely placed text and a TextField's inner text are not clipped, as in
+  Unity. A long no-wrap Label in a narrow box now has the box's width instead
+  of overflowing it. No accuracy figure moved.
+
 ### New controls
 
 - **GroupBox and Box are drawn** instead of falling back with an
@@ -93,6 +100,17 @@ Play mode) on Unity 6.3, and the editor theme stays one option away.
   both ways, a range, a reversed range and an out-of-range value. Dragging is
   not drawn. A host that used Slider as its example of an unsupported
   control loses that example.
+- **ProgressBar, TextElement and RepeatButton are drawn** (bundle F).
+  ProgressBar builds Unity's container, background, bar and title; the bar
+  width follows Unity's rule, floor(background width - 2) x clamp(value) /
+  high-value, measured on fourteen values, ranges and widths. On the editor
+  theme a bar at or below low-value warns `version-dependent` (1px on
+  6000.0.40f1, 0 on 6.3; drawn as 6.3). TextElement and RepeatButton are plain
+  text, as in Unity — a RepeatButton does not look like a button. A host that
+  counted their `unsupported-control` warnings loses them.
+- **The editor theme's Toggle box is drawn** (E2): Unity draws it from a
+  built-in texture; the preview paints it in colours measured off Unity's
+  screen, so an unchecked Toggle no longer disappears on the editor theme.
 
 ### Classes
 

@@ -4,24 +4,24 @@
 
 ## 현재 위치
 
-**0.6.1 배포됨 (2026-10-16).** npm `latest` = `0.6.1`. **0.7.0 묶음 A·B·C·D·A2·E와 검토 뒤 정리 라운드(R1–R4) 완료 — `design/0.7.0`, 푸시 안 함, 미배포.**
+**0.6.1 배포됨 (2026-10-16).** npm `latest` = `0.6.1`. **0.7.0 묶음 A·B·C·D·A2·E·E2·F, 글자 자르기, 검토 뒤 정리 라운드(R1–R4) 완료 — `design/0.7.0`, 푸시 안 함, 미배포.**
 기준 Unity 버전 6.3 LTS.
 
 | | |
 |---|---|
-| 0.7.0 | 묶음 A: 기본 테마 `'runtime'`(`theme` 옵션), 두 테마의 측정값, `.unity-disabled`, Label·Button `flex-shrink: 0`, 런타임 CJK 금칙 없음, 런타임 생성기 standard. 묶음 B: GroupBox·Box. 묶음 C: TextField. 묶음 D: Slider·SliderInt. A2: 클래스 정합. 묶음 E: Toggle·RadioButton, 강제 상태 모델. `package.json`은 아직 0.6.1, CHANGELOG `0.7.0 — unreleased` |
-| 테스트 | 코어 **1176 통과 · 1 건너뜀**, tsc 0 |
+| 0.7.0 | 묶음 A: 기본 테마 `'runtime'`(`theme` 옵션), 두 테마의 측정값, `.unity-disabled`, Label·Button `flex-shrink: 0`, 런타임 CJK 금칙 없음, 런타임 생성기 standard. 묶음 B: GroupBox·Box. 묶음 C: TextField. 묶음 D: Slider·SliderInt. A2: 클래스 정합. 묶음 E: Toggle·RadioButton, 강제 상태 모델. E2: 에디터 Toggle 상자. 묶음 F: ProgressBar·TextElement·RepeatButton. 글자 자르기(Unity 조건 측정). `package.json`은 아직 0.6.1, CHANGELOG `0.7.0 — unreleased` |
+| 테스트 | 코어 **1300 통과 · 1 건너뜀**, tsc 0 |
 | 정확도 | **런타임 테마 662/676**(Unity 6.3 실제 런타임 패널) · 에디터 테마 **662/676**(6000.0.40f1) · 템플릿 215/220 · 합산하지 않음 |
-| 소비자 | 묶음 E 뒤 측정: vscode 4건 실패(0.6.1의 1 + Slider·Toggle을 미지원 예로 쓴 테스트 3), uxml-author 29건(0.6.1의 17 + 버전 채널 표본 1 + 지원 목록 docs 8 + Toggle 표본 conditions 3). `docs/design/0.7.0-handoff.md` |
-| 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` `GroupBox` `Box` `TextField` `Slider` `SliderInt` `Toggle` `RadioButton` (그 외는 폴백) |
+| 소비자 | 묶음 F 뒤 측정: vscode 4건 실패(묶음 E와 같음), uxml-author 32건(묶음 E의 29 + 지원 목록 docs 3: TextElement·RepeatButton·ProgressBar). `docs/design/0.7.0-handoff.md` |
+| 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` `GroupBox` `Box` `TextField` `Slider` `SliderInt` `Toggle` `RadioButton` `ProgressBar` `TextElement` `RepeatButton` (그 외는 폴백) |
 
 정확도 세트는 서로 다른 질문을 답하므로 합산하지 않는다. `docs/accuracy.md`.
 
 ## 다음 할 일
 
 0. **GitHub 소개 문구(사람)** — 확정 문안은 2026-10-16 기록 그대로
-1. **A2·묶음 E 확인(사람)** — 확인 뒤 묶음 F(ProgressBar·TextElement·RepeatButton). 에디터 테마 꺼진 Toggle 상자, ScrollView 스크롤바를 만들지 여부도 사람 판단. 플레이그라운드 F5도 남아 있다
-2. **T. 런타임 텍스트 코호트** — 묶음 G 전(계획서 19절). 런타임 패널의 MeasureTextSize 대 레이아웃 폭 1–2px 차이의 원인도
+1. **E2·묶음 F·글자 자르기·반복성 확인(사람)** — 계획서 25–27절. 판단 대기: 덤프 순서 의존성 대응(27-2 제안 1–4), 런타임 글 높이 12–13px 현상(27-1), RepeatButton을 Unity대로 맨 글자로 둔 것(설계 질문 6). 플레이그라운드 F5도 남아 있다
+2. **T. 런타임 텍스트 코호트** — 묶음 G 전(계획서 19절). 반복성 첫 단계는 2026-10-18에 했다(27-2): 흔들림은 실행 순서 의존이고 Standard 생성기에서만. MeasureTextSize 대 레이아웃 폭 1–2px 차이가 같은 현상
 3. **0.7.0 다음 묶음(F–G)과 T** — `docs/design/0.7.0-design.md` 5절, T는 묶음 G 전(계획서 19절)
 4. **소비자 갱신(소비자 저장소의 일)** — 인계 문서 4절 목록
 5. **0.6.0이 남긴 것** — `docs/backlog.md` 0.6.0 절의 2026-10-16 메모
@@ -188,8 +188,25 @@
 | 2026-10-17 | 강제 상태(`states`)는 그 요소에만, 강제 `disabled`는 흐리지 않는다 — A2 추론 뒤집음 | `e-disabled`(덤퍼 r3, 강제 Disabled 의사 상태 대 `enabled="false"`, 두 버전·두 테마): 강제는 클래스·흐림 없음, 자식·부품 비활성 아님. 강제 hover·active·focus도 부품에 닿지 않음. `forced-disabled.test.ts`를 측정으로 다시 씀(사람 지시) |
 | 2026-10-17 | `:checked`는 Toggle·RadioButton의 `value="true"`에서, 요소와 입력 부품에만 | `e-toggle`·`e-radio`의 pseudoStates |
 | 2026-10-17 | 미지원 예로 쓰는 테스트 컨트롤은 0.7.0 묶음에 없는 것(MinMaxSlider) | 묶음 C·D에서 Toggle로 옮긴 9개가 묶음 E에서 다시 깨졌다 |
+| 2026-10-18 | 에디터 Toggle 상자는 Unity 그림 픽셀에서 잰 색으로, 칠하기만 | Unity는 내장 텍스처로 그리고 resolved style은 투명이다. 스타일·레이아웃을 건드리지 않아야 덤프 대조가 그대로 선다. 그림에서 어림한 반지름은 범위(1–3px)로 비교 |
+| 2026-10-18 | 스크롤바는 0.7.0에서 그리지 않는다(알려진 차이), 0.8 첫 후보 | 사람 결정. 폭만 확보, 클래스 테스트 제외 근거를 머리말에 |
+| 2026-10-18 | 글자 자르기는 "근거가 있는 곳"이 아니라 Unity가 자르는 조건 전부에 | 사람 지시. `g-clamp` 측정: AtMost면 자르고, 절대 위치(미리보기 Yoga만 폭을 준다)와 TextField 안쪽 글은 자르지 않는다. 깨진 테스트 5개 중 2개는 규칙 이해가, 3개는 테스트 스텁(줄바꿈 무시)이 틀렸다 |
+| 2026-10-18 | 덤프 흔들림은 무작위가 아니라 실행 순서 의존 | 같은 묶음 5회 반복은 흔들림 0, 단독 실행은 커밋값과 같다. Standard 생성기의 레이아웃 폭만 0–2px. 최빈값은 해법이 아니다(묶음 구성이 정한다). 판정 기준 변경은 제안만(계획서 27-2) |
+| 2026-10-18 | 측정 훅이 줄바꿈을 맡는다. 레이아웃은 훅 결과를 다시 추정하지 않는다 | Codex 1라운드가 테스트 스텁의 한계를 TextElement 전용 높이 추정으로 메웠다. 스텁을 고치고 추정을 뺐다 |
+| 2026-10-18 | RepeatButton은 Unity대로 맨 글자 | 두 테마 측정. 설계 질문 6은 답이 없었고, Unity와 같은 쪽을 골랐다(바꾸기 쉬움) |
 
 ## 세션 로그
+
+### 2026-10-18 (23:43 — E2·판단 2·3·묶음 F·글자 자르기·반복성)
+
+- **E2**: 에디터 Toggle 상자를 Unity `-panelPng` 그림에서 잰 색으로 칠함(`e2-editor-checkbox.test.ts`, Codex 1라운드, 변이 4/4). 두 테마 나란히 그림 `docs/design/0.7.0-bundle-E-shots/E2-unity-vs-preview.png`. RadioButton은 USS 색이 그림과 같아 문제 없음
+- **판단 2**: 스크롤바 알려진 차이(supported·accuracy 한·영), 클래스 테스트 머리말, backlog 0.8 첫 후보
+- **판단 3**: `painted-parents.test.ts` — 등록 목록 전부에서 그린 DOM 부모를 Unity 덤프 경로·레이아웃 부품 트리와 대조. 변이 3/3(살아남았던 Slider 자식 변이 포함)
+- **글자 자르기**: 전체 적용 실험에서 깨진 5개를 조사하고 `g-clamp`로 측정. 규칙과 예외 둘을 Codex 1라운드로 구현(변이 3/3 + 동치 변이 1). registry 스텁이 줄바꿈을 한 줄로 쟀다 — 스텁과 장면 입력 둘을 고침(기대값 불변)
+- **반복성**: 0.7.0 프로브 41개·골든 두 세트를 두 버전·두 테마로 5회씩(약 2만 7천 값). 5회 사이 흔들림 0. 커밋값과의 차이는 실행 순서 의존(단독 실행으로 확인), Standard 생성기만. 골든 에디터 기준과 다른 9값은 이미 `KNOWN_DIVERGENCES`의 글자 측정 9개. 고정 테스트 목록과 제안은 계획서 27-2
+- **묶음 F**: 새 프로브 `f-progress`·`f-states`·`f-hook`. ProgressBar 막대 규칙이 14행과 일치, 에디터 low-value 이하 막대 버전 차이 → 버전 경고. Codex 2라운드(1라운드의 TextElement 전용 줄바꿈 높이 추정을 스텁 수정 뒤 제거). 변이 5/5. 예측과 같음(warning-diff 삭제 142 → 153, 수치 불변). 소비자 vscode 4, uxml-author 32
+- **발견**: 런타임 패널에서 줄바꿈 없는 글의 폭이 밖에서 정해지면 글 높이가 12–13px(원래 17). 규칙 미상, 관찰만 고정
+- **실수**: E2 테스트의 `pngjs` 타입 선언을 빠뜨려 tsc가 깨졌다(`07d9c80`에서 고침). 셸 heredoc 인용이 꼬여 한 번은 아무것도 실행되지 않았다 — 긴 글은 파일로 쓴다
 
 ### 2026-10-17 (01:20 — 0.7.0 묶음 A: A0·A1·A2)
 - A0: `PanelDump`에 `-panelSize`·`-panelSkin editor`·케이스별 스타일시트 비우기. 골든 44케이스 에디터 테마 덤프가 UxmlLayoutDump와 1012/1012(두 버전). `tools/panel-to-golden.mjs`, `tests/golden/panel-dump.ts`·`panel-dump.test.ts`, 런타임 골든 `tests/golden/unity-runtime/`(6.3). 기준선 런타임 609/676. 런타임 세로 스크롤바 24px 발견
