@@ -325,7 +325,12 @@ describe.runIf(EMIT === undefined)('no warning 0.5.0 raised is lost', () => {
 
   it('classifies every 0.5.0 warning, deleting only the ones whose fact was wrong', () => {
     const baseline = JSON.parse(readFileSync(BASELINE, 'utf8')) as Record<string, Recorded[]>;
-    const inputs = warningInputs();
+    // Inputs added after the 0.5.0 baseline have no 0.5.0 warning to lose; each is named here.
+    // Bundle G (0.7.0) added the settings screen to the golden cases.
+    const ADDED_AFTER_BASELINE = ['golden:settings', 'golden:settings-ko'];
+    const all = warningInputs();
+    expect(all.map((i) => i.id).filter((id) => !(id in baseline)).sort()).toEqual([...ADDED_AFTER_BASELINE].sort());
+    const inputs = all.filter((i) => i.id in baseline);
     expect(inputs.map((i) => i.id).sort()).toEqual(Object.keys(baseline).sort());
     const now: Record<string, Recorded[]> = {};
     for (const input of inputs) now[input.id] = run(current, input);

@@ -50,7 +50,8 @@ describe('the default theme', () => {
   const cases = CASES.filter((c) => existsSync(join(RUNTIME, `${c.name}.json`)));
 
   it('covers the whole runtime golden set', () => {
-    expect(cases).toHaveLength(44);
+    // 44 until bundle G added settings and settings-ko.
+    expect(cases).toHaveLength(46);
   });
 
   for (const golden of cases) {

@@ -36,6 +36,9 @@ const EXPLAINED = new Set([
   'percent-without-parent-size/unsized/height',
   'percent-without-parent-size/pct-in-unsized/height',
   ...['DetailPanel/width', 'ItemName/width', 'ItemDesc/width', 'ActionBar/x', 'ActionBar/width', 'UseButton/x', 'UseButton/width', 'DropButton/x', 'DropButton/width', 'TitleLabel/y', 'CloseButton/y', 'unity-content-container/height'].map((k) => `inventory/${k}`),
+  // Bundle G: the settings footer's text widths, as golden.test.ts lists them.
+  ...['settings', 'settings-ko'].flatMap((name) =>
+    ['apply/width', 'cancel/x', 'cancel/width', 'minus/x', 'plus/x', 'plus/width'].map((k) => `${name}/${k}`)),
 ]);
 
 beforeAll(async () => {
@@ -59,7 +62,8 @@ function compareAll(): { matching: number; compared: number; unexplained: string
     const ours = runCase(golden, unity.panel, 'runtime');
     for (const [key, want] of Object.entries(unity.elements)) {
       const base = key.includes('#') ? key.slice(0, key.indexOf('#')) : key;
-      if (NOT_REPRODUCED.includes(base)) continue;
+      // As golden.test.ts: excused only where we do not build the name (a Slider's own parts are compared).
+      if (NOT_REPRODUCED.includes(base) && ours.elements[key] === undefined) continue;
       for (const field of ['x', 'y', 'width', 'height'] as const) {
         compared++;
         const got = ours.elements[key]?.[field];
@@ -80,7 +84,8 @@ describe('accuracy: the runtime theme against a real runtime panel', () => {
   it('leaves only differences the editor set already explains', () => {
     const r = compareAll();
     console.info(`runtime theme vs Unity 6.3 runtime panel: ${r.matching}/${r.compared}\n  ${r.mismatches.join('\n  ')}`);
-    expect(r.compared).toBe(676);
+    // 676 until bundle G added the settings screen: two cases, 472 values (Slider parts included).
+    expect(r.compared).toBe(1148);
     expect(r.unexplained, r.unexplained.join('\n')).toEqual([]);
   });
 });

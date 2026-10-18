@@ -10,10 +10,10 @@ did that at 0.1.0, but it is now a record frozen at that time.
 
 | Number | Meaning | Use |
 |---|---|---|
-| **662 / 676 (97.9%)** | Runtime values matching — the runtime theme (0.7.0 default) against a real Unity 6.3 runtime panel | **quoted outside, README first line** ("Runtime theme" below) |
-| **662 / 676 (97.9%)** | Editor theme: values matching, of the values compared (169 elements × `x`/`y`/`w`/`h`), Unity 6000.0.40f1 | **quoted outside, README second line** |
-| 38 / 40 | Cases matching completely | internal. Quote it only together with 662/676 |
-| 41 / 41 | Cases with Unity ground truth available | **coverage, not accuracy.** Never quoted outside |
+| **1122 / 1148 (97.7%)** | Runtime values matching — the runtime theme (0.7.0 default) against a real Unity 6.3 runtime panel | **quoted outside, README first line** ("Runtime theme" below) |
+| **1122 / 1148 (97.7%)** | Editor theme: values matching, of the values compared (287 elements × `x`/`y`/`w`/`h`), Unity 6000.0.40f1 | **quoted outside, README second line** |
+| 38 / 42 | Cases matching completely | internal. Quote it only together with 1122/1148 |
+| 43 / 43 | Cases with Unity ground truth available | **coverage, not accuracy.** Never quoted outside |
 
 31/31 was once quoted as accuracy (`docs/visual-check.md`, 2026-08-06) — the same mistake
 0.1.0 made with 18/18, repeated a day later with a different case set. When a new number is
@@ -31,21 +31,21 @@ figures against `tests/text-cohort/results.json`).
 
 | Item | Value |
 |---|---|
-| Cases | 44 (40 coordinate comparisons, 1 resource observation, 3 dependent on text measurement) |
-| Unity ground truth available | **41 / 41** |
-| Elements compared | 169 (676 values = elements × x/y/width/height) |
-| **Cases matching** | **38 / 40** |
-| **Values matching** | **662 / 676 (97.9%)** |
-| Known divergences | 14 values — **and they are four different things** |
+| Cases | 46 (42 coordinate comparisons, 1 resource observation, 3 dependent on text measurement) |
+| Unity ground truth available | **43 / 43** |
+| Elements compared | 287 (1148 values = elements × x/y/width/height) |
+| **Cases matching** | **38 / 42** |
+| **Values matching** | **1122 / 1148 (97.7%)** |
+| Known divergences | 26 values — **and they are four different things** |
 
 `resource-resolution` measures Unity's resolved background object and asset path, not
-coordinate accuracy. It counts toward baseline coverage but not the 662/676 matching values or
-the 38/40 coordinate cases.
+coordinate accuracy. It counts toward baseline coverage but not the 1122/1148 matching values or
+the 38/42 coordinate cases.
 
 ## Template / Instance expansion (separate cohort, measured on Unity 6000.0.40f1)
 
 The base-control and template-expansion cohorts answer different questions and are never added
-together. The base figure stays **662 / 676 (169 elements, with the 0.7.0 editor theme values)**.
+together. The base figure stays **1122 / 1148 (287 elements, with the 0.7.0 editor theme values and the settings screen)**.
 
 | Item | Template expansion cohort | Meaning |
 |---|---:|---|
@@ -90,7 +90,7 @@ would hide a real 1px error in another case.
 
 | Kind | Values | What it means |
 |---|---|---|
-| **Text metrics** | **9** | **Not a layout defect.** Both engines behave the same way; only the ruler differs. All widths and x |
+| **Text metrics** | **21** | **Not a layout defect.** Both engines behave the same way; only the ruler differs. All widths and x |
 | 1px (inside criterion 2's tolerance) | 2 | named in a list; the comparator is not loosened |
 | `yoga-layout` version difference | 2 | judged and recorded 2026-08-02 |
 | **Unresolved** | **1** | a wrapped container's height. Unity's rule is not identified |
@@ -167,12 +167,12 @@ excused `unity-content-viewport` too, which has to match.
 
 ### Which controls this covers
 
-The composition of the 40 compared cases. In the previous measurement (242/244) the first row of
+The composition of the 42 compared cases. In the previous measurement (242/244) the first row of
 this table was 17 of 18 — **in effect `VisualElement` geometry** — and no `Button` had ever been
 compared.
 
-**This table is computed from `tests/golden/cases.ts`, on this rule**: the `inventory` case is
-classified as the representative screen. Each of the other 39 is ScrollView if its UXML contains
+**This table is computed from `tests/golden/cases.ts`, on this rule**: the `inventory`, `settings` and `settings-ko` cases are
+classified as the representative screens. Each of the other 39 is ScrollView if its UXML contains
 `<ui:ScrollView`, otherwise Button if it contains `<ui:Button`, otherwise Label if it contains
 `<ui:Label`, otherwise `VisualElement` only. All 39 contain at most one of the three tags, so the
 order does not change the result (checked directly: `inventory` is the only case with more than
@@ -184,7 +184,7 @@ one).
 | `Label` | 1 (`inherit-vs-direct`) |
 | `Button` | 10 |
 | `ScrollView` | 4 |
-| the representative screen (inventory) | 1 — all five above plus Image |
+| the representative screens (inventory, the settings screen in two variants) | 3 — inventory: all five above plus Image. The settings screen (`settings`, `settings-ko`, bundle G): all 15 controls 0.7.0 draws |
 
 Only one case contains a `Label` because the other two (`text-size`, `text-align`) depend on text
 measurement and are excluded from the comparison. **Control coverage is a different axis from
@@ -236,8 +236,8 @@ Since 0.7.0 the default theme is Unity's runtime theme (a game screen). The same
 | Ground truth | `tests/golden/unity-runtime/` (generated by `tools/panel-to-golden.mjs`). 6000.0.40f1 gives the same coordinates |
 | Dumper check | the same dumper on the editor theme equals UxmlLayoutDump on 1012/1012 values, both versions — `tests/golden/panel-dump.test.ts` |
 | Compared | as the editor set (40 coordinate cases, 0.5px, scroller parts excluded) |
-| **Runtime values matching** | **662 / 676 (97.9%)** |
-| The 14 left | every one sits where the editor set has a known divergence (text metrics 9, 1px 2, wrapped container 1, `%` 2). Anything else fails `tests/golden/runtime.test.ts` |
+| **Runtime values matching** | **1122 / 1148 (97.7%)** |
+| The 26 left | every one sits where the editor set has a known divergence (text metrics 21 — inventory 9, the settings footer 12 —, 1px 2, wrapped container 1, `%` 2). Anything else fails `tests/golden/runtime.test.ts` |
 
 Before the theme values went in (0.6.x behaviour) this set read 609/676. The values that moved came from the runtime Label
 spacing (4·4·2·2 / 4·2·4·1), the Button margin, padding and border, 14px text and a 24px vertical scroller, all read from
@@ -266,7 +266,7 @@ golden cases were dumped again on 6000.3.25f1 to check whether the two versions 
 
 ## Text cohort (separate set, measured 2026-10-16)
 
-**Never added** to the coordinate figure (662/676) or the template cohort. Text is judged by its
+**Never added** to the coordinate figure (1122/1148) or the template cohort. Text is judged by its
 boxes and line counts, not by pixels or bytes. The same UXML (`tests/text-cohort/probes/`) is drawn
 by Unity and by a real Chromium, and the Label boxes compared. Run it with `pnpm test:text`
 (`tests/text-cohort/README.md`).

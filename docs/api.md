@@ -42,7 +42,7 @@ UXML과 USS 텍스트를 모델(`UxmlDocument`)로 읽는다. 실패하지 않�
 
 | 옵션 | 뜻 |
 |---|---|
-| `theme` | `'runtime'`(기본값, 0.7.0부터) 또는 `'editor'`(어두운 에디터 테마, 662/676 에디터 수치를 잰 테마). 모르는 값은 `malformed`·`invalid-value` 경고 뒤 기본 테마로 그린다. 코어는 패널 뒤를 칠하지 않는다(투명) — 런타임 글자는 어두운 색이라 바탕은 호스트가 정한다 |
+| `theme` | `'runtime'`(기본값, 0.7.0부터) 또는 `'editor'`(어두운 에디터 테마, 1122/1148 에디터 수치를 잰 테마). 모르는 값은 `malformed`·`invalid-value` 경고 뒤 기본 테마로 그린다. 코어는 패널 뒤를 칠하지 않는다(투명) — 런타임 글자는 어두운 색이라 바탕은 호스트가 정한다 |
 | `size` | 패널 크기(px). **창이 아니라 패널이다** — USS의 `%`와 늘이기는 패널 기준이라 창을 따라가면 "1920×1080에서 어떻게 보이나"에 답할 수 없다. 없으면 컨테이너 크기 |
 | `resolveAsset(path, form)` | `background-image`의 `url("project://…")`·`resource("…")`를 브라우저가 읽을 URL로. `form`은 `'url'`(경로) 또는 `'resource'`(Unity Resources 이름, 확장자 없음) — 둘을 같은 경로로 풀면 엉뚱한 그림이 조용히 나온다. 에디터 내장 리소스는 디스크 호스트가 풀 수 없으니 `null`을 돌려준다. `null`이면 플레이스홀더를 그리고 경고한다 |
 | `resolveFont(path, form)` | `-unity-font-definition`의 폰트를. 폰트 패밀리 이름(문자열), `{ family, faceInfo }`, 또는 `null`. `faceInfo`(Unity가 그 폰트에 보고하는 `pointSize`·`ascentLine`·`descentLine`)를 주면 글자 높이가 Unity 공식과 같아진다. 같은 (path, form)은 한 번의 render에 한 번만 부른다 |

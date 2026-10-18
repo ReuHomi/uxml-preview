@@ -128,7 +128,9 @@ export function runCase(
     // and a wrong hierarchy would show up only as displaced children with no
     // hint as to why.
     for (const part of tree.parts.get(node.id) ?? []) {
-      collected.push({ name: part.name, box: part.box });
+      // A Slider's dragger is placed by a paint-only translate (bundle D); Unity's dump is after it.
+      const [tx = 0, ty = 0] = (part.style.get('translate')?.value ?? '').split(/\s+/).filter((v) => v !== '').map((v) => parseFloat(v));
+      collected.push({ name: part.name, box: { ...part.box, left: part.box.left + tx, top: part.box.top + ty } });
     }
 
     for (const child of node.children) walk(child);

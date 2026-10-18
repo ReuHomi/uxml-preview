@@ -178,6 +178,32 @@ const KNOWN_DIVERGENCES: KnownDivergence[] = [
       '(docs/accuracy.md, bundle A plan 27-2).',
   })),
 
+  // Bundle G, the settings screen in English and Korean: the footer row is sized by its
+  // Buttons' and RepeatButtons' text (align-items: flex-start), so their widths and the x of
+  // what follows are text measurement, the same kind as the inventory footer above. Six per
+  // case; every other value of the two screens matches, Slider parts included
+  // (tests/contract-070/bundle-g.test.ts judges the same screen exactly with Unity's text sizes).
+  ...(['settings', 'settings-ko'] as const).flatMap((name) =>
+    (
+      [
+        ['apply', 'width'],
+        ['cancel', 'x'],
+        ['cancel', 'width'],
+        ['minus', 'x'],
+        ['plus', 'x'],
+        ['plus', 'width'],
+      ] as const
+    ).map(([element, field]) => ({
+      case: name,
+      element,
+      field,
+      reason:
+        'Text measurement. The footer row takes its width from the button text; the harness ' +
+        'measures half an em per character, Unity its font asset. bundle-g.test.ts, with ' +
+        'Unity\'s text sizes, matches every one of these.',
+    })),
+  ),
+
   // ItemDesc.height and ItemDesc.y left this list in 0.7.0 (bundle A, A2): the theme now
   // gives Label flex-shrink 0, measured in both themes (probe-editor-070, probe-panel
   // c07-existing), and both values match Unity. They were a missing theme value, as the
@@ -268,7 +294,9 @@ function baseName(key: string): string {
 function compare(ours: CaseGeometry, unity: UnityDump): Mismatch[] {
   const out: Mismatch[] = [];
   for (const [element, expected] of Object.entries(unity.elements)) {
-    if (NOT_REPRODUCED.has(baseName(element))) continue;
+    // Excused only where we do not build it: a Slider's own drag container, tracker and
+    // dragger (bundle D) carry the scrollers' names and are compared (settings, bundle G).
+    if (NOT_REPRODUCED.has(baseName(element)) && ours.elements[element] === undefined) continue;
     const actual = ours.elements[element];
     if (actual === undefined) {
       out.push({ element, field: 'x', ours: NaN, unity: expected.x });
@@ -326,12 +354,15 @@ describe('accuracy: we match Unity', () => {
     const stale = [...NOT_REPRODUCED].filter((n) => !inUnity.has(n));
     expect(stale, `no dump contains: ${stale.join(', ')}`).toEqual([]);
 
-    const nowProduced = measured.flatMap((golden) =>
-      Object.keys(runCase(golden).elements).filter((n) => NOT_REPRODUCED.has(baseName(n))),
-    );
+    // What we do build under one of these names is compared, not excused (compare() skips a
+    // name only when our output lacks it). The scrollers themselves stay unbuilt: no ScrollView
+    // case produces them.
+    const nowProduced = measured
+      .filter((golden) => golden.uxml.includes('ScrollView'))
+      .flatMap((golden) => Object.keys(runCase(golden).elements).filter((n) => NOT_REPRODUCED.has(baseName(n))));
     expect(
       [...new Set(nowProduced)],
-      'these are produced now and should be compared, not excused',
+      'a ScrollView case builds a scroller part now: compare it, do not excuse it',
     ).toEqual([]);
   });
 
@@ -357,10 +388,11 @@ describe('accuracy: we match Unity', () => {
       if (unity === null) continue;
       presentCases++;
 
-      const reproduced = Object.keys(unity.elements).filter(
-        (k) => !NOT_REPRODUCED.has(baseName(k)),
-      );
       const ours = runCase(golden, unity.panel);
+      // Counted as compare() compares: an excused name counts only when we build it (bundle G).
+      const reproduced = Object.keys(unity.elements).filter(
+        (k) => !NOT_REPRODUCED.has(baseName(k)) || ours.elements[k] !== undefined,
+      );
       const mismatches = compare(ours, unity);
 
       comparedValues += reproduced.length * 4;
@@ -382,8 +414,9 @@ describe('accuracy: we match Unity', () => {
     for (const golden of coordinateCases) {
       const unity = readJson<UnityDump>(join(HERE, 'unity-runtime', `${golden.name}.json`));
       if (unity === null) continue;
-      const reproduced = Object.keys(unity.elements).filter((k) => !NOT_REPRODUCED.has(baseName(k)));
-      const mismatches = compare(runCase(golden, unity.panel, 'runtime'), unity);
+      const ours = runCase(golden, unity.panel, 'runtime');
+      const reproduced = Object.keys(unity.elements).filter((k) => !NOT_REPRODUCED.has(baseName(k)) || ours.elements[k] !== undefined);
+      const mismatches = compare(ours, unity);
       comparedValues += reproduced.length * 4;
       matchingValues += reproduced.length * 4 - mismatches.length;
     }
@@ -559,7 +592,8 @@ describe('accuracy: we match Unity', () => {
   > {
     const counts = { 'VisualElement only': 0, Label: 0, Button: 0, ScrollView: 0, screen: 0 };
     for (const golden of coordinateCases) {
-      if (golden.name === 'inventory') counts.screen++;
+      // The representative screens: inventory (S1) and the 0.7.0 settings screen, two variants (bundle G).
+      if (golden.name === 'inventory' || golden.name === 'settings' || golden.name === 'settings-ko') counts.screen++;
       else if (/<ui:ScrollView/.test(golden.uxml)) counts.ScrollView++;
       else if (/<ui:Button/.test(golden.uxml)) counts.Button++;
       else if (/<ui:Label/.test(golden.uxml)) counts.Label++;

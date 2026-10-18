@@ -55,7 +55,9 @@ describe('PanelDump against UxmlLayoutDump', () => {
   it('the runtime set is the conversion of the 6.3 runtime-panel dump, unedited', () => {
     const dir = join(LAYOUT, '6000.3.25f1', 'golden-panel');
     const files = readdirSync(dir).filter((f) => f.endsWith('.json'));
-    expect(files).toHaveLength(44);
+    // 44 until bundle G added settings and settings-ko (no editor-on-panel dump for them: the
+    // check above compares the two dumpers on the original 44).
+    expect(files).toHaveLength(46);
     for (const f of files) {
       const panel = panelToGolden(read<PanelDumpFile>(join(dir, f)));
       expect(panel.metadata.theme, f).toBe('runtime-panel');

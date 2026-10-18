@@ -45,7 +45,7 @@ when it cannot be found (a warning is recorded).
 
 | Option | Meaning |
 |---|---|
-| `theme` | `'runtime'` (the default since 0.7.0) or `'editor'` (the dark editor theme the 662/676 editor figure was measured with). An unknown value warns `malformed` / `invalid-value` and draws the default. The core paints nothing behind the panel (transparent); runtime text is dark, so the backdrop is the host's |
+| `theme` | `'runtime'` (the default since 0.7.0) or `'editor'` (the dark editor theme the 1122/1148 editor figure was measured with). An unknown value warns `malformed` / `invalid-value` and draws the default. The core paints nothing behind the panel (transparent); runtime text is dark, so the backdrop is the host's |
 | `size` | Panel size in px. **The panel, not the window** — USS percentages and stretching resolve against the panel, so a preview that follows the window cannot answer "how does this look at 1920×1080". Defaults to the container's size |
 | `resolveAsset(path, form)` | Turns a `background-image` `url("project://…")` or `resource("…")` into a URL the browser can load. `form` is `'url'` (a path) or `'resource'` (a Unity Resources name, no extension) — resolving both as the same kind of path silently produces the wrong picture. A disk-only host cannot resolve editor built-ins, so return `null` for those. On `null` a placeholder is drawn and a warning recorded |
 | `resolveFont(path, form)` | The font for `-unity-font-definition`: a font family name (string), `{ family, faceInfo }`, or `null`. With `faceInfo` (the `pointSize`, `ascentLine` and `descentLine` Unity reports for that font) text height matches Unity's formula. Called once per distinct (path, form) per render |
