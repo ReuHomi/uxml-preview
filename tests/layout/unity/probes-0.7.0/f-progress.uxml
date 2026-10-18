@@ -1,0 +1,20 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:ProgressBar name="p-0" value="0" />
+<ui:ProgressBar name="p-1" value="1" />
+<ui:ProgressBar name="p-25" value="25" />
+<ui:ProgressBar name="p-33" value="33.3" />
+<ui:ProgressBar name="p-99" value="99" />
+<ui:ProgressBar name="p-over" value="150" />
+<ui:ProgressBar name="p-under" value="-10" />
+<ui:ProgressBar name="p-range" low-value="10" high-value="20" value="15" />
+<ui:ProgressBar name="p-high" high-value="200" value="50" />
+<ui:ProgressBar name="p-low" low-value="40" value="50" />
+<ui:ProgressBar name="p-long" value="50" title="A much longer title than the bar can hold in its width" />
+</ui:VisualElement>
+<ui:VisualElement name="row" style="flex-direction: row; align-items: flex-start;">
+<ui:ProgressBar name="p-w101" value="50" style="width: 101px;" />
+<ui:ProgressBar name="p-w57" value="33" style="width: 57px;" />
+<ui:ProgressBar name="p-h40" value="50" title="Tall" style="width: 80px; height: 40px;" />
+</ui:VisualElement>
+</ui:UXML>

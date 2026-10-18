@@ -76,3 +76,16 @@ value that moved between runs: 6000.0.40f1 editor `c07-existing` `free/label-aut
 | `d-slider-children` | where a Slider's own file children go (Unity's contentContainer) |
 | `e-disabled` | `enabled="false"` against a forced Disabled pseudo-state, on a VisualElement with a child, Label, Button, Toggle, RadioButton, TextField, Slider |
 | `e-toggle`, `e-radio` | label with text, long label, forced hover/focus/active, checked with text, auto widths |
+
+## Bundle F (2026-10-18, dumper 0.7.0-r3)
+
+| Probe | What it settles |
+|---|---|
+| `f-progress` | the bar width: values 0, 1, 25, 33.3, 50, 99, 100, 150, -10; a 10-20 range, a 200 high, a 40 low; widths 101, 57, 80; a title longer than the bar |
+| `f-states` | forced hover/active/focus/disabled on ProgressBar, RepeatButton, TextElement; a wrapping TextElement; a file child inside each of the three |
+| `f-hook` (+ `.uss`) | author rules on the ProgressBar parts and `.unity-repeat-button`; a `TextElement` type selector beside a Label and a RepeatButton |
+
+Re-running `c07-ProgressBar`, `c07-RepeatButton` and `c07-TextElement` with r3 gave them back
+unchanged except one value that moved between runs: `c07-TextElement` `free/te-auto` width 104
+on the runtime panel of both versions (committed 103, text "Hamburgefonts"). The committed
+files stand; the run-to-run question belongs to item T (plan section 25).

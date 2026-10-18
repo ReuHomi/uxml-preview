@@ -1,0 +1,5 @@
+.unity-progress-bar__progress { background-color: rgb(255, 0, 0); }
+.unity-progress-bar__background { border-top-width: 3px; }
+.unity-progress-bar__title { color: rgb(0, 0, 255); }
+.unity-repeat-button { padding-left: 7px; color: rgb(0, 128, 0); }
+TextElement { margin-top: 5px; }

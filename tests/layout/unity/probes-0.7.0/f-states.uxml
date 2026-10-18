@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:ProgressBar name="p-hover" value="50" title="Hover" class="force-hover" />
+<ui:ProgressBar name="p-forced" value="50" title="Forced" class="force-disabled" />
+<ui:RepeatButton name="rb-hover" text="Hover" class="force-hover" />
+<ui:RepeatButton name="rb-active" text="Active" class="force-active" />
+<ui:RepeatButton name="rb-focus" text="Focus" class="force-focus" />
+<ui:RepeatButton name="rb-forced" text="Forced" class="force-disabled" />
+<ui:TextElement name="te-hover" text="Hover" class="force-hover" />
+<ui:TextElement name="te-long" text="A sentence long enough to wrap inside the three hundred pixel column at this size" />
+<ui:RepeatButton name="rb-child" text="Parent"><ui:Label name="rb-child-label" text="Child" /></ui:RepeatButton>
+<ui:TextElement name="te-child" text="Parent"><ui:Label name="te-child-label" text="Child" /></ui:TextElement>
+<ui:ProgressBar name="p-child" value="50"><ui:Label name="p-child-label" text="Child" /></ui:ProgressBar>
+</ui:VisualElement>
+</ui:UXML>

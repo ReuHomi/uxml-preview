@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:ProgressBar name="p-hook" value="50" title="Hook" />
+<ui:RepeatButton name="rb-hook" text="Hook" />
+<ui:TextElement name="te-hook" text="Hook" />
+<ui:Label name="l-hook" text="Label" />
+</ui:VisualElement>
+</ui:UXML>
