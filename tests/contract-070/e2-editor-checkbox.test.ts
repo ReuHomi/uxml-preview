@@ -19,7 +19,10 @@
  *           top edge (7,0)                                  #0d0d0d
  *           left (0,7), right (13,7), bottom (7,13) edges   #212121
  *           corner (0,0) #272727, (1,0) #101010: a 1px edge rounded by about 2px
- *           ([추론] from anti-aliasing; the radius is not a dumped value).
+ *           ([추론] from anti-aliasing; the radius is not a dumped value). The corner pixel is
+ *           about half edge, half panel; a quarter circle covers that much of it at a radius
+ *           near 2 (about 0.8 at 1px, 0.45 at 2px, 0.15 at 3px). So the radius is judged as a
+ *           range, 1px to 3px, not as an exact value; the colours above are read exactly.
  *           A disabled Toggle is the same box at the owner's opacity 0.5 (#313131 inside).
  *   RadioButton: the editor radio is drawn from USS colours that the dump resolves
  *           (background #2a2a2a, border 1px #212121, radius 6), and the PNG agrees
@@ -27,7 +30,7 @@
  * The check glyph's shape stays judging rule 5 (screenshots in the E2 report).
  *
  * What is pinned on the preview: the painted Toggle checkmark element of every Toggle in
- * the editor theme carries that box as paint only — background-color, border-radius 2px and
+ * the editor theme carries that box as paint only — background-color, border-radius 1-3px and
  * four 1px inset box-shadow edges — so the layout box, the resolved styles (still Unity's
  * transparent values, bundle-e.test.ts) and the runtime theme do not change.
  */
@@ -164,7 +167,10 @@ describe('E2 — the preview paints it', () => {
         for (const t of all) {
           const el = partOf(r, t, 'unity-checkmark');
           expect(hex(el.style.backgroundColor), `${probe} background`).toBe('#2a2a2a');
-          expect(el.style.borderRadius, `${probe} radius`).toBe('2px');
+          // Estimated from the picture, not read (header): a range.
+          expect(el.style.borderRadius, `${probe} radius in px`).toMatch(/^\d+(\.\d+)?px$/);
+          const radius = parseFloat(el.style.borderRadius);
+          expect(radius >= 1 && radius <= 3, `${probe} radius ${el.style.borderRadius} within 1-3px`).toBe(true);
           expect(insetEdges(el.style.getPropertyValue('box-shadow')), `${probe} edges`).toEqual({
             top: '#0d0d0d', left: '#212121', right: '#212121', bottom: '#212121',
           });
