@@ -89,3 +89,13 @@ Re-running `c07-ProgressBar`, `c07-RepeatButton` and `c07-TextElement` with r3 g
 unchanged except one value that moved between runs: `c07-TextElement` `free/te-auto` width 104
 on the runtime panel of both versions (committed 103, text "Hamburgefonts"). The committed
 files stand; the run-to-run question belongs to item T (plan section 25).
+
+## Text clipping (2026-10-18, dumper 0.7.0-r3)
+
+| Probe | What it settles |
+|---|---|
+| `g-clamp` | where Unity clips a text's width to the width it is offered: a column with align-items flex-start, a stretched column, a row, a row with overflow hidden, an absolute Label, a row of auto width, a TextField's inner text, and the registry test's scene with letter-, word-spacing and both generators |
+
+Dumped alone in its own Unity process. The repeatability runs of the same day (plan section 27)
+found that a text's layout width under the Standard generator depends on what the same process
+drew before (0-2px); a probe run alone gives the committed values.
