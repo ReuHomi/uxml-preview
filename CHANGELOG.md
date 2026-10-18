@@ -63,7 +63,11 @@ Play mode) on Unity 6.3, and the editor theme stays one option away.
   with `align-items: flex-start`, with or without `overflow: hidden`. An
   absolutely placed text and a TextField's inner text are not clipped, as in
   Unity. A long no-wrap Label in a narrow box now has the box's width instead
-  of overflowing it. No accuracy figure moved.
+  of overflowing it. No accuracy figure moved. The same holds for the height
+  (`g-clamp-h`): a text offered a smaller height is clipped to it, down to its
+  padding and border — a TextField's inner text included.
+- **A focused TextField's label takes the focus colour** (runtime #00526a,
+  editor #81b4ff), as Toggle and RadioButton labels do.
 
 ### New controls
 
@@ -126,10 +130,16 @@ Play mode) on Unity 6.3, and the editor theme stays one option away.
 
 | Set | 0.6.1 | 0.7.0 | Why |
 |---|---:|---:|---|
-| Runtime theme coordinates (Unity 6.3 runtime panel) | — | 662 / 676 | new set; the 14 left are the editor set's known divergences |
-| Editor theme coordinates (Unity 6000.0.40f1) | 660 / 676 | 662 / 676 | Label `flex-shrink: 0` (`ItemDesc` y, height) |
+| Runtime theme coordinates (Unity 6.3 runtime panel) | — | 1122 / 1148 | new set (662/676 on the original 40 cases); the settings screen adds 472 values and 12 text-width mismatches; the 26 left are the editor set's known divergences |
+| Editor theme coordinates (Unity 6000.0.40f1) | 660 / 676 | 1122 / 1148 | Label `flex-shrink: 0` (`ItemDesc` y, height) gave 662/676; the settings screen (two cases, all 15 drawn controls) adds 472 values, 12 of them the footer's text widths |
 | Template cohort | 215 / 220 | 215 / 220 | unchanged; G3-4 text-width deltas moved by the Label padding |
-| Text cohort (Chromium vs Unity 6.3) | 92/92 · 84/92 · 92/92 · 157/159 | unchanged | |
+| Text cohort, editor (Chromium vs Unity) | 92/92 · 84/92 · 92/92 · 157/159 | unchanged | |
+| Text cohort, runtime panel (new set) | — | 92/92 · 60/92 · 89/92 · 153/159 (both versions) | the runtime panel uses the Standard generator; the preview measures heights and widths as Advanced. One row unexplained (`noto-jp-zh-20-w60`) |
+
+Every Unity baseline is now a solo dump, each probe or case in its own Unity
+process: under the Standard text generator a text's width depends on what the
+same process drew before (0-2px). The inventory's nine text-metric values moved
+by 1px on Unity's side (291/93 -> 292/92), still counted as mismatches.
 
 ### Corrections
 

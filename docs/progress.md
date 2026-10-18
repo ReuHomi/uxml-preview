@@ -4,15 +4,15 @@
 
 ## 현재 위치
 
-**0.6.1 배포됨 (2026-10-16).** npm `latest` = `0.6.1`. **0.7.0 묶음 A·B·C·D·A2·E·E2·F, 글자 자르기, 검토 뒤 정리 라운드(R1–R4) 완료 — `design/0.7.0`, 푸시 안 함, 미배포.**
+**0.6.1 배포됨 (2026-10-16).** npm `latest` = `0.6.1`. **0.7.0 묶음 A·B·C·D·A2·E·E2·F·G, 항목 T, 글자 자르기(폭·높이), 단독 덤프 정답지, 검토 뒤 정리 라운드(R1–R4) 완료 — `design/0.7.0`, 푸시 안 함, 미배포.**
 기준 Unity 버전 6.3 LTS.
 
 | | |
 |---|---|
-| 0.7.0 | 묶음 A: 기본 테마 `'runtime'`(`theme` 옵션), 두 테마의 측정값, `.unity-disabled`, Label·Button `flex-shrink: 0`, 런타임 CJK 금칙 없음, 런타임 생성기 standard. 묶음 B: GroupBox·Box. 묶음 C: TextField. 묶음 D: Slider·SliderInt. A2: 클래스 정합. 묶음 E: Toggle·RadioButton, 강제 상태 모델. E2: 에디터 Toggle 상자. 묶음 F: ProgressBar·TextElement·RepeatButton. 글자 자르기(Unity 조건 측정). `package.json`은 아직 0.6.1, CHANGELOG `0.7.0 — unreleased` |
-| 테스트 | 코어 **1300 통과 · 1 건너뜀**, tsc 0 |
-| 정확도 | **런타임 테마 662/676**(Unity 6.3 실제 런타임 패널) · 에디터 테마 **662/676**(6000.0.40f1) · 템플릿 215/220 · 합산하지 않음 |
-| 소비자 | 묶음 F 뒤 측정: vscode 4건 실패(묶음 E와 같음), uxml-author 32건(묶음 E의 29 + 지원 목록 docs 3: TextElement·RepeatButton·ProgressBar). `docs/design/0.7.0-handoff.md` |
+| 0.7.0 | 묶음 A: 기본 테마 `'runtime'`(`theme` 옵션), 두 테마의 측정값, `.unity-disabled`, Label·Button `flex-shrink: 0`, 런타임 CJK 금칙 없음, 런타임 생성기 standard. 묶음 B: GroupBox·Box. 묶음 C: TextField. 묶음 D: Slider·SliderInt. A2: 클래스 정합. 묶음 E: Toggle·RadioButton, 강제 상태 모델. E2: 에디터 Toggle 상자. 묶음 F: ProgressBar·TextElement·RepeatButton. 글자 자르기(폭·높이, Unity 조건 측정). 묶음 G: 설정 화면(골든 2케이스, 계약 테스트), TextField 포커스 라벨 색. 정답지는 단독 실행 덤프(`tests/layout/unity/dump-solo.sh`). `package.json`은 아직 0.6.1, CHANGELOG `0.7.0 — unreleased` |
+| 테스트 | 코어 **1379 통과 · 1 건너뜀**, tsc 0 · 텍스트 코호트(`pnpm test:text`)는 런타임 세트의 설명되지 않는 1행 때문에 실패로 끝남 |
+| 정확도 | **런타임 테마 1122/1148**(Unity 6.3 실제 런타임 패널) · 에디터 테마 **1122/1148**(6000.0.40f1) — 설정 화면 2케이스가 들어가기 전에는 둘 다 662/676 · 템플릿 215/220 · 텍스트 코호트 에디터 92/92·84/92·92/92, 런타임 패널 92/92·60/92·89/92(새 세트) · 합산하지 않음 |
+| 소비자 | 묶음 G 뒤 측정: vscode 4건 실패, uxml-author 32건 — 묶음 F와 같음. `docs/design/0.7.0-handoff.md` |
 | 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` `GroupBox` `Box` `TextField` `Slider` `SliderInt` `Toggle` `RadioButton` `ProgressBar` `TextElement` `RepeatButton` (그 외는 폴백) |
 
 정확도 세트는 서로 다른 질문을 답하므로 합산하지 않는다. `docs/accuracy.md`.
@@ -20,9 +20,9 @@
 ## 다음 할 일
 
 0. **GitHub 소개 문구(사람)** — 확정 문안은 2026-10-16 기록 그대로
-1. **E2·묶음 F·글자 자르기·반복성 확인(사람)** — 계획서 25–27절. 판단 대기: 덤프 순서 의존성 대응(27-2 제안 1–4), 런타임 글 높이 12–13px 현상(27-1), RepeatButton을 Unity대로 맨 글자로 둔 것(설계 질문 6). 플레이그라운드 F5도 남아 있다
-2. **T. 런타임 텍스트 코호트** — 묶음 G 전(계획서 19절). 반복성 첫 단계는 2026-10-18에 했다(27-2): 흔들림은 실행 순서 의존이고 Standard 생성기에서만. MeasureTextSize 대 레이아웃 폭 1–2px 차이가 같은 현상
-3. **0.7.0 다음 묶음(F–G)과 T** — `docs/design/0.7.0-design.md` 5절, T는 묶음 G 전(계획서 19절)
+1. **T·G 확인(사람)** — 계획서 27-3·28절. 판단 대기: README 텍스트 줄을 어느 코호트 세트로 할지(사람 결정), 런타임 코호트의 설명되지 않는 1행, 반 픽셀 반올림(글 노드 위치), 미리보기 측정기가 런타임에서도 Advanced 높이·폭을 내는 것. 플레이그라운드 F5도 남아 있다
+2. **0.7.0 적대적 검증** — 사람 지시(2026-10-18): T와 G 다음
+3. (0.7.0 묶음 계획은 G까지 끝남)
 4. **소비자 갱신(소비자 저장소의 일)** — 인계 문서 4절 목록
 5. **0.6.0이 남긴 것** — `docs/backlog.md` 0.6.0 절의 2026-10-16 메모
 6. **Playwright Chromium이 이 PC에서 실행되지 않음** — 코호트는 설치된 Chrome으로 측정
@@ -194,8 +194,24 @@
 | 2026-10-18 | 덤프 흔들림은 무작위가 아니라 실행 순서 의존 | 같은 묶음 5회 반복은 흔들림 0, 단독 실행은 커밋값과 같다. Standard 생성기의 레이아웃 폭만 0–2px. 최빈값은 해법이 아니다(묶음 구성이 정한다). 판정 기준 변경은 제안만(계획서 27-2) |
 | 2026-10-18 | 측정 훅이 줄바꿈을 맡는다. 레이아웃은 훅 결과를 다시 추정하지 않는다 | Codex 1라운드가 테스트 스텁의 한계를 TextElement 전용 높이 추정으로 메웠다. 스텁을 고치고 추정을 뺐다 |
 | 2026-10-18 | RepeatButton은 Unity대로 맨 글자 | 두 테마 측정. 설계 질문 6은 답이 없었고, Unity와 같은 쪽을 골랐다(바꾸기 쉬움) |
+| 2026-10-19 | RepeatButton 맨 글자는 설계 질문 6에서 이미 결정돼 있었다 | 위 행의 "답이 없었다"는 전달 누락이었다(사람 정정). supported에 한 줄 적음 |
+| 2026-10-19 | 정답지는 프로브마다 새 Unity 프로세스로 뜬 단독 값, 허용 범위는 넓히지 않는다 | 사람 결정. 단독 덤프는 결정적이다. 커밋 덤프 중 다른 것(런타임 8파일×2, 에디터 6000.0 6파일, 골든 inventory 9값, text-size)을 바꿨다. 2px 허용을 걷어내자 묶음 F의 진짜 1px(반 픽셀 반올림)이 드러났다 |
+| 2026-10-19 | 텍스트 코호트의 (a) 설명을 버전이 아니라 글자 생성기 기준으로 | 런타임 패널(두 버전, Standard)이 6000.0 에디터(Standard)와 값까지 같다. "6000.0 높이 규칙"은 Standard 생성기의 규칙이다. 에디터 표는 그대로 |
+| 2026-10-19 | 런타임 글 높이 12–13px는 알려진 차이가 아니라 Unity 쪽 오염 | 같은 문서에서 같은 글을 다른 줄바꿈으로 먼저 그리면 뒤의 같은 글 높이가 준다(`t-bis-*`로 갈랐다). 단독으로는 미리보기와 같다. 프로브는 같은 글을 다른 줄바꿈으로 두 번 쓰지 않는다 |
+| 2026-10-19 | 높이도 받은 높이로 자른다(TextField 안쪽 글 포함) | 골든 설정 화면에서 드러났고 `g-clamp-h`로 측정. 폭 규칙과 달리 입력 칸 글도 자른다 |
+| 2026-10-19 | 골든의 스크롤바 이름 면제는 "우리가 만들지 않은 경우"에만 | 같은 이름의 Slider 부품을 면제하면 묶음 D 부품이 골든에서 안 보인다. 손잡이는 그리기 단계 translate를 더해 비교한다 |
+| 2026-10-19 | 설정 화면을 골든에 넣고 공개 수치를 1122/1148로 | 설계 6절 승인 범위. 새 불일치 12는 바닥 줄 글자 폭(하네스의 고정 측정). 같은 화면을 Unity 측정 글 크기로 재는 계약 테스트는 반 픽셀 1개 말고 모두 일치 |
 
 ## 세션 로그
+
+### 2026-10-19 (07:20 — 판단 1–3, 항목 T, 묶음 G)
+
+- **판단 1(단독 덤프):** `tests/layout/unity/dump-solo.sh`. 0.7.0 프로브 34개·골든 44케이스·코호트를 두 버전·두 테마로 단독 재덤프(프로젝트를 복제해 네 갈래). 다른 파일을 교체. bundle-c `tf-auto-ph`·bundle-e `r-text`는 단독 값이 기대값과 같아 그대로. bundle-f·g-clamp의 2px 허용 제거 → ProgressBar 제목 반 픽셀(런타임 6행)을 `KNOWN_HALF_PIXEL`로 이름 붙임. accuracy(한·영) 판정 기준과 inventory 9건 설명을 원인(순서)으로 고침
+- **판단 2:** 런타임 글 높이 12–13px는 `t-fit*`(폭이 좁아도 17), `t-cache-*`, `t-bis-*`(g-clamp에서 요소를 빼 가며)로 원인을 갈랐다 — 같은 글을 다른 줄바꿈으로 먼저 그린 Unity 쪽 오염. 문서를 고침
+- **판단 3:** supported에 RepeatButton 한 줄
+- **항목 T:** 런타임 패널 코호트(단독, 두 버전) `tests/text-cohort/unity-runtime/`. `run.mjs`를 테마별 세트로 나누고 (a) 설명을 생성기 기준으로. 런타임 92/92·60/92·89/92·153/159(두 버전 같음), 설명 안 되는 1행 `noto-jp-zh-20-w60`(Unity 201, 미리보기 203). 에디터 표 불변. 에디터 코호트 단독 재덤프는 상자가 모두 같았다
+- **묶음 G:** `g-settings`(+states, +ko) 프로브·단독 덤프, `bundle-g.test.ts`. 새 발견 둘 — 높이 자르기(`g-clamp-h`), TextField 포커스 라벨 색 → Codex 1라운드(변이 3/3, 절대 위치 예외 제거는 동치로 살아남음). 골든에 `settings`·`settings-ko` 추가, 하네스 translate·면제 규칙 수정, 공개 수치 1122/1148(두 세트), README 네 언어·accuracy·api 갱신. 그림 `docs/design/0.7.0-bundle-G-shots/`
+- **실수:** 새 형식 골든 덤프(NaN 포함)를 옛 형식 폴더에 그대로 넣어 golden.test가 파싱 실패했다(형식을 맞춰 고침). bash의 /tmp를 Windows 파이썬이 못 봐 한 번 헛돌았다. TaskStop이 detach된 bash 루프를 죽이지 못해 Unity가 계속 떴다 — PID로 정리
 
 ### 2026-10-18 (23:43 — E2·판단 2·3·묶음 F·글자 자르기·반복성)
 
