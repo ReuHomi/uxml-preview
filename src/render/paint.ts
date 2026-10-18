@@ -269,6 +269,13 @@ export function paint(
           partEl.style.setProperty(property, value);
         }
 
+        // tests/contract-070/e2-editor-checkbox.test.ts: box colours from docs/design/0.7.0-bundle-E-shots/unity-editor-c07-Toggle.png.
+        if (options.theme === 'editor' && node.name.local === 'Toggle' && part.name === 'unity-checkmark') {
+          partEl.style.setProperty('background-color', '#2a2a2a');
+          partEl.style.setProperty('border-radius', '2px');
+          partEl.style.setProperty('box-shadow', 'inset 0 1px 0 0 #0d0d0d, inset 1px 0 0 0 #212121, inset -1px 0 0 0 #212121, inset 0 -1px 0 0 #212121');
+        }
+
         // e-toggle.json: Unity's built-in check/d_toggle_on textures are not
         // loadable assets here. Substitute a mark without an asset warning.
         if (node.name.local === 'Toggle' && part.name === 'unity-checkmark' &&
