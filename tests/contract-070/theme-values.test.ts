@@ -76,6 +76,15 @@ function unityMeasure(dump: Dump): MeasureText {
     if (e.measured === undefined || e.text === undefined) continue;
     sizes.set(`${e.text}|${Number(e.style['fontSize'])}`, { width: e.measured.w, height: e.measured.h });
   }
+  // Where Unity's layout gave a text 1-2px more than its MeasureTextSize, use that layout width,
+  // read from the box (as bundle-e.test.ts). The dumps are solo dumps (plan section 27-2), so it is
+  // the reference value: c07-existing free/label-auto is 107 alone (106 after other probes).
+  for (const e of dump.elements) {
+    if (e.measured === undefined || e.text === undefined) continue;
+    const s = e.style;
+    const over = e.w - Number(s['paddingLeft']) - Number(s['paddingRight']) - Number(s['borderLeftWidth']) - Number(s['borderRightWidth']) - e.measured.w;
+    if (over >= 1 && over <= 2) sizes.set(`${e.text}|${Number(s['fontSize'])}`, { width: e.measured.w + over, height: e.measured.h });
+  }
   return (text, context) => {
     const hit = sizes.get(`${text}|${context.fontSize}`);
     if (hit === undefined) throw new Error(`no Unity measurement for ${JSON.stringify(text)} at ${context.fontSize}px`);

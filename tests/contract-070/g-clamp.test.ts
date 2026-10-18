@@ -30,11 +30,10 @@
  *   it is not part of the clipping. The heights of those four are not judged on the runtime theme. The editor theme keeps 15 everywhere. Unity's rule for that height is
  *   not identified; the second test pins the observation so it stays visible (plan section 27).
  *
- * Expected boxes: the 6000.3.25f1 dumps. Text widths judged with Unity's MeasureTextSize as the
- * measurement. On the runtime theme (the Standard text generator) Unity's layout width of a text
- * depends on what the same Unity process drew before (1-2px, plan section 27), so there a width
- * or x that follows a text's own width is judged within 2px; a width the offered box decides is
- * exact. The editor theme (6.3, Advanced) is exact.
+ * Expected boxes: the 6000.3.25f1 dumps, judged exactly (human decision 2026-10-18: the solo dump
+ * is the reference and no tolerance is widened). The stub answers MeasureTextSize, except where
+ * Unity's layout gave the text 1-2px more: there it answers that layout width, read from the box
+ * (as bundle-e.test.ts). These dumps were taken alone in their Unity process (plan section 27-2).
  */
 
 import { readFileSync } from 'node:fs';
@@ -76,6 +75,14 @@ function unityMeasure(dump: Dump): MeasureText {
     if (e.measured === undefined || e.text === undefined) continue;
     const key = `${e.text}|${Number(e.style['fontSize'])}|${e.style['letterSpacing'] ?? ''}|${e.style['wordSpacing'] ?? ''}|${e.style['unityTextGenerator'] ?? ''}`;
     sizes.set(key, { width: e.measured.w, height: e.measured.h });
+  }
+  // Unity's layout width where it is 1-2px over MeasureTextSize (header). Clipped rows are under it.
+  for (const e of dump.elements) {
+    if (e.measured === undefined || e.text === undefined) continue;
+    const s = e.style;
+    const over = e.w - Number(s['paddingLeft']) - Number(s['paddingRight']) - Number(s['borderLeftWidth']) - Number(s['borderRightWidth']) - e.measured.w;
+    const key = `${e.text}|${Number(s['fontSize'])}|${s['letterSpacing'] ?? ''}|${s['wordSpacing'] ?? ''}|${s['unityTextGenerator'] ?? ''}`;
+    if (over >= 1 && over <= 2) sizes.set(key, { width: e.measured.w + over, height: e.measured.h });
   }
   return (text, context) => {
     const ls = context.letterSpacing ?? 0, ws = context.wordSpacing ?? 0;
@@ -133,7 +140,7 @@ for (const theme of ['runtime', 'editor'] as const) {
       const doc = parse(readFileSync(join(UNITY, 'probes-0.7.0', 'g-clamp.uxml'), 'utf8'));
       const resolved = resolveStyles(doc, { theme });
       const tree = layoutDocument(doc.root, resolved.styles, resolved.partStyles, { theme, size: dump.metadata.panel, measureText: unityMeasure(dump) });
-      const slack = theme === 'runtime' ? 2 : 0;
+      const slack = 0;
       try {
         for (const p of [...CLIPPED, 'col-stretch/st-label']) {
           const b = tree.boxes.get(nodeByName(doc.root, p.split('/').pop()!).id)!;

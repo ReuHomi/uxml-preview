@@ -97,7 +97,7 @@ would hide a real 1px error in another case.
 
 The evidence for the nine text ones: the representative screen's footer is a fixed width
 holding a flexible panel beside a 96px ActionBar, and the boundary between them is pushed by the
-labels' min-content width. **Both engines** compress the ActionBar — Unity to 93, this renderer
+labels' min-content width. **Both engines** compress the ActionBar — Unity to 92 (the solo value; 93 in a session that drew other dumps first), this renderer
 to 84 — and pinning the label widths makes our excess **converge on the same 3px Unity has.**
 Same mechanism, different ruler. A browser cannot measure Unity's font asset, which is the fact
 that made pixel diffing useless, **showing up in coordinates instead of colours**.
@@ -128,6 +128,8 @@ reach and the dump time, as metadata separate from coordinates.
 This 1px was not adopted as the new baseline. It is within tolerance and is a measuring
 condition rather than a renderer change, and moving the baseline without knowing the old
 conditions would leave nobody knowing what it is being matched to.
+
+**Resolved 2026-10-18 — the cause was dump order.** Under the Standard generator (the 6000.0 editor) a text's width differs by 0-2px depending on what the same Unity process drew before (bundle A plan 27-2: five repeats of one batch never move; a probe dumped in its own process is deterministic). `inventory` dumped alone gives 292/92; 291/93 came from a session that drew other cases first. The baseline (`tests/golden/unity/inventory.json`) now holds the solo values. The nine were already counted as text-measurement mismatches (the preview gives 84/85), so 662/676 does not move.
 
 ### `ScrollView` — the hierarchy was observed, not assumed (2026-08-05)
 
@@ -255,7 +257,7 @@ golden cases were dumped again on 6000.3.25f1 to check whether the two versions 
 - Against the committed baselines (`tests/golden/unity/`, the 2026-08-12 dump) nine differ. All are
   the 1px of `inventory`'s footer boundary (the widths of `DetailPanel`, `ItemName` and `ItemDesc`;
   the x and width of `ActionBar`, `UseButton` and `DropButton`) — the same thing as "2026-08-12
-  `inventory` 1px reproduction" above. The baselines were not changed
+  `inventory` 1px reproduction" above. The baselines were not changed — on 2026-10-18 the cause (dump order) was found and they took the solo values
 - Accuracy was not recomputed with the 6.3 dump as the baseline. Doing so would change the figure,
   because of those nine
 - `aspect-ratio` (6.3+) is not in that set and was measured separately: 52 coordinates of 13 boxes
@@ -369,6 +371,7 @@ are never two numbers to keep in sync by hand.
 
 - per element: `x` / `y` / `width` / `height`
 - tolerance **0.5px** — wobble from Yoga's point rounding is not a mismatch
+- **The reference is the solo run.** In Unity itself, under the Standard text generator, a text's width can differ by 0-2px depending on what the same process drew before (the runtime panel on both versions, the 6000.0 editor; the 6.3 editor, Advanced, does not). So every baseline is dumped by a fresh Unity process per probe or case (`tests/layout/unity/dump-solo.sh`, decided 2026-10-18). The tolerance is not widened
 - the join key is the UXML `name` attribute; unnamed elements are not compared
 - cases flagged `measuresText: true` are excluded. A browser cannot measure text with Unity's font
   asset, so a difference there is not a layout error. Text boxes themselves are compared separately,

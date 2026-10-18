@@ -42,11 +42,11 @@
     "unity-dragger-border#2": { "x": 0, "y": 35, "width": 0, "height": 0 },
     "unity-dragger#2": { "x": 0, "y": 35, "width": 0, "height": 0 },
     "Footer": { "x": 0, "y": 212, "width": 400, "height": 88 },
-    "DetailPanel": { "x": 8, "y": 220, "width": 291, "height": 72 },
-    "ItemName": { "x": 8, "y": 220, "width": 283, "height": 20 },
-    "ItemDesc": { "x": 8, "y": 240, "width": 283, "height": 56 },
-    "ActionBar": { "x": 299, "y": 220, "width": 93, "height": 72 },
-    "UseButton": { "x": 299, "y": 220, "width": 93, "height": 30 },
-    "DropButton": { "x": 299, "y": 256, "width": 93, "height": 30 }
+    "DetailPanel": { "x": 8, "y": 220, "width": 292, "height": 72 },
+    "ItemName": { "x": 8, "y": 220, "width": 284, "height": 20 },
+    "ItemDesc": { "x": 8, "y": 240, "width": 284, "height": 56 },
+    "ActionBar": { "x": 300, "y": 220, "width": 92, "height": 72 },
+    "UseButton": { "x": 300, "y": 220, "width": 92, "height": 30 },
+    "DropButton": { "x": 300, "y": 256, "width": 92, "height": 30 }
   }
 }

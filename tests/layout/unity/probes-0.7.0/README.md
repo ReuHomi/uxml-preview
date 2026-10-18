@@ -99,3 +99,11 @@ files stand; the run-to-run question belongs to item T (plan section 25).
 Dumped alone in its own Unity process. The repeatability runs of the same day (plan section 27)
 found that a text's layout width under the Standard generator depends on what the same process
 drew before (0-2px); a probe run alone gives the committed values.
+
+## Solo dumps (2026-10-18)
+
+Every baseline is now dumped by `../dump-solo.sh`: one probe (with its same-name .uss) alone in
+`Assets/_Solo/`, one fresh Unity process per probe. Under the Standard text generator a text's width
+depends on what the same process drew before (0-2px, plan section 27); a solo dump is deterministic
+and is the reference. The committed files that differed from their solo dump were replaced
+(plan section 27-3).

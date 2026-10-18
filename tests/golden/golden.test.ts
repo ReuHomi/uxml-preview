@@ -170,9 +170,12 @@ const KNOWN_DIVERGENCES: KnownDivergence[] = [
     field,
     reason:
       'Text measurement. The Footer boundary is set by the Labels\' min-content ' +
-      'width; Unity shrinks the 96px ActionBar to 93 and we shrink it to 85, and ' +
+      'width; Unity shrinks the 96px ActionBar to 92 and we shrink it to 85, and ' +
       'pinning the Labels reduces our excess to the same 3px. Not reproducible: ' +
-      'the browser cannot measure Unity\'s font asset.',
+      'the browser cannot measure Unity\'s font asset. Unity\'s side is the solo dump ' +
+      '(292/92); a session that drew other cases first gives 291/93, because the ' +
+      'Standard generator\'s text width depends on what the process drew before ' +
+      '(docs/accuracy.md, bundle A plan 27-2).',
   })),
 
   // ItemDesc.height and ItemDesc.y left this list in 0.7.0 (bundle A, A2): the theme now
