@@ -440,7 +440,7 @@ export function layoutDocument(
       yg.setMeasureFunc(() => ({ width: 0, height: textHeight(1, context.fontSize, context.faceInfo ?? EDITOR_DEFAULT_FACE_INFO) }));
       return;
     }
-    yg.setMeasureFunc((availableWidth, widthMode) => {
+    yg.setMeasureFunc((availableWidth, widthMode, availableHeight, heightMode) => {
       const measured = options.measureText(
         text,
         context,
@@ -449,7 +449,13 @@ export function layoutDocument(
       // Measured: g-clamp.json — AtMost clips text except absolute elements and TextField inner text.
       const clip = widthMode === MeasureMode.AtMost && Number.isFinite(availableWidth) &&
         read(style, 'position') !== 'absolute' && partName !== 'unity-text-element--inner-input-field-component';
-      return { width: clip ? Math.min(measured.width, availableWidth) : measured.width, height: measured.height };
+      // Measured: g-clamp-h.json — AtMost clips height, including TextField inner text, except absolute elements.
+      const clipHeight = heightMode === MeasureMode.AtMost && Number.isFinite(availableHeight) &&
+        read(style, 'position') !== 'absolute';
+      return {
+        width: clip ? Math.min(measured.width, availableWidth) : measured.width,
+        height: clipHeight ? Math.min(measured.height, availableHeight) : measured.height,
+      };
     });
     if (whitespaceText && theme === 'editor') {
       warnings.push({

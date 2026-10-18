@@ -215,6 +215,8 @@ export const THEME_USS: string = `${PANEL_TEXT_DEFAULTS_SELECTOR} {
 /* Unity evidence: tests/layout/unity/6000.3.25f1/probe-editor-070/c07-states.json. */
 .unity-base-text-field:hover > .unity-base-text-field__input { border-color: #656565; }
 .unity-base-text-field:focus > .unity-base-text-field__input { border-color: #3a79bb; }
+/* Measured: probe-editor-070/g-settings-states.json, player-name/Label[0]. */
+.unity-base-text-field:focus > .unity-base-text-field__label { color: #81b4ff; }
 .unity-group-box {
   margin: 6px 3px 1px 3px;
   padding: 5px 0 5px 3px;
@@ -298,6 +300,8 @@ export const THEME_SHEETS: Readonly<Record<Theme, string>> = {
 /* Unity evidence: tests/layout/unity/6000.3.25f1/probe-panel/c07-states.json. */
 .unity-base-text-field:hover > .unity-base-text-field__input { border-color: #323232; }
 .unity-base-text-field:focus > .unity-base-text-field__input { border-color: #006aa6; }
+/* Measured: probe-panel/g-settings-states.json, player-name/Label[0]. */
+.unity-base-text-field:focus > .unity-base-text-field__label { color: #00526a; }
 .unity-group-box {
   margin: 6px 4px 2px 4px;
   padding: 5px 0 5px 3px;
