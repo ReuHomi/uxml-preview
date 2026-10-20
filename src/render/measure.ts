@@ -26,7 +26,16 @@ export const EDITOR_DEFAULT_FACE_INFO: FaceInfo = {
 export function textHeight(
   lines: number, fontSize: number, face: FaceInfo,
   paragraphBreaks = 0, paragraphSpacing = 0,
+  generator: 'standard' | 'advanced' = 'advanced',
 ): number {
+  if (generator === 'standard') {
+    // Measured: tests/text-cohort/unity-runtime/; bundle A plan §29.
+    // Standard paragraph spacing is unmeasured; retain Advanced's existing term.
+    const span = face.ascentLine - face.descentLine;
+    return Math.floor(fontSize * span / face.pointSize
+      + (lines - 1) * fontSize * (face.lineHeight ?? span) / face.pointSize
+      + paragraphBreaks * paragraphSpacing * fontSize / 100) + 1;
+  }
   // Measured on 6.3 LTS, 2026-10-16 (tests/text-cohort/unity/).
   return Math.ceil(lines * fontSize * (face.ascentLine - face.descentLine) / face.pointSize
     + paragraphBreaks * paragraphSpacing * fontSize / 100);
@@ -54,6 +63,9 @@ export function createDefaultMeasureText(doc?: Document): MeasureText {
   }
 
   return (text, style, availableWidth) => {
+    // Measured: tests/text-cohort/unity-runtime/; bundle A plan §29.
+    // The canvas is shared: reset kerning for both generators, including font probes.
+    if (context !== null) context.fontKerning = style.textGenerator === 'standard' ? 'none' : 'normal';
     const weight = style.fontStyle.includes('bold') ? 'bold' : 'normal';
     const italic = style.fontStyle.includes('italic') ? 'italic' : 'normal';
     const setFont = (size: number): void => {
@@ -110,6 +122,6 @@ export function createDefaultMeasureText(doc?: Document): MeasureText {
       widest = Math.max(widest, widthOf(current));
     }
     return { width: widest, height: textHeight(lines, style.fontSize,
-      face ?? EDITOR_DEFAULT_FACE_INFO, paragraphs.length - 1, style.paragraphSpacing ?? 0) };
+      face ?? EDITOR_DEFAULT_FACE_INFO, paragraphs.length - 1, style.paragraphSpacing ?? 0, style.textGenerator) };
   };
 }

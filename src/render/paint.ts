@@ -123,6 +123,8 @@ export function paint(
   }
 
   function appendText(host: HTMLElement, text: string, style: ComputedStyle): void {
+    // Measured: tests/text-cohort/unity-runtime/; bundle A plan §29 — match measured glyph widths.
+    if (style.get('-unity-text-generator')?.value === 'standard') host.style.fontKerning = 'none';
     appendSpacedText(host, text, style);
     if (options.theme !== 'runtime' || !CJK_BREAK.test(text)) return;
     // Unity probe-panel/kinsoku.json: runtime allows breaks on either side of

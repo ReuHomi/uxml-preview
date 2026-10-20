@@ -437,7 +437,8 @@ export function layoutDocument(
     // Unity evidence: c07-TextField.json, both 6.3 themes: an empty input
     // retains a line box even though Unity's text measurement reports zero.
     if (text === '' && node.name.local === 'TextField') {
-      yg.setMeasureFunc(() => ({ width: 0, height: textHeight(1, context.fontSize, context.faceInfo ?? EDITOR_DEFAULT_FACE_INFO) }));
+      yg.setMeasureFunc(() => ({ width: 0, height: textHeight(1, context.fontSize,
+        context.faceInfo ?? EDITOR_DEFAULT_FACE_INFO, 0, 0, context.textGenerator) }));
       return;
     }
     yg.setMeasureFunc((availableWidth, widthMode, availableHeight, heightMode) => {
