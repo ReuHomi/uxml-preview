@@ -5,6 +5,8 @@
 **Unity UI Toolkit の UXML/USS を、Unity エディタなしでブラウザ上に描画します。レイアウトには
 UI Toolkit 自身が使用する Yoga エンジンを採用し、描画結果は実際の Unity と突き合わせて検証しています。**
 
+![uxml-preview 0.7.0：左に UXML・USS で書いた設定画面、右にブラウザで描画した結果](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/promo-0.7.0.gif)
+
 [![プレイグラウンド画面：上部にプレビュー画面、下部に各警告の理由と Unity 側の実際の挙動を表示](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/playground.png)](https://reuhomi.github.io/uxml-preview/)
 
 ### ▶ [プレイグラウンドを開く](https://reuhomi.github.io/uxml-preview/)

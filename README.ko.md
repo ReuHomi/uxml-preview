@@ -5,6 +5,8 @@
 **Unity UI Toolkit의 UXML/USS를 Unity 에디터 없이 브라우저에서 그립니다. 배치는 UI Toolkit이
 쓰는 엔진인 Yoga가 하고, 결과는 Unity와 대조해 측정했습니다.**
 
+![uxml-preview 0.7.0: 왼쪽에 UXML·USS로 쓴 설정 화면, 오른쪽에 브라우저가 그린 결과](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/promo-0.7.0.gif)
+
 [![놀이터 화면: 위에는 화면, 아래에는 경고마다 이유와 Unity가 대신 하는 일](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/playground.png)](https://reuhomi.github.io/uxml-preview/)
 
 ### ▶ [놀이터 열기](https://reuhomi.github.io/uxml-preview/)

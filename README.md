@@ -5,6 +5,8 @@
 **Render Unity UI Toolkit UXML/USS in a browser, without the Unity Editor — laid
 out by Yoga, the engine UI Toolkit itself uses, and measured against Unity.**
 
+![uxml-preview 0.7.0: a settings screen written in UXML and USS on the left, drawn in the browser on the right](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/promo-0.7.0.gif)
+
 [![The playground: a screen, and under it each warning with its reason and what Unity does instead](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/playground.png)](https://reuhomi.github.io/uxml-preview/)
 
 ### ▶ [Open the playground](https://reuhomi.github.io/uxml-preview/)

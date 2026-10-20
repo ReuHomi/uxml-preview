@@ -5,6 +5,8 @@
 **无需 Unity 编辑器，即可在浏览器中渲染 Unity UI Toolkit 的 UXML/USS——由 UI Toolkit 自身使用的
 Yoga 引擎负责布局，并与 Unity 实测结果进行了比对验证。**
 
+![uxml-preview 0.7.0：左侧是用 UXML 和 USS 编写的设置界面，右侧是浏览器中的渲染结果](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/promo-0.7.0.gif)
+
 [![在线体验页面：上方为预览画面，下方列出每条警告的原因及 Unity 的实际处理方式](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/playground.png)](https://reuhomi.github.io/uxml-preview/)
 
 ### ▶ [打开在线体验 (Playground)](https://reuhomi.github.io/uxml-preview/)
