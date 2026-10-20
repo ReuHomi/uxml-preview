@@ -29,8 +29,9 @@ Play mode) on Unity 6.3, and the editor theme stays one option away.
   themes). `inventory`'s `ItemDesc` now lands where Unity puts it.
 - **Only the element written `enabled="false"` is dimmed.** Unity gives that
   element `unity-disabled` and opacity 0.5 and leaves its descendants at 1; a
-  disabled button inside a disabled panel was 0.25 here. An element forced
-  `disabled` through `states` is dimmed alone, as before.
+  disabled button inside a disabled panel was 0.25 here. A `disabled` forced
+  through `states` does not dim at all (see "A state forced through `states`
+  stays on that element" below).
 - **The runtime theme paints CJK without kinsoku**, as Unity's runtime panel
   does. The editor theme keeps the browser's line breaking (a known
   difference at one 60px Chinese case, Unity 6.3 editor).
@@ -54,10 +55,18 @@ Play mode) on Unity 6.3, and the editor theme stays one option away.
     a Label or Button whose text is only spaces (Label 0px vs 15px, Button 4px
     vs 19px; the runtime theme draws the text 0px high)
   A host that keyed anything off the removed warnings loses that signal.
-- **The runtime theme measures text with the standard generator**, as Unity's
-  runtime panel does on both versions (it had used advanced, the 6.3 editor's
-  default). This only moves text with letter- or word-spacing.
-
+- **Text is measured by its generator's rules.** The runtime theme resolves
+  `-unity-text-generator: standard`, as Unity's runtime panel does on both
+  versions; the editor theme resolves advanced (the 6.3 editor's default). The
+  resolved value — not the theme — now picks the rules, measured on the text
+  cohort: Standard text is `floor(fs·r + (n−1)·fs·lineHeight/pointSize) + 1`
+  high (r = (ascent − descent) / pointSize) and measured and painted without
+  kerning (`font-kerning: none`); Advanced keeps `ceil(n·fs·r)` and kerning.
+  On the runtime theme a whole-number line height gains 1px, later lines
+  advance by `lineHeight`, and kerned pairs (Jua's English, 2–4px) widen. An
+  author's `-unity-text-generator: standard` on the editor theme measures the
+  same way. `textHeight` takes the generator as an optional sixth argument
+  (advanced when left out).
 - **A text wider than the width it is offered is clipped to it**, as Unity
   does (measured, `g-clamp`, both versions and themes): in a row, in a column
   with `align-items: flex-start`, with or without `overflow: hidden`. An
@@ -134,12 +143,39 @@ Play mode) on Unity 6.3, and the editor theme stays one option away.
 | Editor theme coordinates (Unity 6000.0.40f1) | 660 / 676 | 1122 / 1148 | Label `flex-shrink: 0` (`ItemDesc` y, height) gave 662/676; the settings screen (two cases, all 15 drawn controls) adds 472 values, 12 of them the footer's text widths |
 | Template cohort | 215 / 220 | 215 / 220 | unchanged; G3-4 text-width deltas moved by the Label padding |
 | Text cohort, editor (Chromium vs Unity) | 92/92 · 84/92 · 92/92 · 157/159 | unchanged | |
-| Text cohort, runtime panel (new set) | — | 92/92 · 60/92 · 89/92 · 153/159 (both versions) | the runtime panel uses the Standard generator; the preview measures heights and widths as Advanced. One row unexplained (`noto-jp-zh-20-w60`) |
+| Text cohort, runtime panel (new set) | — | 92/92 · 84/92 · 92/92 · 159/159 (both versions) | measured with the Standard rules (before them: 60/92 heights, 89/92 widths); the 8 heights left are Inter's Hangul fallback rows, as on the editor. One row unexplained (`noto-jp-zh-20-w60`, 203 vs 201), so `pnpm test:text` ends in failure |
 
 Every Unity baseline is now a solo dump, each probe or case in its own Unity
 process: under the Standard text generator a text's width depends on what the
 same process drew before (0-2px). The inventory's nine text-metric values moved
 by 1px on Unity's side (291/93 -> 292/92), still counted as mismatches.
+
+The acceptance screen (`settings`, `settings-ko`: every drawn control on one
+screen, design section 6) is in both golden sets, and a contract test judges
+the same screen with Unity's own text sizes: every box and part matches but one
+half-pixel title.
+
+### Known differences
+
+- Scrollbars reserve their width and are not drawn.
+- Half-pixel rounding: a centred text whose position falls on a half pixel is
+  rounded up by Unity and down by this preview (a ProgressBar title, 1px in x).
+  Decided after measuring per alignment.
+- The runtime text cohort's `noto-jp-zh-20-w60` (7 lines of Chinese in 60px):
+  Unity 201, the Standard rule 203. Not explained.
+- Unity side: on the runtime panel, writing the same text earlier in a
+  document with a different wrap setting makes a later copy of it shorter.
+  Not reproduced.
+- The editor theme's kinsoku (one 60px Chinese case on the 6.3 editor).
+
+### For consumers
+
+`docs/design/0.7.0-handoff.md` lists what changes, every consumer task, and the
+classified failures of the consumers' own tests against this core:
+vscode-uxml-preview 4 (1 already on 0.6.1, 3 using a now-drawn control as the
+unsupported example), uxml-author 32 (17 already on 0.6.1; 3 such examples, 1
+`version-dependent` sample that no longer warns, 11 skill-document lists and
+"cannot draw" sentences).
 
 ### Corrections
 
