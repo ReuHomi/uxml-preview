@@ -267,6 +267,7 @@ built (`kind`, `reason`, `subject`, `nodes`, `at`) and how a consumer should rea
 
 ## Not checked
 
+- **Known difference (half-pixel rounding, found 2026-10-19):** when a centred text's free space is odd and its position falls on a half pixel, Unity rounds up to the next pixel and the preview's Yoga floors a text node's position. A ProgressBar title on the runtime theme is 1px off in x (`bundle-f.test.ts` `KNOWN_HALF_PIXEL`, 6 rows; one on the settings screen). Decided after measuring the rounding per alignment (`docs/backlog.md`)
 - **A Unity-side effect (runtime panel, cause found 2026-10-19):** when the **same text** was laid out earlier in the same panel with a different wrap setting (a TextElement or Label with `white-space: normal`), a later element with that text comes out 4-8px shorter, and the earlier element's own line count goes wrong too (`g-clamp`'s 20-21px; the `t-bis-*` dumps separate the cause: remove the earlier same text and it is 25px again). With no same text before it, Unity matches the preview. The preview does not reproduce the contamination; Unity appears to reuse a string's text layout [inferred]. Not seen on the 6.3 editor theme
 - Colour, borders and corners rest on one eye comparison of one screen ([visual check](visual-check.md)).
   Anything that screen did not contain is unmeasured

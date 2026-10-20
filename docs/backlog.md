@@ -168,6 +168,8 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
    (`tests/contract-070/classes.test.ts` 머리말)와 골든의 `NOT_REPRODUCED`를 함께 걷어낸다. 넘칠 때만 보이는 조건부 표시가
    먼저 측정돼 있다(`accuracy.md` ScrollView 절). 2026-10-18 사람 결정
 
+2. **반 픽셀 반올림** — 정렬별(왼쪽·가운데·오른쪽, 빈 공간의 홀짝 나머지) 반올림을 측정한 뒤 결정. Unity는 가운데 정렬된 글을 반 픽셀에서 올리고 미리보기의 Yoga는 글 노드 위치를 내린다(ProgressBar 제목 x 1px, `bundle-f.test.ts` `KNOWN_HALF_PIXEL`). 글 노드 반올림을 바꾸면 모든 글 상자가 움직이므로 측정·예측이 먼저다. 2026-10-20 사람 결정
+
 ## 0.7.0 — 컨트롤·테마
 
 - **중첩 비활성의 투명도** — 측정됨(`tests/layout/unity/<version>/probe-editor/nested-disabled.json`, 6000.0.40f1·

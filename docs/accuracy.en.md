@@ -348,16 +348,17 @@ the table above.
 
 | Unity (런타임 패널) | 줄 수 | 높이 | 너비(1px/1%) | 경계 줄 수 | 실패 (a/b/c): 줄·높이·너비 | 너비 Δ 범위 |
 |---|---:|---:|---:|---:|---|---|
-| 6000.0.40f1 | 92/92 | 60/92 | 89/92 | 153/159 | 5/1/0 · 74/1/1 · 3/0/0 | -4…0 |
-| 6000.3.25f1 | 92/92 | 60/92 | 89/92 | 153/159 | 5/1/0 · 74/1/1 · 3/0/0 | -4…0 |
+| 6000.0.40f1 | 92/92 | 84/92 | 92/92 | 159/159 | 0/0/0 · 16/0/1 · 0/0/0 | -1…0 |
+| 6000.3.25f1 | 92/92 | 84/92 | 92/92 | 159/159 | 0/0/0 · 16/0/1 · 0/0/0 | -1…0 |
 
 - **The runtime panel gives the same values on both versions, and the same as the 6000.0 editor above.** All three use the
   Standard generator. The height rule (a whole-number height +1, later lines by `lineHeight`) and Jua's English 2-4px wider are
   the Standard generator's, not a version's. So classification moved from version to generator: a Standard row is explained
   against the Advanced reference (the 6.3 editor). The editor table does not change
-- **The preview gives Advanced heights and widths on the runtime theme too.** That is the 32 heights and 3 widths of the plain rows and the 6 line
-  counts of the boundary rows ((a), except two boundary (b) and the (c) below). The runtime theme's default generator is Standard (bundle A), but the measurer switches only the spacing rule to
-  Standard; heights and widths use the Advanced formula
+- **The preview measures Standard text by Standard's rules (2026-10-20).** Height `floor(fs·r + (n−1)·fs·lineHeight/pointSize) + 1`, widths
+  without kerning — 234/235 heights and 84/84 widths on the three Standard dump sets (bundle A plan section 29). The generator is the resolved
+  `-unity-text-generator`, not the theme. Before (Advanced's formula throughout) this table read heights 60/92, widths 89/92, boundary 153/159
+- The 8 heights left (a) are Inter's Hangul and mixed sentences drawn with fallback glyphs, the same 8 as the 6.3 editor table's
 - **One unexplained row (c):** `noto-jp-zh-20-w60` (Noto Sans JP 20px in 60px, 7 lines). Unity's runtime panel 201 (both
   versions), the 6000.0 editor, also Standard, 202 (202 dumped alone too), the preview 203. The line count agrees. This row makes
   `pnpm test:text` end in failure
@@ -396,6 +397,8 @@ nobody can produce, and at the same time an unmeasured case must never read as a
 
 Each dump records its panel size and the web side lays the case out at that same size, so there
 are never two numbers to keep in sync by hand.
+
+**Known difference — half-pixel rounding (2026-10-19):** a centred text at a half pixel is rounded up by Unity and down by the preview (Yoga's text node). The golden sets have no such case (it is not a named element); the contract tests `bundle-f` and `bundle-g` name it. Not fixed — decided after measuring per alignment (`docs/backlog.md`).
 
 ## How a comparison is judged
 
