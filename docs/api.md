@@ -160,7 +160,7 @@ USS 위치의 `url`·`from`은 그 시트를 위해 `resolveImport`가 받은 �
 
 ## 텍스트
 
-- `textHeight(lines, fontSize, faceInfo, paragraphBreaks?, paragraphSpacing?)` — Unity의 글자 높이 공식
+- `textHeight(lines, fontSize, faceInfo, paragraphBreaks?, paragraphSpacing?, generator?)` — Unity의 글자 높이 공식. `generator`는 `'standard'`(floor + 1, 뒷줄은 `lineHeight`) 또는 `'advanced'`(ceil). 빼면 `'advanced'`(0.7.0)
 - `EDITOR_DEFAULT_FACE_INFO` — 에디터 기본 폰트(Inter-Regular SDF)의 FaceInfo, Unity가 보고한 값
 - `createDefaultMeasureText(doc?)` — 기본 측정기. `measureText`를 감쌀 때 쓴다
 
@@ -173,5 +173,5 @@ USS 위치의 `url`·`from`은 그 시트를 위해 `resolveImport`가 받은 �
 | `expandTemplates(doc)` | 템플릿 전개만 따로 |
 | `KNOWN_DIVERGENCES` | Unity와 다르다고 알려진 동작과 그 이유(고칠 수 없음 · 규칙 미상 · 상위 라이브러리) |
 | `supportedControlNames()` | 전용 렌더러가 있는 컨트롤 |
-| `resolveStyles`, `explainProperty` | 캐스케이드 결과, 한 요소의 한 속성을 두고 경쟁한 선언 전부(편집기가 "인라인을 고칠까, 규칙을 고칠까"를 물을 때) |
+| `resolveStyles`, `explainProperty` | 캐스케이드 결과, 한 요소의 한 속성을 두고 경쟁한 선언 전부(편집기가 "인라인을 고칠까, 규칙을 고칠까"를 물을 때). `resolveStyles(doc, { theme })`도 테마를 받는다 — 빼면 `'runtime'`(0.7.0) |
 | `isInherited(property)` | USS 상속 여부 |

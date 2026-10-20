@@ -126,7 +126,7 @@ UXML 네임스페이스는 보통 `ui:` (`<ui:VisualElement>`). 프로젝트 관
 | `font-family` | `-unity-font-definition` | B | 폰트 에셋 참조. 웹폰트 개념 없음 |
 | `font-weight`, `font-style` | `-unity-font-style` | B | `normal/bold/italic/bold-and-italic`. 100~900 수치 없음 |
 | `text-align` | `-unity-text-align` | B | `upper-left`, `middle-center` 등 세로+가로 조합 |
-| `white-space` | 동일 | B | `normal`, `nowrap`, `pre`, `pre-wrap`. 6.3은 `normal`·`nowrap`에서 연속 공백을 접고 6000.0은 접지 않는다. `pre`도 폭에 맞춰 줄을 바꾼다(측정) |
+| `white-space` | 동일 | B | `normal`, `nowrap`, `pre`, `pre-wrap`. 6.3은 `normal`·`nowrap`에서 연속 공백을 접고 6000.0은 접지 않는다. `pre`는 폭에 맞춰 줄을 바꾸지 않는다(측정 `pre-wrap2`, 0.7.0에서 0.6.0 판정을 뒤집음) |
 | `text-overflow: ellipsis` | 동일 + `-unity-text-overflow-position` | A | |
 | `letter-spacing`, `word-spacing` | 동일 | A | **값의 뜻이 다르다**: 간격마다 값 × 글자 크기 / 100만큼 벌린다(CSS px가 아니다, 측정) |
 | `line-height` | — | C | 없음. `-unity-paragraph-spacing`은 단락 간격이라 다름 |

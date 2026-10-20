@@ -24,6 +24,8 @@ for uxml in "$probes"/*.uxml; do
   # SKIP_EXISTING=1 resumes an interrupted run.
   if [ -n "${SKIP_EXISTING:-}" ] && [ -f "$out/$name.json" ]; then continue; fi
   rm -rf "$solo" "$solo.meta"; mkdir -p "$solo"
+  # A failed run must not leave the previous dump looking fresh.
+  rm -f "$out/$name.json"
   cp "$uxml" "$solo/"; [ -f "$probes/$name.uss" ] && cp "$probes/$name.uss" "$solo/"
   # A golden case may import from a same-name folder beside it (relative @import).
   [ -d "$probes/$name" ] && cp -r "$probes/$name" "$solo/"

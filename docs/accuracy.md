@@ -233,7 +233,7 @@ border 폭만큼 밀리는 버그**가 나왔는데, Yoga 좌표는 맞았고 CS
 | 측정 | Unity 6000.3.25f1, PanelSettings + UIDocument를 Play 모드에서(`tests/layout/unity/probes-0.7.0/PanelDump.cs.txt`), Unity가 새 PanelSettings에 만드는 기본 런타임 테마, 400×300 |
 | 기준값 | `tests/golden/unity-runtime/`(`tools/panel-to-golden.mjs`로 생성). 6000.0.40f1도 좌표가 모두 같다 |
 | 덤퍼 검증 | 같은 덤퍼를 에디터 테마로 돌리면 기존 UxmlLayoutDump와 1012/1012(두 버전) — `tests/golden/panel-dump.test.ts` |
-| 비교 범위 | 에디터 세트와 같음(좌표 케이스 40, 0.5px, 스크롤바 부품 제외) |
+| 비교 범위 | 에디터 세트와 같음(좌표 케이스 42, 0.5px, 스크롤바 부품 제외) |
 | **런타임 값 일치** | **1122 / 1148 (97.7%)** |
 | 남은 불일치 26 | 모두 에디터 세트의 알려진 불일치와 같은 자리(텍스트 메트릭 21 — 인벤토리 9, 설정 화면 바닥 줄 12, 1px 2, wrap 컨테이너 1, `%` 2). 다른 것이 생기면 `tests/golden/runtime.test.ts`가 실패한다 |
 

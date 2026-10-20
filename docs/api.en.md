@@ -170,7 +170,7 @@ Opacity and `visibility` are not part of the verdict — only whether there is a
 
 ## Text
 
-- `textHeight(lines, fontSize, faceInfo, paragraphBreaks?, paragraphSpacing?)` — Unity's text height formula
+- `textHeight(lines, fontSize, faceInfo, paragraphBreaks?, paragraphSpacing?, generator?)` — Unity's text height formula. `generator` is `'standard'` (floor + 1, later lines advance by `lineHeight`) or `'advanced'` (ceil); left out, `'advanced'` (0.7.0)
 - `EDITOR_DEFAULT_FACE_INFO` — the FaceInfo of the editor's default font (Inter-Regular SDF), as Unity reports it
 - `createDefaultMeasureText(doc?)` — the default measurer, for wrapping in your own `measureText`
 
@@ -183,5 +183,5 @@ Opacity and `visibility` are not part of the verdict — only whether there is a
 | `expandTemplates(doc)` | template expansion on its own |
 | `KNOWN_DIVERGENCES` | behaviours known to differ from Unity, and why (unreproducible · Unity's rule unspecified · upstream) |
 | `supportedControlNames()` | controls with a renderer of their own |
-| `resolveStyles`, `explainProperty` | the cascade result; every declaration that competed for one property on one element (what an editor asks before "edit the inline style, or the rule?") |
+| `resolveStyles`, `explainProperty` | the cascade result; every declaration that competed for one property on one element (what an editor asks before "edit the inline style, or the rule?"). `resolveStyles(doc, { theme })` takes the theme too — left out, `'runtime'` (0.7.0) |
 | `isInherited(property)` | whether a USS property inherits |
