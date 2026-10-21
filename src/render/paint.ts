@@ -18,7 +18,7 @@ import type { FaceInfo } from './measure';
 import type { ElementNode, NodeId, Warning } from '../model/types';
 import type { ComputedStyle } from '../style/resolve';
 import type { LayoutBox, LayoutPart } from '../layout/yoga';
-import { isNonVisual, resolveControl } from '../controls/registry';
+import { uxmlBoolean, isNonVisual, resolveControl } from '../controls/registry';
 import { decodeEntities } from '../parser/entities';
 import { toCss } from './css-map';
 import type { CssMapOptions } from './css-map';
@@ -350,7 +350,7 @@ export function paint(
         // e-toggle.json: Unity's built-in check/d_toggle_on textures are not
         // loadable assets here. Substitute a mark without an asset warning.
         if (node.name.local === 'Toggle' && part.name === 'unity-checkmark' &&
-          (options.checkedNodes?.has(node.id) ?? node.attributes.some((a) => a.name === 'value' && a.value === 'true'))) {
+          (options.checkedNodes?.has(node.id) ?? node.attributes.some((a) => a.name === 'value' && uxmlBoolean(a.value) === true))) {
           const svg = options.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
           svg.setAttribute('viewBox', '0 0 24 24');
           svg.setAttribute('width', '100%');

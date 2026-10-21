@@ -17,6 +17,36 @@
 import type { ElementNode } from '../model/types';
 import { decodeEntities } from '../parser/entities';
 
+// Measured: bundle-A plan §32, k-bool and k-slider (both Unity versions/themes).
+export function uxmlBoolean(value: string | undefined): boolean | undefined {
+  const lower = value?.toLowerCase();
+  return lower === 'true' ? true : lower === 'false' ? false : undefined;
+}
+
+export function isVertical(value: string | undefined): boolean {
+  return value?.toLowerCase() === 'vertical';
+}
+
+/**
+ * Purpose: match k-slider/k-progress dumps (bundle-A plan §32) for display and layout.
+ * Ensures: values are finite and clamped; invalid input retains the attribute default.
+ */
+export function numericControlValue(node: ElementNode): { low: number; high: number; value: number; invalid: boolean } {
+  const attr = (name: string): string | undefined => node.attributes.find((a) => a.name === name)?.value;
+  const number = (name: string, fallback: number): number => {
+    const value = Number(attr(name) ?? fallback);
+    return Number.isFinite(value) ? value : fallback;
+  };
+  const low = number('low-value', 0);
+  const high = number('high-value', node.name.local === 'ProgressBar' ? 100 : 10);
+  const fallback = node.name.local === 'ProgressBar' ? 0 : low;
+  const raw = attr('value');
+  const parsed = Number(raw ?? fallback);
+  const invalid = Number.isNaN(parsed) || (node.name.local === 'SliderInt' && Number.isFinite(parsed) && !Number.isInteger(parsed));
+  const value = Math.min(Math.max(low, high), Math.max(Math.min(low, high), invalid ? fallback : parsed));
+  return { low, high, value, invalid };
+}
+
 /**
  * An element a control builds for itself, which the file never mentions.
  *
@@ -222,7 +252,7 @@ export function implicitClassesOf(node: ElementNode): readonly string[] {
   const classes = resolveControl(node).spec.classes;
   // Unity nested-disabled.json, both panel/editor probes: inherited disabled
   // state does not add this class, so opacity is applied only at explicit sites.
-  return node.attributes.some((a) => a.name === 'enabled' && a.value === 'false')
+  return node.attributes.some((a) => a.name === 'enabled' && uxmlBoolean(a.value) === false)
     ? [...classes, 'unity-disabled'] : classes;
 }
 
@@ -253,8 +283,8 @@ function scrollViewSpec(node: ElementNode, base: ControlSpec): ControlSpec {
 function textFieldSpec(node: ElementNode, base: ControlSpec): ControlSpec {
   const attr = (name: string): string => node.attributes.find((a) => a.name === name)?.value ?? '';
   const labelled = attr('label') !== '';
-  const multiline = attr('multiline') === 'true';
-  const placeholder = attr('value') === '' && attr('placeholder-text') !== '';
+  const multiline = uxmlBoolean(attr('multiline')) === true;
+  const placeholder = (node.attributes.find((a) => a.name === 'value')?.value ?? attr('text')) === '' && attr('placeholder-text') !== '';
   return {
     ...base,
     classes: labelled ? base.classes : [...base.classes, 'unity-base-field--no-label'],
@@ -282,10 +312,14 @@ export function partTextOf(node: ElementNode, part: ControlPart): string | undef
   if (part.textValue !== undefined) return part.textValue;
   if (part.kind === undefined) return undefined;
   const attr = (name: string): string => decodeEntities(node.attributes.find((a) => a.name === name)?.value ?? '');
-  const text = attr(part.textAttribute ?? 'text');
+  const text = part.textAttribute === 'value'
+    ? decodeEntities(node.attributes.find((a) => a.name === 'value')?.value ?? node.attributes.find((a) => a.name === 'text')?.value ?? '')
+    : attr(part.textAttribute ?? 'text');
   if (part.textAttribute !== 'value') return text;
   if (text === '') return attr('placeholder-text');
-  return attr('password') === 'true' ? (attr('mask-character') || '*').charAt(0).repeat(text.length) : text;
+  const mask = decodeEntities(node.attributes.find((a) => a.name === 'mask-character')?.value ??
+    node.attributes.find((a) => a.name === 'maskCharacter')?.value ?? '') || '*';
+  return uxmlBoolean(attr('password')) === true ? mask.charAt(0).repeat(text.length) : text;
 }
 
 /** Ensures: legacy wrapper chains and explicit part trees share one parent contract. */
@@ -315,16 +349,14 @@ function sliderSpec(node: ElementNode): ControlSpec {
   parts.push({ name: 'unity-drag-container', parent: input, classes: ['unity-base-slider__drag-container'], style: {} });
   for (const name of ['tracker', 'dragger-border', 'dragger']) parts.push({ name: `unity-${name}`,
     parent: drag, classes: [`unity-base-slider__${name}`], style: {} });
-  if (attr('show-input-field') === 'true') {
+  if (uxmlBoolean(attr('show-input-field')) === true) {
     const field = parts.length;
     parts.push({ name: 'unity-text-field', parent: input, typeName: 'TextField',
       classes: ['unity-base-field', 'unity-base-field--no-label', 'unity-base-text-field', 'unity-text-field', 'unity-base-slider__text-field'], style: {} });
     const textInput = parts.length;
     parts.push({ name: 'unity-text-input', parent: field, typeName: 'TextInput',
       classes: ['unity-base-text-field__input', 'unity-base-field__input', 'unity-text-field__input', 'unity-base-text-field__input--single-line'], style: {} });
-    const low = Number(attr('low-value') || '0');
-    const high = Number(attr('high-value') || '10');
-    const value = Math.min(Math.max(low, high), Math.max(Math.min(low, high), Number(attr('value') || String(low))));
+    const { value } = numericControlValue(node);
     parts.push({ name: 'unity-text-element--inner-input-field-component', parent: textInput,
       kind: 'text', textValue: String(value), typeName: 'TextElement', unnamed: true,
       classes: ['unity-text-element', 'unity-text-element__selectable', 'unity-text-element--inner-input-field-component'], style: {} });
@@ -332,7 +364,7 @@ function sliderSpec(node: ElementNode): ControlSpec {
   // Measured: tests/layout/unity/6000.3.25f1/{probe-panel,probe-editor-070}/
   // d-slider-children.json: contentContainer is the slider itself, after its parts.
   return { hasText: false, fileChildrenHost: 'owner', classes: ['unity-base-field', ...(!labelled ? ['unity-base-field--no-label'] : []),
-    'unity-base-slider', specific, attr('direction') === 'Vertical' ? 'unity-base-slider--vertical' : 'unity-base-slider--horizontal'], parts };
+    'unity-base-slider', specific, isVertical(attr('direction')) ? 'unity-base-slider--vertical' : 'unity-base-slider--horizontal'], parts };
 }
 
 // Measured: 6000.3.25f1/{probe-panel,probe-editor-070}/{c07-Toggle,c07-RadioButton,e-toggle,e-radio}.json.

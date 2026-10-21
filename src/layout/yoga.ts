@@ -22,7 +22,7 @@ import type { Node as YogaNode, Yoga } from 'yoga-layout/load';
 
 import type { ElementNode, NodeId, Warning } from '../model/types';
 import type { ComputedStyle } from '../style/resolve';
-import { isNonVisual, partParentIndex, partTextOf, resolveControl } from '../controls/registry';
+import { uxmlBoolean, isVertical, numericControlValue, isNonVisual, partParentIndex, partTextOf, resolveControl } from '../controls/registry';
 import type { Theme } from '../controls/theme';
 import { DEFAULT_THEME, verticalScrollbarWidth } from '../controls/theme';
 import type { ComputedValue, DeclarationLocator } from '../style/resolve';
@@ -481,22 +481,28 @@ export function layoutDocument(
     // Unity evidence: c07-TextField.json, both 6.3 themes: an empty input
     // retains a line box even though Unity's text measurement reports zero.
     if (text === '' && node.name.local === 'TextField') {
-      yg.setMeasureFunc(() => ({ width: 0, height: textHeight(1, context.fontSize,
-        context.faceInfo ?? EDITOR_DEFAULT_FACE_INFO, 0, 0, context.textGenerator) }));
+      yg.setMeasureFunc((_width, _widthMode, availableHeight, heightMode) => {
+        const height = textHeight(1, context.fontSize, context.faceInfo ?? EDITOR_DEFAULT_FACE_INFO, 0, 0, context.textGenerator);
+        return { width: 0, height: heightMode === MeasureMode.AtMost && Number.isFinite(availableHeight)
+          ? Math.min(height, availableHeight) : height };
+      });
       return;
     }
     yg.setMeasureFunc((availableWidth, widthMode, availableHeight, heightMode) => {
       const measured = options.measureText(
         text,
         context,
-        Number.isFinite(availableWidth) ? availableWidth : 0,
+        read(style, 'position') !== 'absolute' && Number.isFinite(availableWidth) ? availableWidth : 0,
       );
       // Measured: g-clamp.json — AtMost clips text except absolute elements and TextField inner text.
       const clip = widthMode === MeasureMode.AtMost && Number.isFinite(availableWidth) &&
         read(style, 'position') !== 'absolute' && partName !== 'unity-text-element--inner-input-field-component';
-      // Measured: g-clamp-h.json — AtMost clips height, including TextField inner text, except absolute elements.
+      // Measured: g-clamp-h.json clips single-line inner text; c-edge.json (§32)
+      // preserves multiline inner text height and leaves absolute text unconstrained.
       const clipHeight = heightMode === MeasureMode.AtMost && Number.isFinite(availableHeight) &&
-        read(style, 'position') !== 'absolute';
+        read(style, 'position') !== 'absolute' &&
+        !(partName === 'unity-text-element--inner-input-field-component' &&
+          uxmlBoolean(node.attributes.find((a) => a.name === 'multiline')?.value) === true);
       return {
         width: clip ? Math.min(measured.width, availableWidth) : measured.width,
         height: clipHeight ? Math.min(measured.height, availableHeight) : measured.height,
@@ -512,6 +518,13 @@ export function layoutDocument(
   }
 
   function build(node: ElementNode, parent: YogaNode | null): void {
+    if (['Slider', 'SliderInt', 'ProgressBar'].includes(node.name.local) && numericControlValue(node).invalid) {
+      const raw = node.attributes.find((a) => a.name === 'value')?.value;
+      const problem = Number.isNaN(Number(raw)) ? 'a number' : 'a whole number';
+      warnings.push({ kind: 'malformed', reason: 'invalid-value', node: node.id,
+        subject: { kind: 'control', type: node.name.local },
+        message: `<${node.name.local} value="${raw}"> is not ${problem}; the default ${numericControlValue(node).value} is used` });
+    }
     if (isNonVisual(node)) {
       if (node.name.local === 'Bindings' && !bindingsReported) {
         bindingsReported = true;
@@ -724,13 +737,12 @@ export function layoutDocument(
       const nodes = partNodes.get(node.id)!;
       const background = nodes[chain.findIndex((p) => p.name === 'unity-progress-bar__background')]!;
       const progress = nodes[chain.findIndex((p) => p.name === 'unity-progress-bar__progress')]!;
-      const attr = (name: string, fallback: number): number => Number(node.attributes.find((a) => a.name === name)?.value ?? fallback);
-      const low = attr('low-value', 0), high = attr('high-value', 100);
-      const value = Math.min(high, Math.max(low, attr('value', 0)));
+      const { high, value } = numericControlValue(node);
       const width = Math.floor(background.getComputedLayout().width - 2);
-      const filled = value <= low ? 0 : width * value / high;
+      const rawFill = high === 0 ? 0 : width * value / high;
+      const filled = Number.isFinite(rawFill) && rawFill > 0 ? rawFill : 0;
       progress.setPosition(Edge.Right, width - filled);
-      if (theme === 'editor' && value <= low) {
+      if (theme === 'editor' && filled === 0) {
         warnings.push({
           kind: 'version-dependent', reason: 'version-dependent', node: node.id,
           subject: { kind: 'control', type: 'ProgressBar' },
@@ -780,10 +792,11 @@ export function layoutDocument(
       const dragger = chain.find((p) => p.name === 'unity-dragger');
       if (container === undefined || dragger === undefined) continue;
       const node = [...yogaOf.keys()].find((n) => n.id === owner)!;
-      const attr = (name: string, fallback: number): number => Number(node.attributes.find((a) => a.name === name)?.value ?? fallback);
-      const low = attr('low-value', 0), high = attr('high-value', 10);
-      const t = Math.min(1, Math.max(0, high === low ? 0 : (attr('value', low) - low) / (high - low)));
-      const vertical = node.attributes.some((a) => a.name === 'direction' && a.value === 'Vertical');
+      const { low, high, value: sliderValue } = numericControlValue(node);
+      const ratio = high === low ? 0 : (sliderValue - low) / (high - low);
+      let t = Number.isFinite(ratio) ? Math.min(1, Math.max(0, ratio)) : 0;
+      if (uxmlBoolean(node.attributes.find((a) => a.name === 'inverted')?.value) === true) t = 1 - t;
+      const vertical = isVertical(node.attributes.find((a) => a.name === 'direction')?.value);
       const value = vertical ? `0px ${(1 - t) * (container.box.height - dragger.box.height)}px`
         : `${t * (container.box.width - dragger.box.width)}px 0px`;
       for (const part of chain.filter((p) => p.name === 'unity-dragger' || p.name === 'unity-dragger-border')) {

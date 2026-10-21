@@ -27,7 +27,7 @@ import type {
   UxmlDocument,
   Warning,
 } from '../model/types';
-import { implicitClassesOf, partParentIndex, partTextOf, resolveControl, supportedControlNames } from '../controls/registry';
+import { uxmlBoolean, implicitClassesOf, partParentIndex, partTextOf, resolveControl, supportedControlNames } from '../controls/registry';
 import type { Theme } from '../controls/theme';
 import { DEFAULT_THEME, THEME_SHEETS, THEME_UNITY_VERSIONS } from '../controls/theme';
 import { parseUss } from '../parser/uss';
@@ -259,7 +259,7 @@ function buildStateMap(
    * SetEnabled(false) disables file descendants and physical parts.
    */
   const disabledHere = (node: ElementNode): boolean =>
-    node.attributes.some((a) => a.name === 'enabled' && a.value === 'false');
+    node.attributes.some((a) => a.name === 'enabled' && uxmlBoolean(a.value) === false);
 
   const visit = (node: ElementNode, inheritedDisabled: boolean): void => {
     const disabled = inheritedDisabled || disabledHere(node);
@@ -277,7 +277,7 @@ function buildStateMap(
     // USS: Disabled alone, never Enabled too (e-disabled / v-enabled Unity probes).
     if (set.has('disabled')) set.delete('enabled');
     if ((node.name.local === 'Toggle' || node.name.local === 'RadioButton') &&
-      node.attributes.some((a) => a.name === 'value' && a.value === 'true')) set.add('checked');
+      node.attributes.some((a) => a.name === 'value' && uxmlBoolean(a.value) === true)) set.add('checked');
     map.set(node, set);
     for (const child of node.children) visit(child, disabled);
   };
