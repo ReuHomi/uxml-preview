@@ -1,0 +1,368 @@
+{
+  "metadata": {
+    "unityVersion": "6000.3.25f1",
+    "theme": "runtime-panel",
+    "themeSource": "PanelSettingsCreator.GetFirstThemeOrCreateDefaultTheme",
+    "dumper": "PanelDump"
+  },
+  "panel": {
+    "width": 400,
+    "height": 300
+  },
+  "elements": {
+    "settings": {
+      "x": 0,
+      "y": 0,
+      "width": 800,
+      "height": 300
+    },
+    "left": {
+      "x": 0,
+      "y": 0,
+      "width": 380,
+      "height": 300
+    },
+    "graphics": {
+      "x": 4,
+      "y": 6,
+      "width": 372,
+      "height": 270
+    },
+    "fullscreen": {
+      "x": 11,
+      "y": 38,
+      "width": 361,
+      "height": 31
+    },
+    "unity-checkmark#1": {
+      "x": 167,
+      "y": 42,
+      "width": 24,
+      "height": 24
+    },
+    "vsync": {
+      "x": 11,
+      "y": 73,
+      "width": 361,
+      "height": 31
+    },
+    "unity-checkmark#2": {
+      "x": 167,
+      "y": 77,
+      "width": 24,
+      "height": 24
+    },
+    "res-720": {
+      "x": 11,
+      "y": 108,
+      "width": 361,
+      "height": 24
+    },
+    "unity-checkmark#3": {
+      "x": 167,
+      "y": 108,
+      "width": 0,
+      "height": 0
+    },
+    "res-1080": {
+      "x": 11,
+      "y": 137,
+      "width": 361,
+      "height": 24
+    },
+    "unity-checkmark#4": {
+      "x": 173,
+      "y": 143,
+      "width": 12,
+      "height": 12
+    },
+    "res-1440": {
+      "x": 11,
+      "y": 166,
+      "width": 361,
+      "height": 24
+    },
+    "unity-checkmark#5": {
+      "x": 167,
+      "y": 166,
+      "width": 0,
+      "height": 0
+    },
+    "brightness": {
+      "x": 11,
+      "y": 195,
+      "width": 361,
+      "height": 39
+    },
+    "unity-drag-container#1": {
+      "x": 167,
+      "y": 195,
+      "width": 146,
+      "height": 39
+    },
+    "unity-tracker#1": {
+      "x": 167,
+      "y": 212,
+      "width": 146,
+      "height": 6
+    },
+    "unity-dragger-border#1": {
+      "x": 263.6,
+      "y": 195,
+      "width": 0,
+      "height": 0
+    },
+    "unity-dragger#1": {
+      "x": 263.6,
+      "y": 203,
+      "width": 8,
+      "height": 24
+    },
+    "unity-text-field": {
+      "x": 317,
+      "y": 195,
+      "width": 55,
+      "height": 39
+    },
+    "unity-text-input#1": {
+      "x": 317,
+      "y": 195,
+      "width": 55,
+      "height": 39
+    },
+    "fps": {
+      "x": 11,
+      "y": 238,
+      "width": 361,
+      "height": 31
+    },
+    "unity-drag-container#2": {
+      "x": 167,
+      "y": 238,
+      "width": 205,
+      "height": 31
+    },
+    "unity-tracker#2": {
+      "x": 167,
+      "y": 251,
+      "width": 205,
+      "height": 6
+    },
+    "unity-dragger-border#2": {
+      "x": 218.8,
+      "y": 238,
+      "width": 0,
+      "height": 0
+    },
+    "unity-dragger#2": {
+      "x": 218.8,
+      "y": 242,
+      "width": 8,
+      "height": 24
+    },
+    "audio": {
+      "x": 4,
+      "y": 284,
+      "width": 372,
+      "height": 140
+    },
+    "master": {
+      "x": 11,
+      "y": 316,
+      "width": 361,
+      "height": 31
+    },
+    "unity-drag-container#3": {
+      "x": 167,
+      "y": 316,
+      "width": 205,
+      "height": 31
+    },
+    "unity-tracker#3": {
+      "x": 167,
+      "y": 329,
+      "width": 205,
+      "height": 6
+    },
+    "unity-dragger-border#3": {
+      "x": 324.6,
+      "y": 316,
+      "width": 0,
+      "height": 0
+    },
+    "unity-dragger#3": {
+      "x": 324.6,
+      "y": 320,
+      "width": 8,
+      "height": 24
+    },
+    "effects": {
+      "x": 11,
+      "y": 351,
+      "width": 361,
+      "height": 31
+    },
+    "unity-drag-container#4": {
+      "x": 167,
+      "y": 351,
+      "width": 205,
+      "height": 31
+    },
+    "unity-tracker#4": {
+      "x": 167,
+      "y": 364,
+      "width": 205,
+      "height": 6
+    },
+    "unity-dragger-border#4": {
+      "x": 167,
+      "y": 351,
+      "width": 0,
+      "height": 0
+    },
+    "unity-dragger#4": {
+      "x": 167,
+      "y": 355,
+      "width": 8,
+      "height": 24
+    },
+    "mute": {
+      "x": 11,
+      "y": 386,
+      "width": 361,
+      "height": 31
+    },
+    "unity-checkmark#6": {
+      "x": 167,
+      "y": 390,
+      "width": 24,
+      "height": 24
+    },
+    "right": {
+      "x": 380,
+      "y": 0,
+      "width": 420,
+      "height": 300
+    },
+    "account": {
+      "x": 380,
+      "y": 0,
+      "width": 420,
+      "height": 142
+    },
+    "player-name": {
+      "x": 385,
+      "y": 3,
+      "width": 410,
+      "height": 39
+    },
+    "unity-text-input#2": {
+      "x": 541,
+      "y": 3,
+      "width": 254,
+      "height": 39
+    },
+    "player-tag": {
+      "x": 385,
+      "y": 46,
+      "width": 410,
+      "height": 39
+    },
+    "unity-text-input#3": {
+      "x": 541,
+      "y": 46,
+      "width": 254,
+      "height": 39
+    },
+    "player-password": {
+      "x": 385,
+      "y": 89,
+      "width": 410,
+      "height": 39
+    },
+    "unity-text-input#4": {
+      "x": 541,
+      "y": 89,
+      "width": 254,
+      "height": 39
+    },
+    "account-note": {
+      "x": 381,
+      "y": 130,
+      "width": 418,
+      "height": 0
+    },
+    "download": {
+      "x": 385,
+      "y": 134,
+      "width": 410,
+      "height": 24
+    },
+    "unity-progress-bar": {
+      "x": 385,
+      "y": 134,
+      "width": 410,
+      "height": 24
+    },
+    "vertical": {
+      "x": 381,
+      "y": 144,
+      "width": 40,
+      "height": 120
+    },
+    "unity-drag-container#5": {
+      "x": 381,
+      "y": 144,
+      "width": 40,
+      "height": 120
+    },
+    "unity-tracker#5": {
+      "x": 398,
+      "y": 144,
+      "width": 6,
+      "height": 120
+    },
+    "unity-dragger-border#5": {
+      "x": 381,
+      "y": 211.2,
+      "width": 0,
+      "height": 0
+    },
+    "unity-dragger#5": {
+      "x": 389,
+      "y": 211.2,
+      "width": 24,
+      "height": 8
+    },
+    "footer": {
+      "x": 380,
+      "y": 266,
+      "width": 420,
+      "height": 34
+    },
+    "apply": {
+      "x": 384,
+      "y": 268,
+      "width": 64,
+      "height": 30
+    },
+    "cancel": {
+      "x": 456,
+      "y": 268,
+      "width": 72,
+      "height": 30
+    },
+    "minus": {
+      "x": 532,
+      "y": 266,
+      "width": 7,
+      "height": 17
+    },
+    "plus": {
+      "x": 539,
+      "y": 266,
+      "width": 10,
+      "height": 17
+    }
+  }
+}

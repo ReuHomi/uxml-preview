@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:Slider name="s-plain" />
+<ui:Slider name="s-label" label="Label" low-value="0" high-value="10" value="5" />
+<ui:Slider name="s-min" low-value="0" high-value="10" value="0" />
+<ui:Slider name="s-max" low-value="0" high-value="10" value="10" />
+<ui:Slider name="s-input" low-value="0" high-value="10" value="5" show-input-field="true" />
+<ui:Slider name="s-disabled" label="Label" low-value="0" high-value="10" value="5" enabled="false" />
+<ui:Slider name="s-vertical" low-value="0" high-value="10" value="5" direction="Vertical" style="height: 100px;" />
+</ui:VisualElement>
+<ui:VisualElement name="free" style="align-items: flex-start;">
+<ui:Slider name="s-auto" low-value="0" high-value="10" value="5" />
+</ui:VisualElement>
+</ui:UXML>

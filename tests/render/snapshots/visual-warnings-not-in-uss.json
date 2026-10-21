@@ -1,7 +1,9 @@
 {
   "elements": {
     "visual-warnings-not-in-uss-box": {
-      "box-sizing": "border-box"
+      "box-sizing": "border-box",
+      "color": "rgb(210, 210, 210)",
+      "font-size": "12px"
     }
   },
   "warnings": [

@@ -1,0 +1,33 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col-start" style="width: 100px; align-items: flex-start;">
+<ui:TextElement name="cs-te" text="The quick brown fox jumps" />
+</ui:VisualElement>
+<ui:VisualElement name="col-stretch" style="width: 100px;">
+<ui:Label name="st-label" text="The quick brown fox jumps" />
+</ui:VisualElement>
+<ui:VisualElement name="row" style="width: 100px; flex-direction: row;">
+<ui:Label name="row-label" text="The quick brown fox jumps" />
+</ui:VisualElement>
+<ui:VisualElement name="row-te" style="width: 100px; flex-direction: row;">
+<ui:TextElement name="row-te-el" text="The quick brown fox jumps" />
+</ui:VisualElement>
+<ui:VisualElement name="row-hidden" style="width: 100px; flex-direction: row; overflow: hidden;">
+<ui:Label name="rh-label" text="The quick brown fox jumps" />
+</ui:VisualElement>
+<ui:VisualElement name="abs-host" style="width: 100px; height: 30px;">
+<ui:Label name="abs-label" text="The quick brown fox jumps" style="position: absolute; left: 0;" />
+</ui:VisualElement>
+<ui:VisualElement name="reg" style="width: 100px;">
+<ui:Label name="reg-plain" text="Hello world&#10;wide text" style="align-self: flex-start; white-space: nowrap;" />
+<ui:Label name="reg-letter" text="Hello world&#10;wide text" style="align-self: flex-start; white-space: nowrap; letter-spacing: 3px;" />
+<ui:Label name="reg-word" text="Hello world&#10;wide text" style="align-self: flex-start; white-space: nowrap; word-spacing: 5px;" />
+<ui:Label name="reg-gen" text="Hello world&#10;wide text" style="align-self: flex-start; white-space: nowrap; letter-spacing: 20px; -unity-text-generator: advanced;" />
+<ui:Label name="reg-gen-std" text="Hello world&#10;wide text" style="align-self: flex-start; white-space: nowrap; letter-spacing: 20px; -unity-text-generator: standard;" />
+</ui:VisualElement>
+<ui:VisualElement name="tf-host" style="width: 100px;">
+<ui:TextField name="tf-narrow" value="The quick brown fox jumps" />
+</ui:VisualElement>
+<ui:VisualElement name="free" style="flex-direction: row; align-items: flex-start;">
+<ui:Label name="free-label" text="The quick brown fox jumps" />
+</ui:VisualElement>
+</ui:UXML>

@@ -5,6 +5,8 @@
 **Unity UI Toolkit の UXML/USS を、Unity エディタなしでブラウザ上に描画します。レイアウトには
 UI Toolkit 自身が使用する Yoga エンジンを採用し、描画結果は実際の Unity と突き合わせて検証しています。**
 
+![uxml-preview 0.7.0：左に UXML・USS で書いた設定画面、右にブラウザで描画した結果](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/promo-0.7.0.gif)
+
 [![プレイグラウンド画面：上部にプレビュー画面、下部に各警告の理由と Unity 側の実際の挙動を表示](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/playground.png)](https://reuhomi.github.io/uxml-preview/)
 
 ### ▶ [プレイグラウンドを開く](https://reuhomi.github.io/uxml-preview/)
@@ -18,8 +20,11 @@ UI Toolkit 自身が使用する Yoga エンジンを採用し、描画結果は
 
 ## 検証方法
 
-- **座標：** 完成画面1件を含む40個のレイアウトケースにおいて、要素の座標値 660 / 676 が Unity 6000.0.40f1 と一致しています。[すべての差異とその内訳 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md) 同じケースを Unity 6.3（6000.3.25f1）で再ダンプしたところ、同日に取得した 6000.0.40f1 のダンプとすべての配置が一致しました。[6.3 での再測定 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#unity-63-lts-re-measurement-2026-10-15)
-- **テキスト：** 実際のブラウザで描画し、Unity 6000.3.25f1 と Label 単位で比較しました。行数 92 / 92、高さ 84 / 92、幅 92 / 92（誤差 1px または 1% 以内）。高さが異なるケースはすべて、ハングルを含まない欧文フォント Inter で韓国語、または韓国語と欧文が混在するテキストを指定したものです。Unity はこれをフォールバックフォントで描画しますが、本プレビューではまさにその状況を警告として通知します。[テキスト検証セット →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#text-cohort-separate-set-measured-2026-10-16)
+- **座標・ランタイムテーマ（既定）：** 同じ42個のレイアウトケースにおいて、要素の座標値 1122 / 1148 が実際の Unity 6.3 ランタイムパネル（6000.3.25f1、PanelSettings + UIDocument、Play モード）と一致しています。残る差異はすべてエディターテーマにもあるものです。[測定方法 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#runtime-theme-separate-set-measured-2026-10-17)
+- **座標・エディターテーマ：** 完成画面3件（インベントリ、描画する15種のコントロールをすべて使った設定画面の英語版・韓国語版）を含む42個のレイアウトケースにおいて、要素の座標値 1122 / 1148 が Unity 6000.0.40f1 と一致しています。[すべての差異とその内訳 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md) 同じケースを Unity 6.3（6000.3.25f1）で再ダンプしたところ、同日に取得した 6000.0.40f1 のダンプとすべての配置が一致しました。[6.3 での再測定 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#unity-63-lts-re-measurement-2026-10-15)
+- **テキスト、ランタイムテーマ（既定）：** 実際のブラウザで描画し、実際の Unity ランタイムパネル（6000.0.40f1 と 6000.3.25f1、プローブごとに別の Unity プロセス）と Label 単位で比較しました。行数 92 / 92、高さ 84 / 92、幅 92 / 92（誤差 1px または 1% 以内）、ボックス境界での改行ケース 159 / 159。高さが異なるケースはすべて、ハングルを含まない欧文フォント Inter で韓国語、または韓国語と欧文が混在するテキストを指定したものです。Unity はこれをフォールバックフォントで描画しますが、本プレビューではまさにその状況を警告として通知します。[ランタイムのテキストセット →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#runtime-panel-separate-set-measured-2026-10-19--item-t)
+- **テキスト、エディターテーマ：** 同じ 92 個の Label を Unity 6000.3.25f1 のエディターと比較 — 92 / 92、84 / 92、92 / 92、改行ケース 157 / 159（残る 2 件：中国語 1 ケースでのエディターの禁則処理と、ボックス境界での 1px の自然幅の差）。[テキスト検証セット →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#text-cohort-separate-set-measured-2026-10-16)
+- **測定条件：** 座標の数値は、テキストサイズを与えたときのレイアウトを測っています（ハーネスはテキストを固定関数で測り、テキスト計測はテキストの数値が別に測ります）。テキストの数値は Unity と同じフォントファイルを渡した条件での値です。フォントを渡さない場合はブラウザーの既定フォントで測るため、文字幅が数 px 異なり、複数行のテキストでは行数が変わることがあります。[条件 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md)
 - **Unity バージョン：** 基準バージョンは Unity 6.3 LTS です。USS プロパティかどうかの判定は Unity 公式のプロパティ一覧（6.6 まで）に基づいており、6.7 は LTS になるまでサポート対象外です。[サポート範囲 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/supported.en.md)
 - **一致しない箇所は見過ごさず、警告として報告します。** 未サポートのコントロール・プロパティ・値は、その理由とともに（測定済みの場合は Unity 側が代わりにどう振る舞うかも含めて）警告として返されます。[警告について →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/api.en.md#warnings)
 

@@ -18,8 +18,19 @@
  * breaking gives 7 — consistent with kinsoku (no line starting with ，or 。),
  * which is not measured and not implemented (tests/text-cohort/spec.json "known").
  *
- * Hangul and Latin keep breaking at spaces only: the text cohort's Korean and
- * English boundary cases pass on that rule (tests/text-cohort/results.json).
+ * Hangul and Latin break at spaces while each word fits the line, and a word
+ * longer than the line breaks between characters. Measured 2026-10-21, both
+ * versions (6000.0.40f1, 6000.3.25f1) and both themes, each probe dumped alone:
+ * tests/layout/unity/<version>/{probe-panel,probe-editor-070}/r1w-wrap2.json
+ * (ko100: a Korean sentence in 100px breaks at spaces, 3 lines on the runtime
+ * panel; long100: "Antidisestablishmentarianism" in 100px is 2 lines; longlb100:
+ * a long first word, then normal words) and r1w-long.json (kolong:
+ * "부끄럼이없기를바랍니다" in 60px is 3 lines on the runtime panel; enlong:
+ * "Hamburgefonts" in 50px is 3 lines on the runtime panel, 2 in the editor).
+ * Replaced 2026-10-21 (human approval): 0.6.1 asserted that a Korean or Latin
+ * word wider than the box is never split. That was inferred from the cohort's
+ * boundary cases, none of which has a word wider than its box, and the dumps
+ * above contradict it.
  */
 
 import { readFileSync } from 'node:fs';
@@ -68,15 +79,21 @@ describe('CJK text breaks between characters (Unity 6000.3.25f1 wrap dumps)', ()
   });
 });
 
-describe('Hangul and Latin still break at spaces only', () => {
-  // 4 words; a box narrower than any word gives one line per word, never one per character.
-  it('Korean', () => {
-    expect(measure('다람쥐 헌 쳇바퀴에 타고파', ctx(), 5).height).toBe(textHeight(4, 20, EDITOR));
+// Without a canvas every character is 0.5em: 10px at 20px, a space included.
+describe('Hangul and Latin break at spaces while a word fits, between characters when it does not', () => {
+  it('Korean words that fit the line break at spaces', () => {
+    // 45px holds every word (at most 40px) but no two of them.
+    expect(measure('다람쥐 헌 쳇바퀴에 타고파', ctx(), 45).height).toBe(textHeight(4, 20, EDITOR));
   });
-  it('English', () => {
-    expect(measure('Hamburgefonts Quick', ctx(), 5).height).toBe(textHeight(2, 20, EDITOR));
+  it('English words that fit the line break at spaces', () => {
+    expect(measure('Hamburgefonts Quick', ctx(), 135).height).toBe(textHeight(2, 20, EDITOR));
   });
-  it('a Korean word wider than the box is not split', () => {
-    expect(measure('쳇바퀴에', ctx(), 5).height).toBe(textHeight(1, 20, EDITOR));
+  it('a Korean word wider than the line breaks between characters', () => {
+    // 40px in 25px: two characters per line.
+    expect(measure('쳇바퀴에', ctx(), 25).height).toBe(textHeight(2, 20, EDITOR));
+  });
+  it('a Latin word wider than the line breaks between characters', () => {
+    // 130px in 50px: five characters per line.
+    expect(measure('Hamburgefonts', ctx(), 50).height).toBe(textHeight(3, 20, EDITOR));
   });
 });

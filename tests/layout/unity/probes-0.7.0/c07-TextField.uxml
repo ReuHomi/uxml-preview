@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:TextField name="tf-plain" />
+<ui:TextField name="tf-label" label="Label" />
+<ui:TextField name="tf-value" value="Hello" />
+<ui:TextField name="tf-placeholder" placeholder-text="Type here" />
+<ui:TextField name="tf-multiline" multiline="true" value="One&#10;Two" />
+<ui:TextField name="tf-password" password="true" value="secret" />
+<ui:TextField name="tf-disabled" label="Label" value="Hello" enabled="false" />
+</ui:VisualElement>
+<ui:VisualElement name="free" style="align-items: flex-start;">
+<ui:TextField name="tf-auto" value="Hello" />
+<ui:TextField name="tf-auto-empty" />
+</ui:VisualElement>
+</ui:UXML>

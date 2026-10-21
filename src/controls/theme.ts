@@ -1,79 +1,349 @@
 /**
  * Unity's control defaults, as far as we have measured them.
  *
- * Unity ships a theme stylesheet that gives controls their own margin, padding
- * and border before any author USS runs. This renderer supplied none of it, so
- * every Button sat 3px left and 1px high of where Unity puts it — invisible on
- * one button and compounding across a row.
+ * Unity supplies control spacing before author USS runs; omitting it once put
+ * every Button 3px left and 1px high, compounding across a row. Only measured
+ * values live here. Values copied from Unity's source could look just as
+ * authoritative while being wrong without appearing in the unmeasured list.
  *
- * **Only measured values live here.** Every declaration below was derived from
- * a Unity layout dump in tests/golden/unity/, and adding `Button`'s margin
- * moved all five Button cases from 18 mismatched values to zero. Values read
- * from Unity's source instead would look identical in this file while being
- * wrong in a way no test could see: they would not appear in the unmeasured
- * list, so they would quietly pass for ground truth.
+ * There are two measured themes: editor in an EditorWindow on 6000.0.40f1
+ * (tests/layout/unity/6000.0.40f1/probe-editor-070/), runtime on a real runtime
+ * panel on 6000.3.25f1 (tests/layout/unity/6000.3.25f1/probe-panel/), with
+ * identical runtime values on 6000.0.40f1. Geometry comes from coordinate dumps.
+ * `-unity-text-align` came from the Step 6 eye check: a glyph's position inside
+ * its box does not move the box, so 368 matching coordinates could not reveal
+ * that Unity centred Button text while this renderer put it at the top left.
  *
- * Two kinds of measurement feed this file, and the second was a long time
- * coming. Geometry comes from the coordinate dumps. `-unity-text-align` cannot:
- * where a glyph sits inside a box does not move the box, so no dump can ever
- * see it. It came from the Step 6 eye check — Unity centres a Button's label
- * and this renderer had it at the top left, which is visible the moment the two
- * screenshots sit side by side and invisible in 368 compared numbers.
+ * Opacity 0.5 was established by pixel arithmetic: Unity's disabled Drop button
+ * is rgb(41,50,67); its base rgb(58,74,104) composited at half over the footer's
+ * rgb(24,26,31) gives (41,50,67.5). It is measured, not chosen by appearance.
+ * `nested-disabled` now places it on `.unity-disabled`, which Unity adds only
+ * where enabled="false" was written. This replaces the earlier `:disabled`
+ * rule that applied half opacity at every disabled level and dimmed twice.
  *
- * `opacity` on `:disabled` came from the same screenshots, but by sampling
- * pixels rather than looking. Unity's disabled Drop button is rgb(41,50,67);
- * the base colour rgb(58,74,104) composited at half over the footer's
- * rgb(24,26,31) is (41, 50, 67.5) — all three channels exact. That arithmetic
- * is the evidence, and it is why the value is 0.5 and not a number that merely
- * looked about right.
+ * Two wrong turns preceded that result. The author's `Button:disabled` rule
+ * was first blamed for not applying, but `#DropButton` outranks it in both
+ * engines. Then state rules were thought to outrank specificity; `state-vs-id`
+ * and `state-vs-inline` both returned 40 in Unity, refuting that explanation.
+ * The dimming was never a cascade defect.
  *
- * Getting there took two wrong turns worth recording. First the author's
- * `Button:disabled` rule was blamed for not applying — it genuinely does not,
- * because `#DropButton` outranks it, in both engines. Then Unity was accused of
- * ranking state rules above specificity, and `state-vs-id` and `state-vs-inline`
- * refuted that: Unity answers 40 to both, exactly as this cascade already did.
- * The dimming was never about the cascade at all.
+ * Earlier omissions, superseded by c07-existing and c07-states:
+ * - "Label has nothing" described only its measured editor margin; Label and
+ *   Button spacing and flex-shrink are now measured for both themes.
+ * - "Padding, border, font deliberately absent" is superseded by measured
+ *   padding, borders, colours and font size; Label text alignment stays absent.
  *
- * What is deliberately absent, and why:
- *
- *   - `Label` — measured, and it has no default margin. `inherit-vs-direct`
- *     puts an explicitly-sized Label at the origin of a sized parent, and Unity
- *     reports x=0 y=0. Nothing to add is a result, not an omission.
- *   - padding, border, font — invisible to the cases we have. Every compared
- *     element is explicitly sized, and USS is border-box, so padding and border
- *     do not move the outer rectangle. They are unmeasured, so they are not here.
- *   - `Label`'s text alignment — the eye check could not separate it from the
- *     box at this size. Unmeasured, so absent.
- *
- * The class names were a separate claim from the values, and are now measured
- * too. `unity-button` came from Unity's documented `Button.ussClassName`, which
- * the margin dumps said nothing about — they proved the spacing, not the
- * selector delivering it. The golden case `theme-class-hook` was written to
- * settle exactly that, and Unity answered on 2026-08-05: a `.unity-button` rule
- * in author USS reaches a bare `<ui:Button>`, sizing it 120×40 in both engines.
- * The selector below is therefore measured, not assumed.
+ * Class hooks are a separate claim from values: margin dumps proved spacing,
+ * not the selector delivering it. `unity-button` began with the documented
+ * Button.ussClassName; `theme-class-hook` then confirmed on 2026-08-05 that
+ * author `.unity-button` reaches a bare <ui:Button>, sizing it 120×40 in Unity
+ * and this renderer. The hook is measured, not assumed.
  */
 
-/** Where every value in this file was measured. Theme values move between versions. */
-export const THEME_UNITY_VERSION = '6000.0.40f1';
+export type Theme = 'runtime' | 'editor';
+
+export const DEFAULT_THEME: Theme = 'runtime';
+
+/** Unity version used to measure the editor theme. */
+export const THEME_UNITY_VERSION: string = '6000.0.40f1';
+
+/** Unity measurement version for each theme. */
+export const THEME_UNITY_VERSIONS: Readonly<Record<Theme, string>> = {
+  editor: THEME_UNITY_VERSION,
+  runtime: '6000.3.25f1',
+};
+
+/** Panel defaults inherited by the rendered elements. */
+export const PANEL_TEXT_DEFAULTS_SELECTOR = 'UXML';
+
+// Unity evidence: tests/layout/unity/6000.3.25f1/{probe-panel,probe-editor-070}/
+// {c07-Slider,c07-SliderInt,d-slider,d-sliderint,c07-states}.json.
+// Runtime centres absolute parts; editor horizontal parts retain normal flow.
+const SLIDER_COMMON = `
+.unity-base-slider { flex-shrink: 0; }
+.unity-base-slider--horizontal { flex-direction: row; }
+.unity-base-slider__input { flex-grow: 1; flex-shrink: 0; }
+.unity-base-slider--horizontal .unity-base-slider__input { flex-direction: row; }
+.unity-base-slider__drag-container { flex-grow: 1; }
+.unity-base-slider__dragger-border { width: 0; height: 0; }
+.unity-base-slider__text-field { margin: 0 0 0 4px; }
+`;
+const SLIDER_EDITOR = `
+.unity-base-slider { margin: 1px 3px; }
+.unity-base-slider__label { min-width: 120px; margin-right: 2px; padding-top: 2px; color: #c4c4c4; }
+.unity-base-slider--horizontal .unity-base-slider__drag-container { min-width: 20px; }
+.unity-base-slider__tracker { background-color: #5e5e5e; margin: 2px 1px 2px 0; }
+.unity-base-slider--horizontal .unity-base-slider__tracker { height: 2px; top: 6px; }
+.unity-base-slider__dragger { width: 10px; height: 10px; border-width: 1px; border-color: #999999; background-color: #999999; border-radius: 5px; }
+.unity-base-slider--horizontal .unity-base-slider__dragger { margin-top: -2px; }
+.unity-base-slider__dragger-border { position: absolute; margin-left: -4px; background-color: rgba(16,111,205,0.5); border-radius: 8px; }
+.unity-base-slider__text-field { width: 50px; }
+.unity-base-slider__tracker:disabled { background-color: #575757; }
+.unity-base-slider__dragger:disabled { background-color: #666666; border-color: #666666; }
+.unity-base-slider--vertical { flex-direction: column; margin: 1px; padding-left: 4px; width: 20px; }
+.unity-base-slider--vertical .unity-base-slider__drag-container { min-height: 20px; }
+.unity-base-slider--vertical .unity-base-slider__tracker { position: absolute; width: 2px; left: 4px; top: 0; bottom: 0; }
+.unity-base-slider--vertical .unity-base-slider__dragger-border { margin-top: -4px; }
+`;
+const SLIDER_RUNTIME = `
+.unity-base-slider { margin: 2px 4px; }
+.unity-base-slider--horizontal { min-height: 24px; }
+.unity-base-slider__label { min-width: 150px; }
+.unity-base-slider__tracker { position: absolute; border-width: 1px; border-color: #646464; background-color: #7e7e7e; }
+.unity-base-slider--horizontal .unity-base-slider__tracker { left: 0; right: 0; top: 50%; height: 6px; margin-top: -3px; }
+.unity-base-slider__dragger { position: absolute; border-width: 1px; border-color: #646464; background-color: #f0f0f0; }
+.unity-base-slider--horizontal .unity-base-slider__dragger { width: 8px; height: 24px; top: 50%; margin-top: -12px; }
+.unity-base-slider__text-field { width: 55px; }
+.unity-base-slider__dragger:disabled { background-color: #808080; border-color: #7e7e7e; }
+.unity-base-slider--vertical { flex-direction: column; margin: 2px 1px; min-width: 24px; width: 40px; }
+.unity-base-slider--vertical .unity-base-slider__tracker { top: 0; bottom: 0; left: 50%; width: 6px; margin-left: -3px; }
+.unity-base-slider--vertical .unity-base-slider__dragger { width: 24px; height: 8px; left: 50%; margin-left: -12px; }
+`;
+
+// Measured resolved styles: tests/layout/unity/6000.3.25f1/
+// {probe-panel,probe-editor-070}/{c07-Toggle,c07-RadioButton,e-toggle,e-radio,e-disabled}.json.
+const CHECK_COMMON = `
+.unity-toggle, .unity-radio-button { flex-direction: row; flex-shrink: 0; }
+.unity-toggle__input, .unity-radio-button__input { flex-direction: row; flex-grow: 1; flex-shrink: 0; }
+.unity-toggle__label, .unity-radio-button__label { white-space: nowrap; text-overflow: ellipsis; }
+.unity-toggle__text, .unity-radio-button__text { align-self: center; margin-top: 0; margin-left: 1px; white-space: nowrap; }
+.unity-toggle__checkmark, .unity-radio-button__checkmark-background, .unity-radio-button__checkmark { align-self: center; flex-shrink: 0; }
+/* Unchecked dumps resolve display: None; Yoga keeps its zero box at the background origin. */
+.unity-radio-button__checkmark { display: none; width: 0; height: 0; }
+.unity-radio-button__input:checked .unity-radio-button__checkmark { display: flex; }
+`;
+const CHECK_RUNTIME = `
+.unity-toggle, .unity-radio-button { margin: 2px 4px; }
+.unity-radio-button { margin-bottom: 3px; }
+.unity-toggle__label, .unity-radio-button__label { min-width: 150px; }
+.unity-radio-button__label { padding-top: 0; padding-bottom: 0; }
+.unity-toggle:focus > .unity-toggle__label, .unity-radio-button:focus > .unity-radio-button__label { color: #00526a; }
+.unity-toggle__checkmark, .unity-radio-button__checkmark-background { width: 24px; height: 24px; border-width: 1px; border-color: #646464; background-color: #f0f0f0; }
+.unity-toggle__checkmark { -unity-background-image-tint-color: #323232; }
+/* e-toggle t-focus: only the owner is focused; e-radio r-focus keeps its base border. */
+.unity-toggle:focus .unity-toggle__checkmark { border-color: #006aa6; }
+/* e-disabled: forced radio state colours both parts; Toggle keys on the part's own state. */
+.unity-toggle__checkmark:disabled, .unity-radio-button:disabled .unity-radio-button__checkmark-background { background-color: #959595; border-color: #7e7e7e; }
+.unity-radio-button__checkmark-background { border-radius: 12px; padding-top: 5px; }
+.unity-radio-button__checkmark { border-radius: 6px; background-color: #323232; }
+.unity-radio-button:disabled .unity-radio-button__checkmark { background-color: #000000; }
+.unity-radio-button__input:checked .unity-radio-button__checkmark { width: 12px; height: 12px; }
+`;
+const CHECK_EDITOR = `
+.unity-toggle, .unity-radio-button { margin: 1px 3px 3px 3px; }
+.unity-toggle__label, .unity-radio-button__label { min-width: 120px; margin-right: 2px; color: #c4c4c4; }
+.unity-toggle:focus > .unity-toggle__label, .unity-radio-button:focus > .unity-radio-button__label { color: #81b4ff; }
+.unity-toggle__text { flex-grow: 1; }
+.unity-toggle__checkmark { width: 14px; height: 14px; }
+.unity-radio-button__checkmark-background { width: 12px; height: 12px; border-radius: 6px; margin-right: 2px; padding-top: 2px; border-width: 1px; border-color: #212121; background-color: #2a2a2a; }
+.unity-radio-button__checkmark { border-radius: 3px; background-color: #c4c4c4; }
+.unity-radio-button__input:checked .unity-radio-button__checkmark { width: 6px; height: 6px; }
+`;
+
+// Measured: 6000.3.25f1/{probe-panel,probe-editor-070}/{c07-ProgressBar,f-progress,f-hook}.json.
+const PROGRESS_COMMON = `
+.unity-progress-bar { flex-shrink: 0; }
+.unity-progress-bar__background { border-width: 1px; }
+.unity-progress-bar__progress { position: absolute; left: 0; top: 0; bottom: 0; }
+.unity-progress-bar__title-container { flex-grow: 1; flex-direction: row; justify-content: center; }
+.unity-progress-bar__title { white-space: nowrap; -unity-text-align: middle-center; }
+`;
+const PROGRESS_RUNTIME = `
+.unity-progress-bar { margin: 4px; }
+.unity-progress-bar__container { min-height: 24px; max-height: 24px; }
+.unity-progress-bar__background { flex-grow: 1; border-color: #808080; background-color: #bcbcbc; }
+.unity-progress-bar__progress { margin: 2px; background-color: #e7e7e7; }
+.unity-progress-bar__title { margin: 0; padding: 10px 12px; }
+`;
+const PROGRESS_EDITOR = `
+.unity-progress-bar { margin: 1px 3px; padding-bottom: 1px; }
+.unity-progress-bar__background { height: 19px; border-color: #252525; background-color: #303030; }
+.unity-progress-bar__progress { background-color: #2c5d87; }
+.unity-progress-bar__title { margin: 1px 0; flex-grow: 1; color: #ffffff; }
+`;
 
 /**
- * Parsed once and spliced in ahead of author sheets, so an author rule of equal
- * specificity wins on order — which is how a theme stylesheet behaves in Unity.
- *
- * Class selectors rather than type selectors, also for Unity's reasons: a theme
- * rule at `.unity-button` (0,1,0) beats an author's `Button { }` (0,0,1), and
- * that is a real Unity gotcha worth reproducing rather than smoothing over.
+ * Editor theme stylesheet; kept as the legacy editor-sheet export.
+ * Parsed once and spliced in ahead of author sheets, so equal specificity lets
+ * author rules win on order, as in Unity. Class selectors also preserve Unity's
+ * specificity: `.unity-button` (0,1,0) beats an author `Button {}` (0,0,1).
  */
-export const THEME_USS = `:disabled {
-  opacity: 0.5;
+// GroupBox/Box: measured c07-GroupBox.json and c07-Box.json in the editor
+// and runtime probe directories cited above; title keeps Label side margins/padding.
+// Measured: both versions/themes, g-clamp.json: Label/Button default NoWrap (plan §30-1).
+export const THEME_USS: string = `${PANEL_TEXT_DEFAULTS_SELECTOR} {
+  font-size: 12px;
+  color: #d2d2d2;
 }
-
-.unity-button {
+.unity-disabled { opacity: 0.5; }
+.unity-label {
+  white-space: nowrap;
+  margin: 0;
+  padding: 0 2px 0 1px;
+  flex-shrink: 0;
+}
+/* Unity evidence: tests/layout/unity/6000.3.25f1/probe-editor-070/c07-TextField.json
+   and c-textfield.json: field, label, input, multiline wrapper and inner text. */
+.unity-base-text-field {
   margin: 1px 3px;
-  -unity-text-align: middle-center;
+  flex-direction: row;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
-`;
+.unity-text-field__label {
+  min-width: 120px;
+  margin-right: 2px; padding-top: 2px; color: #c4c4c4;
+}
+.unity-base-text-field__input {
+  flex-direction: row;
+  flex-grow: 1;
+  flex-shrink: 1;
+  padding: 1px 2px 0 2px;
+  border-width: 1px;
+  border-color: #212121;
+  border-top-color: #0d0d0d;
+  background-color: #2a2a2a;
+  overflow: hidden;
+}
+.unity-base-text-field__multiline-container { flex-grow: 1; flex-shrink: 0; }
+.unity-text-element--inner-input-field-component {
+  padding: 0 2px;
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+/* Unity evidence: tests/layout/unity/6000.3.25f1/probe-editor-070/c-textfield.json:
+   placeholder colour inherits into the inner text; disabled is inherited state. */
+.unity-base-text-field__input--placeholder { color: #a6a6a6; }
+/* Unity evidence: tests/layout/unity/6000.3.25f1/probe-editor-070/c07-states.json. */
+.unity-base-text-field:hover > .unity-base-text-field__input { border-color: #656565; }
+.unity-base-text-field:focus > .unity-base-text-field__input { border-color: #3a79bb; }
+/* Measured: probe-editor-070/g-settings-states.json, player-name/Label[0]. */
+.unity-base-text-field:focus > .unity-base-text-field__label { color: #81b4ff; }
+.unity-group-box {
+  margin: 6px 3px 1px 3px;
+  padding: 5px 0 5px 3px;
+  flex-shrink: 0;
+}
+.unity-group-box__label { margin-top: -5px; margin-bottom: 5px; }
+.unity-box {
+  border-width: 1px;
+  border-color: transparent;
+  background-color: #2828284d;
+}
+.unity-button {
+  white-space: nowrap;
+  margin: 1px 3px;
+  padding: 1px 6px;
+  border-width: 1px;
+  border-radius: 3px;
+  background-color: #585858;
+  color: #eeeeee;
+  border-color: #303030;
+  border-bottom-color: #242424;
+  -unity-text-align: middle-center;
+  flex-shrink: 0;
+}
+.unity-button:hover { background-color: #676767; }
+.unity-button:hover:active {
+  background-color: #46607c;
+  border-color: #242424;
+  border-top-color: #0d0d0d;
+}
+.unity-button:focus { border-color: #7baefa; }
+${SLIDER_COMMON}${SLIDER_EDITOR}${CHECK_COMMON}${CHECK_EDITOR}${PROGRESS_COMMON}${PROGRESS_EDITOR}`;
+
+// probe-panel/*.json: Standard on both 6000.0.40f1 and 6000.3.25f1.
+// Editor probe-editor-070/*.json changes Standard -> Advanced; retain the 6.3 default.
+export const THEME_SHEETS: Readonly<Record<Theme, string>> = {
+  editor: THEME_USS,
+  runtime: `${PANEL_TEXT_DEFAULTS_SELECTOR} {
+  font-size: 14px;
+  color: #1b1b1b;
+  -unity-text-generator: standard;
+}
+.unity-disabled { opacity: 0.5; }
+.unity-label {
+  white-space: nowrap;
+  margin: 4px 4px 2px 2px;
+  padding: 4px 2px 4px 1px;
+  flex-shrink: 0;
+}
+/* Unity evidence: tests/layout/unity/6000.3.25f1/probe-panel/c07-TextField.json
+   and c-textfield.json: field, label, input, multiline wrapper and inner text. */
+.unity-base-text-field {
+  margin: 2px 4px;
+  flex-direction: row;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.unity-text-field__label {
+  min-width: 150px;
+
+}
+.unity-base-text-field__input {
+  flex-direction: row;
+  flex-grow: 1;
+  flex-shrink: 1;
+  padding: 10px;
+  border-width: 1px;
+  border-color: #646464;
+
+  background-color: #f0f0f0;
+  overflow: hidden;
+}
+.unity-base-text-field__multiline-container { flex-grow: 1; flex-shrink: 0; }
+.unity-text-element--inner-input-field-component {
+  padding: 0 2px;
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+/* Unity evidence: tests/layout/unity/6000.3.25f1/probe-panel/c-textfield.json:
+   placeholder colour inherits into the inner text; disabled is inherited state. */
+.unity-base-text-field__input--placeholder { color: #585858; }
+.unity-base-text-field__input:disabled { background-color: #d1d1d1; }
+/* Unity evidence: tests/layout/unity/6000.3.25f1/probe-panel/c07-states.json. */
+.unity-base-text-field:hover > .unity-base-text-field__input { border-color: #323232; }
+.unity-base-text-field:focus > .unity-base-text-field__input { border-color: #006aa6; }
+/* Measured: probe-panel/g-settings-states.json, player-name/Label[0]. */
+.unity-base-text-field:focus > .unity-base-text-field__label { color: #00526a; }
+.unity-group-box {
+  margin: 6px 4px 2px 4px;
+  padding: 5px 0 5px 3px;
+  flex-shrink: 0;
+}
+.unity-group-box__label { margin-top: -5px; margin-bottom: 5px; }
+.unity-box {
+  border-width: 1px;
+  border-color: #555555;
+  background-color: #dedede;
+}
+.unity-button {
+  white-space: nowrap;
+  margin: 2px 4px;
+  padding: 10px 12px;
+  border-width: 1px;
+  border-radius: 0;
+  background-color: #bcbcbc;
+  color: #1b1b1b;
+  border-color: #959595;
+  -unity-text-align: middle-center;
+  flex-shrink: 0;
+}
+.unity-button:hover {
+  background-color: #d1d1d1;
+  border-color: #808080;
+}
+.unity-button:hover:active {
+  background-color: #959595;
+  border-color: #646464;
+}
+.unity-button:focus { border-color: #006aa6; }
+.unity-button:disabled {
+  background-color: #959595;
+  border-color: #7e7e7e;
+}
+${SLIDER_COMMON}${SLIDER_RUNTIME}${CHECK_COMMON}${CHECK_RUNTIME}${PROGRESS_COMMON}${PROGRESS_RUNTIME}`,
+};
 
 /**
  * Width a visible vertical scrollbar takes from a ScrollView's viewport, in px.
@@ -88,29 +358,18 @@ export const THEME_USS = `:disabled {
  * which on a real screen is most of them. Read it through
  * `verticalScrollbarWidth`, never as a bare constant.
  */
-const VERTICAL_SCROLLBAR_PX = 13;
+// scrollview-overflowing: editor viewport 187/200px, runtime viewport 176/200px.
+const VERTICAL_SCROLLBAR_PX: Readonly<Record<Theme, number>> = { editor: 13, runtime: 24 };
 
-/**
- * **Unmeasured, and reachable: nested disabled elements.**
- *
- * `enabled="false"` puts a whole subtree into `:disabled` — measured, by
- * `disabled-inherits`. The rule above therefore hands every level its own
- * `opacity: 0.5`, and CSS multiplies them, so a disabled button inside a
- * disabled panel comes out at a quarter. Unity almost certainly dims once.
- *
- * Not guessed at, because the fix has a choice inside it — dim only where
- * `enabled="false"` was written, or suppress the inherited one — and picking
- * without evidence is how the `.unity-button` selector became a hypothesis
- * nobody noticed for a day. Opacity leaves no trace in a coordinate dump, so
- * settling it needs a screenshot of a nested case. Recorded in
- * `docs/backlog.md` and visible in `visual-nested-disabled`.
- */
+// nested-disabled.json (both themes/versions): only the element with its own
+// enabled="false" carries unity-disabled and opacity 0.5. Descendants retain
+// :disabled for control colours, but resolve opacity 1 unless disabled directly.
 
 /**
  * Purpose:      how much width a vertical scrollbar claims, given whether it shows.
  * Ensures:      0 when the content fits — Unity hides the scroller rather than
  *               shrinking the viewport for a bar nobody can see.
  */
-export function verticalScrollbarWidth(overflows: boolean): number {
-  return overflows ? VERTICAL_SCROLLBAR_PX : 0;
+export function verticalScrollbarWidth(overflows: boolean, theme: Theme = DEFAULT_THEME): number {
+  return overflows ? VERTICAL_SCROLLBAR_PX[theme] : 0;
 }

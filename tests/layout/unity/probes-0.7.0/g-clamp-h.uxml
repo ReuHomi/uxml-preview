@@ -1,0 +1,26 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="row-start" style="height: 20px; flex-direction: row; align-items: flex-start;">
+<ui:Label name="rs-label" text="Label" />
+<ui:Button name="rs-button" text="Button" />
+<ui:TextElement name="rs-te" text="Text" />
+</ui:VisualElement>
+<ui:VisualElement name="row-stretch" style="height: 20px; flex-direction: row;">
+<ui:Label name="rt-label" text="Label" />
+<ui:Button name="rt-button" text="Button" />
+</ui:VisualElement>
+<ui:VisualElement name="col-fixed" style="height: 20px;">
+<ui:Label name="cf-label" text="Label" />
+</ui:VisualElement>
+<ui:VisualElement name="col-shrink" style="height: 20px;">
+<ui:Label name="cs-label" text="Label" style="flex-shrink: 1;" />
+</ui:VisualElement>
+<ui:VisualElement name="abs-host" style="height: 10px;">
+<ui:Label name="abs-label" text="Label" style="position: absolute; top: 0;" />
+</ui:VisualElement>
+<ui:VisualElement name="row-tf" style="height: 20px; flex-direction: row; align-items: flex-start; width: 300px;">
+<ui:TextField name="tf" value="Value" style="flex-grow: 1;" />
+</ui:VisualElement>
+<ui:VisualElement name="free" style="flex-direction: row; align-items: flex-start;">
+<ui:Label name="free-label" text="Free" />
+</ui:VisualElement>
+</ui:UXML>

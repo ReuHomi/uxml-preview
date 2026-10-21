@@ -3,20 +3,41 @@
     "visual-text-align-upper-left": {
       "align-items": "flex-start",
       "box-sizing": "border-box",
+      "color": "rgb(210, 210, 210)",
       "display": "flex",
-      "justify-content": "flex-start"
+      "font-kerning": "normal",
+      "font-size": "12px",
+      "justify-content": "flex-start",
+      "line-height": "14.522726666666667px",
+      "padding-left": "1px",
+      "padding-right": "2px",
+      "white-space": "nowrap"
     },
     "visual-text-align-middle-center": {
       "align-items": "center",
       "box-sizing": "border-box",
+      "color": "rgb(210, 210, 210)",
       "display": "flex",
-      "justify-content": "center"
+      "font-kerning": "normal",
+      "font-size": "12px",
+      "justify-content": "center",
+      "line-height": "14.522726666666667px",
+      "padding-left": "1px",
+      "padding-right": "2px",
+      "white-space": "nowrap"
     },
     "visual-text-align-lower-right": {
       "align-items": "flex-end",
       "box-sizing": "border-box",
+      "color": "rgb(210, 210, 210)",
       "display": "flex",
-      "justify-content": "flex-end"
+      "font-kerning": "normal",
+      "font-size": "12px",
+      "justify-content": "flex-end",
+      "line-height": "14.522726666666667px",
+      "padding-left": "1px",
+      "padding-right": "2px",
+      "white-space": "nowrap"
     }
   },
   "warnings": []

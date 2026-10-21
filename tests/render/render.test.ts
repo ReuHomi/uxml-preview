@@ -36,6 +36,7 @@ function draw(
   const doc = parse(`<ui:UXML xmlns:ui="UnityEngine.UIElements">${body}</ui:UXML>`, uss);
   const container = host();
   const result = render(doc, container, {
+    theme: 'editor', // 0.7.0: written against the editor theme; the default is now 'runtime'
     size: { width: 200, height: 100 },
     measureText,
     ...(resolveAsset === undefined ? {} : { resolveAsset }),
@@ -404,7 +405,8 @@ describe('controls with no renderer', () => {
   });
 
   it('keeps provenance, so an editor can still trace the DOM back to the tree', () => {
-    const { doc, result } = draw('<ui:Foldout name="f"><ui:Slider name="s" /></ui:Foldout>');
+    // 0.7.0 bundle E: Toggle has a renderer now; MinMaxSlider is not drawn in 0.7.0.
+    const { doc, result } = draw('<ui:Foldout name="f"><ui:MinMaxSlider name="s" /></ui:Foldout>');
     for (const name of ['f', 's']) {
       const node = named(doc.root, name);
       const el = result.elements.get(node.id)!;
@@ -415,12 +417,13 @@ describe('controls with no renderer', () => {
 
   it('draws them as plain boxes: styles still apply, text does not', () => {
     const { doc, result } = draw(
-      '<ui:TextField name="t" text="typed" />',
+      // 0.7.0 bundle E: Toggle has a renderer now; MinMaxSlider is not drawn in 0.7.0.
+      '<ui:MinMaxSlider name="t" text="typed" />',
       '#t { background-color: rgb(1, 2, 3); }',
     );
     const el = result.elements.get(named(doc.root, 't').id)!;
     expect(el.style.backgroundColor).toBe('rgb(1, 2, 3)');
-    // Unity draws a TextField's text through a child element, so a fallback box
+    // Unity draws such a control's text through a child element, so a fallback box
     // that painted it itself would put the text in the wrong place.
     expect(el.textContent).toBe('');
     result.dispose();
@@ -444,8 +447,9 @@ describe('Button', () => {
   it('is measured as a leaf, so its box is its own', () => {
     const { doc, result } = draw('<ui:Button name="b" text="Use" />', '#b { font-size: 10px; }');
     const box = result.boxes.get(named(doc.root, 'b').id)!;
-    // The stub measures half an em per character: 3 chars at 10px.
-    expect(box.height).toBe(10);
+    // The stub measures 10 high; the theme's Button adds padding 1 + 1 and border 1 + 1
+    // (6000.0.40f1/probe-editor-070/c07-existing.json free/button-auto: measured 15, box 19).
+    expect(box.height).toBe(14);
     expect(result.elements.get(named(doc.root, 'b').id)!.children.length).toBe(0);
   });
 });

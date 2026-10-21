@@ -1,4 +1,5 @@
-import { fontList } from './measure';
+import { CJK_BREAK, EDITOR_DEFAULT_FACE_INFO, fontList, hostFontFace } from './measure';
+import type { Theme } from '../controls/theme';
 import type { FaceInfo } from './measure';
 /**
  * Painting: Yoga rectangles to DOM.
@@ -17,7 +18,7 @@ import type { FaceInfo } from './measure';
 import type { ElementNode, NodeId, Warning } from '../model/types';
 import type { ComputedStyle } from '../style/resolve';
 import type { LayoutBox, LayoutPart } from '../layout/yoga';
-import { resolveControl } from '../controls/registry';
+import { uxmlBoolean, isNonVisual, resolveControl } from '../controls/registry';
 import { decodeEntities } from '../parser/entities';
 import { toCss } from './css-map';
 import type { CssMapOptions } from './css-map';
@@ -47,6 +48,8 @@ export interface PaintResult {
 
 export interface PaintOptions extends CssMapOptions {
   document: Document;
+  checkedNodes?: ReadonlySet<NodeId>;
+  theme?: Theme;
   fonts?: ReadonlyMap<ComputedStyle, { family: string; faceInfo?: FaceInfo }>;
 }
 
@@ -97,13 +100,13 @@ export function paint(
   // CSS adds letter spacing after spaces and the final character too. Keep
   // inline runs so wrapping still belongs to the browser, and cancel only the
   // gaps Unity's text measurer excludes (advanced is the editor default).
-  function appendText(host: HTMLElement, text: string, style: ComputedStyle): void {
+  function appendSpacedText(host: HTMLElement, text: string, style: ComputedStyle): void {
     const spacing = parseLength(style.get('letter-spacing')?.value ?? '').length;
     if (spacing?.kind !== 'px' || spacing.value === 0) {
       host.textContent = text;
       return;
     }
-    const standard = style.get('-unity-text-generator')?.value === 'standard';
+    const standard = isStandard(style);
     const characters = [...text];
     const last = characters.pop();
     for (const run of characters.join('').match(/ +|[^ ]+/g) ?? []) {
@@ -118,6 +121,143 @@ export function paint(
       span.style.letterSpacing = '0px';
       host.appendChild(span);
     }
+  }
+
+  function appendText(host: HTMLElement, text: string, style: ComputedStyle): void {
+    // Measured: tests/text-cohort/unity-runtime/; bundle A plan §29 — match measured glyph widths.
+    host.style.fontKerning = isStandard(style) ? 'none' : 'normal';
+    const font = options.fonts?.get(style);
+    const face = font?.faceInfo ?? (font === undefined ? EDITOR_DEFAULT_FACE_INFO
+      : hostFontFace(options.document, font.family, style.get('-unity-font-style')?.value));
+    const size = parseLength(style.get('font-size')?.value ?? '12px').length;
+    const leading = isStandard(style)
+      ? (size?.kind === 'px' || size?.kind === 'percent' ? size.value : 12) * ((face.lineHeight ?? face.ascentLine - face.descentLine) - (face.ascentLine - face.descentLine)) / face.pointSize : 0;
+    if (Math.abs(leading) >= 0.00001) {
+      // Split the run without changing its text or break opportunities. Relative
+      // offsets move glyphs, while the containing line boxes retain the advance.
+      const characters = [...text];
+      for (const [index, character] of characters.entries()) {
+        const span = options.document.createElement('span');
+        span.textContent = character;
+        span.style.position = 'relative';
+        span.style.top = `${-leading / 2}px`;
+        if (index === characters.length - 1) span.style.letterSpacing = '0px';
+        host.appendChild(span);
+      }
+    } else appendSpacedText(host, text, style);
+    if (options.theme !== 'runtime' || !CJK_BREAK.test(text)) return;
+    // Unity probe-panel/kinsoku.json: runtime allows breaks on either side of
+    // CJK punctuation. Explicit opportunities bypass browser kinsoku; keep-all
+    // preserves the measurer's space-only breaks within Hangul and Latin.
+    // These are painter-only CSS/DOM choices, not supported USS properties.
+    host.style.wordBreak = 'keep-all';
+    const insertBreaks = (parent: Node): void => {
+      for (const child of Array.from(parent.childNodes)) {
+        if (child.nodeType !== 3) {
+          insertBreaks(child);
+          continue;
+        }
+        const pieces = (child.textContent ?? '').split(CJK_BREAK);
+        if (pieces.length === 1) continue;
+        const fragment = options.document.createDocumentFragment();
+        pieces.forEach((piece, index) => {
+          if (index > 0) fragment.appendChild(options.document.createElement('wbr'));
+          fragment.appendChild(options.document.createTextNode(piece));
+        });
+        parent.replaceChild(fragment, child);
+      }
+    };
+    insertBreaks(host);
+  }
+
+  /**
+   * Purpose:      paint measured line advances without CSS's extra leading.
+   * Deps/Effects: appends DOM text; reads the same font FaceInfo as layout.
+   */
+  function paintText(el: HTMLElement, text: string, style: ComputedStyle,
+    css: ReturnType<typeof toCss>): void {
+    // Laid out as a measured leaf, so it has no painted children and can use
+    // flex for the vertical half of -unity-text-align.
+    el.style.setProperty('display', css.declarations['display'] ?? 'flex');
+    if (css.declarations['align-items'] === undefined) {
+      el.style.setProperty('align-items', 'flex-start');
+    }
+    if (css.declarations['justify-content'] === undefined) {
+      el.style.setProperty('justify-content', 'flex-start');
+    }
+    const font = options.fonts?.get(style);
+    if (font !== undefined) el.style.fontFamily = fontList(font.family);
+    // Unity line advances: bundle A §29/31. CSS centres glyphs in its line
+    // box; remove that leading so line zero begins at the measured content top.
+    const face = font?.faceInfo ?? (font === undefined ? EDITOR_DEFAULT_FACE_INFO
+      : hostFontFace(options.document, font.family, style.get('-unity-font-style')?.value));
+    const size = parseLength(style.get('font-size')?.value ?? '12px').length;
+    const fs = size?.kind === 'px' || size?.kind === 'percent' ? size.value : 12;
+    const glyphHeight = fs * (face.ascentLine - face.descentLine) / face.pointSize;
+    const advance = isStandard(style) ? fs * (face.lineHeight ?? face.ascentLine - face.descentLine) / face.pointSize : glyphHeight;
+    el.style.lineHeight = `${advance}px`;
+    el.style.fontKerning = isStandard(style) ? 'none' : 'normal';
+    // Measured: r1w-wrap / r1w-wrap2, bundle A plan §33: oversized
+    // words break between characters, matching createDefaultMeasureText.
+    const whiteSpace = style.get('white-space')?.value || 'normal';
+    if (whiteSpace === 'normal' || whiteSpace === 'pre-wrap') el.style.overflowWrap = 'anywhere';
+    const leading = advance - glyphHeight;
+    const ellipsis = style.get('overflow')?.value === 'hidden' && style.get('text-overflow')?.value === 'ellipsis';
+    const letterSpacing = parseLength(style.get('letter-spacing')?.value ?? '').length;
+    if (!text.includes('\n') && Math.abs(leading) < 0.00001 && !ellipsis &&
+        !(letterSpacing?.kind === 'px' && letterSpacing.value !== 0) &&
+        !(options.theme === 'runtime' && CJK_BREAK.test(text))) {
+      appendText(el, text, style);
+      return;
+    }
+    const content = options.document.createElement('div');
+    content.style.minWidth = '0';
+    if (Math.abs(leading) >= 0.00001) {
+      content.style.marginBottom = `${-leading}px`;
+    }
+    if (ellipsis) {
+      content.style.width = '100%';
+      content.style.overflow = 'hidden';
+      content.style.textOverflow = 'ellipsis';
+      content.style.whiteSpace = 'nowrap';
+    }
+    if (options.theme === 'runtime' && CJK_BREAK.test(text)) content.style.wordBreak = 'keep-all';
+    const gap = parseLength(style.get('-unity-paragraph-spacing')?.value ?? '').length;
+    if (text.includes('\n')) {
+      content.style.width = '100%';
+      text.split('\n').forEach((paragraph, index, paragraphs) => {
+        const run = options.document.createElement('span');
+        appendText(run, paragraph, style);
+        content.append(...Array.from(run.childNodes));
+        if (paragraph === '' && index === paragraphs.length - 1) content.appendChild(options.document.createElement('br'));
+        if (index < paragraphs.length - 1) {
+          const br = options.document.createElement('br');
+          content.appendChild(br);
+          const separator = options.document.createElement('span');
+          separator.textContent = '\n';
+          separator.style.display = 'none';
+          content.appendChild(separator);
+          if (gap?.kind === 'px' && gap.value !== 0) {
+            const space = options.document.createElement('div');
+            space.style.height = `${gap.value * fs / 100}px`;
+            content.appendChild(space);
+          }
+        }
+      });
+    } else {
+      appendText(content, text, style);
+    }
+    el.appendChild(content);
+  }
+
+  function isAuthor(style: ComputedStyle, property: string): boolean {
+    const origin = style.get(property)?.origin;
+    return origin?.kind === 'rule' || origin?.kind === 'inline';
+  }
+
+  function isStandard(style: ComputedStyle): boolean {
+    const generator = style.get('-unity-text-generator')?.value;
+    return generator === 'standard' || (generator !== 'advanced' && options.theme !== 'editor');
   }
 
   function build(
@@ -159,57 +299,25 @@ export function paint(
 
     const { spec } = resolveControl(node);
     const text = node.attributes.find((a) => a.name === 'text')?.value;
-    if (spec.hasText && text !== undefined && text.length > 0) {
-      // Laid out as a measured leaf, so it has no painted children and can use
-      // flex for the vertical half of -unity-text-align.
-      el.style.setProperty('display', css.declarations['display'] ?? 'flex');
-      if (css.declarations['align-items'] === undefined) {
-        el.style.setProperty('align-items', 'flex-start');
-      }
-      if (css.declarations['justify-content'] === undefined) {
-        el.style.setProperty('justify-content', 'flex-start');
-      }
-      const font = options.fonts?.get(style);
-      if (font !== undefined) el.style.fontFamily = fontList(font.family);
-      const gap = parseLength(style.get('-unity-paragraph-spacing')?.value ?? '').length;
-      const decoded = decodeEntities(text);
-      const letterSpacing = parseLength(style.get('letter-spacing')?.value ?? '').length;
-      if (gap?.kind === 'px' && decoded.includes('\n')) {
-        const size = parseLength(style.get('font-size')?.value ?? '12px').length;
-        const paragraphs = decoded.split('\n');
-        const content = options.document.createElement('div');
-        content.style.width = '100%';
-        paragraphs.forEach((paragraph, index) => {
-          const block = options.document.createElement('div');
-          appendText(block, paragraph, style);
-          block.style.minHeight = '1em';
-          if (index < paragraphs.length - 1) block.style.marginBottom = `${gap.value * (size?.kind === 'px' ? size.value : 12) / 100}px`;
-          content.appendChild(block);
-          if (index < paragraphs.length - 1) {
-            const separator = options.document.createElement('span');
-            separator.textContent = '\n';
-            separator.style.display = 'none';
-            content.appendChild(separator);
-          }
-        });
-        el.appendChild(content);
-      } else if (letterSpacing?.kind === 'px' && letterSpacing.value !== 0) {
-        const content = options.document.createElement('span');
-        content.style.minWidth = '0';
-        appendText(content, decoded, style);
-        el.appendChild(content);
-      } else {
-        el.textContent = decoded;
-      }
-    } else {
-      // The control's own parts nest between this element and the file's
-      // children, so `host` walks inward and the children are appended to the
-      // innermost one — matching the tree Unity actually builds.
+    // Measured: f-states.json rb-child / te-child retain their file children.
+    const childrenSizeText = ['TextElement', 'RepeatButton'].includes(node.name.local) &&
+      node.children.some((child) => !isNonVisual(child));
+    const drawsText = spec.hasText && text !== undefined && text.length > 0;
+    if (drawsText) paintText(el, decodeEntities(text), style, css);
+    if (!drawsText || childrenSizeText) {
+      // Match Yoga's file-child host: owner when declared, otherwise the last
+      // non-text part. All parts are appended before the file children.
       let host = el;
       let hostBox = box;
       let hostBorder = borderOrigin(node);
 
+      let childHost = { el: host, box: hostBox, border: hostBorder };
+      const builtParts: Array<{ el: HTMLDivElement; box: LayoutBox; border: { left: number; top: number } }> = [];
       for (const part of parts.get(node.id) ?? []) {
+        const parent = part.parent === null || part.parent === undefined ? undefined : builtParts[part.parent];
+        host = parent?.el ?? el;
+        hostBox = parent?.box ?? box;
+        hostBorder = parent?.border ?? borderOrigin(node);
         const partEl = options.document.createElement('div');
         partEl.setAttribute(PART_ATTRIBUTE, part.name);
         partEl.setAttribute(PART_OWNER_ATTRIBUTE, String(node.id));
@@ -228,13 +336,66 @@ export function paint(
         for (const [property, value] of Object.entries(partDeclarations)) {
           partEl.style.setProperty(property, value);
         }
+        // Parts that host text inherit the same author font as their text leaf.
+        const partFont = options.fonts?.get(part.style);
+        if (partFont !== undefined) partEl.style.fontFamily = fontList(partFont.family);
+
+        // tests/contract-070/e2-editor-checkbox.test.ts: box colours from docs/design/0.7.0-bundle-E-shots/unity-editor-c07-Toggle.png.
+        if (options.theme === 'editor' && node.name.local === 'Toggle' && part.name === 'unity-checkmark') {
+          if (!isAuthor(part.style, 'background-color')) partEl.style.setProperty('background-color', '#2a2a2a');
+          const corners = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+          if (!corners.some((corner) => isAuthor(part.style, `border-${corner}-radius`))) {
+            partEl.style.borderRadius = '2px';
+          }
+          for (const corner of corners) {
+            const property = `border-${corner}-radius`;
+            if (!isAuthor(part.style, property)) partEl.style.setProperty(property, '2px');
+          }
+          partEl.style.setProperty('box-shadow', 'inset 0 1px 0 0 #0d0d0d, inset 1px 0 0 0 #212121, inset -1px 0 0 0 #212121, inset 0 -1px 0 0 #212121');
+        }
+
+        // e-toggle.json: Unity's built-in check/d_toggle_on textures are not
+        // loadable assets here. Substitute a mark without an asset warning.
+        if (node.name.local === 'Toggle' && part.name === 'unity-checkmark' &&
+          (options.checkedNodes?.has(node.id) ?? node.attributes.some((a) => a.name === 'value' && uxmlBoolean(a.value) === true))) {
+          const svg = options.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          svg.setAttribute('viewBox', '0 0 24 24');
+          svg.setAttribute('width', '100%');
+          svg.setAttribute('height', '100%');
+          svg.style.display = 'block';
+          const path = options.document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', 'M5 12 L10 17 L19 6');
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke', isAuthor(part.style, '-unity-background-image-tint-color')
+            ? part.style.get('-unity-background-image-tint-color')!.value
+            : options.theme === 'editor' ? '#eeeeee' : part.style.get('-unity-background-image-tint-color')?.value ?? '#323232');
+          path.setAttribute('stroke-width', '2.5');
+          path.setAttribute('stroke-linecap', 'round');
+          path.setAttribute('stroke-linejoin', 'round');
+          svg.appendChild(path);
+          partEl.appendChild(svg);
+        }
 
         host.appendChild(partEl);
-        host = partEl;
-        hostBox = part.box;
-        hostBorder = partBorderOrigin(part);
+        builtParts.push({ el: partEl, box: part.box, border: partBorderOrigin(part) });
+        if (part.text !== undefined) {
+          paintText(partEl, part.text, part.style, partCss);
+          // Unity evidence: 6000.3.25f1/{probe-panel,probe-editor-070}/
+          // c07-TextField.json: multiline value newlines survive NoWrap.
+          if (part.name === 'unity-text-element--inner-input-field-component') {
+            partEl.style.whiteSpace = part.style.get('white-space')?.value === 'normal' ? 'pre-wrap' : 'pre';
+          }
+        } else {
+          host = partEl;
+          hostBox = part.box;
+          hostBorder = partBorderOrigin(part);
+          if (spec.fileChildrenHost !== 'owner') {
+            childHost = { el: host, box: hostBox, border: hostBorder };
+          }
+        }
       }
 
+      host = childHost.el; hostBox = childHost.box; hostBorder = childHost.border;
       for (const child of node.children) {
         const childEl = build(child, hostBox, hostBorder);
         // Appended in document order: later siblings paint on top, which is

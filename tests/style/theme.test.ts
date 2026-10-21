@@ -14,9 +14,13 @@
 
 import { describe, it, expect } from 'vitest';
 
-import { parse, resolveStyles, explainProperty } from '../../src/index';
+import { parse, resolveStyles as resolveAny, explainProperty as explainAny } from '../../src/index';
 import type { ElementNode, UxmlDocument } from '../../src/model/types';
 import { THEME_UNITY_VERSION } from '../../src/controls/theme';
+
+// 0.7.0: this file holds the editor theme (THEME_UNITY_VERSION); the default is now 'runtime'.
+const resolveStyles: typeof resolveAny = (d, o) => resolveAny(d, { theme: 'editor', ...o });
+const explainProperty: typeof explainAny = (d, n, p, o) => explainAny(d, n, p, { theme: 'editor', ...o });
 
 function doc(body: string, uss = ''): UxmlDocument {
   return parse(`<ui:UXML xmlns:ui="UnityEngine.UIElements">${body}</ui:UXML>`, uss);
@@ -39,6 +43,18 @@ function tryByName(node: ElementNode, name: string): ElementNode | null {
   return null;
 }
 
+/**
+ * The value an author's USS gave, or undefined. Since 0.7.0 the built-in theme gives
+ * every element a text colour (Unity resolves one on every element: probe-editor-070,
+ * probe-panel), so "nothing set it" is told apart by provenance, not by absence.
+ */
+function authored(d: UxmlDocument, name: string, property: string, options?: Parameters<typeof resolveStyles>[1]): string | undefined {
+  const v = resolveStyles(d, options).styles.get(byName(d.root, name).id)?.get(property);
+  let origin = v?.origin;
+  while (origin?.kind === 'inherited') origin = origin.origin;
+  return origin?.kind === 'builtin-theme' ? undefined : v?.value;
+}
+
 function value(d: UxmlDocument, name: string, property: string): string | undefined {
   return resolveStyles(d).styles.get(byName(d.root, name).id)?.get(property)?.value;
 }
@@ -54,9 +70,12 @@ describe('which elements the defaults reach', () => {
 
   // Measured, not assumed: `inherit-vs-direct` puts an explicitly-sized Label at
   // the origin of a sized parent and Unity reports x=0, y=0.
-  it('gives Label nothing, because Unity gives Label nothing', () => {
+  // Margin 0 in Unity's editor theme: golden/inherit-vs-direct (Label at x=0 y=0) and
+  // 6000.0.40f1/probe-editor-070/c07-existing.json col/label marginLeft 0. Since 0.7.0 the
+  // theme writes it (with the measured padding), so the value is present and 0.
+  it('gives Label no margin, because Unity gives Label none', () => {
     const d = doc('<ui:Label name="l" text="hi" />');
-    expect(value(d, 'l', 'margin-left')).toBeUndefined();
+    expect(parseFloat(value(d, 'l', 'margin-left') ?? '0')).toBe(0);
   });
 
   it('gives VisualElement nothing', () => {
@@ -111,13 +130,13 @@ describe('where the defaults sit in the cascade', () => {
 
   it('does not put the implicit class on a control that has no renderer', () => {
     const d = doc('<ui:Foldout name="s" />', '.unity-button { color: red; }');
-    expect(value(d, 's', 'color')).toBeUndefined();
+    expect(authored(d, 's', 'color')).toBeUndefined();
   });
 
   it('gives Image its own class, and not another control class', () => {
     const d = doc('<ui:Image name="i" />', '.unity-image { color: red; }');
     expect(value(d, 'i', 'color')).toBe('red');
-    expect(value(doc('<ui:Image name="i" />', '.unity-button { color: red; }'), 'i', 'color'))
+    expect(authored(doc('<ui:Image name="i" />', '.unity-button { color: red; }'), 'i', 'color'))
       .toBeUndefined();
   });
 });
@@ -144,11 +163,12 @@ describe('provenance', () => {
 });
 
 describe('the version warning', () => {
-  it('is raised when a default actually applies', () => {
+  // 0.7.0 (decision 2026-10-17): a measured theme value is not a difference from
+  // Unity, so applying one is not warned. Version warnings come only from values
+  // the dumps show differ by version (tests/contract-070/theme-warnings.test.ts).
+  it('is not raised because a default applies', () => {
     const { warnings } = resolveStyles(doc('<ui:Button name="b" text="OK" />'));
-    const themed = warnings.filter((w) => w.message.includes(THEME_UNITY_VERSION));
-    expect(themed).toHaveLength(1);
-    expect(themed[0]!.kind).toBe('version-dependent');
+    expect(warnings.filter((w) => w.message.includes(THEME_UNITY_VERSION))).toHaveLength(0);
   });
 
   // Announcing the theme on a document it never touched is a warning about
@@ -158,11 +178,11 @@ describe('the version warning', () => {
     expect(warnings.filter((w) => w.message.includes(THEME_UNITY_VERSION))).toHaveLength(0);
   });
 
-  it('is raised once, not once per element', () => {
+  it('is not raised for many elements either', () => {
     const { warnings } = resolveStyles(
       doc('<ui:Button name="a" text="A" /><ui:Button name="b" text="B" />'),
     );
-    expect(warnings.filter((w) => w.message.includes(THEME_UNITY_VERSION))).toHaveLength(1);
+    expect(warnings.filter((w) => w.message.includes(THEME_UNITY_VERSION))).toHaveLength(0);
   });
 });
 
@@ -235,9 +255,10 @@ describe('the unreachable part-selector warning', () => {
   // boxes still have none, so `#unity-text-input` goes on doing nothing — the
   // same silent failure in a different control, which rule 6 forbids.
   it('fires for a part name no control in the document builds', () => {
-    const messages = unity('<ui:TextField name="t" />', '#unity-text-input { width: 40px; }');
+    // 0.7.0: TextField builds #unity-text-input, Toggle #unity-checkmark; MinMaxSlider (not drawn in 0.7.0) builds nothing.
+    const messages = unity('<ui:MinMaxSlider name="t" />', '#unity-dragger-min { width: 40px; }');
     expect(messages).toHaveLength(1);
-    expect(messages[0]).toContain('#unity-text-input');
+    expect(messages[0]).toContain('#unity-dragger-min');
     // Says why, not just that: only controls with their own renderer have parts.
     expect(messages[0]).toContain('ScrollView');
   });

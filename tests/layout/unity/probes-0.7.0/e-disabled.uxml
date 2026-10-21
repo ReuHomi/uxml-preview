@@ -1,0 +1,18 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:VisualElement name="ve-off" enabled="false" style="height: 20px;"><ui:Label name="ve-off-child" text="Child" /></ui:VisualElement>
+<ui:VisualElement name="ve-forced" class="force-disabled" style="height: 20px;"><ui:Label name="ve-forced-child" text="Child" /></ui:VisualElement>
+<ui:Label name="l-off" text="Label" enabled="false" />
+<ui:Label name="l-forced" text="Label" class="force-disabled" />
+<ui:Button name="b-off" text="Button" enabled="false" />
+<ui:Button name="b-forced" text="Button" class="force-disabled" />
+<ui:Toggle name="t-off" label="Label" value="true" enabled="false" />
+<ui:Toggle name="t-forced" label="Label" value="true" class="force-disabled" />
+<ui:RadioButton name="r-off" label="Label" value="true" enabled="false" />
+<ui:RadioButton name="r-forced" label="Label" value="true" class="force-disabled" />
+<ui:TextField name="tf-off" label="Label" value="Hello" enabled="false" />
+<ui:TextField name="tf-forced" label="Label" value="Hello" class="force-disabled" />
+<ui:Slider name="s-off" label="Label" low-value="0" high-value="10" value="5" enabled="false" />
+<ui:Slider name="s-forced" label="Label" low-value="0" high-value="10" value="5" class="force-disabled" />
+</ui:VisualElement>
+</ui:UXML>

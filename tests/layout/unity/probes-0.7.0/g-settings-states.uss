@@ -1,0 +1,5 @@
+.settings { width: 800px; height: 600px; flex-direction: row; }
+.left { width: 380px; }
+.right { flex-grow: 1; }
+.vertical { height: 120px; }
+.footer { flex-direction: row; align-items: flex-start; }

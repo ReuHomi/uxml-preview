@@ -5,6 +5,8 @@
 **无需 Unity 编辑器，即可在浏览器中渲染 Unity UI Toolkit 的 UXML/USS——由 UI Toolkit 自身使用的
 Yoga 引擎负责布局，并与 Unity 实测结果进行了比对验证。**
 
+![uxml-preview 0.7.0：左侧是用 UXML 和 USS 编写的设置界面，右侧是浏览器中的渲染结果](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/promo-0.7.0.gif)
+
 [![在线体验页面：上方为预览画面，下方列出每条警告的原因及 Unity 的实际处理方式](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/playground.png)](https://reuhomi.github.io/uxml-preview/)
 
 ### ▶ [打开在线体验 (Playground)](https://reuhomi.github.io/uxml-preview/)
@@ -18,8 +20,11 @@ Yoga 引擎负责布局，并与 Unity 实测结果进行了比对验证。**
 
 ## 验证方式
 
-- **坐标：** 在包含完整界面在内的 40 个布局用例中，660 / 676 个元素坐标值与 Unity 6000.0.40f1 完全一致。[查看全部差异明细 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md) 在 Unity 6.3（6000.3.25f1）中重新导出这批用例后，所有布局结果均与当天导出的 6000.0.40f1 结果一致。[6.3 重新测量结果 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#unity-63-lts-re-measurement-2026-10-15)
-- **文本：** 在真实浏览器中绘制，并与 Unity 6000.3.25f1 逐个 Label 进行比对——行数 92 / 92、高度 84 / 92、宽度 92 / 92（误差在 1px 或 1% 以内）。所有高度存在差异的用例，均是使用了不含韩文字符的拉丁字体 Inter 来排版韩文或混排文本；此时 Unity 会改用回退字体绘制，而本预览工具会针对该情况发出明确警告。[文本测试集 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#text-cohort-separate-set-measured-2026-10-16)
+- **坐标·运行时主题（默认）：** 在同样的 42 个布局用例中，1122 / 1148 个元素坐标值与真实的 Unity 6.3 运行时面板（6000.3.25f1，PanelSettings + UIDocument，Play 模式）完全一致。剩余差异均为编辑器主题同样存在的差异。[测量方法 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#runtime-theme-separate-set-measured-2026-10-17)
+- **坐标·编辑器主题：** 在包含三个完整界面（物品栏，以及使用全部 15 种已绘制控件的设置界面英文版和韩文版）在内的 42 个布局用例中，1122 / 1148 个元素坐标值与 Unity 6000.0.40f1 完全一致。[查看全部差异明细 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md) 在 Unity 6.3（6000.3.25f1）中重新导出这批用例后，所有布局结果均与当天导出的 6000.0.40f1 结果一致。[6.3 重新测量结果 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#unity-63-lts-re-measurement-2026-10-15)
+- **文本，运行时主题（默认）：** 在真实浏览器中绘制，并与真实的 Unity 运行时面板（6000.0.40f1 与 6000.3.25f1，每个探针单独启动一个 Unity 进程）逐个 Label 进行比对——行数 92 / 92、高度 84 / 92、宽度 92 / 92（误差在 1px 或 1% 以内），框边界处的换行用例 159 / 159。所有高度存在差异的用例，均是使用了不含韩文字符的拉丁字体 Inter 来排版韩文或混排文本；此时 Unity 会改用回退字体绘制，而本预览工具会针对该情况发出明确警告。[运行时文本测试集 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#runtime-panel-separate-set-measured-2026-10-19--item-t)
+- **文本，编辑器主题：** 同样的 92 个 Label 与 Unity 6000.3.25f1 编辑器比对——92 / 92、84 / 92、92 / 92，换行用例 157 / 159（其余 2 个：一个中文用例中编辑器的禁则处理，以及框边界处 1px 的自然宽度差）。[文本测试集 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md#text-cohort-separate-set-measured-2026-10-16)
+- **测量条件：** 坐标数值测量的是给定文字尺寸时的布局（测试工具用固定函数测量文字，文字测量由文本数值单独衡量）。文本数值是在向预览传入与 Unity 相同的字体文件的条件下测得的。若不传入字体，预览会用浏览器默认字体测量，文字宽度可能相差几个像素，多行文本的行数也可能不同。[条件 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md)
 - **Unity 版本：** 基准版本为 Unity 6.3 LTS。某项属性是否属于 USS，依据 Unity 官方属性表（截至 6.6）判定；6.7 在推出 LTS 版本之前暂不支持。[支持范围 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/supported.en.md)
 - **不一致之处会明确报告，绝不静默忽略。** 遇到不支持的控件、属性或值时，工具会返回警告并说明原因；对于已实测的情况，还会一并告知 Unity 的实际处理方式。[警告说明 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/api.en.md#warnings)
 

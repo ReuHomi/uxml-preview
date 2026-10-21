@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:TextElement name="te-plain" text="Text" />
+<ui:TextElement name="te-empty" />
+<ui:TextElement name="te-disabled" text="Text" enabled="false" />
+</ui:VisualElement>
+<ui:VisualElement name="free" style="align-items: flex-start;">
+<ui:TextElement name="te-auto" text="Hamburgefonts" />
+</ui:VisualElement>
+</ui:UXML>

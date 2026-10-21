@@ -3,34 +3,62 @@
     "visual-font-style-normal": {
       "align-items": "flex-start",
       "box-sizing": "border-box",
+      "color": "rgb(210, 210, 210)",
       "display": "flex",
+      "font-kerning": "normal",
+      "font-size": "12px",
       "font-style": "normal",
       "font-weight": "normal",
-      "justify-content": "flex-start"
+      "justify-content": "flex-start",
+      "line-height": "14.522726666666667px",
+      "padding-left": "1px",
+      "padding-right": "2px",
+      "white-space": "nowrap"
     },
     "visual-font-style-bold": {
       "align-items": "flex-start",
       "box-sizing": "border-box",
+      "color": "rgb(210, 210, 210)",
       "display": "flex",
+      "font-kerning": "normal",
+      "font-size": "12px",
       "font-style": "normal",
       "font-weight": "bold",
-      "justify-content": "flex-start"
+      "justify-content": "flex-start",
+      "line-height": "14.522726666666667px",
+      "padding-left": "1px",
+      "padding-right": "2px",
+      "white-space": "nowrap"
     },
     "visual-font-style-italic": {
       "align-items": "flex-start",
       "box-sizing": "border-box",
+      "color": "rgb(210, 210, 210)",
       "display": "flex",
+      "font-kerning": "normal",
+      "font-size": "12px",
       "font-style": "italic",
       "font-weight": "normal",
-      "justify-content": "flex-start"
+      "justify-content": "flex-start",
+      "line-height": "14.522726666666667px",
+      "padding-left": "1px",
+      "padding-right": "2px",
+      "white-space": "nowrap"
     },
     "visual-font-style-bold-italic": {
       "align-items": "flex-start",
       "box-sizing": "border-box",
+      "color": "rgb(210, 210, 210)",
       "display": "flex",
+      "font-kerning": "normal",
+      "font-size": "12px",
       "font-style": "italic",
       "font-weight": "bold",
-      "justify-content": "flex-start"
+      "justify-content": "flex-start",
+      "line-height": "14.522726666666667px",
+      "padding-left": "1px",
+      "padding-right": "2px",
+      "white-space": "nowrap"
     }
   },
   "warnings": []

@@ -5,7 +5,9 @@
       "border-bottom-right-radius": "15px",
       "border-top-left-radius": "5px",
       "border-top-right-radius": "10px",
-      "box-sizing": "border-box"
+      "box-sizing": "border-box",
+      "color": "rgb(210, 210, 210)",
+      "font-size": "12px"
     }
   },
   "warnings": []

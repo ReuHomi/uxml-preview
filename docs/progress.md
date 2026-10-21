@@ -4,35 +4,29 @@
 
 ## 현재 위치
 
-**0.6.1 배포됨 (2026-10-16).** npm `latest` = `0.6.1`(gitHead `76954ae`, 34파일), 태그 `v0.6.1`, 놀이터 Pages 배포 완료.
-0.7.0은 측정·설계 보고까지(`design/0.7.0`, 푸시 안 함).
+**0.6.1 배포됨 (2026-10-16).** npm `latest` = `0.6.1`. **0.7.0 묶음 A·B·C·D·A2·E·E2·F·G, 항목 T, 글자 자르기(폭·높이), 단독 덤프 정답지, Standard 측정 규칙, 검토 뒤 정리 라운드(R1–R4) 완료. CHANGELOG 0.7.0 초안·인계 문서 최종본, **적대적 검증(grok 45건) 뒤 수정 1차·1.5차·2차**까지 — `design/0.7.0`, 푸시 안 함, 미배포. 다음은 재검증(grok).**
 기준 Unity 버전 6.3 LTS.
 
 | | |
 |---|---|
-| 0.6.1 범위 | P1 CJK 글자 사이 줄바꿈 · P2 리치 텍스트 경고 · P3 `font-fallback` 문구(한자·가나 너비). `package.json` 0.6.1, CHANGELOG `unreleased` |
-| 테스트(0.6.1) | 코어 **873 통과 · 1 건너뜀**, tsc, 왕복 33, 텍스트 코호트 (c) 0 · 문서 표 일치, paint 24/24 |
-| 정확도 | 기본 **660/676** 불변 · 템플릿 215/220 · 텍스트 코호트(6.3) 줄 92/92, 높이 84/92, 너비 92/92, 줄바꿈 케이스 157/159 · `aspect-ratio` 52/52 |
-| 0.7.0 측정 | 실제 런타임 패널(PanelSettings + UIDocument, Play 모드) 덤프: `tests/layout/unity/*/probe-panel/`, 에디터 `probe-editor-070/`, 골든 런타임 `6000.3.25f1/golden-panel/` |
-| 소비자 | 0.6.0 tarball 기준 uxml-author 17건·vscode 1건 실패(그대로). 0.6.1은 소비자 판정식에 새 영향 없음(리치 텍스트 경고는 의도대로 exit 3) |
-| 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` (그 외는 폴백) |
+| 0.7.0 | 묶음 A: 기본 테마 `'runtime'`(`theme` 옵션), 두 테마의 측정값, `.unity-disabled`, Label·Button `flex-shrink: 0`, 런타임 CJK 금칙 없음, 런타임 생성기 standard. 묶음 B: GroupBox·Box. 묶음 C: TextField. 묶음 D: Slider·SliderInt. A2: 클래스 정합. 묶음 E: Toggle·RadioButton, 강제 상태 모델. E2: 에디터 Toggle 상자. 묶음 F: ProgressBar·TextElement·RepeatButton. 글자 자르기(폭·높이, Unity 조건 측정). 묶음 G: 설정 화면(골든 2케이스, 계약 테스트), TextField 포커스 라벨 색. 글자 측정은 해석된 `-unity-text-generator`의 규칙(Standard: 높이 floor+1·커닝 없음). 정답지는 단독 실행 덤프(`tests/layout/unity/dump-solo.sh`). `package.json` 0.7.0, CHANGELOG 날짜 2026-10-21. main PR 대기(머지·배포는 사람) |
+| 테스트 | 코어 **1479 통과 · 1 건너뜀**, tsc 0 · `pnpm test:text` 통과(코호트, `paint.mjs` 39/39, 브라우저 `paint-r15.mjs` 50/50) — `noto-jp-zh-20-w60`은 원인을 찾아 `known` (a)로(사람 결정 2026-10-21) |
+| 정확도 | **런타임 테마 1122/1148**(Unity 6.3 실제 런타임 패널) · 에디터 테마 **1122/1148**(6000.0.40f1) — 설정 화면 2케이스가 들어가기 전에는 둘 다 662/676 · 템플릿 215/220 · 텍스트 코호트 에디터(6.3) 92/92·84/92·92/92·157/159, 런타임 패널 92/92·84/92·92/92·159/159(새 세트, 두 버전) · 합산하지 않음 |
+| 소비자 | 최종 측정(검증 뒤 수정까지, 2026-10-21 코어 `49f341c`, 실패 목록 이전과 같음): vscode 4건(0.6.1부터 1 + 미지원 예 3), uxml-author 32건(0.6.1부터 17 + 미지원 예 3 + version 채널 표본 1 + 스킬 문서 11). 분류와 할 일 전부는 `docs/design/0.7.0-handoff.md` |
+| 컨트롤 | `VisualElement` `Label` `Button` `Image` `ScrollView` `GroupBox` `Box` `TextField` `Slider` `SliderInt` `Toggle` `RadioButton` `ProgressBar` `TextElement` `RepeatButton` (그 외는 폴백) |
 
 정확도 세트는 서로 다른 질문을 답하므로 합산하지 않는다. `docs/accuracy.md`.
 
 ## 다음 할 일
 
-0. **GitHub 소개 문구(사람)** — 확정 문안: "Render Unity UI Toolkit UXML/USS in the browser, no Editor needed.
-   Same layout engine as Unity (Yoga), measured against real Unity 6.3 LTS. Differences are reported as warnings,
-   and edits round-trip byte-exact."
-1. (0.6.1 배포 완료 — 아래 "0.6.1 릴리스")
-2. **소비자를 0.6.1에 맞춤** — uxml-author 17건(`font-fallback` 알림 채널, `states-key` `subject.problem`, aspect-ratio 픽스처,
-   번들 안내 버전), vscode 1건(레이아웃 갭 픽스처). `docs/design/0.7.0-design.md` 9절
-3. **0.7.0 설계 결정(사람)** — `docs/design/0.7.0-design.md` 10절 미결 질문 7개, 상호작용은 "상태별 모습만" 권고(8절)
-4. **0.7.0 묶음 A(테마 기반)부터** — 설계 보고 5절. 묶음 D 전 슬라이더 값–손잡이 위치 추가 측정
-5. **0.6.0이 남긴 것** — `docs/backlog.md` 0.6.0 절의 2026-10-16 메모(`unsupported-unit`,
-   `background-position-x/-y`, `-unity-font` 단독, 텍스트 외곽선 그리기)
-6. **backlog 정정** — "`pre` 줄바꿈" 항목 판정 뒤집힘(설계 보고 1-4), 새 행으로
-7. **Playwright Chromium이 이 PC에서 실행되지 않음** — 코호트는 설치된 Chrome으로 측정
+0. **GitHub 소개 문구(사람)** — 확정 문안은 2026-10-16 기록 그대로
+1. **재검증(grok)** — 사람 지시(2026-10-21): 1·2차 뒤, 배포 전. 결과를 보고하고 멈춘다
+2. **README 텍스트 줄** — 재검증 뒤. 첫 줄 런타임 패널(92/92·84/92·92/92·경계 159/159), 둘째 줄 에디터 6.3. 높이 8건은 Inter로 쓴 한글·혼합 문장이라는 설명 유지(사람 결정 2026-10-21)
+3. **사람 확인 필요:** `text-and-fonts.test.ts`의 0.6.0 케이스 하나를 에디터 테마로 돌렸다(T3 경고와 충돌, 같은 파일의 0.7.0 선례). 기대값은 바꾸지 않았다
+4. **버전 올리기·배포(사람)** — 아직 0.6.1. 순서: 재검증 → README 최종 문구 → 0.7.0 → 배포. 플레이그라운드 F5도 남아 있다
+4. **소비자 갱신(소비자 저장소의 일)** — 인계 문서 4절 목록
+5. **0.6.0이 남긴 것** — `docs/backlog.md` 0.6.0 절의 2026-10-16 메모
+6. **Playwright Chromium이 이 PC에서 실행되지 않음** — 코호트는 설치된 Chrome으로 측정
 
 **미결(0.1.0에서 이월):** 개발 문서를 비공개로 돌릴지. 결론 안 냄.
 
@@ -170,8 +164,192 @@
 | 2026-10-16 | 0.7.0 런타임 측정은 Play 모드의 실제 PanelSettings로 | 0.6.0 `probe-runtime`은 에디터 창에 테마 시트만 바꿔 끼운 것이라 패널 기본값(글자 설정 등)이 다르다. 실제로 금칙이 패널마다 달랐다 |
 | 2026-10-16 | 0.7.0 상호작용은 "상태별 모습만" 권고 | UI Builder Preview는 조작을 지원하지만, 글자 입력(한글 조합)·끌기는 측정 규율로 검증할 수단이 없고 CLI·스킬 소비자는 쓸 수 없다. 사람 결정 대기 |
 
+| 2026-10-17 | 0.7.0 런타임 골든은 PanelDump로, 검증을 거쳐서 | PanelDump를 에디터 테마로 돌려 UxmlLayoutDump와 두 버전 모두 1012/1012 일치. 검증 중 스타일시트 미정리 결함을 찾아 고쳤고 다시 뜬 probe-panel은 전부 같았다. 그래서 probe-panel 값을 기대값으로 쓴다 |
+| 2026-10-17 | 테마 기본 글자색·크기를 스타일 맵에 넣는다(묶음 A 첫 번째 안) | Unity는 모든 요소에 색을 낸다(probe-editor-070·probe-panel). "작성자가 정하지 않았다"는 값의 부재가 아니라 출처(`builtin-theme`)로 판별한다. 고정 테스트 theme-values를 바꾸는 둘째 안은 택하지 않음(사람 결정) |
+| 2026-10-17 | 비활성 투명도는 `.unity-disabled`에만 | Unity가 `enabled="false"`를 쓴 요소에만 클래스를 붙이고 그 요소만 0.5(nested-disabled, 두 테마·두 버전). `states`로 강제한 `disabled`도 그 요소에 클래스를 준다 — [추론] SetEnabled(false)와 같은 요청으로 보고 0.6.x 동작을 지킴 |
+| 2026-10-17 | 영향 예측은 값을 읽는 모든 테스트 대상(CLAUDE.md 검증 규율 5) | 0.6.0(이름 검색만 하고 전체 루프를 놓침)과 0.7.0 A2(골든만 보고 단위 테스트 12개를 놓침) 두 번 빗나갔다 |
+| 2026-10-17 | 테마 값을 적용했다는 사실만으로는 경고하지 않는다 — A2 판단 뒤집음 | 경고는 미리보기가 Unity와 다르게 그린다는 뜻. 측정된 테마 값은 차이가 아니고, `version-dependent`도 사실이 아니었다(런타임 값 두 버전 동일). 에디터 테마에서 덤프상 버전마다 다른 값(글자 없는 Button 4 대 19, 기본 생성기 standard 대 advanced)에만 `version-dependent`. ScrollView 부품 경고도 같은 이유로 없앰 |
+| 2026-10-17 | 런타임 테마의 기본 텍스트 생성기는 standard | probe-panel 두 버전 모두 Standard. 코어가 에디터 6.3의 advanced를 쓰고 있었다(경고 정리 중 발견) |
+| 2026-10-17 | 위 생성기 변경을 독립 덤프로 확인(R1) | 변경 뒤에 따로 뜬 `r1-text-spacing`(런타임 패널, 두 버전): 0.6.0 문장 12행의 넓어짐이 standard 규칙과 1px 안. 검토가 지적한 "그 변경을 잡는 테스트가 같은 변경 안에서만 생겼다"를 덤프에서 온 테스트로 바꿨다. 기본 생성기가 패널의 값이라는 구조 차이는 설계 보고 10절 알려진 근사 |
+| 2026-10-17 | 지시 밖 변경은 별도 커밋, 보고 맨 위 절에 근거와 함께(CLAUDE.md 검증 규율 6) | 검토에서 지시 밖 변경 7건(생성기 포함)이 다른 커밋에 섞여 있었다. 섞이면 검토가 지시 범위를 다시 가려내야 하고, 그 변경을 검사하는 테스트가 같은 근거에서 나와 아무것도 증명하지 않는다 |
+| 2026-10-17 | 덤프 파일 머리말에 덤퍼 이름과 판(`dumper`·`dumperVersion`) | 검토 5-2에서 골든 덤프가 어느 덤퍼에서 왔는지 실행 스크립트로 추론해야 했다. 판 문자열은 덤퍼가 쓰는 내용을 바꿀 때 손으로 올린다 |
+| 2026-10-17 | `:root` 경고 kind는 아직 바꾸지 않는다 — `unsupported-selector` 제안만 | 버전 차이가 아니라 `version-dependent`가 틀렸다. 기존 kind 중 셀렉터 주제는 `unsupported-selector`뿐이고, 두 소비자는 reason(`matches-unity`)으로 먼저 나눠서 영향이 없다(코드 읽기). 인계 문서 5절 |
+| 2026-10-17 | `:root` 경고 kind는 그대로, reason이 기준(사람 결정) | `unsupported-selector`도 사실과 다르고 두 소비자 모두 reason을 먼저 본다. api.md에 "역사적 이름", backlog에 다음 메이저의 새 kind |
+| 2026-10-17 | 공백뿐인 GroupBox 제목: 런타임 0·경고 없음, 에디터 6.3 값 15·`version-dependent`(사람 결정) | `c-whitespace`: 런타임 두 버전·모든 생성기 0, 에디터 6000.0 0, 6.3 advanced 15, 6.3 standard 0. standard는 두 버전 같아서 0·경고 없음(결정이 다루지 않은 경우, 덤프대로) |
+| 2026-10-17 | 묶음 C의 기대값은 두 테마 모두 6.3 덤프 | 6000.0은 글자 측정(생성기)에서 온 1px만 다르고, 측정값과 상자가 1px 어긋나는 행이 있다(`tf-label-long` 218 대 220). 판정하는 테마 값·클래스는 두 버전 같음을 고정 테스트 첫 줄이 확인 |
+| 2026-10-17 | TextField 부품 이름: Unity가 이름을 준 것만 이름(`unity-text-input`), 나머지는 가장 구체적인 클래스 | GroupBox 제목(묶음 B)과 같은 규칙. 덤프 경로와 이어 붙일 키가 필요하다 |
+| 2026-10-17 | 측정 스텁이 Unity의 MeasureTextSize 대신 상자 폭을 쓰는 곳을 머리말에 적는다 | 가림 글자·placeholder는 MeasureTextSize가 재지 않고, 런타임 패널에서 레이아웃 폭과 1–2px 다른 행이 3/7. 기대값은 그대로 두고 입력만 고쳐 별도 커밋으로 |
+| 2026-10-17 | 공백뿐인 Label·Button 글자도 GroupBox 제목 규칙(사람 결정) | 같은 `c-whitespace` 측정. 런타임 공백 Label 25 → 8(Unity와 같음). 규칙은 `measure()` 한 곳 |
+| 2026-10-17 | 판정 기준 2(클래스)를 테스트로 — 부품 전부, 두 테마·두 버전, 덤프의 상태 전부(사람 결정) | `--no-label` 하나만 메우면 다음 클래스가 또 빠진다. `classes.test.ts`의 `CONTROLS`에 묶음마다 컨트롤을 더한다 |
+| 2026-10-17 | bundle-c의 상자에서 읽은 측정 입력은 글자 폭을 검사하지 않는다고 명시 | 그 값은 테스트가 대조하는 상자 자체에서 왔다. 그 행들은 글자 주변 구조(여백·테두리·부품·줄바꿈 폭)만 검사한다. 런타임 1–2px 차이의 원인은 모름 → T |
+| 2026-10-17 | 슬라이더 손잡이 위치는 측정한 식으로, 열한 단계를 고정 | `d-slider`·`d-sliderint` 네 덤프 모든 행이 t × (끌기 칸 − 손잡이)(세로 1 − t)와 0.01px 안. 설계의 "최소·중간·최대만 보증" 제한을 푼다 |
+| 2026-10-17 | 부품 모델에 부모 색인 | Slider의 끌기 칸 안 형제 셋과 부품 안 TextField는 사슬로 표현되지 않는다. 사슬·앞 글자는 부모 색인이 없을 때의 기본으로 남겨 GroupBox·TextField·ScrollView는 그대로 |
+| 2026-10-17 | 손잡이 위치는 레이아웃 상자가 아니라 `translate` 값으로 | Unity 상자는 translate를 포함하지만 이 미리보기에서 translate는 그리기다(다른 요소와 같다). 테스트는 상자 − translate와 translate 값을 따로 본다 |
+| 2026-10-17 | 클래스 테스트 대상 = 렌더러 등록표 전부, Unity 스크롤바만 결정으로 제외 | 손으로 관리하는 목록은 새 컨트롤을 빠뜨린다. 스크롤바는 S1부터 만들지 않는 요소(골든 NOT_REPRODUCED)라 클래스 문제가 아니다 — 만들지는 사람 판단 |
+| 2026-10-17 | 강제 상태(`states`)는 그 요소에만, 강제 `disabled`는 흐리지 않는다 — A2 추론 뒤집음 | `e-disabled`(덤퍼 r3, 강제 Disabled 의사 상태 대 `enabled="false"`, 두 버전·두 테마): 강제는 클래스·흐림 없음, 자식·부품 비활성 아님. 강제 hover·active·focus도 부품에 닿지 않음. `forced-disabled.test.ts`를 측정으로 다시 씀(사람 지시) |
+| 2026-10-17 | `:checked`는 Toggle·RadioButton의 `value="true"`에서, 요소와 입력 부품에만 | `e-toggle`·`e-radio`의 pseudoStates |
+| 2026-10-17 | 미지원 예로 쓰는 테스트 컨트롤은 0.7.0 묶음에 없는 것(MinMaxSlider) | 묶음 C·D에서 Toggle로 옮긴 9개가 묶음 E에서 다시 깨졌다 |
+| 2026-10-18 | 에디터 Toggle 상자는 Unity 그림 픽셀에서 잰 색으로, 칠하기만 | Unity는 내장 텍스처로 그리고 resolved style은 투명이다. 스타일·레이아웃을 건드리지 않아야 덤프 대조가 그대로 선다. 그림에서 어림한 반지름은 범위(1–3px)로 비교 |
+| 2026-10-18 | 스크롤바는 0.7.0에서 그리지 않는다(알려진 차이), 0.8 첫 후보 | 사람 결정. 폭만 확보, 클래스 테스트 제외 근거를 머리말에 |
+| 2026-10-18 | 글자 자르기는 "근거가 있는 곳"이 아니라 Unity가 자르는 조건 전부에 | 사람 지시. `g-clamp` 측정: AtMost면 자르고, 절대 위치(미리보기 Yoga만 폭을 준다)와 TextField 안쪽 글은 자르지 않는다. 깨진 테스트 5개 중 2개는 규칙 이해가, 3개는 테스트 스텁(줄바꿈 무시)이 틀렸다 |
+| 2026-10-18 | 덤프 흔들림은 무작위가 아니라 실행 순서 의존 | 같은 묶음 5회 반복은 흔들림 0, 단독 실행은 커밋값과 같다. Standard 생성기의 레이아웃 폭만 0–2px. 최빈값은 해법이 아니다(묶음 구성이 정한다). 판정 기준 변경은 제안만(계획서 27-2) |
+| 2026-10-18 | 측정 훅이 줄바꿈을 맡는다. 레이아웃은 훅 결과를 다시 추정하지 않는다 | Codex 1라운드가 테스트 스텁의 한계를 TextElement 전용 높이 추정으로 메웠다. 스텁을 고치고 추정을 뺐다 |
+| 2026-10-18 | RepeatButton은 Unity대로 맨 글자 | 두 테마 측정. 설계 질문 6은 답이 없었고, Unity와 같은 쪽을 골랐다(바꾸기 쉬움) |
+| 2026-10-19 | RepeatButton 맨 글자는 설계 질문 6에서 이미 결정돼 있었다 | 위 행의 "답이 없었다"는 전달 누락이었다(사람 정정). supported에 한 줄 적음 |
+| 2026-10-19 | 정답지는 프로브마다 새 Unity 프로세스로 뜬 단독 값, 허용 범위는 넓히지 않는다 | 사람 결정. 단독 덤프는 결정적이다. 커밋 덤프 중 다른 것(런타임 8파일×2, 에디터 6000.0 6파일, 골든 inventory 9값, text-size)을 바꿨다. 2px 허용을 걷어내자 묶음 F의 진짜 1px(반 픽셀 반올림)이 드러났다 |
+| 2026-10-19 | 텍스트 코호트의 (a) 설명을 버전이 아니라 글자 생성기 기준으로 | 런타임 패널(두 버전, Standard)이 6000.0 에디터(Standard)와 값까지 같다. "6000.0 높이 규칙"은 Standard 생성기의 규칙이다. 에디터 표는 그대로 |
+| 2026-10-19 | 런타임 글 높이 12–13px는 알려진 차이가 아니라 Unity 쪽 오염 | 같은 문서에서 같은 글을 다른 줄바꿈으로 먼저 그리면 뒤의 같은 글 높이가 준다(`t-bis-*`로 갈랐다). 단독으로는 미리보기와 같다. 프로브는 같은 글을 다른 줄바꿈으로 두 번 쓰지 않는다 |
+| 2026-10-19 | 높이도 받은 높이로 자른다(TextField 안쪽 글 포함) | 골든 설정 화면에서 드러났고 `g-clamp-h`로 측정. 폭 규칙과 달리 입력 칸 글도 자른다 |
+| 2026-10-19 | 골든의 스크롤바 이름 면제는 "우리가 만들지 않은 경우"에만 | 같은 이름의 Slider 부품을 면제하면 묶음 D 부품이 골든에서 안 보인다. 손잡이는 그리기 단계 translate를 더해 비교한다 |
+| 2026-10-19 | 설정 화면을 골든에 넣고 공개 수치를 1122/1148로 | 설계 6절 승인 범위. 새 불일치 12는 바닥 줄 글자 폭(하네스의 고정 측정). 같은 화면을 Unity 측정 글 크기로 재는 계약 테스트는 반 픽셀 1개 말고 모두 일치 |
+| 2026-10-20 | 런타임 테마의 측정기를 Standard 규칙으로(배포 전 필수) | 사람 결정. 런타임 코호트 높이 60/92는 받아들일 수 없다. Standard 세 덤프 세트에서 높이 floor+1 식 234/235, 폭 커닝 없음 84/84(계획 29). 생성기는 테마가 아니라 해석된 값으로 고른다 |
+| 2026-10-20 | 반 픽셀 반올림은 고치지 않는다 | 사람 결정. 알려진 차이로 적고 backlog에 "정렬별 측정 후 결정" |
+| 2026-10-20 | README 텍스트 줄은 런타임 수치 첫 줄, 에디터 둘째 줄 | 사람 결정. 숫자만 보고, 문구는 사람이 확인 |
+| 2026-10-21 | `noto-jp-zh-20-w60`을 `known` (a) 대체 글꼴 행으로 | 사람 결정. 프로브 13개 단독 덤프로 원인 확인: Noto Sans JP에 없는 张이 마지막 줄 첫 글자일 때만 Unity 런타임 높이 2px 짧다. 설명되지 않은 차이가 아니다 |
+| 2026-10-21 | 사용자 파일 `docs/design/0.7.0-cjk-text.md`를 브랜치 히스토리에서 지운다 | 사람 결정(푸시 전). filter-branch로 세 브랜치에서 제거, HEAD 트리 해시 불변, 테스트 같음. 파일은 작업 폴더에만 |
+| 2026-10-21 | 검증 수정 범위: 1차(기존 덤프)·1.5차(그림, 8건)·2차(측정 먼저) 모두 0.7.0에, T6만 0.8 | 사람 결정. 2차는 2022.3 소스가 아니라 새 단독 덤프를 근거로. 1.5차는 브라우저에서 그린 결과로 고정 |
+| 2026-10-21 | Label·Button 기본 `white-space: nowrap`(C1) | `g-clamp` 덤프 두 버전·두 테마. 공개 수치가 놓친 이유: 하네스·계약 테스트의 측정이 줄을 감싸지 않는다(계획 30-1) |
+| 2026-10-21 | 지시 밖: N3(작성자 글꼴이 부품 글에) 고침, N2(런타임 Label 연속 공백) 보고만 | N3은 `g-settings-ko` 덤프가 근거이고 T9 TextField 판정에 필요했다. N2는 앞·끝 공백(T6)과 얽혀 0.8 backlog |
+| 2026-10-21 | `paint.mjs`의 줄 세기를 글 노드만으로 | 감싸는 블록 요소의 상자를 한 줄로 셌다(측정 방법 결함). 기준(그린 줄 = 잰 줄)은 그대로, 고치기 전·후 코드 모두 39/39 |
+| 2026-10-21 | R1-W는 생성기별 규칙 1로: Advanced는 가장 긴 줄, Standard는 꺾일 때 마지막으로 들어간 글자까지의 폭 floor + 1 | 사람 결정. 깨끗한 프로브(`r1w-wrap`·`r1w-wrap2`) 24개 중 22개 일치. 런타임 `ko100`(4px)·`te10`(2px)은 규칙을 넓히지 않고 알려진 차이로(0.8 backlog 4) |
+| 2026-10-21 | 0.6.1 고정 단언 "칸보다 긴 한글·영어 낱말은 쪼개지 않는다" 3개를 측정값으로 교체 | 사람 승인. 그 단언은 코호트 경계 케이스(칸보다 긴 낱말이 하나도 없음)에서 추론한 것이었다. `r1w-wrap2`(long100·longlb100)와 `r1w-long`(kolong·enlong 등, 두 버전·두 테마)에서 Unity는 긴 낱말을 글자 사이에서 꺾는다. 배포된 동작의 변경이라 CHANGELOG Corrections에 적음 |
+| 2026-10-21 | `measure-real.mjs`의 기본 글꼴 규칙을 `*`에서 `:root`로 | 하네스 결함. `*`는 TextField 내부 글에 직접 맞아 필드가 상속한 글꼴(Pretendard)을 덮었다(`kotf` 에디터 높이 33 vs Unity 32). Unity의 기본 글꼴은 패널에서 상속된다. 바꾼 뒤 기존 행 변화 없음 |
 
 ## 세션 로그
+
+### 2026-10-21 (적대적 검증 뒤 수정)
+
+- **설명되지 않던 1행:** 프로브 13개를 두 버전 런타임에 단독 덤프(`tests/text-cohort/fallback-zh/`). 원인 — Noto Sans JP에 없는 张을 Unity가 대체 글꼴로 그리고, 그 글자가 마지막 줄 첫 글자일 때만 2px 짧다. `known` (a), `run.mjs`는 `known`이 높이·폭 차이도 설명하게(README가 말하던 대로). `test:text` 처음으로 통과
+- **적대적 검증(grok):** 첫 실행은 MCP 연결 시간 초과 뒤 50분 무응답 → 재실행(진행이 보이는 출력)으로 45건. 하나씩 재현해 판정: 바로 고친 것 4(G3·A2·C7·D2), 기각 2(D3·T8), 재분류 3(C3·D1·G1)
+- **1차**(기존 덤프): C1(Label·Button nowrap) → S1·S3·Y1·X2·T2·T4·T5·T10 → 문구(G1·G2·X1·X3·X4·D1). Codex 각 1–2라운드. 예측 빗나감 둘: C1은 CSS 스냅숏 테스트를 놓침, Y1 고정 테스트가 라이브러리 집계만 봐서 해제를 지운 변이가 살아남음 → Yoga에서 실제 해제를 세는 테스트(`review-r1-yoga.test.ts`)
+- **1.5차**(그림, 브라우저 고정 테스트 `paint-r15.mjs`): T9·S4·K9·T12·T1·T3·T7·C5. 측정 먼저 — TextField는 연속 공백을 남긴다(`r15-tf-spaces`), Unity는 넘친 글을 자르지 않는다(`r15-overflow` 그림, 검증 C5의 전제와 반대). 새 발견 N3(고침)·N2(보고). `paint.mjs` 줄 세기 방법 결함 수정. 0.6.0 케이스 하나와 T3 충돌 — 선례대로 에디터 테마로(사람 확인 필요)
+- **2차**(측정 먼저, 프로브 다섯 개 두 버전·두 테마 + 그림): K1–K6·K8·C2–C4 고침, K7·C8은 결함 아님(고정만). 변이 9/9. 1479 통과 · 1 건너뜀(예측대로)
+- **소비자 재측정:** 같은 실패(vscode 4, uxml-author 32), 번들 크기만 294 KB
+- **CSS 스냅숏 값의 근거(재검증 R4-CSS):** `visual.test.ts` 스냅숏에 들어간 `line-height: 14.522726666666667px`는 에디터 테마 12px × Inter FaceInfo (ascent − descent)/pointSize = 12 × (87.1875 + 21.73295)/90 — Advanced의 줄 간격, FaceInfo는 `tests/text-cohort/unity/<version>/cohort-inter.json`(Unity가 보고한 값). `font-kerning: normal`은 Advanced 생성기의 커닝(계획 29절, 코호트 폭 84/84). `white-space: nowrap`은 `g-clamp.json`(C1)
+- **R1-W 기대값 교체(사람 승인, 2026-10-21):** `measure-real.mjs`의 R1-W 기대값을 오염된 `g-clamp`(같은 문장을 줄바꿈 설정을 달리해 반복) 값에서 깨끗한 프로브 `r1w-wrap`·`r1w-wrap2` 값으로. 옛 값: `cs-te`·`cs-wrap`·`row-te-el` 런타임 95/94/95, 에디터 95/98/95. 새 값: 두 프로브의 글 요소 12개 × 두 테마(예: 런타임 te100 98×51, 에디터 74×44 — 계획 33절 표). 이유: 런타임 `cs-te`는 한 줄 17px로 그려진 오염 값이었고, 깨끗한 덤프에서 Unity는 받은 폭을 쓰지 않는다(Standard는 꺾일 때 마지막으로 들어간 글자까지, Advanced는 가장 긴 줄)
+- **프로브 오염 점검(사람 지시):** 같은 글자열을 다른 `white-space`로 반복하는 프로브 10개를 k번째만 남긴 변형 72개로 단독 덤프(256회). 554값 중 26값 다름 — `g-clamp` 런타임 높이 7요소(예: `st-label` 21→25), 6000.0 에디터의 `ctl-simple`·`te-filter`·`te-wrap`. 고정 테스트 기대값으로 쓰이던 것은 `measure-real` C1 런타임 `st-label` 높이 하나 — 폭만 판정으로 교체(옛 값 94×21, 따로 그리면 25). 계획 34절, CLAUDE.md 검증 규율 7
+- 다음에 바꿀 것: 영향 예측의 검색 대상에 "출력 전체를 고정하는 테스트"와 "덤프 폴더를 통째로 읽는 테스트"를 넣는다(이번에 둘 다 빗나감)
+- (22:26 추가) **R1-W 커밋:** Codex 2라운드(`2ce6b18`·`4d41a5d`, 브랜치 `wip/r1w`)의 `measure.ts`·`paint.ts`만 가져옴(그 브랜치는 오염 점검 커밋 이전에서 갈라져 문서가 뒤져 있다). 긴 낱말 그림 확인용 프로브 `r1w-long`(TextElement·`white-space: normal` Label·여러 줄 TextField, 한국어·영어, 글자열 모두 다름)을 두 버전·두 테마 단독 덤프 — 네 덤프 모두 글자 사이에서 꺾음. `measure-real` 92/92(알려진 2). 변이 3: 글자 쪼개기 끔 → 20행 실패, `overflow-wrap` 끔 → 그림 6행 실패(한글은 브라우저가 원래 음절 사이에서 꺾어 통과), 이전 src → 20행 실패. `cjk-wrap.test.ts` 새 단언 4개는 이전 src에서 긴 낱말 2개 실패
+- (22:39 추가) **오염 점검 마무리 — 같은 `white-space` 반복(사람 지시):** 표본 5개. 고른 기준: 고정 테스트나 공개 수치가 요소 값을 직접 읽는 프로브 중 반복 횟수가 많은 것, 값의 종류(글 간격·컨트롤 상태·줄 높이·텍스트 코호트 일반·경계)가 겹치지 않게. `r1-text-spacing`(23회, `r1-measured.test.ts`), `e-disabled`(16회, `forced-disabled.test.ts`), `lines`(20회, `review-fixes.test.ts`), 텍스트 코호트 `cohort-inter`(12회)·`boundary-pretendard`(16회, 공개 텍스트 수치). 반복 글자열마다 k번째(k ≥ 2)만 남긴 변형 70개 + 원본 5개를 두 버전·두 테마로 단독 덤프(266회, `lines`는 에디터만). 840값 비교, 28값 다름 — 전부 `r1-text-spacing`의 `narrow` 줄 한 변형(런타임 패널): 원본에서 그 줄은 y=761로 600px 패널 밖이라 열이 줄여 높이 0·8이고, 앞 Label 16개를 지운 변형에서는 줄지 않아 93·25. 패널 넘침이지 글 오염이 아니다. 원본을 지금 단독 덤프한 값은 커밋된 덤프와 같고, 고정 테스트는 그 줄을 읽지 않는다. **같은 white-space 반복은 표본에서 오염 없음**
+- (22:55 추가) **grok 짧은 확인(R1-W·T2·긴 낱말, 20441fe, MCP 끔·서브에이전트 없음):** 차단 없음. R1-W·T2·기대값 변경 "결함 없음"(기본 측정기로 직접 그려 116행 대조, 불일치는 알려진 `ko100`·`te10`과 대상 밖인 6000.0 에디터 Standard 8행). 긴 낱말 "결함 발견" 1건 경미: `cjk-wrap.test.ts` 머리말이 런타임 `ko100`을 4줄로 적음 — 덤프는 3줄(83×59, 내용 51). 주석만 고침(단언 아님). 참고 2건(6000.0 에디터 생성기 차이, `measure-real`이 6.3만 읽음)은 고치지 않음. 확인 못 한 범위: 칸보다 긴 한 낱말 + `nowrap`/`pre` 덤프 없음
+- **배포 준비:** README 네 언어 텍스트 줄을 런타임(두 버전, 92/92·84/92·92/92·경계 159/159) 첫 줄, 에디터(6.3, 157/159 — 남은 둘은 중국어 금칙 한 건과 상자 경계 1px 자연 폭) 둘째 줄로. 버전 0.7.0, CHANGELOG 날짜 2026-10-21
+- **지시 밖(먼저 보고):** README 숫자를 지키는 고정 테스트(`golden.test.ts` README 파서)가 텍스트 두 줄 형식을 받지 못했다(두 버전을 적은 런타임 텍스트 줄을 에디터 좌표 줄로 읽음). 더하기만 함(`c560d54`): 두 버전을 적고 분수가 둘 이상인 줄 = 런타임 텍스트 줄, `results.json` 런타임 세트(경계 포함, 두 버전 같아야 함)에 묶음; 에디터 텍스트 줄은 경계 157/159까지; 런타임 줄이 먼저. 기존 숫자 기대값은 그대로. 변이 2(경계 158, 순서 바꿈) 실패 확인
+- **최종 검증(`c560d54`):** vitest 1506 통과 · 1 건너뜀, tsc 통과, build 통과(dist/index.js 144 KB), test:text 통과(코호트 위와 같음, paint 39/39, paint-r15 52/52, measure-real 92/92). `npm pack --dry-run` 34파일 100.0 kB(dist·README 4·CHANGELOG·LICENSE·THIRD-PARTY-NOTICES·package.json, 글꼴 없음). 소비자 tarball: vscode tsc 통과, 테스트 4 실패(이전과 같은 4건), uxml-author conditions 14·exitcodes 5·binding 0·docs 13 = 32(이전과 같은 항목, docs의 번들 크기 296 KB/5153줄·버전 문구만 바뀜 — 인계 문서 고침)
+
+### 2026-10-20 (Standard 측정 규칙, 0.7.0 정리)
+
+- **Standard 규칙:** 코호트 덤프 네 세트로 규칙을 식으로 정리하고 표로 확인한 뒤(계획 29) 고정 테스트 `t-standard.test.ts` → Codex 1라운드(변이 4/4). 런타임 코호트 높이 60 → 84/92, 너비 89 → 92/92, 경계 153 → 159/159(두 버전). 에디터 코호트·골든(1122/1148)·paint 39/39 불변. 예측(높이 92/92)이 빗나간 이유: 규칙 표는 대체 글꼴 행을 뺐는데 코호트 표는 센다(남은 8행 = Inter 한글·혼합)
+- **(c) 1행 재판정:** `noto-jp-zh-20-w60`은 Standard 식으로도 203 대 201 — 그대로 남음, test:text 실패 유지
+- **반 픽셀:** supported·accuracy 알려진 차이, backlog 0.8 후보 2
+- **0.7.0 정리:** CHANGELOG 0.7.0 절 초안(생성기 규칙, 알려진 차이, 소비자 절, 강제 비활성 문장 정정), 인계 문서 최종본(바뀌는 것·할 일 9개·실패 분류 전부·묶음별 기록 부록), 소비자 재측정(vscode 4, uxml-author 32 — 분류 확정). 버전은 올리지 않았다
+
+### 2026-10-19 (07:20 — 판단 1–3, 항목 T, 묶음 G)
+
+- **판단 1(단독 덤프):** `tests/layout/unity/dump-solo.sh`. 0.7.0 프로브 34개·골든 44케이스·코호트를 두 버전·두 테마로 단독 재덤프(프로젝트를 복제해 네 갈래). 다른 파일을 교체. bundle-c `tf-auto-ph`·bundle-e `r-text`는 단독 값이 기대값과 같아 그대로. bundle-f·g-clamp의 2px 허용 제거 → ProgressBar 제목 반 픽셀(런타임 6행)을 `KNOWN_HALF_PIXEL`로 이름 붙임. accuracy(한·영) 판정 기준과 inventory 9건 설명을 원인(순서)으로 고침
+- **판단 2:** 런타임 글 높이 12–13px는 `t-fit*`(폭이 좁아도 17), `t-cache-*`, `t-bis-*`(g-clamp에서 요소를 빼 가며)로 원인을 갈랐다 — 같은 글을 다른 줄바꿈으로 먼저 그린 Unity 쪽 오염. 문서를 고침
+- **판단 3:** supported에 RepeatButton 한 줄
+- **항목 T:** 런타임 패널 코호트(단독, 두 버전) `tests/text-cohort/unity-runtime/`. `run.mjs`를 테마별 세트로 나누고 (a) 설명을 생성기 기준으로. 런타임 92/92·60/92·89/92·153/159(두 버전 같음), 설명 안 되는 1행 `noto-jp-zh-20-w60`(Unity 201, 미리보기 203). 에디터 표 불변. 에디터 코호트 단독 재덤프는 상자가 모두 같았다
+- **묶음 G:** `g-settings`(+states, +ko) 프로브·단독 덤프, `bundle-g.test.ts`. 새 발견 둘 — 높이 자르기(`g-clamp-h`), TextField 포커스 라벨 색 → Codex 1라운드(변이 3/3, 절대 위치 예외 제거는 동치로 살아남음). 골든에 `settings`·`settings-ko` 추가, 하네스 translate·면제 규칙 수정, 공개 수치 1122/1148(두 세트), README 네 언어·accuracy·api 갱신. 그림 `docs/design/0.7.0-bundle-G-shots/`
+- **실수:** 새 형식 골든 덤프(NaN 포함)를 옛 형식 폴더에 그대로 넣어 golden.test가 파싱 실패했다(형식을 맞춰 고침). bash의 /tmp를 Windows 파이썬이 못 봐 한 번 헛돌았다. TaskStop이 detach된 bash 루프를 죽이지 못해 Unity가 계속 떴다 — PID로 정리
+
+### 2026-10-18 (23:43 — E2·판단 2·3·묶음 F·글자 자르기·반복성)
+
+- **E2**: 에디터 Toggle 상자를 Unity `-panelPng` 그림에서 잰 색으로 칠함(`e2-editor-checkbox.test.ts`, Codex 1라운드, 변이 4/4). 두 테마 나란히 그림 `docs/design/0.7.0-bundle-E-shots/E2-unity-vs-preview.png`. RadioButton은 USS 색이 그림과 같아 문제 없음
+- **판단 2**: 스크롤바 알려진 차이(supported·accuracy 한·영), 클래스 테스트 머리말, backlog 0.8 첫 후보
+- **판단 3**: `painted-parents.test.ts` — 등록 목록 전부에서 그린 DOM 부모를 Unity 덤프 경로·레이아웃 부품 트리와 대조. 변이 3/3(살아남았던 Slider 자식 변이 포함)
+- **글자 자르기**: 전체 적용 실험에서 깨진 5개를 조사하고 `g-clamp`로 측정. 규칙과 예외 둘을 Codex 1라운드로 구현(변이 3/3 + 동치 변이 1). registry 스텁이 줄바꿈을 한 줄로 쟀다 — 스텁과 장면 입력 둘을 고침(기대값 불변)
+- **반복성**: 0.7.0 프로브 41개·골든 두 세트를 두 버전·두 테마로 5회씩(약 2만 7천 값). 5회 사이 흔들림 0. 커밋값과의 차이는 실행 순서 의존(단독 실행으로 확인), Standard 생성기만. 골든 에디터 기준과 다른 9값은 이미 `KNOWN_DIVERGENCES`의 글자 측정 9개. 고정 테스트 목록과 제안은 계획서 27-2
+- **묶음 F**: 새 프로브 `f-progress`·`f-states`·`f-hook`. ProgressBar 막대 규칙이 14행과 일치, 에디터 low-value 이하 막대 버전 차이 → 버전 경고. Codex 2라운드(1라운드의 TextElement 전용 줄바꿈 높이 추정을 스텁 수정 뒤 제거). 변이 5/5. 예측과 같음(warning-diff 삭제 142 → 153, 수치 불변). 소비자 vscode 4, uxml-author 32
+- **발견**: 런타임 패널에서 줄바꿈 없는 글의 폭이 밖에서 정해지면 글 높이가 12–13px(원래 17). 규칙 미상, 관찰만 고정
+- **실수**: E2 테스트의 `pngjs` 타입 선언을 빠뜨려 tsc가 깨졌다(`07d9c80`에서 고침). 셸 heredoc 인용이 꼬여 한 번은 아무것도 실행되지 않았다 — 긴 글은 파일로 쓴다
+
+### 2026-10-17 (01:20 — 0.7.0 묶음 A: A0·A1·A2)
+- A0: `PanelDump`에 `-panelSize`·`-panelSkin editor`·케이스별 스타일시트 비우기. 골든 44케이스 에디터 테마 덤프가 UxmlLayoutDump와 1012/1012(두 버전). `tools/panel-to-golden.mjs`, `tests/golden/panel-dump.ts`·`panel-dump.test.ts`, 런타임 골든 `tests/golden/unity-runtime/`(6.3). 기준선 런타임 609/676. 런타임 세로 스크롤바 24px 발견
+- A1: `RenderOptions.theme`·`RenderResult.theme`·`ResolveOptions.theme`·`LayoutOptions.theme`(기본 `'editor'`), 모르는 값은 `malformed`/`invalid-value`. Codex 2라운드(1라운드는 브리프가 내부 export 모양을 바꾸라 해서 기존 테스트 1개를 깸)
+- A2: 두 테마 값(`src/controls/theme.ts` `THEME_SHEETS`), `unity-disabled`, Label·Button `flex-shrink: 0`, 런타임 스크롤바 24, 런타임 테마의 CJK `<wbr>`+`keep-all`(금칙 없음). Codex 3라운드(3라운드: `states`로 강제한 disabled가 더는 흐려지지 않던 결함 — 스냅숏 검토에서 발견). 에디터 좌표 660 → **662/676**(`ItemDesc` y·height, 예측대로), 불일치 16 → 14. paint 39/39(런타임 행은 known 없이 통과). 전체 896 통과
+- 예측이 빗나감: 골든만 보고 단위 테스트를 놓쳤다. 고정이 아닌 기존 단언 12개를 사람 승인 아래 바꿨다. 근거:
+
+| # | 테스트 | 옛 기대값과 그 출처 | 새 기대값과 그 출처(덤프 경로·키) | 바뀐 이유 |
+|---|---|---|---|---|
+| 1 | `style/cascade` 자식 결합자는 한 단계만 | `color` 값 없음(undefined). [추론] "아무 규칙도 색을 정하지 않으면 값이 없다" — 미리보기에 기본 글자색이 없던 시절의 전제 | 작성자 출처의 `color` 없음. 테마 색은 있으나 출처가 `inherited`→`builtin-theme`(selector `UXML`)로 구별된다. Unity는 모든 요소에 색을 낸다: `6000.0.40f1/probe-editor-070/c07-existing.json` `col/ve` `color` rgba(0.824,…) | 테마 기본 글자색이 스타일 맵에 들어감(사람 결정: 첫 번째 안). 표지 속성은 그대로, 출처로 판별 |
+| 2 | `style/cascade` 타입 셀렉터 대소문자 | 같음 | 같음 | 같음 |
+| 3 | `style/cascade` 만족할 수 없는 `var()` 선언은 버림 | 같음 | 같음 | 같음 |
+| 4 | `style/cascade` `var()` 순환 | 같음 | 같음 | 같음 |
+| 5 | `style/states` 조상의 상태는 조상에서 읽는다(둘째 단언) | 같음 | 같음 | 같음 |
+| 6 | `style/theme` 렌더러 없는 컨트롤엔 암묵 클래스 없음 | 같음 | 같음 | 같음 |
+| 7 | `style/theme` Image는 자기 클래스만(둘째 단언) | 같음 | 같음 | 같음 |
+| 8 | `style/cascade` 미지원 셀렉터 경고는 한 번 | 경고 전체가 1개. [추론] Label에는 테마 값이 없다는 전제(옛 `theme.ts` 머리말 "padding, border, font — unmeasured, so not here") | `unsupported-selector` 경고가 1개. 늘어난 것은 `version-dependent` "Built-in control defaults applied, as measured on Unity 6000.0.40f1". Label 테마 값: `probe-editor-070/c07-existing.json` `col/label` `paddingLeft` 1 `paddingRight` 2 `flexShrink` 0 | 테마가 Label에 닿는다. 경고는 "이 값은 특정 Unity 버전의 측정값"이라는 뜻이고, Unity에서도 Label은 같은 테마 값을 받으므로 맞는 경고다 |
+| 9 | `style/theme` Label에는 바깥 여백이 없다 | `margin-left` 값 없음. [확인] `tests/golden/unity/inherit-vs-direct.json`(UxmlLayoutDump, 에디터): 크기를 준 Label이 x 0 y 0 | `margin-left`가 0(테마가 명시). `probe-editor-070/c07-existing.json` `col/label` `marginLeft` 0 | 두 덤프는 다르지 않다(둘 다 0). 테마 시트가 측정된 안쪽 여백과 함께 margin 0을 적어서 "값 없음"이 "0"이 됐다. 테스트 제목의 "Label에는 아무것도 없다"는 거짓이 되어 "바깥 여백이 없다"로 고침 |
+| 10 | `layout` Label 교차축 크기는 측정값 | 폭 20. [추론] 스텁 측정(반 em × 4자 × 10px)에 Label 안쪽 여백이 없다는 전제(미측정이라 넣지 않았던 값) | 폭 23(20 + 1 + 2). `probe-editor-070/c07-existing.json` `free/label-auto` `paddingLeft` 1 `paddingRight` 2, 상자 w 91 = measured 88 + 3 | 측정된 Label 안쪽 여백 |
+| 11 | `render` Button은 잎으로 측정 | 높이 10. [추론] 스텁 높이에 안쪽 여백·테두리가 없다는 전제 | 높이 14(10 + 1 + 1 + 1 + 1). `probe-editor-070/c07-existing.json` `free/button-auto` `paddingTop`/`Bottom` 1, `borderTopWidth` 1, 상자 h 19 = measured 15 + 4 | 측정된 Button 안쪽 여백·테두리 |
+| 12 | `template/golden` 템플릿 차이 목록 | G3-4 폭·x 140 대 Unity 145(-5) 4값, `g34-outside-label` 폭 150 대 140(+10). 출처: 하네스 고정 측정(반 em) 대 `tests/template/unity/G3-4.json` | 143(-2) 4값, 153(+13) 1값. 수치 215/220 그대로 | Label 안쪽 여백 +3(`probe-editor-070/c07-existing`). 4값은 Unity 쪽으로, `g34-outside-label` 폭 1값은 반대쪽으로 갔다 — 고정 측정기의 글자 폭 과대(원래 틀리던 값)에 실제 여백이 더해진 것 |
+| 13 | (검토 추가) `golden/golden.test.ts` `KNOWN_DIVERGENCES` | `ItemDesc` 높이 항목, 1px 목록의 `['ItemDesc', 'y']` — 0.6.x 에디터 테마가 Label 안쪽 여백 없이 그려 생긴 알려진 차이 | 두 항목 삭제. 테스트가 "now matches; remove it"을 요구했다. `tests/golden/unity/inventory.json` `ItemDesc`와 일치 | Label 안쪽 여백(10행과 같은 근거). 예측표에 있었으나 이 표에서 빠졌다 |
+| 14 | (검토 추가) 스냅숏 25개(`tests/golden/snapshots/`, `tests/render/snapshots/`) | 0.6.x 출력 그대로 | 재생성. 상자 변화는 골든 3케이스뿐(아래 줄), 색 47개는 새 테마 값, 투명도는 `visual-nested-disabled` 안쪽 0.5 → 없음(`nested-disabled` 덤프) | 스냅숏은 기대값이 아니라 출력 기록이지만, 바뀐 줄을 하나씩 근거와 대조했으므로 표에 둔다 |
+| 15 | (검토 추가) `text-cohort/paint.mjs` 판정식과 런타임 15행(`604d56e`, 고정 테스트) | `isKnown = known.has(…)` — 테마 구별 없음 | `isKnown = r.theme === 'editor' && known.has(…)`, 런타임 CJK 15행(알려진 차이 없이 통과해야 함) | 사람 지시("paint 대조에 런타임 테마 CJK 케이스를 더해"). 알려진 차이는 에디터 6.3의 금칙에서 온 것이라 런타임 행에는 적용하지 않는다(`kinsoku` 덤프: 런타임 패널 금칙 없음) |
+
+- **(2026-10-17 추가) 8행 판단 철회.** "테마가 Label에 닿아 붙는 경고는 맞는 경고"는 틀렸다 — 경고는 Unity와 다르게 그릴 때만 내고, 테마 값은 두 버전에서 같았다(사람 지시). 8행의 단언은 원래대로(경고 전체 1개) 되돌렸다. 아래 같은 날 기록 참조
+- 스냅숏 25개 재생성: 상자 변화는 골든 3케이스뿐이고 Unity 쪽으로 움직였거나(`button-sizes-to-text` 높이 29 일치, `ItemDesc` 일치, `text-size` 90→93 대 92) 원래 틀리던 글자 폭(`inventory` 경계 4값). 색 47개는 모두 새로 생긴 값(작성자 색 변경 없음). 투명도는 `visual-nested-disabled` 안쪽 0.5→없음(측정대로)
+- 변이: A0 3/4(남은 하나는 동치), A1 3/3, A2 7/7(Label 여백·`flex-shrink`·비활성 규칙·런타임 글자 크기·스크롤바·`<wbr>`·강제 비활성)
+- (04:05 추가) A3: 예측을 새 규칙(값을 읽는 테스트 목록부터)으로 다시 세움 — 기본 테마를 읽는 테스트 파일 33개, 예측 61–92개 깨짐.
+  하네스 `runCase`에 테마 인자(기본 `'editor'`)를 먼저 넣어 골든·템플릿 40개를 미리 옮겼고, 기본값 전환 뒤 31개가 깨졌다(합 71, 예측 안).
+  31개는 테스트마다 `theme: 'editor'` 설정 줄로 옮겼고 기대값은 하나도 바꾸지 않았다: 그림 하네스(스냅숏 20), `layout`(Label·Button 상자 3),
+  `nonvisual`(UxmlLayoutDump 대조 2), `render`(Button 잎 1), `style/theme`(에디터 여백·출처·버전 경고 5). 런타임 기본 경로는
+  `contract-070`, `golden/runtime.test.ts`, paint 런타임 행, 테마 없이 그리는 나머지(cascade·states·contract-060/061·warning-fields·
+  consumer-contract·템플릿·텍스트 코호트)가 검사한다. 런타임 세트는 전환 전에 이미 662/676(남은 14개는 에디터 알려진 불일치와 같은 자리)
+  - **(2026-10-17 검토 정정)** 위 문장의 "테마 없이 그리는 나머지가 검사한다"는 과장이었다. `DEFAULT_THEME`를 `'editor'`로 되돌리면
+    실패하는 테스트는 8개뿐이었다(theme-option 4, warning-fields 1, registry 3). 나머지는 테마 없이 그리지만 두 테마에서 결과가 같아
+    기본값을 가르지 못한다. `theme: 'runtime'`을 명시한 테스트는 기본 경로 검사가 아니다. R2(`tests/golden/runtime-default.test.ts`)가 그 구멍을 메운다
+- A4: accuracy(한·영)에 런타임 세트 절과 행, README 4개 첫 줄 런타임(6.3)·둘째 줄 에디터(6000.0). README 수치 테스트 규칙 확장
+  (`PanelSettings`+6000.3.25f1 줄 = 런타임, 에디터 줄보다 앞, accuracy 런타임 행 분리 — 변이 4/4). supported·api·backlog(`pre` 정정 새 줄)·CHANGELOG
+- 소비자 측정: uxml-author(`d430ff3`) 0.6.1·0.7.0 모두 17건 실패, 항목 동일. vscode(`ce8ea27`) 1 → 4건, 새 3건은 Label 문서의 테마 경고.
+  인계 문서 초안 `docs/design/0.7.0-handoff.md`
+- 변이: A3 4/4(하네스 기본 런타임·런타임 Button 안쪽 여백 0·기본값 에디터·런타임 스크롤바 13)
+- (06:00 추가) 테마 경고 뒤집음(사람 지시): "Built-in control defaults applied"·ScrollView 부품 경고 제거, `version-dependent`는 에디터 테마의
+  덤프상 버전 차이(글자 없는 Button 4/19, 기본 생성기 standard/advanced)에만. 런타임 기본 생성기를 standard로(누락 발견). 고정 7, 변이 4/4,
+  Codex 2라운드. 소비자: vscode 4 → 1건(0.6.1과 같음), uxml-author +1(버전 채널 표본 사라짐). 강제 비활성 확인을 묶음 E 계획에(계획서 13절)
+- 묶음 B(GroupBox, Box): 예측 기존 변화 0–1 → 0. `bundle-b.test.ts` 11개, Codex 1라운드, 전체 915. 새 구조 `leading-text` 부품(GroupBox 제목).
+  변이 4/5 — `text=""` 제목은 미측정이라 고정하지 않고 다음 덤프에 넣기로(계획서 15절). 소비자: vscode 변화 없음, uxml-author docs +3(지원 목록)
+- (12:00 추가) 사람 검토(읽기 전용 보고) 뒤 정리 라운드 R1–R4. 판정·결과는 계획서 16절, 결정 기록 같은 날 행
+  - R1: Unity 덤프 두 버전 × 두 덤퍼, `r1-text-spacing`·`r1-groupbox-empty`·`r1-groupbox-author`. 덤퍼 셋(`PanelDump`·`ProbeDump`·`UxmlLayoutDump`)이
+    머리말에 `dumper`·`dumperVersion: 0.7.0-r1`을 쓴다. 고정 테스트 `tests/contract-070/r1-measured.test.ts` 12개. 구현 변경 없음(전부 이미 통과)
+  - 발견: GroupBox `text=" "` 제목 높이가 에디터 테마에서 버전마다 다르다(6000.0 0, 6.3 15). 판정·경고하지 않고 기록만
+  - R2: `tests/golden/runtime-default.test.ts` 45개. 변이 `DEFAULT_THEME = 'editor'` → 44 실패
+  - 변이 4/5(남은 하나는 캐스케이드만 바꾼 `text=""` 제목 — 상자가 없어 출력에 닿지 않음). 전체 972 통과 · 1 건너뜀, tsc 0
+  - R4 — 지운 경고 2건의 근거. 비교: 6000.0.40f1 파일 대 6000.3.25f1 파일, 박스(x·y·w·h)와 resolved style 전부:
+
+| 지운 경고 | 덤프 | 비교한 값 | 버전 차이 | 판정 |
+|---|---|---|---|---|
+| "Built-in control defaults applied" (warning-diff 삭제 허용 `theme`) — 런타임 | `probe-panel/c07-existing.json`, `c07-states.json`의 Button·Label 각 8요소 | 672 + 672 | **0** | 같다 |
+| 같은 경고 — 에디터 | `probe-editor-070/c07-existing.json` Button·Label 8요소 | 672 | 19: `unityTextGenerator` Standard/Advanced 8, `col/button-empty` 4(h·height·flexBasis 4/19, transformOrigin), 그 아래 요소의 y·top +15 7(`scroll-child`·`label-disabled`·`button-disabled`·`label-auto`·`button-auto`) | 전부 남아 있는 두 경고(글자 없는 Button, 생성기)의 값이거나 그 결과 |
+| 같은 경고 — 에디터 상태 | `probe-editor-070/c07-states.json` Button·Label 8요소 | 672 | 8, 모두 `unityTextGenerator` | 생성기 경고의 값 |
+| "<ScrollView> drawn with built-in child elements" (삭제 허용 `control-parts:ScrollView`) — 에디터 | `golden/scrollview-hierarchy`·`scrollview-overflowing`·`scrollview-padding`·`inventory`.json(UxmlLayoutDump) | 76·84·76·188 | **0** | 같다 |
+| 같은 경고 — 런타임 | `golden-panel/` 같은 네 파일(PanelDump) | 1932·2100·1932·4284 | **0** | 같다 |
+| 같은 경고 — 에디터 부품 resolved style | `probe-editor-070/c07-existing.json` `col/scroll` 아래 23요소 | 상자·style 전부 | 53: y +15(위의 글자 없는 Button), 생성기, Scroller·dragger 색 알파 0.051/0.05·0.102/0.1·0.502/0.5 | 알파는 같은 값의 출력 반올림(13/255 등)이고 미리보기는 그 색을 그리지 않는다. x·w·h 차이 0 |
+
+  되돌린 경고 없음.
+- (12:38 추가) 사람 결정 둘과 묶음 C
+  - `:root` kind 결정 기록(`ff0dec1`). 공백뿐인 GroupBox 제목: 덤프 `c-whitespace` → 고정 `whitespace-title.test.ts` 7 → Codex 1라운드 → 변이 4/4(`8ecd2a3`)
+  - 덤퍼 r2: TextField의 value·password·maskChar·multiline·placeholder. 그린 글(`renderedText`)은 두 버전 모두 내부 속성이 없어 기록되지 않음. r2로 다시 뜬 `c07-TextField`는 4벌 모두 차이 0
+  - 묶음 C: 예측(계획서 17절, 읽는 테스트 10파일) → 덤프 `c-textfield`·`c-textfield-hook` → 고정 `bundle-c.test.ts` 20 → Codex 1라운드 → 측정 입력 3개 정정(기대값 불변) → 깨진 3개를 Toggle로 옮김, warning-diff 삭제 허용 2개. 변이 6/7. 999 통과. 결과 계획서 18절
+  - 발견: 런타임 패널에서 Unity MeasureTextSize와 레이아웃이 TextElement에 준 폭이 1–2px 다르다(3/7 행). 에디터 창은 0/7
+  - 발견: 공백뿐인 Label·Button도 GroupBox 제목과 같은 측정(런타임 0, 에디터 6.3 advanced 15). 손대지 않았다
+- (13:02 추가) 묶음 C 검토 뒤 사람 판단 둘
+  - 공백뿐인 Label·Button: 고정 `whitespace-text.test.ts` 5 → Codex 1라운드(규칙을 `measure()`로 합침) → 변이 4/4(`f2a1c0d`). 1004 통과
+  - 클래스 테스트 `classes.test.ts` 89(덤프 파일마다 하나). 변이 6/6, 묶음 C에서 살아남았던 `--no-label` 포함
+  - 발견: Label·Button에 Unity의 `unity-text-element` 클래스가 없다(범위 밖 컨트롤을 넣어 보면 89 중 48 실패). 고치지 않음
+  - **bundle-c의 측정 스텁 중 상자에서 읽은 값(가림 글자·placeholder·줄바꿈 높이·긴 문장·두 줄 글)은 글자 폭을 검사하지 않는다.** 그 행들은 구조만 검사한다. 런타임 패널에서 Unity 글자 측정값과 배치 폭이 1–2px 다른 이유는 아직 모른다 — T에서 본다
+  - 인계 문서 4절에 스킬 할 일(TextField "그릴 수 없다" 서술), 계획서 19절에 T 일정
+- (13:17 추가) 묶음 D(Slider, SliderInt)
+  - 측정 `d-slider`·`d-sliderint`(두 버전 × 두 덤퍼): 손잡이 식이 모든 행에서 맞음. 구조는 끌기 칸 안 형제 셋 + 부품 안 TextField
+  - 예측(계획서 20절, 읽는 테스트 9파일, 깨짐 4·뜻 잃음 1) → 고정 `bundle-d.test.ts` 22 + `classes.test.ts`에 Slider·SliderInt → Codex 1라운드 → 테스트 부품 이름 함수 정정(기대값 불변) → 예측대로 4개 깨지고 1개 뜻 잃음, 옮김. 변이 7/7. 1123 통과
+  - 소비자: vscode 1 → 3(Slider를 미지원 예로 쓴 테스트), uxml-author 22 → 24. 결과 계획서 21절
+  - 지시 밖: `supported`의 Toggle 행이 "위와 같다"로 TextField(이제 검증됨)를 가리키던 것을 고침(묶음 C에서 생긴 잘못)
+- (14:11 추가) A2(클래스 정합)·Slider 자식·묶음 E
+  - A2: `classes.test.ts` 대상 = `supportedControlNames()`, 실패 64파일·420건(Label 288, Button 52, ScrollView 80) → Codex 1라운드(Label·Button `unity-text-element`, ScrollView mode·부품 클래스) → 0. 수치 불변, 기존 테스트 변경 0(예측대로). 훅 `a2-text-element.test.ts`(덤프 `a2-hook`). 변이 5/5
+  - 덤퍼 r3: `force-disabled`(Disabled 의사 상태 강제). 덤프 `a2-hook`·`a2-scrollview`·`d-slider-children`·`e-disabled`·`e-toggle`·`e-radio`. r3로 다시 뜬 c07 넷 중 6000.0 에디터 `c07-existing` `free/label-auto` 폭 하나가 91 → 92(실행마다 1px 흔들림, T에서 본다)
+  - Slider 자식: 측정대로 Slider 자신의 자식, 부품 뒤. Codex 2라운드, 변이 2/3(그리기 DOM 부모만 바꾼 변이는 상자 테스트가 못 잡음)
+  - 묶음 E: 예측(17파일) 대로 11 깨짐 + 1 뜻 잃음 + 고정 교체 1 + 스냅숏 1. Codex 3라운드, 측정 입력 정정 1(별도 커밋). 변이 5/5. 1176 통과
+  - 그림: PanelDump `-panelPng`로 Unity 6.3 패널 그림을 떠서 미리보기와 나란히(`docs/design/0.7.0-bundle-E-shots/`). 에디터 테마 꺼진 Toggle 상자를 그리지 않는 차이를 찾음 — 상한 3라운드라 보고만
 
 ### 2026-10-16 (23:07 추가 — 0.6.1 패치 · 0.7.0 측정·설계)
 - 0번: README 수치 테스트는 이미 영·한·일·중 네 파일을 읽고 있었다. 변이 6개(ja·zh 각각 좌표·높이 숫자, 상단 상호 링크) 전부 실패로 잡힘. 테스트 제목만 고침(`d9948aa`). 번역문의 숫자 오류 없음

@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:VisualElement name="c100" style="width: 100px; align-items: flex-start;">
+<ui:TextElement name="te100" text="alpha beta gamma delta epsilon" />
+<ui:Label name="lb100" text="one two three four five six seven" style="white-space: normal;" />
+</ui:VisualElement>
+<ui:VisualElement name="c160" style="width: 160px; align-items: flex-start;">
+<ui:TextElement name="te160" text="lorem ipsum dolor sit amet consectetur adipiscing" />
+<ui:Label name="lb160" text="the quick brown fox jumps over the lazy dog" style="white-space: normal;" />
+</ui:VisualElement>
+<ui:VisualElement name="r100" style="width: 100px; flex-direction: row;">
+<ui:TextElement name="tr100" text="red orange yellow green blue indigo" />
+</ui:VisualElement>
+</ui:VisualElement>
+</ui:UXML>

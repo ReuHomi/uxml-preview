@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:TextField name="pw-True" password="True" value="secret" />
+<ui:TextField name="pw-true" password="true" value="secret" />
+<ui:TextField name="pw-1" password="1" value="secret" />
+<ui:Toggle name="tg-True" value="True" />
+<ui:Toggle name="tg-true" value="true" />
+<ui:Toggle name="tg-1" value="1" />
+<ui:TextField name="ml-True" multiline="True" value="a&#10;b" />
+<ui:Slider name="sl-True" show-input-field="True" value="3" style="width: 200px;" />
+<ui:VisualElement name="ve-False" enabled="False" style="height: 10px;"><ui:Button name="ve-False-child" text="Child" /></ui:VisualElement>
+</ui:VisualElement>
+</ui:UXML>

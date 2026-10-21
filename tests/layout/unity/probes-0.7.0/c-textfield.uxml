@@ -1,0 +1,25 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:TextField name="tf-pw-i" password="true" value="iiiiii" />
+<ui:TextField name="tf-pw-w" password="true" value="WWWWWW" />
+<ui:TextField name="tf-pw-mask" password="true" mask-character="#" value="secret" />
+<ui:TextField name="tf-pw-empty" password="true" />
+<ui:TextField name="tf-ph-value" placeholder-text="Type here" value="Hello" />
+<ui:TextField name="tf-ph-label" label="Label" placeholder-text="Type here" />
+<ui:TextField name="tf-ph-disabled" placeholder-text="Type here" enabled="false" />
+<ui:TextField name="tf-long" value="The quick brown fox jumps over the lazy dog and keeps running past the river bank" />
+<ui:TextField name="tf-ml-long" multiline="true" value="The quick brown fox jumps over the lazy dog and keeps running past the river bank" />
+<ui:TextField name="tf-ml-long-wrap" multiline="true" style="white-space: normal;" value="The quick brown fox jumps over the lazy dog and keeps running past the river bank" />
+<ui:TextField name="tf-label-long" label="A much longer label than the minimum" value="x" />
+<ui:TextField name="tf-label-empty" label="" value="x" />
+</ui:VisualElement>
+<ui:VisualElement name="free" style="align-items: flex-start;">
+<ui:TextField name="tf-auto-pw-i" password="true" value="iiiiii" />
+<ui:TextField name="tf-auto-pw-w" password="true" value="WWWWWW" />
+<ui:TextField name="tf-auto-text-i" value="iiiiii" />
+<ui:TextField name="tf-auto-text-w" value="WWWWWW" />
+<ui:TextField name="tf-auto-ph" placeholder-text="Type here" />
+<ui:TextField name="tf-auto-ml" multiline="true" value="One&#10;Two words" />
+<ui:TextField name="tf-auto-label" label="Label" value="x" />
+</ui:VisualElement>
+</ui:UXML>

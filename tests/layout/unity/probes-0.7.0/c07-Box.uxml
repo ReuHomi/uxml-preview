@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:Box name="b-empty" />
+<ui:Box name="b-child"><ui:Label name="b-child-label" text="Inside" /></ui:Box>
+<ui:Box name="b-disabled" enabled="false"><ui:Label name="b-disabled-label" text="Inside" /></ui:Box>
+</ui:VisualElement>
+<ui:VisualElement name="free" style="align-items: flex-start;">
+<ui:Box name="b-auto"><ui:Label text="Inside" /></ui:Box>
+</ui:VisualElement>
+</ui:UXML>

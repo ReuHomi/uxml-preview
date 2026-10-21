@@ -1,0 +1,4 @@
+.n { white-space: normal; }
+.nw { white-space: nowrap; }
+.pr { white-space: pre; }
+.pw { white-space: pre-wrap; }

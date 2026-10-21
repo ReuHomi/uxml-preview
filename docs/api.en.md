@@ -45,6 +45,7 @@ when it cannot be found (a warning is recorded).
 
 | Option | Meaning |
 |---|---|
+| `theme` | `'runtime'` (the default since 0.7.0) or `'editor'` (the dark editor theme the 1122/1148 editor figure was measured with). An unknown value warns `malformed` / `invalid-value` and draws the default. The core paints nothing behind the panel (transparent); runtime text is dark, so the backdrop is the host's |
 | `size` | Panel size in px. **The panel, not the window** — USS percentages and stretching resolve against the panel, so a preview that follows the window cannot answer "how does this look at 1920×1080". Defaults to the container's size |
 | `resolveAsset(path, form)` | Turns a `background-image` `url("project://…")` or `resource("…")` into a URL the browser can load. `form` is `'url'` (a path) or `'resource'` (a Unity Resources name, no extension) — resolving both as the same kind of path silently produces the wrong picture. A disk-only host cannot resolve editor built-ins, so return `null` for those. On `null` a placeholder is drawn and a warning recorded |
 | `resolveFont(path, form)` | The font for `-unity-font-definition`: a font family name (string), `{ family, faceInfo }`, or `null`. With `faceInfo` (the `pointSize`, `ascentLine` and `descentLine` Unity reports for that font) text height matches Unity's formula. Called once per distinct (path, form) per render |
@@ -60,7 +61,8 @@ The result (`RenderResult`):
 | `boxes` | What Yoga computed, in panel coordinates. These are the numbers compared with Unity |
 | `elements` | The painted DOM element per model node, to map a click back to the tree |
 | `document` | The tree actually drawn, templates expanded |
-| `styles`, `partStyles` | Computed styles of drawn elements and of control parts |
+| `styles`, `partStyles` | Computed styles of drawn elements and of control parts. Since 0.7.0 every element carries the theme's text size and colour as inherited values (origin `builtin-theme`) |
+| `theme` | The theme actually drawn |
 | `dispose()` | Frees the Yoga tree and removes the painted DOM |
 
 Painted elements carry `NODE_ATTRIBUTE` (the model node id); control parts carry
@@ -108,6 +110,10 @@ kept byte for byte (`tests/render/consumer-contract.test.ts`), but they are not 
   every unknown value as a failure makes one new warning fail every run
 - Some warnings have no `reason`, when none applies (malformed input, a file the host could not
   supply)
+- **The `:root` warning's `kind` is a historical name.** A `:root` rule raises one warning with kind
+  `version-dependent` and reason `matches-unity`. Nothing differs by version: it says USS `:root` is not
+  CSS `:root`, and the preview draws what Unity draws. **Go by the `reason` (`matches-unity`).** The kind
+  stays until the next major version, since changing it breaks consumers' classification (`docs/backlog.md`)
 - Property warnings are raised **once per declaration**, with that declaration's `at`, including
   in rules that match nothing. A value that arrived by inheritance is never reported again
 
@@ -164,7 +170,7 @@ Opacity and `visibility` are not part of the verdict — only whether there is a
 
 ## Text
 
-- `textHeight(lines, fontSize, faceInfo, paragraphBreaks?, paragraphSpacing?)` — Unity's text height formula
+- `textHeight(lines, fontSize, faceInfo, paragraphBreaks?, paragraphSpacing?, generator?)` — Unity's text height formula. `generator` is `'standard'` (floor + 1, later lines advance by `lineHeight`) or `'advanced'` (ceil); left out, `'advanced'` (0.7.0)
 - `EDITOR_DEFAULT_FACE_INFO` — the FaceInfo of the editor's default font (Inter-Regular SDF), as Unity reports it
 - `createDefaultMeasureText(doc?)` — the default measurer, for wrapping in your own `measureText`
 
@@ -177,5 +183,5 @@ Opacity and `visibility` are not part of the verdict — only whether there is a
 | `expandTemplates(doc)` | template expansion on its own |
 | `KNOWN_DIVERGENCES` | behaviours known to differ from Unity, and why (unreproducible · Unity's rule unspecified · upstream) |
 | `supportedControlNames()` | controls with a renderer of their own |
-| `resolveStyles`, `explainProperty` | the cascade result; every declaration that competed for one property on one element (what an editor asks before "edit the inline style, or the rule?") |
+| `resolveStyles`, `explainProperty` | the cascade result; every declaration that competed for one property on one element (what an editor asks before "edit the inline style, or the rule?"). `resolveStyles(doc, { theme })` takes the theme too — left out, `'runtime'` (0.7.0) |
 | `isInherited(property)` | whether a USS property inherits |

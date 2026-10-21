@@ -45,12 +45,16 @@ Unity. See "What this number covers" in [Accuracy](accuracy.en.md) for why that 
 |---|---|---|
 | `VisualElement` | verified | most golden cases are built from it (coordinates, measured) |
 | `Label` | verified | layout compared through the golden cases, text boxes through the text cohort (measured). Height follows Unity's FaceInfo formula; letter, word and paragraph spacing follow Unity's rules — see "Text and fonts" below |
-| `Button` | verified | ten golden cases compared by coordinates (measured). Its label is **centred**, found by the eye check. Carries Unity's **default `margin: 1px 3px`** (`src/controls/theme.ts`); honours `:hover` and the other states. Editor theme; the runtime theme is 0.7.0 |
-| `ScrollView` | verified | reproduces the **three implicit levels** (`unity-content-and-vertical-scroll-container` → `unity-content-viewport` → `unity-content-container`); four golden cases compared by coordinates (measured). The scrollbar's **width is reserved (13px) but nothing is drawn** — dragging, wheeling and scroll position are outside a static render |
+| `Button` | verified | ten golden cases compared by coordinates (measured). Its label is **centred**, found by the eye check. Carries the theme's margin, padding, border, colours and `:hover`/`:active`/`:focus`/`:disabled` colours on both themes, all from dumps (`src/controls/theme.ts`, 0.7.0); `flex-shrink: 0` |
+| `ScrollView` | verified | reproduces the **three implicit levels** (`unity-content-and-vertical-scroll-container` → `unity-content-viewport` → `unity-content-container`); four golden cases compared by coordinates (measured). **Known difference: scrollbars reserve their width and are not drawn** (13px on the editor theme, 24px on the runtime theme, measured). The scroller parts Unity builds (`unity-scroller` and below) are not built, and the class test and the golden comparison leave them out (human decision 2026-10-18; first candidate for the next version, `docs/backlog.md`). Dragging, wheeling and scroll position are outside a static render |
+| `GroupBox` | verified | 0.7.0 bundle B. `unity-group-box`, margin and padding (both themes, measured). With `text` it builds Unity's title Label before the children (part name `unity-group-box__label` — Unity gives it no name, so the class names it). The `c07-GroupBox` dumps match on both themes: boxes, title, resolved styles. An empty `text=""` builds no title and `text=" "` builds one — measured on both versions and both themes (`r1-groupbox-empty`). A title of only spaces is 0 high on the runtime theme; the editor theme draws 6.3's 15 and warns `version-dependent` (6000.0: 0); under the standard generator both versions are 0 (`c-whitespace`). A Label or Button whose text is only spaces follows the same rule. An author rule on `.unity-group-box__label` reaches the title (`r1-groupbox-author`) |
+| `Box` | verified | 0.7.0 bundle B. `unity-box`, a 1px border, border colour and background (both themes, measured). The `c07-Box` dumps match on both themes |
 | `Image` | verified | has its own renderer (`unity-image`). The six `Image` elements of the representative screen (`inventory`) match Unity 6000.0.40f1 in all 24 coordinate values (measured), and the default scale mode `stretch-to-fill` was confirmed by eye ([visual check](visual-check.md), item 5). Its picture arrives through USS `background-image` — a texture assigned from C# leaves no path a preview can follow |
-| `TextField` | fallback | its `text` / `label` is not drawn |
-| `Toggle` | fallback | as above |
-| `Slider` / `SliderInt` | fallback | as above |
+| `TextField` | verified | 0.7.0 bundle C. Single-line, `multiline`, placeholder, `password` (`mask-character`, `*` by default), disabled, with and without a label, both themes. Builds Unity's parts: the label (when `label` is set; part name `unity-text-field__label`), `#unity-text-input`, `unity-base-text-field__multiline-container` when multiline, and the inner text `unity-text-element--inner-input-field-component`. An empty value draws the placeholder in its colour; a password draws only the mask and never puts the value in the DOM; an empty field is still one line high; multiline wraps only with `white-space: normal`. The `c07-TextField`, `c-textfield` and `c-textfield-hook` dumps (6.3) match on both themes: boxes, parts, resolved styles, hover and focus borders. Author USS reaches `#unity-text-input`, `.unity-text-field__input`, `.unity-text-field__label` (measured). **Not drawn:** the caret, the text selection, input and editing, a multiline scrollbar — interaction is a 0.8 candidate |
+| `Toggle` / `RadioButton` | verified | 0.7.0 bundle E. Label (`label`), text (`text`), checked (`value="true"` → `:checked` on the control and its input part), disabled, both themes. Parts: label `unity-toggle__label`, input `unity-toggle__input`, `#unity-checkmark`, text `unity-toggle__text` (RadioButton: `unity-radio-button__*` and a checkmark background). The radio checkmark is hidden unchecked, 12×12 (runtime) / 6×6 (editor) checked. The 6.3 `c07-Toggle`, `c07-RadioButton`, `e-toggle` and `e-radio` dumps match on both themes: boxes, parts, resolved styles, classes. **The check mark is the preview's own drawing, not Unity's textures (`check`, `d_toggle_bg`, `d_toggle_on`)** — judged by a person (rule 5, `docs/design/0.7.0-bundle-E-shots/`). On the editor theme the Toggle box (Unity's `d_toggle_bg`/`d_toggle_on` textures) is painted in colours measured off Unity's screen (E2: inside #2a2a2a, top edge #0d0d0d, other edges #212121, radius estimated from the picture, 1-3px). Clicking is not drawn (a 0.8 candidate). RadioButtonGroup is a fallback |
+| `ProgressBar` | verified | 0.7.0 bundle F. Value (`value`), range (`low-value`, `high-value`), title (`title`), disabled, both themes. Parts: `#unity-progress-bar` (`unity-progress-bar__container`) > background `unity-progress-bar__background` > bar `unity-progress-bar__progress` + title container `unity-progress-bar__title-container` > title Label `unity-progress-bar__title`. The bar width follows Unity's code, `floor(background width - 2) * clamp(value) / high-value` (the value clamped between low and high, then divided by high: low 40 with value 40 is 40%, `k-progress`, measured 2026-10-21), matching all 14 `f-progress` rows (values 0-150, ranges, widths 57-292) on both themes and versions. File children are the ProgressBar's own children, after its parts. **Version difference:** on the editor theme an empty bar (fill 0) is 1px wide on 6000.0.40f1 and 0px on 6.3; drawn as 6.3, with a version warning |
+| `TextElement` / `RepeatButton` | verified | 0.7.0 bundle F. Plain text as in Unity (no theme margin, border or background; `flex-shrink` 1). **A RepeatButton does not look like a button** — that is Unity's screen (both themes, measured). As decided for design question 6, it is drawn as plain text, as Unity draws it. With file children, the children decide its size (its own text adds no height). Forced hover, active, focus and disabled change no value (`f-states`). Repeating on press is not drawn |
+| `Slider` / `SliderInt` | verified | 0.7.0 bundle D. Horizontal and vertical (`direction`), label, input field (`show-input-field`), disabled, both themes. Builds the label (`unity-slider__label`), the input (`unity-slider__input`), `#unity-tracker`, `#unity-dragger-border` and `#unity-dragger` inside `#unity-drag-container`, and with an input field a TextField `#unity-text-field` showing the value. The dragger: t = clamp((value - low) / (high - low), 0, 1); horizontal translate-x = t × (drag container width - dragger width), vertical translate-y = (1 - t) × (drag container height - dragger height) — measured at eleven values, vertical, a 30-144 range, a reversed range and an out-of-range value (`d-slider`, `d-sliderint`). The 6.3 `c07-Slider`, `c07-SliderInt` and `d-*` dumps match on both themes: boxes, parts, resolved styles, classes. A file child written inside a slider is the slider's own child, after its parts (at the row's end when horizontal), as in Unity (`d-slider-children`, measured). **Not drawn:** dragging and changing the value (interaction, a 0.8 candidate) |
 | `Foldout` | fallback | as above |
 | `DropdownField` | fallback | as above |
 | `ListView` | fallback | undecided |
@@ -66,7 +70,9 @@ Unity. See "What this number covers" in [Accuracy](accuracy.en.md) for why that 
 >
 > Parsing succeeds either way, and nothing is lost on a round trip.
 
-More control renderers and a runtime theme option are 0.7.0.
+More control renderers are for the bundles after 0.7.0's first.
+
+**Themes (0.7.0).** `render`'s `theme` option picks `'runtime'` (the default, a game screen: the default runtime theme Unity creates for a new PanelSettings) or `'editor'` (the dark editor theme). Both themes' default text size and colour and their Label and Button values are read from dumps (`tests/layout/unity/6000.3.25f1/probe-panel/`, `6000.0.40f1/probe-editor-070/`). The light editor theme is not covered. The core paints nothing behind the panel (transparent, as Unity does); runtime text is dark (#1b1b1b), so the backdrop is the host's to choose.
 
 ## Templates and instances
 
@@ -116,7 +122,7 @@ property exists, inherits, and when it was introduced comes only from the regist
 | `letter-spacing` / `word-spacing` | A | verified | the value is not CSS px but **value × font size / 100**. Measured and painted by that rule (spacing probes, measured). See "Text and fonts" below |
 | `-unity-paragraph-spacing` | A | verified | measured and painted (spacing probes, measured) |
 | `-unity-text-generator` | A | verified | the spacing difference between `standard` and `advanced` is measured and painted (measured) |
-| `white-space` | A | **partial** | space handling is measured (below). Wrapping under `pre` differs — Unity wraps `pre` to the width too (measured); the preview does not |
+| `white-space` | A | verified | A Label or Button is `nowrap` unless the author writes otherwise (Unity's theme, `g-clamp`, both versions and themes, 0.7.0 review C1); TextElement and RepeatButton are `normal`. Space handling is measured (below). Unity does not wrap `pre` to the width either (`pre-wrap2`, both versions and themes, 2026-10-16) — 0.6.0's "Unity wraps `pre`" came from evidence that could not tell them apart |
 | `-unity-font-definition` | B | verified | when the host returns a font through the `resolveFont` hook, text is measured and painted in it (text cohort, measured). Without the hook, or on `null`, it warns and uses the browser's default font |
 | `-unity-font` | B | written | its precedence against `-unity-font-definition` follows Unity's documentation (documented); not measured on its own |
 | `-unity-font-style` | B | written | |
@@ -230,12 +236,12 @@ another is disabled, which a single document-wide set cannot express.
   and a state name Unity never sets are all warned.
 - **`:enabled` applies automatically** to every element that is not disabled — Unity does so
   (measured on 6000.0.40f1 and 6000.3.25f1).
-- **Unity's own state defaults (a `:hover` background, say) are not included.** A layout dump
-  measures geometry, and a colour is not geometry, so there is no way to prove them. Only state
-  styling you wrote yourself applies.
-- **Nested disabled elements differ from Unity.** Unity dims only the element with
-  `enabled="false"` to opacity 0.5 and leaves its descendants alone (measured). The preview
-  compounds it to 0.25. To be fixed with the 0.7.0 theme work.
+- **Button's own state defaults (`:hover`, `:active`, `:focus`, `:disabled` colours) are included since 0.7.0**,
+  measured as resolved styles under forced pseudo-states (`c07-states`, both themes). Other controls' state
+  defaults are measured when those controls get drawn.
+- **Only the element written disabled is dimmed (0.7.0).** Unity gives `unity-disabled` and opacity 0.5
+  to the element with `enabled="false"` and leaves its descendants at 1 (measured, `nested-disabled`); so
+  does the preview. An element forced `disabled` through `states` is dimmed alone too.
 
 `:selected` is not a state: Unity's page says USS does not support it (use `:checked`).
 
@@ -261,9 +267,11 @@ built (`kind`, `reason`, `subject`, `nodes`, `at`) and how a consumer should rea
 
 ## Not checked
 
+- **Known difference (half-pixel rounding, found 2026-10-19):** when a centred text's free space is odd and its position falls on a half pixel, Unity rounds up to the next pixel and the preview's Yoga floors a text node's position. A ProgressBar title on the runtime theme is 1px off in x (`bundle-f.test.ts` `KNOWN_HALF_PIXEL`, 6 rows; one on the settings screen). Decided after measuring the rounding per alignment (`docs/backlog.md`)
+- **A Unity-side effect (runtime panel, cause found 2026-10-19):** when the **same text** was laid out earlier in the same panel with a different wrap setting (a TextElement or Label with `white-space: normal`), a later element with that text comes out 4-8px shorter, and the earlier element's own line count goes wrong too (`g-clamp`'s 20-21px; the `t-bis-*` dumps separate the cause: remove the earlier same text and it is 25px again). With no same text before it, Unity matches the preview. The preview does not reproduce the contamination; Unity appears to reuse a string's text layout [inferred]. Not seen on the 6.3 editor theme
 - Colour, borders and corners rest on one eye comparison of one screen ([visual check](visual-check.md)).
   Anything that screen did not contain is unmeasured
 - A wrapped `ScrollView`'s content height differs: Unity clamps it to the viewport, Yoga grows it
   to the content. Unity's rule is not identified yet
-- Scrollbars reserve their width but are not drawn, and nothing scrolls
-- The runtime theme (PanelSettings) has not been compared. Every baseline is the editor theme
+- **Known difference:** scrollbars reserve their width and are not drawn, and nothing scrolls (0.7.0 decision; first candidate for the next version)
+- The runtime theme (PanelSettings) is compared as its own set since 0.7.0 (`docs/accuracy.en.md`, "Runtime theme"). The light editor theme is not compared

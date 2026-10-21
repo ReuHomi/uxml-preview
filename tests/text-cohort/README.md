@@ -56,6 +56,9 @@ Fonts (not committed; each file's own licence applies):
 - `unity/<version>/` — Unity dumps (probe dumper in
   `tests/layout/unity/probes-0.6.0/ProbeDump.cs.txt`), including the FaceInfo
   of the font each Label is drawn with.
+- `unity-runtime/<version>/` — the runtime-panel set (0.7.0 item T, 2026-10-19): PanelDump on a real
+  runtime panel, each probe in its own Unity process (`tests/layout/unity/dump-solo.sh`). Drawn with
+  `theme: 'runtime'` and judged as its own table; `spec.known` keys for it start with `runtime `.
 - `results.json` — the last run.
 
 ## Criteria
@@ -76,7 +79,9 @@ line has not wrapped it (0.6.0 did that to CJK, and it passed as (b)). `spec.jso
 `"<version> <name>": reason`; they are classified (a), and a known row that matches
 fails the run, so a stale entry cannot linger.
 
-6000.0's height rule differs from 6.3 LTS in two measured ways: an exact
+The Standard text generator's height rule (found on 6000.0's editor, which uses Standard; item T found it on the
+runtime panel of both versions too, so it is the generator's, not the version's) differs from Advanced (the 6.3
+editor) in two measured ways. A Standard row is explained against the Advanced reference, the 6.3 editor set: an exact
 integer is rounded up by one (fonts whose ascent − descent equals the point
 size, Jua and DungGeunMo), and extra lines advance by FaceInfo `lineHeight`
 rather than ascent − descent (only Jua, where the two differ).

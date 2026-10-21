@@ -27,8 +27,9 @@ import type {
   UxmlDocument,
   Warning,
 } from '../model/types';
-import { implicitClassesOf, resolveControl, supportedControlNames } from '../controls/registry';
-import { THEME_UNITY_VERSION, THEME_USS } from '../controls/theme';
+import { uxmlBoolean, implicitClassesOf, partParentIndex, partTextOf, resolveControl, supportedControlNames } from '../controls/registry';
+import type { Theme } from '../controls/theme';
+import { DEFAULT_THEME, THEME_SHEETS, THEME_UNITY_VERSIONS } from '../controls/theme';
 import { parseUss } from '../parser/uss';
 import { attributeValueStart, parseDeclarationList } from '../parser/uss';
 import { expandShorthand, isInherited } from './properties';
@@ -53,6 +54,8 @@ export interface ComputedValue {
 export type ComputedStyle = ReadonlyMap<string, ComputedValue>;
 
 export interface ResolveOptions {
+  /** Built-in theme; defaults to 'runtime'. */
+  theme?: Theme;
   /**
    * Pseudo-classes to treat as active on every element, e.g. `new Set(['hover'])`.
    *
@@ -77,6 +80,8 @@ export interface ResolveOptions {
 }
 
 export interface ResolveResult {
+  /** @internal Resolved Checked bits shared by styling and the substitute check glyph. */
+  checkedNodes: ReadonlySet<NodeId>;
   /** @internal Element matches collected during this cascade, keyed by sheet and item. */
   matchedNodes: ReadonlyMap<string, readonly NodeId[]>;
   styles: ReadonlyMap<NodeId, ComputedStyle>;
@@ -107,7 +112,7 @@ type Target =
       readonly kind: 'part';
       readonly owner: ElementNode;
       readonly name: string;
-      /** Index in the owner's part chain; 0 is outermost. */
+      /** Index in the owner's parent-before-child part list. */
       readonly depth: number;
     };
 
@@ -163,14 +168,21 @@ interface FlatRule {
  * identical rule in a user's file would be a second cascade, and the bug it
  * produced would be unreproducible from the stylesheet the user can see.
  */
-const THEME_RULES: FlatRule[] = parseUss(THEME_USS, null, -1).sheet.items.flatMap(
-  (item, index) =>
-    item.kind === 'rule' ? [{ rule: item.rule, sheet: -1, item: index, builtin: true }] : [],
-);
+const THEME_RULES: Readonly<Record<Theme, FlatRule[]>> = {
+  editor: parseThemeRules('editor'),
+  runtime: parseThemeRules('runtime'),
+};
+
+function parseThemeRules(theme: Theme): FlatRule[] {
+  return parseUss(THEME_SHEETS[theme], null, -1).sheet.items.flatMap(
+    (item, index) =>
+      item.kind === 'rule' ? [{ rule: item.rule, sheet: -1, item: index, builtin: true }] : [],
+  );
+}
 
 /** The selector text a theme rule was written with, for provenance. */
-function themeSelectorText(rule: Rule): string {
-  return THEME_USS.slice(rule.selectorSpan.start, rule.selectorSpan.end).trim();
+function themeSelectorText(rule: Rule, theme: Theme): string {
+  return THEME_SHEETS[theme].slice(rule.selectorSpan.start, rule.selectorSpan.end).trim();
 }
 
 /**
@@ -190,7 +202,10 @@ function buildStateMap(
   base: MatchContext<Target>,
   options: ResolveOptions | undefined,
   warnings: Warning[],
-): Map<ElementNode, ReadonlySet<string>> {
+): {
+  states: Map<ElementNode, ReadonlySet<string>>;
+  disabledSubtree: ReadonlySet<ElementNode>;
+} {
   const global = options?.activeStates ?? new Set<string>();
   const entries = Object.entries(options?.states ?? {});
 
@@ -229,26 +244,27 @@ function buildStateMap(
         subject: { kind: 'states-key', key, problem: 'unknown-state', state },
       });
     }
-    parsed.push({ selectors, states });
+    parsed.push({ selectors, states: states.filter((state) => (USS_STATES as readonly string[]).includes(state)) });
   }
 
   const map = new Map<ElementNode, ReadonlySet<string>>();
+  const disabledSubtree = new Set<ElementNode>();
 
   /**
    * `enabled="false"` in the file is a state the document declares about itself,
    * so it applies without anyone passing `states`. Measured: `states-disabled`
    * writes it and Unity comes back 120 wide, having matched `:disabled`.
    *
-   * It descends, because Unity's `SetEnabled(false)` disables the subtree. That
-   * part is documented rather than measured, so `disabled-inherits` exists to
-   * judge it — if Unity says otherwise, this inheritance is what comes out.
+   * Measured: e-disabled.json in both 6000.3.25f1 themes confirms that
+   * SetEnabled(false) disables file descendants and physical parts.
    */
   const disabledHere = (node: ElementNode): boolean =>
-    node.attributes.some((a) => a.name === 'enabled' && a.value === 'false');
+    node.attributes.some((a) => a.name === 'enabled' && uxmlBoolean(a.value) === false);
 
   const visit = (node: ElementNode, inheritedDisabled: boolean): void => {
     const disabled = inheritedDisabled || disabledHere(node);
-    const set = new Set(global);
+    const set = new Set([...global].filter((state) => (USS_STATES as readonly string[]).includes(state)));
+    if (disabled) disabledSubtree.add(node);
     if (disabled) set.add('disabled');
     // Measured 2026-10-15: tests/layout/unity/probes-0.6.0 and
     // tests/layout/unity/<version>/probe-editor (6000.0.40f1, 6000.3.25f1).
@@ -258,14 +274,19 @@ function buildStateMap(
         for (const state of entry.states) set.add(state);
       }
     }
+    // USS: Disabled alone, never Enabled too (e-disabled / v-enabled Unity probes).
+    if (set.has('disabled')) set.delete('enabled');
+    if ((node.name.local === 'Toggle' || node.name.local === 'RadioButton') &&
+      node.attributes.some((a) => a.name === 'value' && uxmlBoolean(a.value) === true)) set.add('checked');
     map.set(node, set);
     for (const child of node.children) visit(child, disabled);
   };
   visit(doc.root, false);
-  return map;
+  return { states: map, disabledSubtree };
 }
 
 interface Prepared {
+  theme: Theme;
   ctx: MatchContext<Target>;
   usable: FlatRule[];
   warnings: Warning[];
@@ -277,7 +298,7 @@ interface Prepared {
  * appears. An imported rule therefore loses a tie to a rule written after the
  * import, which is the order the author sees on the page.
  */
-function cascadeOrder(doc: UxmlDocument): FlatRule[] {
+function cascadeOrder(doc: UxmlDocument, theme: Theme): FlatRule[] {
   const out: FlatRule[] = [];
   const byOrigin = new Map<string, number>();
   doc.sheets.forEach((sheet, index) => {
@@ -286,7 +307,7 @@ function cascadeOrder(doc: UxmlDocument): FlatRule[] {
 
   // Control defaults go first, so an author rule of equal specificity wins on
   // order. That is the whole reason Unity's own theme is overridable.
-  out.push(...THEME_RULES);
+  out.push(...THEME_RULES[theme]);
 
   const visited = new Map<NodeId, Set<number>>();
   const walk = (index: number, scope: NodeId): void => {
@@ -355,6 +376,7 @@ function warningSource(doc: UxmlDocument, sheet: number): Pick<Warning, 'sourceD
  *               so neither caller can accidentally match against one.
  */
 function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
+  const theme = options?.theme ?? DEFAULT_THEME;
   const parents = buildParentMap(doc.root);
   const warnings: Warning[] = [];
   const declarationWarnings = new Map<Warning, string>();
@@ -375,8 +397,8 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
      * An element from the file gets its *file* parent, even when its layout
      * parent is a part — `#Grid > .slot` reaches a slot inside a ScrollView in
      * Unity, so parts are transparent here. Parts themselves follow the real
-     * chain: each sits inside the one before it, and the outermost inside its
-     * owner. That is the hierarchy the dumps show, so descendant selectors like
+     * physical hierarchy through partParentIndex, with roots inside their owner.
+     * That is the hierarchy the dumps show, so descendant selectors like
      * `.panel #unity-content-viewport` behave as they do in Unity.
      */
     parentOf: (target: Target): Target | null => {
@@ -384,27 +406,29 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
         const parent = parents.get(target.node) ?? null;
         return parent === null ? null : { kind: 'element', node: parent };
       }
-      if (target.depth === 0) return { kind: 'element', node: target.owner };
       const chain = resolveControl(target.owner).spec.parts;
-      const outer = chain[target.depth - 1]!;
-      return { kind: 'part', owner: target.owner, name: outer.name, depth: target.depth - 1 };
+      const depth = partParentIndex(chain, target.depth);
+      if (depth === null) return { kind: 'element', node: target.owner };
+      return { kind: 'part', owner: target.owner, name: chain[depth]!.name, depth };
     },
     isRoot: (target: Target): boolean =>
       target.kind === 'element' && target.node === doc.root,
-    // Unity's parts are VisualElements, so a `VisualElement` rule reaches them.
-    // Not measured — `part-type-selector` is the case that will settle it.
+    // Wrapper type remains the existing inference (part-type-selector);
+    // c07-GroupBox dumps measure the leading part as an unnamed Label.
     typeNameOf: (target: Target): string =>
-      target.kind === 'element' ? target.node.name.local : 'VisualElement',
+      target.kind === 'element' ? target.node.name.local
+        : resolveControl(target.owner).spec.parts[target.depth]?.typeName ??
+          (resolveControl(target.owner).spec.parts[target.depth]?.kind === 'leading-text' ? 'Label' : 'VisualElement'),
     idOf: (target: Target): string | undefined =>
-      target.kind === 'element' ? attributeNamed(target.node, 'name') : target.name,
+      target.kind === 'element' ? attributeNamed(target.node, 'name')
+        : resolveControl(target.owner).spec.parts[target.depth]?.kind === 'leading-text' || resolveControl(target.owner).spec.parts[target.depth]?.unnamed ? undefined : target.name,
     // Implicit classes are as real as written ones for matching: in Unity the
     // element genuinely carries them, which is why `.unity-button` in author USS
-    // hits a plain `<ui:Button />`. Parts carry classes too in Unity, but which
-    // ones is unmeasured, so none are claimed here.
+    // hits a plain `<ui:Button />`. Leading Label classes are measured in c07-GroupBox.
     classesOf: (target: Target): readonly string[] =>
       target.kind === 'element'
         ? [...writtenClasses(target.node), ...implicitClassesOf(target.node)]
-        : [],
+        : resolveControl(target.owner).spec.parts[target.depth]?.classes ?? [],
   };
 
   // Two contexts, and the order matters. `base` has no states at all and is what
@@ -412,19 +436,27 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
   // the stylesheet is matched against. Using one context for both would let a
   // key like `Button:hover` turn itself on.
   const base: MatchContext<Target> = { ...shared, statesOf: () => NO_STATES };
-  const stateMap = buildStateMap(doc, base, options, warnings);
+  const { states: stateMap, disabledSubtree } = buildStateMap(doc, base, options, warnings);
   const ctx: MatchContext<Target> = {
     ...shared,
-    // A part inherits its owner's states: `SetEnabled(false)` disables the whole
-    // subtree, and a part is inside it.
-    statesOf: (target) =>
-      stateMap.get(target.kind === 'element' ? target.node : target.owner) ?? NO_STATES,
+    // e-{toggle,radio,disabled}.json (6000.3.25f1, both themes): forced
+    // states belong only to the matched element. SetEnabled disables all parts;
+    // the value's Checked bit belongs only to the control and its input.
+    statesOf: (target) => {
+      if (target.kind === 'element') return stateMap.get(target.node) ?? NO_STATES;
+      const states = new Set<string>([disabledSubtree.has(target.owner) ? 'disabled' : 'enabled']);
+      const part = resolveControl(target.owner).spec.parts[target.depth];
+      if ((target.owner.name.local === 'Toggle' || target.owner.name.local === 'RadioButton') &&
+        part?.classes?.includes(target.owner.name.local === 'Toggle' ? 'unity-toggle__input' : 'unity-radio-button__input') &&
+        stateMap.get(target.owner)?.has('checked')) states.add('checked');
+      return states;
+    },
   };
 
   const usable: FlatRule[] = [];
   let reportedRoot = false;
 
-  for (const flat of cascadeOrder(doc)) {
+  for (const flat of cascadeOrder(doc, theme)) {
     // Built-in rules skip the checks below: they are ours, they cannot contain
     // syntax we do not support, and they are reported when they actually apply
     // to something rather than merely because they exist.
@@ -529,7 +561,7 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
     }
   });
 
-  return { ctx, usable, warnings, declarationWarnings };
+  return { theme, ctx, usable, warnings, declarationWarnings };
 }
 
 /**
@@ -632,7 +664,7 @@ function collectCandidates(
             kind: 'builtin-theme',
             selector: `#${target.name}`,
             property: expanded,
-            unityVersion: THEME_UNITY_VERSION,
+            unityVersion: THEME_UNITY_VERSIONS[prepared.theme],
           },
           Rank.BuiltinTheme,
           [0, 0, 0],
@@ -687,9 +719,9 @@ function collectCandidates(
           flat.builtin === true
             ? {
                 kind: 'builtin-theme',
-                selector: themeSelectorText(flat.rule),
+                selector: themeSelectorText(flat.rule, prepared.theme),
                 property,
-                unityVersion: THEME_UNITY_VERSION,
+                unityVersion: THEME_UNITY_VERSIONS[prepared.theme],
               }
             : {
                 kind: 'rule',
@@ -812,11 +844,6 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
   const warnings: Warning[] = [...prepared.warnings];
   const styles = new Map<NodeId, ComputedStyle>();
 
-  // Reported once, and only if a control default actually reached an element.
-  // Announcing the theme on a document with no Button would be a warning about
-  // something that did not happen.
-  let themeApplied = false;
-
   const partStyles = new Map<NodeId, Map<string, ComputedStyle>>();
   /** Rules that reached something. What is left over drives the part warning. */
   const matched = new Set<FlatRule>();
@@ -824,7 +851,7 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
 
   /**
    * Purpose:      one target's computed style, plus what it hands to children.
-   * Deps/Effects: appends var() warnings; records theme use and rule matches.
+   * Deps/Effects: appends var() warnings; records rule matches.
    *
    * Shared by elements and parts on purpose. A part styled through a second
    * code path would be a second cascade, and Step 5's own note about "a second
@@ -836,9 +863,6 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
     nodeForWarnings: NodeId,
   ): { computed: Map<string, ComputedValue>; forChildren: Map<string, ComputedValue> } => {
     const candidates = collectCandidates(doc, target, prepared, matched, matchedNodes);
-    if (!themeApplied && candidates.some((c) => c.origin.kind === 'builtin-theme')) {
-      themeApplied = true;
-    }
     const own = pickWinners(candidates);
 
     // Custom properties are resolved first: an ordinary value may reference one,
@@ -924,14 +948,18 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
     const chain = resolveControl(node).spec.parts;
     if (chain.length > 0) {
       const byName = new Map<string, ComputedStyle>();
+      const inheritance = new Map<number, Map<string, ComputedValue>>();
       chain.forEach((part, depth) => {
+        if (part.kind === 'leading-text' && !partTextOf(node, part)) return;
         const resolved = computeFor(
           { kind: 'part', owner: node, name: part.name, depth },
-          downstream,
+          inheritance.get(partParentIndex(chain, depth) ?? -1) ?? self.forChildren,
           node.id,
         );
         byName.set(part.name, resolved.computed);
-        downstream = resolved.forChildren;
+        inheritance.set(depth, resolved.forChildren);
+        // c07-GroupBox: the title's style must not flow into its following siblings.
+        if (part.kind !== 'leading-text') downstream = resolved.forChildren;
       });
       partStyles.set(node.id, byName);
     }
@@ -940,14 +968,6 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
   };
 
   visit(doc.root, new Map());
-
-  if (themeApplied) {
-    warnings.push({
-      kind: 'version-dependent',
-      message: `Built-in control defaults applied, as measured on Unity ${THEME_UNITY_VERSION}`,
-      reason: 'version-dependent',
-    });
-  }
 
   // A rule aiming at a Unity-internal name that reached nothing is not an
   // unused rule — it is a rule that could not work. Reported because the
@@ -973,7 +993,13 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
   for (const [warning, key] of prepared.declarationWarnings) {
     warning.nodes = matchedNodes.get(key) ?? [];
   }
-  return { styles, partStyles, warnings, matchedNodes };
+  const checkedNodes = new Set<NodeId>();
+  const collectChecked = (node: ElementNode): void => {
+    if (prepared.ctx.statesOf({ kind: 'element', node }).has('checked')) checkedNodes.add(node.id);
+    node.children.forEach(collectChecked);
+  };
+  collectChecked(doc.root);
+  return { styles, partStyles, warnings, matchedNodes, checkedNodes };
 }
 
 /**

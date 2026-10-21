@@ -1,0 +1,5 @@
+.n, .pr, .pw, .nw { padding: 0; margin: 0; font-size: 12px; }
+.n { white-space: normal; }
+.pr { white-space: pre; }
+.pw { white-space: pre-wrap; }
+.nw { white-space: nowrap; }

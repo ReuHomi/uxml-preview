@@ -170,7 +170,9 @@ export function toCss(
   }
 
   const fontSize = parseLength(value('font-size') ?? '12px').length;
-  const size = fontSize?.kind === 'px' ? fontSize.value : 12;
+  const size = fontSize?.kind === 'px' || fontSize?.kind === 'percent' ? fontSize.value : 12;
+  // Unity t2-percent.json: percentage font sizes are absolute pixels.
+  if (fontSize?.kind === 'percent') out['font-size'] = `${size}px`;
   // Paint cancels letter spacing on advanced-generator spaces and the final
   // character; CSS alone would include those extra gaps.
   for (const property of ['letter-spacing', 'word-spacing']) {

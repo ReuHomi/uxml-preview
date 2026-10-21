@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:Button name="st-button" text="Button" />
+<ui:Button name="st-button-hover" class="force-hover" text="Button" />
+<ui:Button name="st-button-active" class="force-hover force-active" text="Button" />
+<ui:Button name="st-button-focus" class="force-focus" text="Button" />
+<ui:Toggle name="st-toggle-hover" class="force-hover" label="Label" />
+<ui:Toggle name="st-toggle-active" class="force-hover force-active" label="Label" />
+<ui:Toggle name="st-toggle-focus" class="force-focus" label="Label" value="true" />
+<ui:TextField name="st-text-hover" class="force-hover" value="Hello" />
+<ui:TextField name="st-text-focus" class="force-focus" value="Hello" />
+<ui:Slider name="st-slider-hover" class="force-hover" low-value="0" high-value="10" value="5" />
+<ui:RadioButton name="st-radio-hover" class="force-hover" label="Label" />
+<ui:RepeatButton name="st-repeat-active" class="force-hover force-active" text="Repeat" />
+</ui:VisualElement>
+</ui:UXML>

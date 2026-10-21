@@ -30,8 +30,9 @@ const SIZE = { width: 200, height: 100 };
 
 function build(body: string, uss = ''): { doc: UxmlDocument; tree: ReturnType<typeof layoutDocument> } {
   const doc = parse(`<ui:UXML xmlns:ui="UnityEngine.UIElements">${body}</ui:UXML>`, uss);
-  const { styles, partStyles } = resolveStyles(doc);
-  return { doc, tree: layoutDocument(doc.root, styles, partStyles, { size: SIZE, measureText }) };
+  const theme = 'editor'; // 0.7.0: these values are the editor theme's; the default is now 'runtime'
+  const { styles, partStyles } = resolveStyles(doc, { theme });
+  return { doc, tree: layoutDocument(doc.root, styles, partStyles, { theme, size: SIZE, measureText }) };
 }
 
 function named(node: ElementNode, name: string): ElementNode {
@@ -187,7 +188,9 @@ describe('text', () => {
       '#a { font-size: 10px; align-self: flex-start; }',
       'a',
     );
-    expect(b.width).toBe(20);
+    // 20 measured + the theme's Label padding 1 + 2 (6000.0.40f1/probe-editor-070/c07-existing.json
+    // free/label-auto: measured 88, box 91).
+    expect(b.width).toBe(23);
   });
 
   it('uses the inherited font size', () => {
@@ -239,7 +242,8 @@ describe('controls with no renderer', () => {
 
   it('nest, so an unknown control inside an unknown control still draws', () => {
     const { doc, tree } = build(
-      '<ui:Foldout name="f"><ui:Slider name="s"><ui:Label name="l" text="x" /></ui:Slider></ui:Foldout>',
+      // 0.7.0 bundle E: Toggle has a renderer now; MinMaxSlider is not drawn in 0.7.0.
+      '<ui:Foldout name="f"><ui:MinMaxSlider name="s"><ui:Label name="l" text="x" /></ui:MinMaxSlider></ui:Foldout>',
     );
     for (const name of ['f', 's', 'l']) {
       expect(tree.boxes.has(named(doc.root, name).id)).toBe(true);
@@ -258,21 +262,23 @@ describe('controls with no renderer', () => {
   // Everything deriving from BaseField calls its caption `label`, so a warning
   // that only looked at `text` would let a Toggle's caption vanish in silence.
   it('say the same about a label attribute', () => {
-    const { tree } = build('<ui:Toggle name="t" label="Enabled" />');
+    // 0.7.0 bundle E: Toggle has a renderer now; MinMaxSlider is not drawn in 0.7.0.
+    const { tree } = build('<ui:MinMaxSlider name="t" label="Enabled" />');
     const warning = tree.warnings.find((w) => w.kind === 'unsupported-control')!;
     expect(warning.message).toContain('label attribute is not drawn');
     tree.dispose();
   });
 
   it('name both when a control carries both', () => {
-    const { tree } = build('<ui:TextField name="t" label="Name" text="typed" />');
+    // 0.7.0 bundle E: Toggle has a renderer now; MinMaxSlider is not drawn in 0.7.0.
+    const { tree } = build('<ui:MinMaxSlider name="t" label="Name" text="typed" />');
     const warning = tree.warnings.find((w) => w.kind === 'unsupported-control')!;
     expect(warning.message).toContain('text and label attributes are not drawn');
     tree.dispose();
   });
 
   it('stay quiet about an empty caption', () => {
-    const { tree } = build('<ui:Toggle name="t" label="" />');
+    const { tree } = build('<ui:MinMaxSlider name="t" label="" />');
     const warning = tree.warnings.find((w) => w.kind === 'unsupported-control')!;
     expect(warning.message).not.toContain('not drawn');
     tree.dispose();

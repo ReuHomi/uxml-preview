@@ -11,6 +11,7 @@ import { posix } from 'node:path';
 import { EDITOR_DEFAULT_FACE_INFO, expandTemplates, parse, textHeight } from '../../src/index';
 import { layoutDocument } from '../../src/layout/yoga';
 import type { MeasureText } from '../../src/layout/yoga';
+import type { Theme } from '../../src/index';
 import type { ElementNode } from '../../src/model/types';
 import { resolveStyles } from '../../src/style/resolve';
 import { PANEL } from './cases';
@@ -88,6 +89,8 @@ export function caseResolver(
 export function runCase(
   golden: GoldenCase,
   panel: { width: number; height: number } = PANEL,
+  // The editor theme: tests/golden/unity/ was dumped in an EditorWindow (UxmlLayoutDump).
+  theme: Theme = 'editor',
 ): CaseGeometry {
   const parsed = parse(
     golden.uxml,
@@ -96,8 +99,9 @@ export function runCase(
   );
   const expansion = expandTemplates(parsed);
   const doc = expansion.document;
-  const resolved = resolveStyles(doc);
+  const resolved = resolveStyles(doc, { theme });
   const tree = layoutDocument(doc.root, resolved.styles, resolved.partStyles, {
+    theme,
     size: panel,
     measureText: FIXED_MEASURE,
   });
@@ -124,7 +128,9 @@ export function runCase(
     // and a wrong hierarchy would show up only as displaced children with no
     // hint as to why.
     for (const part of tree.parts.get(node.id) ?? []) {
-      collected.push({ name: part.name, box: part.box });
+      // A Slider's dragger is placed by a paint-only translate (bundle D); Unity's dump is after it.
+      const [tx = 0, ty = 0] = (part.style.get('translate')?.value ?? '').split(/\s+/).filter((v) => v !== '').map((v) => parseFloat(v));
+      collected.push({ name: part.name, box: { ...part.box, left: part.box.left + tx, top: part.box.top + ty } });
     }
 
     for (const child of node.children) walk(child);

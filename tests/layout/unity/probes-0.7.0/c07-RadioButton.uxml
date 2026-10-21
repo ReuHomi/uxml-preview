@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:RadioButton name="r-plain" />
+<ui:RadioButton name="r-label" label="Label" />
+<ui:RadioButton name="r-text" text="Text" />
+<ui:RadioButton name="r-checked" value="true" />
+<ui:RadioButton name="r-disabled" label="Label" enabled="false" />
+<ui:RadioButtonGroup name="rg" label="Group" choices="A,B,C" value="1" />
+</ui:VisualElement>
+<ui:VisualElement name="free" style="align-items: flex-start;">
+<ui:RadioButton name="r-auto" />
+<ui:RadioButton name="r-auto-label" label="Label" />
+</ui:VisualElement>
+</ui:UXML>

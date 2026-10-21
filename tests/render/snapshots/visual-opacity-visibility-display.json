@@ -2,15 +2,21 @@
   "elements": {
     "visual-ovd-opacity": {
       "box-sizing": "border-box",
+      "color": "rgb(210, 210, 210)",
+      "font-size": "12px",
       "opacity": "0.5"
     },
     "visual-ovd-hidden": {
       "box-sizing": "border-box",
+      "color": "rgb(210, 210, 210)",
+      "font-size": "12px",
       "visibility": "hidden"
     },
     "visual-ovd-none": {
       "box-sizing": "border-box",
-      "display": "none"
+      "color": "rgb(210, 210, 210)",
+      "display": "none",
+      "font-size": "12px"
     }
   },
   "warnings": []

@@ -13,7 +13,9 @@
       "border-top-color": "rgb(255, 0, 0)",
       "border-top-style": "solid",
       "border-top-width": "1px",
-      "box-sizing": "border-box"
+      "box-sizing": "border-box",
+      "color": "rgb(210, 210, 210)",
+      "font-size": "12px"
     }
   },
   "warnings": []

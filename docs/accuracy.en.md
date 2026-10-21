@@ -10,9 +10,10 @@ did that at 0.1.0, but it is now a record frozen at that time.
 
 | Number | Meaning | Use |
 |---|---|---|
-| **660 / 676 (97.6%)** | Values matching, of the values compared (169 elements × `x`/`y`/`w`/`h`) | **the one number quoted outside** |
-| 38 / 40 | Cases matching completely | internal. Quote it only together with 660/676 |
-| 41 / 41 | Cases with Unity ground truth available | **coverage, not accuracy.** Never quoted outside |
+| **1122 / 1148 (97.7%)** | Runtime values matching — the runtime theme (0.7.0 default) against a real Unity 6.3 runtime panel | **quoted outside, README first line** ("Runtime theme" below) |
+| **1122 / 1148 (97.7%)** | Editor theme: values matching, of the values compared (287 elements × `x`/`y`/`w`/`h`), Unity 6000.0.40f1 | **quoted outside, README second line** |
+| 38 / 42 | Cases matching completely | internal. Quote it only together with 1122/1148 |
+| 43 / 43 | Cases with Unity ground truth available | **coverage, not accuracy.** Never quoted outside |
 
 31/31 was once quoted as accuracy (`docs/visual-check.md`, 2026-08-06) — the same mistake
 0.1.0 made with 18/18, repeated a day later with a different case set. When a new number is
@@ -30,21 +31,26 @@ figures against `tests/text-cohort/results.json`).
 
 | Item | Value |
 |---|---|
-| Cases | 44 (40 coordinate comparisons, 1 resource observation, 3 dependent on text measurement) |
-| Unity ground truth available | **41 / 41** |
-| Elements compared | 169 (676 values = elements × x/y/width/height) |
-| **Cases matching** | **38 / 40** |
-| **Values matching** | **660 / 676 (97.6%)** |
-| Known divergences | 16 values — **and they are four different things** |
+| Cases | 46 (42 coordinate comparisons, 1 resource observation, 3 dependent on text measurement) |
+| Unity ground truth available | **43 / 43** |
+| Elements compared | 287 (1148 values = elements × x/y/width/height) |
+| **Cases matching** | **38 / 42** |
+| **Values matching** | **1122 / 1148 (97.7%)** |
+| Known divergences | 26 values — **and they are four different things** |
 
 `resource-resolution` measures Unity's resolved background object and asset path, not
-coordinate accuracy. It counts toward baseline coverage but not the 660/676 matching values or
-the 38/40 coordinate cases.
+coordinate accuracy. It counts toward baseline coverage but not the 1122/1148 matching values or
+the 38/42 coordinate cases.
+
+**What this figure does not measure (2026-10-21, review findings G2, X1, X3):**
+- The harness measures text with a fixed measurer (`FIXED_MEASURE`: one line, never wraps). So 1122/1148 measures **layout given the text sizes**, not the preview's own text measurement (line breaking included); the text cohort measures that separately
+- 16 of the 1122 values (the Slider dragger `x`/`y` on the two settings screens) match because the harness adds the dragger's `translate` to its box: Unity's dump is after the move, the preview's Yoga box before it. The translate itself is checked against Unity by `bundle-d.test.ts`, and the painter paints the same value. Without these 16: 1106/1148
+- The settings contract test's (`bundle-g.test.ts`) "Unity's text sizes" are the dump's `MeasureTextSize`, except that a text Unity's layout made 1-2px wider takes that layout width, and wrapped TextField and ProgressBar text takes its height from the dump box. So it checks **the boxes given the text widths and line breaks**, not the text widths themselves
 
 ## Template / Instance expansion (separate cohort, measured on Unity 6000.0.40f1)
 
 The base-control and template-expansion cohorts answer different questions and are never added
-together. The base figure stays **660 / 676 (169 elements, as of v0.4.0)**.
+together. The base figure stays **1122 / 1148 (287 elements, with the 0.7.0 editor theme values and the settings screen)**.
 
 | Item | Template expansion cohort | Meaning |
 |---|---:|---|
@@ -70,11 +76,11 @@ nor a match between empty boxes, is added to accuracy.
 
 | Case | Element | Axis | ours | Unity | Δ |
 |---|---|---|---:|---:|---:|
-| `G3-4` | `g34-instance` | width | 140 | 145 | -5 |
-| `G3-4` | `g34-template-root` | width | 140 | 145 | -5 |
-| `G3-4` | `g34-internal-label` | width | 140 | 145 | -5 |
-| `G3-4` | `g34-outside-label` | x | 140 | 145 | -5 |
-| `G3-4` | `g34-outside-label` | width | 150 | 140 | 10 |
+| `G3-4` | `g34-instance` | width | 143 | 145 | -2 |
+| `G3-4` | `g34-template-root` | width | 143 | 145 | -2 |
+| `G3-4` | `g34-internal-label` | width | 143 | 145 | -2 |
+| `G3-4` | `g34-outside-label` | x | 143 | 145 | -2 |
+| `G3-4` | `g34-outside-label` | width | 153 | 140 | 13 |
 
 The classification is **(a) 5 / (b) 0 / (c) 0**, with axes `width` 4, `x` 1. In 0.6.0 the
 harness's text height moved from `height = fontSize` to the FaceInfo formula (`textHeight`, D3),
@@ -85,27 +91,26 @@ em).
 Tolerance 0.5px. **Kept deliberately stricter than the 1px criterion 2 allows** — loosening it
 would hide a real 1px error in another case.
 
-### What the 16 divergences are — this distinction matters more than the number
+### What the 14 divergences are — this distinction matters more than the number
 
 | Kind | Values | What it means |
 |---|---|---|
-| **Text metrics** | **9** | **Not a layout defect.** Both engines behave the same way; only the ruler differs. All widths and x |
-| Missing theme value (reclassified 2026-10-16) | 1 | `ItemDesc.height`: a fixed 56px Label shrinks, because Unity's editor theme gives Labels `flex-shrink: 0` and this preview's theme does not. Adding only that value was checked to make `ItemDesc.height` and `y` match Unity. Not fixed in 0.6.0 |
-| 1px (inside criterion 2's tolerance) | 3 | named in a list; the comparator is not loosened |
+| **Text metrics** | **21** | **Not a layout defect.** Both engines behave the same way; only the ruler differs. All widths and x |
+| 1px (inside criterion 2's tolerance) | 2 | named in a list; the comparator is not loosened |
 | `yoga-layout` version difference | 2 | judged and recorded 2026-08-02 |
 | **Unresolved** | **1** | a wrapped container's height. Unity's rule is not identified |
 
 The evidence for the nine text ones: the representative screen's footer is a fixed width
 holding a flexible panel beside a 96px ActionBar, and the boundary between them is pushed by the
-labels' min-content width. **Both engines** compress the ActionBar — Unity to 93, this renderer
-to 85 — and pinning the label widths makes our excess **converge on the same 3px Unity has.**
+labels' min-content width. **Both engines** compress the ActionBar — Unity to 92 (the solo value; 93 in a session that drew other dumps first), this renderer
+to 84 — and pinning the label widths makes our excess **converge on the same 3px Unity has.**
 Same mechanism, different ruler. A browser cannot measure Unity's font asset, which is the fact
 that made pixel diffing useless, **showing up in coordinates instead of colours**.
 
 > The previous figure was 242/244 (99.2%). **The ratio fell because the case set widened, not
 > because accuracy did** — then, 17 of 18 cases were `VisualElement` alone and no `Button` had
-> ever been compared. Now a text-heavy working screen is in there, and 9 of the 16 divergences
-> are fonts (first counted as 10; `ItemDesc.height` turned out to be a theme value, 2026-10-16).
+> ever been compared. Now a text-heavy working screen is in there, and 9 of the 14 divergences
+> are fonts (first counted as 10; `ItemDesc.height` was a theme value, and 0.7.0's Label `flex-shrink: 0` made both `ItemDesc` values match).
 > **Move the case composition along with the number whenever you compare it.**
 
 > Across six re-measurements every pre-existing case reproduced **byte for byte** (at 20, 26, 27,
@@ -128,6 +133,8 @@ reach and the dump time, as metadata separate from coordinates.
 This 1px was not adopted as the new baseline. It is within tolerance and is a measuring
 condition rather than a renderer change, and moving the baseline without knowing the old
 conditions would leave nobody knowing what it is being matched to.
+
+**Resolved 2026-10-18 — the cause was dump order.** Under the Standard generator (the 6000.0 editor) a text's width differs by 0-2px depending on what the same Unity process drew before (bundle A plan 27-2: five repeats of one batch never move; a probe dumped in its own process is deterministic). `inventory` dumped alone gives 292/92; 291/93 came from a session that drew other cases first. The baseline (`tests/golden/unity/inventory.json`) now holds the solo values. The nine were already counted as text-measurement mismatches (the preview gives 84/85), so 662/676 does not move.
 
 ### `ScrollView` — the hierarchy was observed, not assumed (2026-08-05)
 
@@ -157,18 +164,20 @@ That last rule is the substance. The old fallback squeezed three 60px children i
 and produced 33/34/33; Unity grows the container to 180, keeps the children at 60 and lets the
 viewport clip. **Whole child sizes were wrong, not positions by a few pixels.**
 
+**Known difference: scrollbars reserve their width and are not drawn** (through 0.7.0, human decision
+2026-10-18; first candidate for the next version).
 The scrollbar's seven internal parts are not reproduced — outside a static render — and sit in an
 **explicit list**, `NOT_REPRODUCED` in `golden.test.ts`. Excusing a `unity-` pattern would have
 excused `unity-content-viewport` too, which has to match.
 
 ### Which controls this covers
 
-The composition of the 40 compared cases. In the previous measurement (242/244) the first row of
+The composition of the 42 compared cases. In the previous measurement (242/244) the first row of
 this table was 17 of 18 — **in effect `VisualElement` geometry** — and no `Button` had ever been
 compared.
 
-**This table is computed from `tests/golden/cases.ts`, on this rule**: the `inventory` case is
-classified as the representative screen. Each of the other 39 is ScrollView if its UXML contains
+**This table is computed from `tests/golden/cases.ts`, on this rule**: the `inventory`, `settings` and `settings-ko` cases are
+classified as the representative screens. Each of the other 39 is ScrollView if its UXML contains
 `<ui:ScrollView`, otherwise Button if it contains `<ui:Button`, otherwise Label if it contains
 `<ui:Label`, otherwise `VisualElement` only. All 39 contain at most one of the three tags, so the
 order does not change the result (checked directly: `inventory` is the only case with more than
@@ -180,7 +189,7 @@ one).
 | `Label` | 1 (`inherit-vs-direct`) |
 | `Button` | 10 |
 | `ScrollView` | 4 |
-| the representative screen (inventory) | 1 — all five above plus Image |
+| the representative screens (inventory, the settings screen in two variants) | 3 — inventory: all five above plus Image. The settings screen (`settings`, `settings-ko`, bundle G): all 15 controls 0.7.0 draws |
 
 Only one case contains a `Label` because the other two (`text-size`, `text-align`) depend on text
 measurement and are excluded from the comparison. **Control coverage is a different axis from
@@ -191,7 +200,7 @@ The drift guard in `tests/golden/golden.test.ts` keeps this table's five numbers
 
 ### What this number covers — important
 
-**The 97.6% is measured at the coordinates Yoga produces.** The pipeline has four layers (parse
+**The 97.9% is measured at the coordinates Yoga produces.** The pipeline has four layers (parse
 → resolve styles → Yoga layout → DOM paint), and the comparison with Unity is of the third
 layer's output. Whether the DOM actually drawn on screen reproduces those coordinates is **not
 compared with Unity.**
@@ -221,6 +230,26 @@ Measurement environment:
 > between versions — which is exactly what the divergence below is. **When re-measuring on
 > another Unity version, fill this table for that version.** Side by side, not overwritten.
 
+## Runtime theme (separate set, measured 2026-10-17)
+
+Since 0.7.0 the default theme is Unity's runtime theme (a game screen). The same 44 golden cases were dumped on a
+**real runtime panel** and are compared on their own. **Never added** to the editor set.
+
+| Item | Value |
+|---|---|
+| Measured | Unity 6000.3.25f1, PanelSettings + UIDocument in Play mode (`tests/layout/unity/probes-0.7.0/PanelDump.cs.txt`), the default runtime theme Unity creates for a new PanelSettings, 400×300 |
+| Ground truth | `tests/golden/unity-runtime/` (generated by `tools/panel-to-golden.mjs`). 6000.0.40f1 gives the same coordinates |
+| Dumper check | the same dumper on the editor theme equals UxmlLayoutDump on 1012/1012 values, both versions — `tests/golden/panel-dump.test.ts` |
+| Compared | as the editor set (42 coordinate cases, 0.5px, scroller parts excluded) |
+| **Runtime values matching** | **1122 / 1148 (97.7%)** |
+| The 26 left | every one sits where the editor set has a known divergence (text metrics 21 — inventory 9, the settings footer 12 —, 1px 2, wrapped container 1, `%` 2). Anything else fails `tests/golden/runtime.test.ts` |
+
+Before the theme values went in (0.6.x behaviour) this set read 609/676. The values that moved came from the runtime Label
+spacing (4·4·2·2 / 4·2·4·1), the Button margin, padding and border, 14px text and a 24px vertical scroller, all read from
+dumps (`probe-panel/`, `probe-editor-070/`).
+
+**A Unity-side effect (seen 2026-10-18, cause found 2026-10-19):** on the runtime panel, when the same text was laid out earlier with a different wrap setting, a later element with that text comes out 4-8px shorter (`g-clamp` 20-21px). Remove the earlier same text and it is 25px again, as the preview draws it (`t-bis-*`, `t-cache-*`, `t-fit*` dumps). It has nothing to do with the width being set from outside (`t-fit-pad`: a Label stretched in a narrow column is 25px). None of the 44 golden cases has this, so it is not in the figure above. Dumping each probe alone does not stop contamination **within** one document — probes avoid writing the same text twice with different wrapping. The pinned test (`g-clamp`) does not judge the four contaminated runtime heights (`st-label`, `row-label`, `rh-label`, `free-label`): 25px is what the `t-bis-*` dumps show, not a value a test pins (review X4).
+
 ## Unity 6.3 LTS re-measurement (2026-10-15)
 
 The reference version is 6.3 LTS, but the figures above were measured on 6000.0.40f1. The 44
@@ -233,7 +262,7 @@ golden cases were dumped again on 6000.3.25f1 to check whether the two versions 
 - Against the committed baselines (`tests/golden/unity/`, the 2026-08-12 dump) nine differ. All are
   the 1px of `inventory`'s footer boundary (the widths of `DetailPanel`, `ItemName` and `ItemDesc`;
   the x and width of `ActionBar`, `UseButton` and `DropButton`) — the same thing as "2026-08-12
-  `inventory` 1px reproduction" above. The baselines were not changed
+  `inventory` 1px reproduction" above. The baselines were not changed — on 2026-10-18 the cause (dump order) was found and they took the solo values
 - Accuracy was not recomputed with the 6.3 dump as the baseline. Doing so would change the figure,
   because of those nine
 - `aspect-ratio` (6.3+) is not in that set and was measured separately: 52 coordinates of 13 boxes
@@ -242,7 +271,7 @@ golden cases were dumped again on 6000.3.25f1 to check whether the two versions 
 
 ## Text cohort (separate set, measured 2026-10-16)
 
-**Never added** to the coordinate figure (660/676) or the template cohort. Text is judged by its
+**Never added** to the coordinate figure (1122/1148) or the template cohort. Text is judged by its
 boxes and line counts, not by pixels or bytes. The same UXML (`tests/text-cohort/probes/`) is drawn
 by Unity and by a real Chromium, and the Label boxes compared. Run it with `pnpm test:text`
 (`tests/text-cohort/README.md`).
@@ -250,14 +279,14 @@ by Unity and by a real Chromium, and the Label boxes compared. Run it with `pnpm
 | Item | Value |
 |---|---|
 | Measured | 2026-10-16 |
-| Preview side | Google Chrome 155.0.8059.79 (Chromium). Playwright Chromium 1140 does not start on this machine (Windows side-by-side error), so the installed Chrome was used |
+| Preview side | Google Chrome 155.0.8059.85 (Chromium). Playwright Chromium 1140 does not start on this machine (Windows side-by-side error), so the installed Chrome was used |
 | Unity side | 6000.0.40f1, 6000.3.25f1 (editor window, editor theme) |
 | Fonts | Inter, Pretendard, Jua, DungGeunMo (pixel), Wanted Sans Bold, Noto Sans JP, Noto Sans SC (from 0.6.1) |
 | Sentences and sizes | English, Korean, mixed (five Korean fonts) · Japanese, Chinese, Japanese–Latin mixed, English (two Noto fonts) × 10/14/20/32px = 92; 144 at the line-break boundary (6000.0 single-line width ±2px); 15 fixed-width wraps (Noto Sans JP 20px, 60/100/140/170/220px) |
 | Coefficients | the FaceInfo Unity reports for that font. Not fitted |
 
 Judgement: line count must match, height must match the formula exactly, width within 1px or 1%.
-The failure columns count (a)/(b)/(c) over all 251 rows, line-break cases included. "Boundary lines" counts the boundary and the fixed-width wrap cases together.
+The failure columns count (a)/(b)/(c) over all 251 rows, line-break cases included. "Boundary lines" counts the boundary and the fixed-width wrap cases together — **line counts only**; a boundary row's height or width difference is in the failure columns.
 
 | Unity | Lines | Height | Width (1px/1%) | Boundary lines | Failures (a/b/c): lines · height · width | Width Δ range |
 |---|---:|---:|---:|---:|---|---|
@@ -283,7 +312,7 @@ The failure columns count (a)/(b)/(c) over all 251 rows, line-break cases includ
 - Up to 0.6.0 the measurer broke lines at spaces only, so a Japanese or Chinese sentence was always
   measured as one line. That failure was classified (b) in this table and hidden; from 0.6.1 a
   boundary case gets (b) only when the preview's line count agrees with its own natural width
-- (a) The rest on 6000.0 is a version difference. 6000.0 adds one to a height that comes out as a
+- (a) The rest on 6000.0 is a **text generator** difference, not a version one (confirmed 2026-10-19 by item T: the 6000.0 editor uses Standard, the 6.3 editor Advanced, and the runtime panel, Standard, gives the same values on 6.3 too). 6000.0 adds one to a height that comes out as a
   whole number (Jua, DungGeunMo: 10px → 11), and advances lines after the first by FaceInfo
   `lineHeight` (Jua, two lines at 10px → 23; 6.3 gives 20). 6000.0 also draws Jua's English 2–4px
   wider than 6.3. The preview matches 6.3
@@ -309,6 +338,41 @@ With the canvas values, one line comes out 1px taller at some sizes. Between 8 a
 Pretendard differs at 31, 36, 41, 46, 51, 56, 57, 61, 62, 66, 67, 71 and 72px, Inter at 19, 38
 and 57px (the cohort's 10/14/20/32px are the same either way). A host that passes FaceInfo is
 exact.
+
+### Runtime panel (separate set, measured 2026-10-19 — item T)
+
+0.7.0's default theme is the runtime one (a game screen). The table above was measured in an editor
+window, so the same cohort was measured again on **a real runtime panel**. It is **never added** to
+the table above.
+
+| Item | Value |
+|---|---|
+| Unity side | 6000.0.40f1, 6000.3.25f1, PanelDump (PanelSettings + UIDocument, default runtime theme), **a fresh Unity process per probe** (`tests/layout/unity/dump-solo.sh`) — `tests/text-cohort/unity-runtime/` |
+| Preview side | the same Chrome, `theme: 'runtime'` |
+| Criteria | as above (line count equal, height equal, width within 1px or 1%). The boundary cases are the same files (6000.0 editor one-line width ±2px) |
+
+| Unity (런타임 패널) | 줄 수 | 높이 | 너비(1px/1%) | 경계 줄 수 | 실패 (a/b/c): 줄·높이·너비 | 너비 Δ 범위 |
+|---|---:|---:|---:|---:|---|---|
+| 6000.0.40f1 | 92/92 | 84/92 | 92/92 | 159/159 | 0/0/0 · 17/0/0 · 0/0/0 | -1…0 |
+| 6000.3.25f1 | 92/92 | 84/92 | 92/92 | 159/159 | 0/0/0 · 17/0/0 · 0/0/0 | -1…0 |
+
+- **The runtime panel gives the same values on both versions, and the same as the 6000.0 editor above.** All three use the
+  Standard generator. The height rule (a whole-number height +1, later lines by `lineHeight`) and Jua's English 2-4px wider are
+  the Standard generator's, not a version's. So classification moved from version to generator: a Standard row is explained
+  against the Advanced reference (the 6.3 editor). The editor table does not change
+- **The preview measures Standard text by Standard's rules (2026-10-20).** Height `floor(fs·r + (n−1)·fs·lineHeight/pointSize) + 1`, widths
+  without kerning — 234/235 heights and 84/84 widths on the three Standard dump sets (bundle A plan section 29 — the one height exception is `noto-jp-zh-20-w60`: 6000.0 editor 202, runtime 201, the rule 203; on the runtime side a fallback glyph starting the last line explains it). The generator is the resolved
+  `-unity-text-generator`, not the theme. Before (Advanced's formula throughout) this table read heights 60/92, widths 89/92, boundary 153/159
+- The 8 heights left (a) are Inter's Hangul and mixed sentences drawn with fallback glyphs, the same 8 as the 6.3 editor table's
+- **Known difference — a glyph the font does not have (cause found 2026-10-20, classified (a) 2026-10-21):** when a glyph the
+  given font does not have starts the last line, the runtime preview's box can be taller than Unity's (2px in the measured pair).
+  In `noto-jp-zh-20-w60` (Noto Sans JP 20px in 60px, 7 lines) the last line is `张。`; Noto Sans JP has no `张`, Unity draws it with
+  a fallback font, and Unity's runtime panel gives 201 (both versions) where the preview's Standard rule gives 203. Thirteen probes
+  dumped alone show the 2px only when the fallback glyph **starts the last line**; anywhere else the height is the same
+  (`tests/text-cohort/fallback-zh/`). The preview does not know a font's glyph coverage, so it does not reproduce this
+  (`spec.json` `known`, `docs/backlog.md`). The line count agrees
+- Kinsoku: the runtime panel has none, so the 6.3 editor's `known` row (8 lines) agrees here at 7
+- The editor set's 6000.0 dumps taken again alone have the same boxes (only 11 Jua measured widths differ, not used to judge)
 
 ## Why geometry and not pixels
 
@@ -343,10 +407,17 @@ nobody can produce, and at the same time an unmeasured case must never read as a
 Each dump records its panel size and the web side lays the case out at that same size, so there
 are never two numbers to keep in sync by hand.
 
+**Known difference — half-pixel rounding (2026-10-19):** a centred text at a half pixel is rounded up by Unity and down by the preview (Yoga's text node). The golden sets have no such case (it is not a named element); the contract tests `bundle-f` and `bundle-g` name it. Not fixed — decided after measuring per alignment (`docs/backlog.md`).
+
+**Measuring condition — the font (2026-10-21):** the text figures are measured with the same font file Unity uses passed to the preview. Without a font, the preview measures with the browser's default font: text widths can differ by a few pixels and wrapped text can break into a different number of lines (re-check R3-C4: four lines with Chrome's default font, five with Unity's; R1: an unconstrained Label 178 against 182). The coordinate figures (1122/1148) measure layout given the text sizes — the harness uses a fixed measure (`FIXED_MEASURE`). The real measurer is measured separately by `tests/text-cohort/measure-real.mjs`, with Unity's font (Inter).
+
+**Known difference — 1px when the panel overflows (re-check R1-H, 2026-10-21):** in a column taller than the panel, as in the runtime `g-clamp`, the shrunk (flex-shrink) height can differ from Unity's by 1px (`row-label`, `rh-label`: 21 against 20). Not fixed.
+
 ## How a comparison is judged
 
 - per element: `x` / `y` / `width` / `height`
 - tolerance **0.5px** — wobble from Yoga's point rounding is not a mismatch
+- **The reference is the solo run.** In Unity itself, under the Standard text generator, a text's width can differ by 0-2px depending on what the same process drew before (the runtime panel on both versions, the 6000.0 editor; the 6.3 editor, Advanced, does not). So every baseline is dumped by a fresh Unity process per probe or case (`tests/layout/unity/dump-solo.sh`, decided 2026-10-18). The tolerance is not widened
 - the join key is the UXML `name` attribute; unnamed elements are not compared
 - cases flagged `measuresText: true` are excluded. A browser cannot measure text with Unity's font
   asset, so a difference there is not a layout error. Text boxes themselves are compared separately,

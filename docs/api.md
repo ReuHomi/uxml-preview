@@ -42,6 +42,7 @@ UXML과 USS 텍스트를 모델(`UxmlDocument`)로 읽는다. 실패하지 않�
 
 | 옵션 | 뜻 |
 |---|---|
+| `theme` | `'runtime'`(기본값, 0.7.0부터) 또는 `'editor'`(어두운 에디터 테마, 1122/1148 에디터 수치를 잰 테마). 모르는 값은 `malformed`·`invalid-value` 경고 뒤 기본 테마로 그린다. 코어는 패널 뒤를 칠하지 않는다(투명) — 런타임 글자는 어두운 색이라 바탕은 호스트가 정한다 |
 | `size` | 패널 크기(px). **창이 아니라 패널이다** — USS의 `%`와 늘이기는 패널 기준이라 창을 따라가면 "1920×1080에서 어떻게 보이나"에 답할 수 없다. 없으면 컨테이너 크기 |
 | `resolveAsset(path, form)` | `background-image`의 `url("project://…")`·`resource("…")`를 브라우저가 읽을 URL로. `form`은 `'url'`(경로) 또는 `'resource'`(Unity Resources 이름, 확장자 없음) — 둘을 같은 경로로 풀면 엉뚱한 그림이 조용히 나온다. 에디터 내장 리소스는 디스크 호스트가 풀 수 없으니 `null`을 돌려준다. `null`이면 플레이스홀더를 그리고 경고한다 |
 | `resolveFont(path, form)` | `-unity-font-definition`의 폰트를. 폰트 패밀리 이름(문자열), `{ family, faceInfo }`, 또는 `null`. `faceInfo`(Unity가 그 폰트에 보고하는 `pointSize`·`ascentLine`·`descentLine`)를 주면 글자 높이가 Unity 공식과 같아진다. 같은 (path, form)은 한 번의 render에 한 번만 부른다 |
@@ -57,7 +58,8 @@ UXML과 USS 텍스트를 모델(`UxmlDocument`)로 읽는다. 실패하지 않�
 | `boxes` | Yoga가 계산한 상자, 패널 좌표. Unity와 비교하는 숫자가 이것이다 |
 | `elements` | 모델 노드마다 그려진 DOM 요소. 클릭을 트리로 되짚을 때 쓴다 |
 | `document` | 템플릿을 전개한, 실제로 그린 트리 |
-| `styles`, `partStyles` | 그린 요소와 컨트롤 부품의 계산된 스타일 |
+| `styles`, `partStyles` | 그린 요소와 컨트롤 부품의 계산된 스타일. 0.7.0부터 테마의 기본 글자 크기·색이 모든 요소에 상속값으로 들어 있다(출처 `builtin-theme`) |
+| `theme` | 실제로 그린 테마 |
 | `dispose()` | Yoga 트리를 해제하고 그린 DOM을 지운다 |
 
 그린 DOM 요소에는 `NODE_ATTRIBUTE`(모델 노드 id), 컨트롤 부품에는 `PART_ATTRIBUTE`·
@@ -104,6 +106,9 @@ interface Warning {
   `font-fallback`이 그 첫 예). 소비자는 모르는 값을 위한 분기를 두되, 모르는 값을 곧 실패로 다루면
   새 경고 하나에 모든 실행이 실패한다
 - `reason`이 없는 경고도 있다: 해당 사항이 없을 때(깨진 입력, 호스트가 못 푼 파일)
+- **`:root` 경고의 `kind`는 역사적 이름이다.** `:root` 규칙이 있으면 kind `version-dependent`, reason `matches-unity`로
+  한 번 알린다. 버전 차이가 아니라 USS `:root`가 CSS와 다르다는 안내이고, 미리보기는 Unity와 같게 그린다.
+  **판단 기준은 `reason`(`matches-unity`)이다.** kind는 바꾸면 소비자의 분류가 깨지므로 다음 큰 버전까지 둔다(`docs/backlog.md`)
 - 속성 경고는 **선언마다 한 번**, 그 선언의 위치(`at`)와 함께 나온다. 아무 요소에도 매칭되지 않는
   규칙의 선언도 경고한다. 상속으로 내려온 값에는 다시 경고하지 않는다
 
@@ -155,7 +160,7 @@ USS 위치의 `url`·`from`은 그 시트를 위해 `resolveImport`가 받은 �
 
 ## 텍스트
 
-- `textHeight(lines, fontSize, faceInfo, paragraphBreaks?, paragraphSpacing?)` — Unity의 글자 높이 공식
+- `textHeight(lines, fontSize, faceInfo, paragraphBreaks?, paragraphSpacing?, generator?)` — Unity의 글자 높이 공식. `generator`는 `'standard'`(floor + 1, 뒷줄은 `lineHeight`) 또는 `'advanced'`(ceil). 빼면 `'advanced'`(0.7.0)
 - `EDITOR_DEFAULT_FACE_INFO` — 에디터 기본 폰트(Inter-Regular SDF)의 FaceInfo, Unity가 보고한 값
 - `createDefaultMeasureText(doc?)` — 기본 측정기. `measureText`를 감쌀 때 쓴다
 
@@ -168,5 +173,5 @@ USS 위치의 `url`·`from`은 그 시트를 위해 `resolveImport`가 받은 �
 | `expandTemplates(doc)` | 템플릿 전개만 따로 |
 | `KNOWN_DIVERGENCES` | Unity와 다르다고 알려진 동작과 그 이유(고칠 수 없음 · 규칙 미상 · 상위 라이브러리) |
 | `supportedControlNames()` | 전용 렌더러가 있는 컨트롤 |
-| `resolveStyles`, `explainProperty` | 캐스케이드 결과, 한 요소의 한 속성을 두고 경쟁한 선언 전부(편집기가 "인라인을 고칠까, 규칙을 고칠까"를 물을 때) |
+| `resolveStyles`, `explainProperty` | 캐스케이드 결과, 한 요소의 한 속성을 두고 경쟁한 선언 전부(편집기가 "인라인을 고칠까, 규칙을 고칠까"를 물을 때). `resolveStyles(doc, { theme })`도 테마를 받는다 — 빼면 `'runtime'`(0.7.0) |
 | `isInherited(property)` | USS 상속 여부 |

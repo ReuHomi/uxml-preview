@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:Toggle name="t-both" label="Label" text="Text" />
+<ui:Toggle name="t-both-checked" label="Label" text="Text" value="true" />
+<ui:Toggle name="t-long" label="A much longer label than the minimum" value="true" />
+<ui:Toggle name="t-hover" label="Label" class="force-hover" />
+<ui:Toggle name="t-focus" label="Label" class="force-focus" />
+<ui:Toggle name="t-active" label="Label" value="true" class="force-active" />
+<ui:Toggle name="t-checked-text" text="Text" value="true" />
+</ui:VisualElement>
+<ui:VisualElement name="free" style="align-items: flex-start;">
+<ui:Toggle name="t-auto-both" label="Label" text="Text" />
+<ui:Toggle name="t-auto-checked" value="true" />
+</ui:VisualElement>
+</ui:UXML>

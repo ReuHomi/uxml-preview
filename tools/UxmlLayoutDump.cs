@@ -81,6 +81,9 @@ namespace UxmlPreview.Golden
         [System.Serializable]
         private sealed class DumpMetadata
         {
+            // Names the dumper in every file, so a dump never has to be traced back to it.
+            public string dumper = "UxmlLayoutDump";
+            public string dumperVersion = "0.7.0-r1";
             public string unityVersion;
             public string unityRevision;
             public float pixelsPerPoint;

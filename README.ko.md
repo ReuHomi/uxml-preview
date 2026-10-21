@@ -5,6 +5,8 @@
 **Unity UI Toolkit의 UXML/USS를 Unity 에디터 없이 브라우저에서 그립니다. 배치는 UI Toolkit이
 쓰는 엔진인 Yoga가 하고, 결과는 Unity와 대조해 측정했습니다.**
 
+![uxml-preview 0.7.0: 왼쪽에 UXML·USS로 쓴 설정 화면, 오른쪽에 브라우저가 그린 결과](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/promo-0.7.0.gif)
+
 [![놀이터 화면: 위에는 화면, 아래에는 경고마다 이유와 Unity가 대신 하는 일](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/playground.png)](https://reuhomi.github.io/uxml-preview/)
 
 ### ▶ [놀이터 열기](https://reuhomi.github.io/uxml-preview/)
@@ -18,8 +20,11 @@
 
 ## 어떻게 확인했나
 
-- **좌표:** 완성된 화면 하나를 포함한 배치 케이스 40개에서, 요소 좌표 값 660 / 676이 Unity 6000.0.40f1과 같습니다. [다른 곳은 전부 이름을 붙여 적었습니다 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.md) 같은 케이스를 Unity 6.3(6000.3.25f1)에서 다시 덤프했더니, 같은 날 다시 뜬 6000.0.40f1 덤프와 배치가 모두 같았습니다. [6.3 재측정 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.md#unity-63-lts-재측정-2026-10-15)
-- **텍스트:** 실제 브라우저에서 그려 Unity 6000.3.25f1과 Label 단위로 대조했습니다. 줄 수 92 / 92, 높이 84 / 92, 너비 92 / 92(1px 또는 1% 이내). 높이가 다른 것은 모두 라틴 글꼴 Inter로 쓴 한글·혼합 문장입니다 — Inter에 한글이 없어 Unity가 대체 폰트로 그리고, 미리보기는 바로 그 경우에 경고합니다. [텍스트 코호트 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.md#텍스트-코호트-별도-검증-세트-2026-10-16-측정)
+- **좌표, 런타임 테마(기본값):** 같은 배치 케이스 42개에서 요소 좌표 값 1122 / 1148이 실제 Unity 6.3 런타임 패널(6000.3.25f1, PanelSettings + UIDocument, Play 모드)과 같습니다. 남은 차이는 모두 에디터 테마에도 있는 것입니다. [어떻게 쟀나 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.md#런타임-테마-별도-세트-2026-10-17-측정)
+- **좌표, 에디터 테마:** 완성된 화면 셋(인벤토리, 그리는 컨트롤 15종을 모두 쓴 설정 화면의 영어·한국어판)을 포함한 배치 케이스 42개에서, 요소 좌표 값 1122 / 1148이 Unity 6000.0.40f1과 같습니다. [다른 곳은 전부 이름을 붙여 적었습니다 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.md) 같은 케이스를 Unity 6.3(6000.3.25f1)에서 다시 덤프했더니, 같은 날 다시 뜬 6000.0.40f1 덤프와 배치가 모두 같았습니다. [6.3 재측정 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.md#unity-63-lts-재측정-2026-10-15)
+- **텍스트, 런타임 테마(기본):** 실제 브라우저에서 그려 실제 Unity 런타임 패널(6000.0.40f1과 6000.3.25f1, 프로브마다 따로 띄운 Unity)과 Label 단위로 대조했습니다. 줄 수 92 / 92, 높이 84 / 92, 너비 92 / 92(1px 또는 1% 이내), 상자 경계의 줄바꿈 케이스 159 / 159. 높이가 다른 것은 모두 라틴 글꼴 Inter로 쓴 한글·혼합 문장입니다 — Inter에 한글이 없어 Unity가 대체 폰트로 그리고, 미리보기는 바로 그 경우에 경고합니다. [런타임 텍스트 세트 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.md#런타임-패널-별도-세트-2026-10-19-측정--항목-t)
+- **텍스트, 에디터 테마:** 같은 92개 Label을 Unity 6000.3.25f1 에디터와 대조 — 92 / 92, 84 / 92, 92 / 92, 줄바꿈 케이스 157 / 159(남은 둘: 중국어 한 케이스의 에디터 금칙, 상자 경계에서 1px 다른 자연 폭). [텍스트 코호트 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.md#텍스트-코호트-별도-검증-세트-2026-10-16-측정)
+- **어떤 조건에서 쟀나:** 좌표 수치는 글 크기가 주어졌을 때의 배치를 잽니다 — 하네스는 글을 고정 함수로 재고, 글 측정은 텍스트 수치가 따로 잽니다. 텍스트 수치는 Unity와 같은 글꼴 파일을 넘겨준 조건에서 잰 값입니다. 글꼴을 넘기지 않으면 브라우저 기본 글꼴로 재며, 글자 폭이 몇 px 다르고 여러 줄 글의 줄 수가 달라질 수 있습니다. [조건 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.md)
 - **Unity 버전:** 기준은 Unity 6.3 LTS입니다. USS 속성인지는 Unity 공식 속성표(6.6까지)로 판정하고, 6.7은 LTS가 나올 때까지 지원하지 않습니다. [지원 범위 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/supported.md)
 - **맞지 않는 곳은 조용히 넘기지 않고 경고로 알립니다.** 지원하지 않는 컨트롤·속성·값은 이유와 함께, 측정한 경우에는 Unity가 대신 어떻게 하는지까지 경고로 돌아옵니다. [경고 →](https://github.com/ReuHomi/uxml-preview/blob/main/docs/api.md#경고)
 

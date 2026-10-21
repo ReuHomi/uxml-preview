@@ -13,11 +13,9 @@
     "button-sizes-to-text-btn": {
       "x": 3,
       "y": 1,
-      "width": 70,
-      "height": 25
+      "width": 84,
+      "height": 29
     }
   },
-  "warnings": [
-    "version-dependent: Built-in control defaults applied, as measured on Unity 6000.0.40f1"
-  ]
+  "warnings": []
 }

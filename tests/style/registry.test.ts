@@ -234,7 +234,8 @@ const SAMPLES: Readonly<Record<string, Sample>> = {
   '-unity-editor-text-rendering-mode': { value: 'bitmap' },
   '-unity-font': { value: 'resource("f")' },
   '-unity-font-definition': { value: 'resource("f")' },
-  '-unity-font-style': { value: 'bold' },
+  // Bold widens the text; shrink-wrapped, the box shows it (a stretched no-wrap Label would not, C1).
+  '-unity-font-style': { value: 'bold', context: 'align-self: flex-start;' },
   '-unity-material': { value: 'none' },
   '-unity-overflow-clip-box': { value: 'content-box' },
   '-unity-paragraph-spacing': { value: '5px' },
@@ -247,13 +248,19 @@ const SAMPLES: Readonly<Record<string, Sample>> = {
   '-unity-text-align': { value: 'middle-center' },
   '-unity-text-auto-size': { value: 'best-fit 10px 20px' },
   // Not 'advanced': that is the default and could never move a box.
-  '-unity-text-generator': { value: 'standard', context: 'letter-spacing: 20px; align-self: flex-start; white-space: nowrap;' },
+  // 0.7.0: the runtime theme (the default) already measures with standard (probe-panel), so the
+  // probe sets the other one.
+  // g-clamp.json reg-gen/reg-gen-std: at 20px spacing both generators pass the 100px box on the
+  // runtime panel and Unity clips both to it, so nothing moves; 5px keeps the text inside.
+  '-unity-text-generator': { value: 'advanced', context: 'letter-spacing: 5px; align-self: flex-start; white-space: nowrap;' },
   '-unity-text-outline': { value: '1px red' },
   '-unity-text-outline-color': { value: 'red' },
   '-unity-text-outline-width': { value: '1px' },
   '-unity-text-overflow-position': { value: 'start' },
   visibility: { value: 'hidden' },
-  'white-space': { value: 'nowrap' },
+  // The scene's lines fit 100px once a line break starts a new line; 40px makes "Hello world" wrap.
+  // A Label is no-wrap by default (g-clamp.json, C1), so the sample is the value that wraps.
+  'white-space': { value: 'normal', context: 'width: 40px;' },
   width: { value: '37px' },
   'word-spacing': { value: '5px', context: 'align-self: flex-start; white-space: nowrap;' },
 };
@@ -289,9 +296,12 @@ const measureText: MeasureText = (text, context, availableWidth) => {
   // report those properties as moving nothing.
   // The standard generator also spaces after the last character (text-spacing-standard.json);
   // the advanced one does not. One gap is enough for the layout to see the difference.
-  const gaps = text.length - 1 + (context.textGenerator === 'standard' ? 1 : 0);
+  // A line break starts a new line: the width is the widest line, as Unity measures it
+  // (g-clamp.json reg-plain: "Hello world\nwide text" is two lines, 75px on the runtime panel).
+  const widest = text.split('\n').reduce((a, b) => (b.length > a.length ? b : a));
+  const gaps = widest.length - 1 + (context.textGenerator === 'standard' ? 1 : 0);
   const spacing = (gaps * (context.letterSpacing ?? 0) + (context.wordSpacing ?? 0)) * context.fontSize / 100;
-  const width = text.length * context.fontSize * 0.5 * (context.fontStyle.includes('bold') ? 2 : 1) + spacing;
+  const width = widest.length * context.fontSize * 0.5 * (context.fontStyle.includes('bold') ? 2 : 1) + spacing;
   const wraps = context.whiteSpace !== 'nowrap' && context.whiteSpace !== 'pre' && availableWidth > 0;
   const lines = wraps ? Math.max(1, Math.ceil(width / availableWidth)) : 1;
   const breaks = text.split('\n').length - 1;

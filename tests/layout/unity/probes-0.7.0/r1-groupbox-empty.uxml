@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:GroupBox name="g-empty-text" text="" />
+<ui:GroupBox name="g-empty-text-child" text=""><ui:Label name="g-empty-text-child-label" text="Inside" /></ui:GroupBox>
+<ui:GroupBox name="g-space" text=" " />
+</ui:VisualElement>
+</ui:UXML>

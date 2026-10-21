@@ -187,6 +187,50 @@ const ALLOWED_DELETIONS = new Set([
   'property:background-position',
   'property:background-repeat',
   'property:aspect-ratio',
+  // 0.7.0 (decision 2026-10-17): "Built-in control defaults applied" claimed a version
+  // difference the dumps do not show (theme values equal on 6000.0.40f1 and 6.3) and
+  // a difference from Unity there is none of. Its fact was wrong.
+  'theme',
+  // Same decision: "<ScrollView> drawn with built-in child elements measured on Unity ..." -
+  // the parts measured the same on both versions and both themes (golden, golden-panel).
+  'control-parts:ScrollView',
+  // 0.7.0 bundle C: TextField is drawn now (tests/contract-070/bundle-c.test.ts, from the
+  // c07-TextField and c-textfield dumps), so "has no renderer" no longer holds — the same
+  // kind of correction as aspect-ratio. The 0.5.0 fragment warning named four classes as
+  // parts nothing builds; three are TextField's input classes and match now. Only
+  // `.unity-text-input` still matches nothing (no Unity element carries that class), and
+  // it is still warned, under its own fragment.
+  'control-fallback:TextField',
+  'fragment:.unity-text-input, .unity-text-field__input, .unity-base-text-field__input, .unity-base-field__input',
+  // 0.7.0 bundle D: Slider and SliderInt are drawn now with Unity's parts
+  // (tests/contract-070/bundle-d.test.ts, d-slider/c07-Slider dumps). "has no renderer"
+  // no longer holds, and these rules now reach the parts they name in the documents
+  // that have sliders (a deleted single-fragment warning means the rule matched).
+  'control-fallback:Slider',
+  'control-fallback:SliderInt',
+  'fragment:#unity-drag-container, .unity-base-slider__drag-container',
+  'fragment:.unity-base-field__label',
+  'fragment:.unity-base-slider__dragger',
+  'fragment:.unity-base-slider__dragger-border',
+  'fragment:.unity-base-slider__input',
+  'fragment:.unity-base-slider__tracker',
+  // 0.7.0 bundle E: Toggle and RadioButton are drawn now with Unity's parts
+  // (tests/contract-070/bundle-e.test.ts, c07-Toggle/e-toggle dumps); "has no renderer"
+  // no longer holds, and these toggle rules now reach the parts they name.
+  'control-fallback:Toggle',
+  'control-fallback:RadioButton',
+  'fragment:.unity-toggle',
+  'fragment:.unity-toggle__checkmark',
+  'fragment:.unity-toggle__input',
+  'fragment:.unity-toggle__text',
+  // 0.7.0 bundle F: ProgressBar is drawn now with Unity's parts (tests/contract-070/bundle-f.test.ts,
+  // c07-ProgressBar/f-progress dumps); "has no renderer" no longer holds, and these progress-bar
+  // rules (debug-ui, design-system fixtures) now reach the parts they name.
+  'control-fallback:ProgressBar',
+  'fragment:.unity-progress-bar',
+  'fragment:.unity-progress-bar__background',
+  'fragment:.unity-progress-bar__progress',
+  'fragment:.unity-progress-bar__title',
 ]);
 
 type Verdict = 'preserved' | 'merged' | 'reclassified' | 'deleted';
@@ -281,7 +325,12 @@ describe.runIf(EMIT === undefined)('no warning 0.5.0 raised is lost', () => {
 
   it('classifies every 0.5.0 warning, deleting only the ones whose fact was wrong', () => {
     const baseline = JSON.parse(readFileSync(BASELINE, 'utf8')) as Record<string, Recorded[]>;
-    const inputs = warningInputs();
+    // Inputs added after the 0.5.0 baseline have no 0.5.0 warning to lose; each is named here.
+    // Bundle G (0.7.0) added the settings screen to the golden cases.
+    const ADDED_AFTER_BASELINE = ['golden:settings', 'golden:settings-ko'];
+    const all = warningInputs();
+    expect(all.map((i) => i.id).filter((id) => !(id in baseline)).sort()).toEqual([...ADDED_AFTER_BASELINE].sort());
+    const inputs = all.filter((i) => i.id in baseline);
     expect(inputs.map((i) => i.id).sort()).toEqual(Object.keys(baseline).sort());
     const now: Record<string, Recorded[]> = {};
     for (const input of inputs) now[input.id] = run(current, input);

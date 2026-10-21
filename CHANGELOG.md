@@ -1,5 +1,255 @@
 # Changelog
 
+## 0.7.0 — 2026-10-21
+
+Unity's runtime theme, by default. A preview of a game screen now looks like the
+game: the values come from a real runtime panel (PanelSettings + UIDocument in
+Play mode) on Unity 6.3, and the editor theme stays one option away.
+
+### Behavior changes
+
+- **The default theme is `'runtime'`.** `render`, `resolveStyles` and
+  `layoutDocument` take `theme: 'runtime' | 'editor'`; `RenderResult.theme`
+  says which was drawn. Without the option, every render changes:
+  - text: 14px, colour #1b1b1b (editor: 12px, #d2d2d2)
+  - Label: margin 4 4 2 2, padding 4 2 4 1 (editor: 0; 0 2 0 1)
+  - Button: margin 2 4, padding 10 12, border 1 #959595, background #bcbcbc,
+    radius 0 (editor: margin 1 3, padding 1 6, border 1 #303030 with a
+    #242424 bottom, background #585858, radius 3, text #eeeeee)
+  - a scrolling ScrollView reserves 24px for its scroller (editor: 13px)
+  - the core paints nothing behind the panel, as Unity paints nothing behind
+    a runtime panel. Runtime text is dark: a host drawing on a dark backdrop
+    has to supply one. Pass `theme: 'editor'` for the 0.6.x drawing plus the
+    values below.
+- **Both themes now carry their measured values**, where 0.6.x had only the
+  Button margin and text alignment: panel text size and colour (inherited by
+  every element, origin `builtin-theme`), Label padding, Button padding,
+  border, colours and `:hover` / `:active` / `:focus` / `:disabled` colours.
+- **Label and Button do not shrink** (`flex-shrink: 0`, measured on both
+  themes). `inventory`'s `ItemDesc` now lands where Unity puts it.
+- **Only the element written `enabled="false"` is dimmed.** Unity gives that
+  element `unity-disabled` and opacity 0.5 and leaves its descendants at 1; a
+  disabled button inside a disabled panel was 0.25 here. A `disabled` forced
+  through `states` does not dim at all (see "A state forced through `states`
+  stays on that element" below).
+- **The runtime theme paints CJK without kinsoku**, as Unity's runtime panel
+  does. The editor theme keeps the browser's line breaking (a known
+  difference at one 60px Chinese case, Unity 6.3 editor).
+- An unknown `theme` value warns (`malformed`, reason `invalid-value`) and
+  draws the default.
+- **Applying the theme is no longer a warning.** "Built-in control defaults
+  applied, as measured on Unity <version>" and "<ScrollView> drawn with built-in
+  child elements measured on Unity <version>" are gone: a measured theme value
+  is not a difference from Unity, and both were measured the same on
+  6000.0.40f1 and 6.3. `version-dependent` now comes only from values the dumps
+  show differ by version, both on the editor theme:
+  - a Button with no text: 4px high on 6000.0.40f1, 19px on 6000.3.25f1 (the
+    editor theme draws 6000.0.40f1's)
+  - letter- or word-spacing with no `-unity-text-generator`: the editor theme's
+    default generator is standard on 6000.0.40f1 and advanced on 6000.3.25f1
+    (drawn as advanced)
+  - a GroupBox whose `text` is only spaces: its title is 0px high on 6000.0.40f1
+    and 15px on 6000.3.25f1 (advanced generator; drawn as 15). Under an explicit
+    standard generator both versions measure 0 and nothing is warned. The runtime
+    theme draws that title 0px high on both versions, unwarned. The same holds for
+    a Label or Button whose text is only spaces (Label 0px vs 15px, Button 4px
+    vs 19px; the runtime theme draws the text 0px high)
+  A host that keyed anything off the removed warnings loses that signal.
+- **Text is measured by its generator's rules.** The runtime theme resolves
+  `-unity-text-generator: standard`, as Unity's runtime panel does on both
+  versions; the editor theme resolves advanced (the 6.3 editor's default). The
+  resolved value — not the theme — now picks the rules, measured on the text
+  cohort: Standard text is `floor(fs·r + (n−1)·fs·lineHeight/pointSize) + 1`
+  high (r = (ascent − descent) / pointSize) and measured and painted without
+  kerning (`font-kerning: none`); Advanced keeps `ceil(n·fs·r)` and kerning.
+  On the runtime theme a whole-number line height gains 1px, later lines
+  advance by `lineHeight`, and kerned pairs (Jua's English, 2–4px) widen. An
+  author's `-unity-text-generator: standard` on the editor theme measures the
+  same way. `textHeight` takes the generator as an optional sixth argument
+  (advanced when left out).
+- **A text wider than the width it is offered is clipped to it**, as Unity
+  does (measured, `g-clamp`, both versions and themes): in a row, in a column
+  with `align-items: flex-start`, with or without `overflow: hidden`. An
+  absolutely placed text and a TextField's inner text are not clipped, as in
+  Unity. A long no-wrap Label in a narrow box now has the box's width instead
+  of overflowing it. No accuracy figure moved. The same holds for the height
+  (`g-clamp-h`): a text offered a smaller height is clipped to it, down to its
+  padding and border — a TextField's inner text included.
+- **A focused TextField's label takes the focus colour** (runtime #00526a,
+  editor #81b4ff), as Toggle and RadioButton labels do.
+
+### New controls
+
+- **GroupBox and Box are drawn** instead of falling back with an
+  `unsupported-control` warning (bundle B). GroupBox builds Unity's title
+  Label before its children when it has `text` (a part named
+  `unity-group-box__label`, reachable from author USS by that class); Box
+  carries its border and background. Both match the `c07-GroupBox` and
+  `c07-Box` dumps on both themes.
+- **TextField is drawn** (bundle C): single-line and multiline, placeholder,
+  password (the mask only; the value never reaches the DOM), disabled, with or
+  without a label. It builds Unity's parts — the label (`unity-text-field__label`),
+  `#unity-text-input`, the multiline container and the inner text
+  (`unity-text-element--inner-input-field-component`) — which author USS reaches
+  by Unity's names. Matches the 6.3 `c07-TextField`, `c-textfield` and
+  `c-textfield-hook` dumps on both themes. The caret, the selection and editing
+  are not drawn. A host that counted TextField's `unsupported-control` warning
+  loses it.
+- **Toggle and RadioButton are drawn** (bundle E): label, text, checked
+  (`value="true"`), disabled. Checked is the `:checked` state on the control and
+  its input part, as in Unity; the radio checkmark appears only when checked.
+  The check mark is this preview's drawing (Unity's textures cannot be loaded).
+- **A state forced through `states` stays on that element.** Measured
+  (e-disabled, both versions): a forced `disabled` neither dims (no
+  `unity-disabled`) nor reaches the element's parts or children; forced
+  hover/focus/active do not reach parts either. 0.7.0's earlier handling dimmed
+  a forced-disabled element at 0.5 (an inference, now reversed).
+  `enabled="false"` still disables the whole subtree and dims once.
+- **Slider and SliderInt are drawn** (bundle D): label, input, drag container,
+  tracker, dragger and its border, and with `show-input-field` a TextField
+  showing the value. The dragger sits where Unity puts it for any value —
+  t = clamp((value - low) / (high - low), 0, 1) along the drag container less
+  the dragger, upward for `direction="Vertical"` — measured in eleven steps
+  both ways, a range, a reversed range and an out-of-range value. Dragging is
+  not drawn. A host that used Slider as its example of an unsupported
+  control loses that example.
+- **ProgressBar, TextElement and RepeatButton are drawn** (bundle F).
+  ProgressBar builds Unity's container, background, bar and title; the bar
+  width follows Unity's rule, floor(background width - 2) x clamp(value) /
+  high-value, measured on fourteen values, ranges and widths. On the editor
+  theme a bar at or below low-value warns `version-dependent` (1px on
+  6000.0.40f1, 0 on 6.3; drawn as 6.3). TextElement and RepeatButton are plain
+  text, as in Unity — a RepeatButton does not look like a button. A host that
+  counted their `unsupported-control` warnings loses them.
+- **The editor theme's Toggle box is drawn** (E2): Unity draws it from a
+  built-in texture; the preview paints it in colours measured off Unity's
+  screen, so an unchecked Toggle no longer disappears on the editor theme.
+
+### Classes
+
+- **Every drawn control carries Unity's classes**, parts included (A2, held by
+  `tests/contract-070/classes.test.ts` against every 0.7.0 dump). Label and
+  Button gain `unity-text-element`, so an author rule on that class now reaches
+  them as it does in Unity. ScrollView gains `unity-scroll-view--scroll` and a
+  `mode` class (`--vertical`, `--horizontal`, `--vertical-horizontal`), and its
+  three parts their `unity-scroll-view__*` classes. Classes only: no coordinate
+  moved. The scrollers inside a ScrollView are still not built.
+
+### Review fixes (adversarial review, 2026-10-21)
+
+Each found by the review or while fixing it, measured on Unity where Unity
+decides it, and pinned (`tests/contract-070/review-*.test.ts`,
+`c1-nowrap.test.ts`, `n3-part-fonts.test.ts`, and in a real browser
+`tests/text-cohort/paint-r15.mjs`, now part of `pnpm test:text`).
+
+- **A Label or Button does not wrap unless the author says so.** Unity
+  resolves `white-space: nowrap` on both; the theme sheets now give it to
+  `.unity-label` and `.unity-button`. A long label in a narrow column is one
+  clipped line, as in Unity, not several. TextElement and RepeatButton still
+  wrap.
+- **Text is painted where it was measured.** A line break (`
+`) is a painted
+  line whatever the `white-space`; the painted line height is the measured
+  advance (Standard `lineHeight`, Advanced ascent − descent); kerning follows
+  each text's own generator; `pre-wrap` keeps runs of spaces when it wraps.
+- **A wrapping text is as wide as Unity makes it.** The editor theme
+  (Advanced) takes its longest line; the runtime theme (Standard) takes the
+  width up to the last glyph that fit where a line broke — the line, its space
+  and the start of the next word — floor + 1. Both used to take the longest
+  line. Measured on probes that use each sentence once (`r1w-wrap`,
+  `r1w-wrap2`): 22 of 24 texts match, two are known differences (below).
+- **A word longer than the line breaks between characters**, Latin and Hangul,
+  measured and painted, in a TextElement, a Label with `white-space: normal`
+  and a multiline TextField (`r1w-long`, both versions and themes). It used to
+  overflow the line as one piece. See Corrections.
+- **A TextField keeps runs of spaces in its value**, measured and painted.
+- **An author font reaches a control's part text** (field labels, the
+  TextField's text, GroupBox and ProgressBar titles), as Unity draws them.
+- **Attribute values are read as Unity reads them:** booleans ignore case
+  (`"True"`; `"1"` is not true), `direction` ignores case, `inverted` mirrors a
+  slider, SliderInt takes whole numbers, a value that is not a number falls back
+  to the default and is warned (`malformed`, `invalid-value`), `Infinity` is
+  clamped, the old names `text=` and `maskCharacter=` work.
+- **ProgressBar:** the fill is `width × clamp(value, low, high) / high` (it was
+  empty whenever the value was at low).
+- **Text edges:** absolutely placed text is not wrapped; an empty TextField is
+  clipped like one with a value; a multiline TextField's text keeps its
+  wrapped height in a fixed-height field.
+- **States:** a forced `disabled` no longer matches `:enabled`; a state USS
+  does not have (`:selected`) is warned and not applied; a forced `:checked`
+  reaches the input part and draws the check mark.
+- **Author rules beat the painter's stand-ins** for the editor check box
+  (background, radius, tint).
+- **Warnings that were missing:** a non-px `font-size`; an unknown
+  `-unity-text-generator` (the theme's generator stands); an inherited author
+  generator no longer reads as "drawn as advanced"; a host font without a
+  FaceInfo under the Standard generator; a FaceInfo with no usable
+  `pointSize`.
+- **Yoga nodes are freed when layout throws** (a host measure function that
+  throws used to leave the tree allocated).
+
+### Accuracy — previous and new figures
+
+| Set | 0.6.1 | 0.7.0 | Why |
+|---|---:|---:|---|
+| Runtime theme coordinates (Unity 6.3 runtime panel) | — | 1122 / 1148 | new set (662/676 on the original 40 cases); the settings screen adds 472 values and 12 text-width mismatches; the 26 left are the editor set's known divergences |
+| Editor theme coordinates (Unity 6000.0.40f1) | 660 / 676 | 1122 / 1148 | Label `flex-shrink: 0` (`ItemDesc` y, height) gave 662/676; the settings screen (two cases, all 15 drawn controls) adds 472 values, 12 of them the footer's text widths |
+| Template cohort | 215 / 220 | 215 / 220 | unchanged; G3-4 text-width deltas moved by the Label padding |
+| Text cohort, editor (Chromium vs Unity) | 92/92 · 84/92 · 92/92 · 157/159 | unchanged | |
+| Text cohort, runtime panel (new set) | — | 92/92 · 84/92 · 92/92 · 159/159 (both versions) | measured with the Standard rules (before them: 60/92 heights, 89/92 widths); the 8 plain heights left are Inter's Hangul fallback rows, as on the editor; `noto-jp-zh-20-w60` (203 vs 201) is a fallback glyph starting the last line, a known difference. None unexplained |
+
+Every Unity baseline is now a solo dump, each probe or case in its own Unity
+process: under the Standard text generator a text's width depends on what the
+same process drew before (0-2px). The inventory's nine text-metric values moved
+by 1px on Unity's side (291/93 -> 292/92), still counted as mismatches.
+
+The acceptance screen (`settings`, `settings-ko`: every drawn control on one
+screen, design section 6) is in both golden sets, and a contract test judges
+the same screen with Unity's own text sizes (the dump's `MeasureTextSize`, or
+Unity's layout width where that is 1-2px wider): every box and part matches but
+one half-pixel title. It checks the boxes given the text sizes, not the text
+widths (`docs/accuracy.md`).
+
+### Known differences
+
+- Scrollbars reserve their width and are not drawn.
+- Half-pixel rounding: a centred text whose position falls on a half pixel is
+  rounded up by Unity and down by this preview (a ProgressBar title, 1px in x).
+  Decided after measuring per alignment.
+- A glyph the given font does not have, starting the last line: the runtime
+  preview's box can be taller than Unity's (2px in the measured pair). The text
+  cohort's `noto-jp-zh-20-w60` is this case: Noto Sans JP has no `张`, Unity draws
+  it with a fallback font, 201 against the Standard rule's 203. Thirteen probes
+  dumped alone (`tests/text-cohort/fallback-zh/`) show the 2px only when the
+  fallback glyph starts the last line. Not reproduced: the preview does not know
+  a font's glyph coverage.
+- Unity side: on the runtime panel, writing the same text earlier in a
+  document with a different wrap setting makes a later copy of it shorter.
+  Not reproduced.
+- The editor theme's kinsoku (one 60px Chinese case on the 6.3 editor).
+- The runtime theme's wrapping width, in two of 24 measured texts: a Korean
+  sentence in 100px is 4px wider than Unity's 83 (Unity takes its longest line
+  there), and a 10px sentence 2px wider than Unity's 77. Heights match.
+
+### For consumers
+
+`docs/design/0.7.0-handoff.md` lists what changes, every consumer task, and the
+classified failures of the consumers' own tests against this core:
+vscode-uxml-preview 4 (1 already on 0.6.1, 3 using a now-drawn control as the
+unsupported example), uxml-author 32 (17 already on 0.6.1; 3 such examples, 1
+`version-dependent` sample that no longer warns, 11 skill-document lists and
+"cannot draw" sentences).
+
+### Corrections
+
+- `white-space: pre` does not wrap to the width in Unity either. 0.6.0 said it
+  did, from evidence that could not tell the two apart (`pre-wrap2`).
+- 0.6.1's "a Korean or Latin word wider than the box is not split" was
+  inferred, not measured: none of the cohort's cases had a word wider than its
+  box. Measured, Unity breaks a word longer than the line between characters
+  (`r1w-wrap2`, `r1w-long`, both versions and themes), and the preview now
+  follows it.
+
 ## 0.6.1 — 2026-10-16
 
 Japanese and Chinese text, first. The Japanese and Simplified Chinese READMEs

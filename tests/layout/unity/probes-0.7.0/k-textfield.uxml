@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:TextField name="pm" password="true" multiline="true" value="One&#10;Two" />
+<ui:TextField name="old-text" text="Hello" />
+<ui:TextField name="mask-old" password="true" maskCharacter="#" value="secret" />
+<ui:TextField name="mask-new" password="true" mask-character="#" value="secret" />
+</ui:VisualElement>
+</ui:UXML>

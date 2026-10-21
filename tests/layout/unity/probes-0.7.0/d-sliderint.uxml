@@ -1,0 +1,33 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:SliderInt name="si-h0" low-value="0" high-value="10" value="0" />
+<ui:SliderInt name="si-h1" low-value="0" high-value="10" value="1" />
+<ui:SliderInt name="si-h2" low-value="0" high-value="10" value="2" />
+<ui:SliderInt name="si-h3" low-value="0" high-value="10" value="3" />
+<ui:SliderInt name="si-h4" low-value="0" high-value="10" value="4" />
+<ui:SliderInt name="si-h5" low-value="0" high-value="10" value="5" />
+<ui:SliderInt name="si-h6" low-value="0" high-value="10" value="6" />
+<ui:SliderInt name="si-h7" low-value="0" high-value="10" value="7" />
+<ui:SliderInt name="si-h8" low-value="0" high-value="10" value="8" />
+<ui:SliderInt name="si-h9" low-value="0" high-value="10" value="9" />
+<ui:SliderInt name="si-h10" low-value="0" high-value="10" value="10" />
+<ui:SliderInt name="si-range" low-value="30" high-value="144" value="60" />
+<ui:SliderInt name="si-label3" label="Label" low-value="0" high-value="10" value="3" />
+<ui:SliderInt name="si-input7" low-value="0" high-value="10" value="7" show-input-field="true" />
+<ui:SliderInt name="si-out" low-value="0" high-value="10" value="12" />
+<ui:SliderInt name="si-rev" low-value="10" high-value="0" value="3" />
+</ui:VisualElement>
+<ui:VisualElement name="row" style="flex-direction: row;">
+<ui:SliderInt name="si-v0" low-value="0" high-value="10" value="0" direction="Vertical" style="height: 120px;" />
+<ui:SliderInt name="si-v1" low-value="0" high-value="10" value="1" direction="Vertical" style="height: 120px;" />
+<ui:SliderInt name="si-v2" low-value="0" high-value="10" value="2" direction="Vertical" style="height: 120px;" />
+<ui:SliderInt name="si-v3" low-value="0" high-value="10" value="3" direction="Vertical" style="height: 120px;" />
+<ui:SliderInt name="si-v4" low-value="0" high-value="10" value="4" direction="Vertical" style="height: 120px;" />
+<ui:SliderInt name="si-v5" low-value="0" high-value="10" value="5" direction="Vertical" style="height: 120px;" />
+<ui:SliderInt name="si-v6" low-value="0" high-value="10" value="6" direction="Vertical" style="height: 120px;" />
+<ui:SliderInt name="si-v7" low-value="0" high-value="10" value="7" direction="Vertical" style="height: 120px;" />
+<ui:SliderInt name="si-v8" low-value="0" high-value="10" value="8" direction="Vertical" style="height: 120px;" />
+<ui:SliderInt name="si-v9" low-value="0" high-value="10" value="9" direction="Vertical" style="height: 120px;" />
+<ui:SliderInt name="si-v10" low-value="0" high-value="10" value="10" direction="Vertical" style="height: 120px;" />
+</ui:VisualElement>
+</ui:UXML>

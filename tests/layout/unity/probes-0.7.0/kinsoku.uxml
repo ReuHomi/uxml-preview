@@ -1,0 +1,23 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="k-none" class="k" text="あいうえおか" />
+<ui:Label name="k-maru" class="k" text="あいう。えお" />
+<ui:Label name="k-ten" class="k" text="あいう、えお" />
+<ui:Label name="k-fwcomma" class="k" text="あいう，えお" />
+<ui:Label name="k-fwperiod" class="k" text="あいう．えお" />
+<ui:Label name="k-excl" class="k" text="あいう！えお" />
+<ui:Label name="k-small-tsu" class="k" text="あいうっえお" />
+<ui:Label name="k-small-ya" class="k" text="あいうゃえお" />
+<ui:Label name="k-small-ka" class="k" text="アイウァエオ" />
+<ui:Label name="k-choon" class="k" text="アイウーエオ" />
+<ui:Label name="k-close-kagi" class="k" text="あいう」えお" />
+<ui:Label name="k-close-paren" class="k" text="あいう）えお" />
+<ui:Label name="k-open-kagi" class="k" text="あい「うえお" />
+<ui:Label name="k-open-paren" class="k" text="あい（うえお" />
+<ui:Label name="k-latin-period" class="k" text="あいう.えお" />
+<ui:Label name="k-latin-comma" class="k" text="あいう,えお" />
+<ui:Label name="k-han-maru" class="k" text="天地玄。宇宙" />
+<ui:Label name="k-zh-comma" class="k" text="天地玄，宇宙" />
+<ui:Label name="k-two-maru" class="k" text="あいう。。お" />
+</ui:VisualElement>
+</ui:UXML>

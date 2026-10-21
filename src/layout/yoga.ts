@@ -5,7 +5,7 @@
  *
  * Nodes are WebAssembly handles and are not garbage collected. Every node this
  * module creates is owned by the LayoutTree that created it and freed by
- * `LayoutTree.dispose`. `liveNodeCount` exists so a test can prove that happens:
+ * `LayoutTree.dispose` (or freed here if construction throws). `liveNodeCount` exists so a test can prove that happens:
  * Yoga's own instance counter is not exposed by the JS bindings.
  *
  * Yoga's engine defaults are not USS's. `flex-direction` and `box-sizing`
@@ -17,18 +17,18 @@
  * is wrong in a way no type checker can see.
  */
 
-import { loadYoga, Align, Direction, Display, Edge, FlexDirection, Justify, Overflow, PositionType, Wrap, BoxSizing } from 'yoga-layout/load';
+import { loadYoga, Align, Direction, Display, Edge, FlexDirection, Justify, MeasureMode, Overflow, PositionType, Wrap, BoxSizing } from 'yoga-layout/load';
 import type { Node as YogaNode, Yoga } from 'yoga-layout/load';
 
 import type { ElementNode, NodeId, Warning } from '../model/types';
 import type { ComputedStyle } from '../style/resolve';
-import { isNonVisual, resolveControl } from '../controls/registry';
-import type { ControlPart } from '../controls/registry';
-import { THEME_UNITY_VERSION, verticalScrollbarWidth } from '../controls/theme';
-import { expandShorthand } from '../style/properties';
+import { uxmlBoolean, isVertical, numericControlValue, isNonVisual, partParentIndex, partTextOf, resolveControl } from '../controls/registry';
+import type { Theme } from '../controls/theme';
+import { DEFAULT_THEME, verticalScrollbarWidth } from '../controls/theme';
 import type { ComputedValue, DeclarationLocator } from '../style/resolve';
 import { INITIAL, parseLength, parseNumber } from '../render/values';
 import type { Length } from '../render/values';
+import { textHeight, EDITOR_DEFAULT_FACE_INFO } from '../render/measure';
 import type { FaceInfo } from '../render/measure';
 import { decodeEntities } from '../parser/entities';
 
@@ -88,6 +88,8 @@ export type MeasureText = (
 ) => TextMetrics;
 
 export interface LayoutOptions {
+  /** Built-in theme; defaults to 'runtime'. */
+  theme?: Theme;
   fonts?: ReadonlyMap<ComputedStyle, { family: string; faceInfo?: FaceInfo }>;
   size: { width: number; height: number };
   /**
@@ -115,8 +117,12 @@ export interface LayoutPart {
   name: string;
   /** The element whose control built it. */
   owner: NodeId;
+  /** Index in this owner’s laid-out parts, null for the owner itself. */
+  parent?: number | null;
+  /** Present for a measured text leaf; wrappers omit it. Text is entity-decoded. */
+  text?: string;
   box: LayoutBox;
-  /** Fixed styling, with `builtin-theme` provenance on every value. */
+  /** Cascade output, including inheritance, theme and author rules. */
   style: ComputedStyle;
 }
 
@@ -125,7 +131,7 @@ export interface LayoutTree {
   boxes: ReadonlyMap<NodeId, LayoutBox>;
   /**
    * Parts each element's control built, outermost first. The element's own
-   * children were laid out inside the last one.
+   * children were laid out inside the last wrapper; text parts are leading siblings.
    */
   parts: ReadonlyMap<NodeId, readonly LayoutPart[]>;
   /** Elements that were laid out, parents before children. */
@@ -182,7 +188,9 @@ const SIDES: ReadonlyArray<readonly [string, Edge]> = [
 /**
  * Purpose:      build a Yoga tree, compute layout, hand back boxes in panel
  *               coordinates.
- * Deps/Effects: creates Yoga nodes; the returned tree owns them until disposed.
+ * Deps/Effects: owns created Yoga nodes until returning the tree, which owns
+ *               them until disposed; on any failure frees all roots and rethrows.
+ *               Calls host measureText and appends measurement warnings.
  * Requires:     `loadLayoutEngine()` must have resolved.
  */
 export function layoutDocument(
@@ -201,6 +209,7 @@ export function layoutDocument(
   partStyles: ReadonlyMap<NodeId, ReadonlyMap<string, ComputedStyle>>,
   options: LayoutOptions,
 ): LayoutTree {
+  const theme = options.theme ?? DEFAULT_THEME;
   const yoga = engine;
   if (yoga === null) {
     throw new Error('loadLayoutEngine() must be awaited before rendering');
@@ -213,10 +222,10 @@ export function layoutDocument(
   const yogaOf = new Map<ElementNode, YogaNode>();
   /** Yoga node per part, in the same order as `parts`, so `collect` can pair them. */
   const partNodes = new Map<NodeId, YogaNode[]>();
+  const allocated: YogaNode[] = [];
+  const measurementWarnings = new Map<NodeId, Set<string>>();
   let created = 0;
   let disposed = false;
-  /** Version warning for control parts, raised once per document. */
-  let themeReported = false;
 
   const read = (style: ComputedStyle, property: string): string =>
     style.get(property)?.value ?? INITIAL[property] ?? '';
@@ -390,7 +399,139 @@ export function layoutDocument(
   /** The bindings notice is about the document, so it is raised once. */
   let bindingsReported = false;
 
+  /** Deps/Effects: appends at most one measurement warning per property and element, including inherited values. */
+  function warnMeasurement(node: ElementNode, style: ComputedStyle, property: string,
+    reason: 'not-rendered' | 'invalid-value', message: string): void {
+    const seen = measurementWarnings.get(node.id) ?? new Set<string>();
+    if (seen.has(property)) return;
+    seen.add(property);
+    measurementWarnings.set(node.id, seen);
+    warnings.push({
+      kind: 'unsupported-property', reason, node: node.id, message,
+      subject: { kind: 'property', property, value: read(style, property) },
+    });
+  }
+
+  function measure(yg: YogaNode, text: string, style: ComputedStyle, node: ElementNode, partName?: string): void {
+    const generator = read(style, '-unity-text-generator');
+    const textGenerator = generator === 'standard' || generator === 'advanced'
+      ? generator : theme === 'runtime' ? 'standard' : 'advanced';
+    if (style.has('-unity-text-generator') && generator !== 'standard' && generator !== 'advanced') {
+      warnMeasurement(node, style, '-unity-text-generator', 'invalid-value',
+        `-unity-text-generator: ${generator} is invalid; measured as ${textGenerator}`);
+    }
+    // Measured: tests/layout/unity/<version>/{probe-panel,probe-editor-070}/c-whitespace.json.
+    const whitespaceText = text.length > 0 && text.trim() === '' &&
+      ['Label', 'Button', 'GroupBox'].includes(node.name.local);
+    if (whitespaceText && (theme === 'runtime' || textGenerator === 'standard')) {
+      yg.setMeasureFunc(() => ({ width: 0, height: 0 }));
+      return;
+    }
+    const fontSize = length(style, 'font-size', node);
+    if (fontSize?.kind === 'percent') {
+      // Measured: t2-percent.json, both versions/themes (bundle A plan §33).
+      warnMeasurement(node, style, 'font-size', 'invalid-value',
+        `font-size: ${read(style, 'font-size')} — Unity reads a percentage as pixels (${fontSize.value}px), not relative to the parent; drawn as Unity does`);
+    } else if (fontSize?.kind === 'px' && fontSize.value <= 0) {
+      warnMeasurement(node, style, 'font-size', 'invalid-value',
+        `font-size: ${read(style, 'font-size')} is not positive; measured as written`);
+    } else if (style.has('font-size') && fontSize?.kind !== 'px') {
+      warnMeasurement(node, style, 'font-size', 'not-rendered',
+        `font-size: ${read(style, 'font-size')} is not measured; 12px is used`);
+    }
+    const context: TextContext = {
+      fontSize: fontSize !== null && (fontSize.kind === 'px' || fontSize.kind === 'percent') ? fontSize.value : 12,
+      fontStyle: read(style, '-unity-font-style') || 'normal',
+      whiteSpace: read(style, 'white-space') || 'normal',
+      textGenerator,
+    };
+    // r15-tf-spaces: preserve significant spaces; ordinary single-space text
+    // retains its existing host-measurer context (normal and pre-wrap agree).
+    if (partName === 'unity-text-element--inner-input-field-component' && / {2}|^ | $/m.test(text)) {
+      context.whiteSpace = context.whiteSpace === 'normal' ? 'pre-wrap' : 'pre';
+    }
+    const font = options.fonts?.get(style);
+    if (font !== undefined) {
+      context.fontFamily = font.family;
+      const face = font.faceInfo;
+      if (face === undefined && textGenerator === 'standard') {
+        warnMeasurement(node, style, '-unity-font-definition', 'not-rendered',
+          '-unity-font-definition: host font has no FaceInfo lineHeight; later Standard lines cannot be placed as Unity does');
+      }
+      if (face !== undefined) {
+        if (Number.isFinite(face.pointSize) && face.pointSize > 0 &&
+            Number.isFinite(face.ascentLine) && Number.isFinite(face.descentLine)) context.faceInfo = face;
+        else warnMeasurement(node, style, '-unity-font-definition', 'invalid-value',
+          '-unity-font-definition: invalid FaceInfo; measured without FaceInfo');
+      }
+    }
+    for (const [property, field] of [
+      ['letter-spacing', 'letterSpacing'], ['word-spacing', 'wordSpacing'],
+      ['-unity-paragraph-spacing', 'paragraphSpacing'],
+    ] as const) {
+      const parsed = length(style, property, node);
+      if (parsed?.kind === 'px') context[field] = parsed.value;
+    }
+    // probe-editor-070/*.json: Standard in 6000.0.40f1, Advanced in
+    // 6000.3.25f1. The 0.6.0 text-spacing dumps show spacing beside spaces differs.
+    let generatorOrigin = style.get('-unity-text-generator')?.origin;
+    while (generatorOrigin?.kind === 'inherited') generatorOrigin = generatorOrigin.origin;
+    const ownGenerator = generatorOrigin?.kind === 'rule' || generatorOrigin?.kind === 'inline';
+    if (theme === 'editor' && !ownGenerator &&
+        ((context.letterSpacing ?? 0) !== 0 || (context.wordSpacing ?? 0) !== 0)) {
+      warnings.push({
+        kind: 'version-dependent', reason: 'version-dependent', node: node.id,
+        subject: { kind: 'property', property: '-unity-text-generator', value: '', affectsLayout: true },
+        message: "Unity 6000.0.40f1's editor theme spaces this text with the standard text generator and 6000.3.25f1's with advanced; drawn as advanced",
+      });
+    }
+    // Unity evidence: c07-TextField.json, both 6.3 themes: an empty input
+    // retains a line box even though Unity's text measurement reports zero.
+    if (text === '' && node.name.local === 'TextField') {
+      yg.setMeasureFunc((_width, _widthMode, availableHeight, heightMode) => {
+        const height = textHeight(1, context.fontSize, context.faceInfo ?? EDITOR_DEFAULT_FACE_INFO, 0, 0, context.textGenerator);
+        return { width: 0, height: heightMode === MeasureMode.AtMost && Number.isFinite(availableHeight)
+          ? Math.min(height, availableHeight) : height };
+      });
+      return;
+    }
+    yg.setMeasureFunc((availableWidth, widthMode, availableHeight, heightMode) => {
+      const measured = options.measureText(
+        text,
+        context,
+        read(style, 'position') !== 'absolute' && Number.isFinite(availableWidth) ? availableWidth : 0,
+      );
+      // Measured: g-clamp.json — AtMost clips text except absolute elements and TextField inner text.
+      const clip = widthMode === MeasureMode.AtMost && Number.isFinite(availableWidth) &&
+        read(style, 'position') !== 'absolute' && partName !== 'unity-text-element--inner-input-field-component';
+      // Measured: g-clamp-h.json clips single-line inner text; c-edge.json (§32)
+      // preserves multiline inner text height and leaves absolute text unconstrained.
+      const clipHeight = heightMode === MeasureMode.AtMost && Number.isFinite(availableHeight) &&
+        read(style, 'position') !== 'absolute' &&
+        !(partName === 'unity-text-element--inner-input-field-component' &&
+          uxmlBoolean(node.attributes.find((a) => a.name === 'multiline')?.value) === true);
+      return {
+        width: clip ? Math.min(measured.width, availableWidth) : measured.width,
+        height: clipHeight ? Math.min(measured.height, availableHeight) : measured.height,
+      };
+    });
+    if (whitespaceText && theme === 'editor') {
+      warnings.push({
+        kind: 'version-dependent', reason: 'version-dependent', node: node.id,
+        subject: { kind: 'control', type: node.name.local },
+        message: `<${node.name.local}> ${node.name.local === 'GroupBox' ? 'title' : 'text'} of only spaces is 0px high on Unity 6000.0.40f1 and 15px on 6000.3.25f1 (editor theme); drawn as 6000.3.25f1`,
+      });
+    }
+  }
+
   function build(node: ElementNode, parent: YogaNode | null): void {
+    if (['Slider', 'SliderInt', 'ProgressBar'].includes(node.name.local) && numericControlValue(node).invalid) {
+      const raw = node.attributes.find((a) => a.name === 'value')?.value;
+      const problem = Number.isNaN(Number(raw)) ? 'a number' : 'a whole number';
+      warnings.push({ kind: 'malformed', reason: 'invalid-value', node: node.id,
+        subject: { kind: 'control', type: node.name.local },
+        message: `<${node.name.local} value="${raw}"> is not ${problem}; the default ${numericControlValue(node).value} is used` });
+    }
     if (isNonVisual(node)) {
       if (node.name.local === 'Bindings' && !bindingsReported) {
         bindingsReported = true;
@@ -406,6 +547,7 @@ export function layoutDocument(
     }
     const style = styles.get(node.id) ?? new Map();
     const yg = yoga!.Node.create();
+    allocated.push(yg);
     created++;
     liveNodes++;
     yogaOf.set(node, yg);
@@ -416,6 +558,15 @@ export function layoutDocument(
     const { spec, fallback } = resolveControl(node);
     const text = textOf(node);
     const drawsText = spec.hasText && text !== undefined && text.length > 0;
+
+    // probe-editor-070/c07-existing.json, col/button-empty: 4px vs 19px.
+    if (theme === 'editor' && node.name.local === 'Button' && !drawsText) {
+      warnings.push({
+        kind: 'version-dependent', reason: 'version-dependent', node: node.id,
+        subject: { kind: 'control', type: 'Button' },
+        message: '<Button> with no text is 4px high on Unity 6000.0.40f1 and 19px on 6000.3.25f1 (editor theme); drawn as 6000.0.40f1',
+      });
+    }
 
     if (fallback) {
       // Drawn, not dropped — but say so. The one thing a preview must never do
@@ -463,7 +614,10 @@ export function layoutDocument(
       }
     }
 
-    if (drawsText) {
+    // Measured: f-states.json rb-child / te-child size from file children alone.
+    const childrenSizeText = ['TextElement', 'RepeatButton'].includes(node.name.local) &&
+      node.children.some((child) => !isNonVisual(child));
+    if (drawsText && !childrenSizeText) {
       // Yoga refuses to measure a node that has children, and would not ask for
       // an intrinsic size anyway. Text wins; dropping it silently would be worse.
       if (node.children.some((child) => !isNonVisual(child))) {
@@ -473,32 +627,7 @@ export function layoutDocument(
           { reason: 'not-rendered', subject: { kind: 'control', type: node.name.local } },
         );
       }
-      const fontSize = length(style, 'font-size', node);
-      const context: TextContext = {
-        fontSize: fontSize !== null && fontSize.kind === 'px' ? fontSize.value : 12,
-        fontStyle: read(style, '-unity-font-style') || 'normal',
-        whiteSpace: read(style, 'white-space') || 'normal',
-        textGenerator: read(style, '-unity-text-generator') === 'standard' ? 'standard' : 'advanced',
-      };
-      const font = options.fonts?.get(style);
-      if (font !== undefined) {
-        context.fontFamily = font.family;
-        if (font.faceInfo !== undefined) context.faceInfo = font.faceInfo;
-      }
-      for (const [property, field] of [
-        ['letter-spacing', 'letterSpacing'], ['word-spacing', 'wordSpacing'],
-        ['-unity-paragraph-spacing', 'paragraphSpacing'],
-      ] as const) {
-        const parsed = length(style, property, node);
-        if (parsed?.kind === 'px') context[field] = parsed.value;
-      }
-      yg.setMeasureFunc((availableWidth) =>
-        options.measureText(
-          text,
-          context,
-          Number.isFinite(availableWidth) ? availableWidth : 0,
-        ),
-      );
+      measure(yg, text, style, node);
       return;
     }
 
@@ -506,47 +635,44 @@ export function layoutDocument(
     // Laying it out would add a phantom box to the flow and report it as an
     // unsupported control, which names the wrong problem — the stylesheet is
     // handled in `parse`, and if it could not be loaded that is what warns.
-    // A control's own parts go between it and the file's children, so the
-    // children are built into the innermost part rather than into the element.
-    // Skipping this is exactly the bug that puts every descendant of a
-    // ScrollView in the wrong place.
+    // File children default to the last non-text part (ScrollView's content
+    // container); controls can instead keep them directly under the owner.
     let host = yg;
     if (spec.parts.length > 0) {
-      // A part's styling and the scrollbar width beside it are both measured on
-      // one Unity version, exactly like the Button margin — but neither goes
-      // through the cascade, so neither reached the warning the cascade raises.
-      // A ScrollView-only document was using version-specific geometry in
-      // silence, and a document that happened to contain a Button got the
-      // warning for an unrelated reason. Reported here, once, where it applies.
-      if (!themeReported) {
-        themeReported = true;
-        warnings.push({
-          kind: 'version-dependent',
-          message: `<${node.name.local}> drawn with built-in child elements measured on Unity ${THEME_UNITY_VERSION}`,
-          node: node.id,
-          reason: 'version-dependent',
-          subject: { kind: 'control', type: node.name.local },
-        });
-      }
+      // golden and golden-panel dumps agree across 6000.0.40f1 and 6000.3.25f1:
+      // measured ScrollView parts do not introduce a version difference.
       const chain: LayoutPart[] = [];
       const nodes: YogaNode[] = [];
       const resolvedParts = partStyles.get(node.id);
-      for (const part of spec.parts) {
+      const builtIndices = new Map<number, number>();
+      for (const [index, part] of spec.parts.entries()) {
+        const partText = partTextOf(node, part);
+        if (part.kind === 'leading-text' && !partText) continue;
         // Falls back to nothing rather than to the registry defaults: if the
         // cascade did not resolve this part, styling it from a second source
         // here is exactly the divergence this refactor removed.
         const style: ComputedStyle = resolvedParts?.get(part.name) ?? new Map();
         const partNode = yoga!.Node.create();
+        allocated.push(partNode);
         created++;
         liveNodes++;
         applyStyle(partNode, style, node);
-        host.insertChild(partNode, host.getChildCount());
-        host = partNode;
+        const parentIndex = partParentIndex(spec.parts, index);
+        const parent = parentIndex === null ? null : builtIndices.get(parentIndex) ?? null;
+        const partHost = parent === null ? yg : nodes[parent]!;
+        partHost.insertChild(partNode, partHost.getChildCount());
+        builtIndices.set(index, nodes.length);
+        // c07-GroupBox: title is a sibling before file children, never a host.
+        if (partText !== undefined) {
+          measure(partNode, partText, style, node, part.name);
+        } else if (spec.fileChildrenHost !== 'owner') host = partNode;
         nodes.push(partNode);
         // Box filled in by `collect`, once layout has actually run.
         chain.push({
           name: part.name,
           owner: node.id,
+          parent,
+          ...(partText !== undefined ? { text: partText } : {}),
           box: { left: 0, top: 0, width: 0, height: 0 },
           style,
         });
@@ -560,96 +686,156 @@ export function layoutDocument(
     for (const child of node.children) build(child, host);
   }
 
-  // The `<ui:UXML>` element is the panel box itself. Styling it — `:root`
-  // padding, say — therefore applies, which is what a preview should show.
-  build(root, null);
-  const rootNode = yogaOf.get(root)!;
-  rootNode.setWidth(options.size.width);
-  rootNode.setHeight(options.size.height);
-  rootNode.setPositionType(PositionType.Relative);
-  rootNode.calculateLayout(options.size.width, options.size.height, Direction.LTR);
-
-  /**
-   * Purpose:      reserve the width a visible vertical scrollbar takes, then lay
-   *               out again.
-   * Deps/Effects: mutates part nodes and re-runs `calculateLayout`.
-   *
-   * Two passes are needed because the question is circular: whether a scrollbar
-   * shows depends on the content height, and narrowing the viewport for one can
-   * change that height. Unity resolves the same circle the same way. The loop is
-   * bounded, and settling is the normal case — a second change would mean the
-   * content grew taller *because* it got narrower, which only wrapping text does.
-   *
-   * This is not a correction applied to Yoga's answer. It is the input Unity
-   * gives its own layout, and the width comes from `theme.ts` with the version
-   * it was measured on, not from a number typed here.
-   */
-  const reserved = new Map<NodeId, number>();
-  for (let pass = 0; pass < 3; pass++) {
-    let changed = false;
-    for (const [owner, chain] of parts) {
-      const nodes = partNodes.get(owner);
-      if (nodes === undefined) continue;
-      const viewport = chain.findIndex((p) => p.name === 'unity-content-viewport');
-      const content = chain.findIndex((p) => p.name === 'unity-content-container');
-      if (viewport === -1 || content === -1) continue;
-
-      const viewportBox = nodes[viewport]!.getComputedLayout();
-      const contentBox = nodes[content]!.getComputedLayout();
-      // A hair of tolerance: equal heights are not an overflow, and floating
-      // point should not decide whether a scrollbar exists.
-      const overflows = contentBox.height > viewportBox.height + 0.01;
-      const want = verticalScrollbarWidth(overflows);
-      if ((reserved.get(owner) ?? 0) === want) continue;
-
-      reserved.set(owner, want);
-      nodes[viewport]!.setMargin(Edge.Right, want);
-      changed = true;
-    }
-    if (!changed) break;
+  try {
+    // The `<ui:UXML>` element is the panel box itself. Styling it — `:root`
+    // padding, say — therefore applies, which is what a preview should show.
+    build(root, null);
+    const rootNode = yogaOf.get(root)!;
+    rootNode.setWidth(options.size.width);
+    rootNode.setHeight(options.size.height);
+    rootNode.setPositionType(PositionType.Relative);
     rootNode.calculateLayout(options.size.width, options.size.height, Direction.LTR);
-  }
 
-  // Yoga reports each box relative to its parent; the painter wants panel
-  // coordinates, so offsets accumulate on the way down — through the parts as
-  // well, since a child sits inside the innermost one.
-  function collect(node: ElementNode, offsetX: number, offsetY: number): void {
-    const yg = yogaOf.get(node);
-    if (yg === undefined) return;
-    const box = yg.getComputedLayout();
-    let left = offsetX + box.left;
-    let top = offsetY + box.top;
-    boxes.set(node.id, { left, top, width: box.width, height: box.height });
+    /**
+     * Purpose:      reserve the width a visible vertical scrollbar takes, then lay
+     *               out again.
+     * Deps/Effects: mutates part nodes and re-runs `calculateLayout`.
+     *
+     * Two passes are needed because the question is circular: whether a scrollbar
+     * shows depends on the content height, and narrowing the viewport for one can
+     * change that height. Unity resolves the same circle the same way. The loop is
+     * bounded, and settling is the normal case — a second change would mean the
+     * content grew taller *because* it got narrower, which only wrapping text does.
+     *
+     * This is not a correction applied to Yoga's answer. It is the input Unity
+     * gives its own layout, and the width comes from `theme.ts` with the version
+     * it was measured on, not from a number typed here.
+     */
+    const reserved = new Map<NodeId, number>();
+    for (let pass = 0; pass < 3; pass++) {
+      let changed = false;
+      for (const [owner, chain] of parts) {
+        const nodes = partNodes.get(owner);
+        if (nodes === undefined) continue;
+        const viewport = chain.findIndex((p) => p.name === 'unity-content-viewport');
+        const content = chain.findIndex((p) => p.name === 'unity-content-container');
+        if (viewport === -1 || content === -1) continue;
 
-    const chain = parts.get(node.id);
-    const nodes = partNodes.get(node.id);
-    if (chain !== undefined && nodes !== undefined) {
-      chain.forEach((part, index) => {
-        const partBox = nodes[index]!.getComputedLayout();
-        left += partBox.left;
-        top += partBox.top;
-        part.box = { left, top, width: partBox.width, height: partBox.height };
-      });
+        const viewportBox = nodes[viewport]!.getComputedLayout();
+        const contentBox = nodes[content]!.getComputedLayout();
+        // A hair of tolerance: equal heights are not an overflow, and floating
+        // point should not decide whether a scrollbar exists.
+        const overflows = contentBox.height > viewportBox.height + 0.01;
+        const want = verticalScrollbarWidth(overflows, theme);
+        if ((reserved.get(owner) ?? 0) === want) continue;
+
+        reserved.set(owner, want);
+        nodes[viewport]!.setMargin(Edge.Right, want);
+        changed = true;
+      }
+      if (!changed) break;
+      rootNode.calculateLayout(options.size.width, options.size.height, Direction.LTR);
     }
 
-    for (const child of node.children) collect(child, left, top);
-  }
-  collect(root, 0, 0);
+    // Measured: 6000.3.25f1/{probe-panel,probe-editor-070}/f-progress.json; AbstractProgressBar sets right after layout.
+    for (const [node] of yogaOf) {
+      if (node.name.local !== 'ProgressBar') continue;
+      const chain = parts.get(node.id)!;
+      const nodes = partNodes.get(node.id)!;
+      const background = nodes[chain.findIndex((p) => p.name === 'unity-progress-bar__background')]!;
+      const progress = nodes[chain.findIndex((p) => p.name === 'unity-progress-bar__progress')]!;
+      const { high, value } = numericControlValue(node);
+      const width = Math.floor(background.getComputedLayout().width - 2);
+      const rawFill = high === 0 ? 0 : width * value / high;
+      const filled = Number.isFinite(rawFill) && rawFill > 0 ? rawFill : 0;
+      progress.setPosition(Edge.Right, width - filled);
+      if (theme === 'editor' && filled === 0) {
+        warnings.push({
+          kind: 'version-dependent', reason: 'version-dependent', node: node.id,
+          subject: { kind: 'control', type: 'ProgressBar' },
+          message: '<ProgressBar> at or below low-value is 1px wide on Unity 6000.0.40f1 and 0px on 6000.3.25f1 (editor theme); drawn as 6000.3.25f1',
+        });
+      }
+    }
+    if ([...yogaOf.keys()].some((node) => node.name.local === 'ProgressBar')) {
+      rootNode.calculateLayout(options.size.width, options.size.height, Direction.LTR);
+    }
 
-  return {
-    boxes,
-    parts,
-    painted,
-    warnings,
-    dispose(): void {
-      if (disposed) return;
-      disposed = true;
-      // Parts were inserted as children, so freeRecursive already covers them;
-      // `created` counted them, so the live tally comes back to where it started.
-      rootNode.freeRecursive();
-      liveNodes -= created;
-      yogaOf.clear();
-      partNodes.clear();
-    },
-  };
+    // Yoga reports each box relative to its parent; the painter wants panel
+    // coordinates, so offsets accumulate through the file-child host: the owner
+    // when declared, otherwise the last non-text part.
+    function collect(node: ElementNode, offsetX: number, offsetY: number): void {
+      const yg = yogaOf.get(node);
+      if (yg === undefined) return;
+      const box = yg.getComputedLayout();
+      let left = offsetX + box.left;
+      let top = offsetY + box.top;
+      boxes.set(node.id, { left, top, width: box.width, height: box.height });
+
+      const chain = parts.get(node.id);
+      const nodes = partNodes.get(node.id);
+      const { spec } = resolveControl(node);
+      if (chain !== undefined && nodes !== undefined) {
+        chain.forEach((part, index) => {
+          const partBox = nodes[index]!.getComputedLayout();
+          const parentBox = part.parent === null || part.parent === undefined ? boxes.get(node.id)! : chain[part.parent]!.box;
+          part.box = { left: parentBox.left + partBox.left, top: parentBox.top + partBox.top,
+            width: partBox.width, height: partBox.height };
+          if (part.text === undefined && spec.fileChildrenHost !== 'owner') {
+            left = part.box.left;
+            top = part.box.top;
+          }
+        });
+      }
+
+      for (const child of node.children) collect(child, left, top);
+    }
+    collect(root, 0, 0);
+
+    // Unity evidence: 6000.3.25f1/{probe-panel,probe-editor-070}/d-slider*.json.
+    // Depends on completed Yoga sizes. Translation affects paint only, never layout boxes.
+    for (const [owner, chain] of parts) {
+      const container = chain.find((p) => p.name === 'unity-drag-container');
+      const dragger = chain.find((p) => p.name === 'unity-dragger');
+      if (container === undefined || dragger === undefined) continue;
+      const node = [...yogaOf.keys()].find((n) => n.id === owner)!;
+      const { low, high, value: sliderValue } = numericControlValue(node);
+      const ratio = high === low ? 0 : (sliderValue - low) / (high - low);
+      let t = Number.isFinite(ratio) ? Math.min(1, Math.max(0, ratio)) : 0;
+      if (uxmlBoolean(node.attributes.find((a) => a.name === 'inverted')?.value) === true) t = 1 - t;
+      const vertical = isVertical(node.attributes.find((a) => a.name === 'direction')?.value);
+      const value = vertical ? `0px ${(1 - t) * (container.box.height - dragger.box.height)}px`
+        : `${t * (container.box.width - dragger.box.width)}px 0px`;
+      for (const part of chain.filter((p) => p.name === 'unity-dragger' || p.name === 'unity-dragger-border')) {
+        const style = new Map(part.style);
+        style.set('translate', { value, origin: { kind: 'builtin-theme', selector: `#${part.name}`,
+          property: 'translate', unityVersion: '6000.3.25f1' } });
+        part.style = style;
+      }
+    }
+
+    return {
+      boxes,
+      parts,
+      painted,
+      warnings,
+      dispose(): void {
+        if (disposed) return;
+        disposed = true;
+        // Parts were inserted as children, so freeRecursive already covers them;
+        // `created` counted them, so the live tally comes back to where it started.
+        rootNode.freeRecursive();
+        liveNodes -= created;
+        yogaOf.clear();
+        partNodes.clear();
+      },
+    };
+  } catch (error) {
+    // Collect roots before freeing: children become invalid handles afterwards.
+    const roots = allocated.filter((node) => node.getParent() === null);
+    for (const node of roots) node.freeRecursive();
+    liveNodes -= created;
+    throw error;
+  }
+
 }

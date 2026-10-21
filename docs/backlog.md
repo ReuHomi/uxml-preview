@@ -113,7 +113,9 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 >
 > **2026-10-16, 적대적 검증에서 남긴 것:**
 > - 사용자 폰트의 글자 범위 확인 — 0.6.0은 기본 폰트(Inter)의 한글·한자·가나만 경고한다. 사용자 폰트에
->   없는 글자는 Unity가 대체 폰트로 그리지만 이 미리보기는 모른다
+>   없는 글자는 Unity가 대체 폰트로 그리지만 이 미리보기는 모른다. **측정된 영향(2026-10-20):** 대체 글꼴 글자가
+>   마지막 줄 첫 글자이면 Unity 런타임 상자가 2px 짧다(텍스트 코호트 `noto-jp-zh-20-w60`, Noto Sans JP에 없는 `张`,
+>   프로브 13개 `tests/text-cohort/fallback-zh/`). 글자 범위를 알면 경고하거나 그 줄의 수치를 바꿀 수 있다
 > - 중첩 비활성의 투명도 — **0.7.0(컨트롤·테마)으로 옮겼다**, 아래 0.7.0 절
 > - Label `flex-shrink: 0` — 0.7.0 절로 옮겼다
 > - 공백 접기 — 6.3은 연속 공백을 접고 앞 공백을 버린다(`spaces.json`). 6000.0은 접지 않는다. 미리보기는 6.3을 따른다.
@@ -161,6 +163,23 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
     `transition-duration`, `transition-property`, `transition-timing-function`,
     `animation-play-state`(6.6+), `-unity-animation-clip`(6.6+)
 
+## 다음 버전(0.8) 후보 — 순서대로
+
+0. **기본 글꼴 동봉** — Unity 기본 글꼴(Inter, 공개 라이선스 — 런타임 NotInter와 FaceInfo가 같다)을 미리보기에 넣어, 글꼴을 넘기지 않아도 Unity 글자 폭으로 재게 한다. 라이선스 확인 포함. 근거: 재검증 R3-C4·R1(브라우저 기본 글꼴은 글자 폭이 몇 px 다르고 줄 수가 달라진다). 2026-10-21 사람 결정
+
+0. **실제 측정기 층** — 컨트롤 프로브 전체를 기본 측정기 + Unity 글꼴로 다시 돌려 덤프와 비교하는 테스트 층(`tests/text-cohort/measure-real.mjs`의 확장). 측정 흉내 함수로는 C1·R1-W를 못 잡았다. 2026-10-21 사람 결정
+
+1. **ScrollView 스크롤바 그리기** — 0.7.0은 폭만 확보하고 그리지 않는다(알려진 차이, `docs/supported.md`·`docs/accuracy.md`).
+   Unity는 `unity-scroller` 아래에 반복 버튼 둘과 Slider를 만든다(`a2-scrollview` 덤프). 만들면 클래스 테스트의 제외
+   (`tests/contract-070/classes.test.ts` 머리말)와 골든의 `NOT_REPRODUCED`를 함께 걷어낸다. 넘칠 때만 보이는 조건부 표시가
+   먼저 측정돼 있다(`accuracy.md` ScrollView 절). 2026-10-18 사람 결정
+
+2. **반 픽셀 반올림** — 정렬별(왼쪽·가운데·오른쪽, 빈 공간의 홀짝 나머지) 반올림을 측정한 뒤 결정. Unity는 가운데 정렬된 글을 반 픽셀에서 올리고 미리보기의 Yoga는 글 노드 위치를 내린다(ProgressBar 제목 x 1px, `bundle-f.test.ts` `KNOWN_HALF_PIXEL`). 글 노드 반올림을 바꾸면 모든 글 상자가 움직이므로 측정·예측이 먼저다. 2026-10-20 사람 결정
+
+3. **공백 — 끝 공백(T6)과 런타임 Label의 연속 공백(N2)** — 측정됨(2026-10-21, `r15-tf-spaces`·`r15-label-spaces`): Label의 연속 공백은 Standard 생성기(런타임 패널 두 버전, 6000.0 에디터)에서 남고 Advanced(6.3 에디터)에서만 접힌다. 미리보기는 어디서나 접어 런타임 Label을 좁게 잰다. 끝 공백은 생성기마다 다르다(TextField `trail     `: Standard는 버리고 Advanced는 센다). 그리는 쪽(CSS가 앞·끝 공백을 다루는 방식)과 함께 정해야 해서 0.7.0에서는 보고만 했다. 2026-10-21 사람 결정(T6은 0.8)
+
+4. **런타임 Standard 꺾임 폭** — 한국어 케이스를 늘려 측정한다. 지금은 1건(`r1w-wrap2` `ko100`, Pretendard 100px)이 규칙("꺾일 때 마지막으로 들어간 글자까지의 폭, floor + 1")보다 4px 좁고, Unity는 거기서 가장 긴 줄을 쓴다. 10px 케이스(`te10`)는 2px 차이다. 둘 다 `measure-real.mjs`의 `KNOWN_R1W`. 2026-10-21 사람 결정
+
 ## 0.7.0 — 컨트롤·테마
 
 - **중첩 비활성의 투명도** — 측정됨(`tests/layout/unity/<version>/probe-editor/nested-disabled.json`, 6000.0.40f1·
@@ -168,6 +187,16 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
   1이다. 이 미리보기는 내장 테마의 `:disabled` 규칙으로 0.5를 줘서 자손이 0.25로 겹친다(Unity 0.5, 미리보기 0.25).
   테마 규칙의 문제라 0.7.0 테마 작업에서 고친다. 2026-08-06 항목("측정하지 않았다")은 이것으로 판정됐다
 - Label `flex-shrink: 0` — 에디터 테마 값(측정). 넣으면 `inventory`의 `ItemDesc.height`·`y`가 맞는다(+2)
+- **2026-10-17 완료(묶음 A, A2)**: 위 두 항목. 비활성은 `.unity-disabled`에만 0.5, Label·Button `flex-shrink: 0`, 에디터 좌표 662/676
+- **2026-10-17 정정**: 0.6.0 절의 "`white-space: pre`의 줄바꿈 — Unity는 `pre`도 폭에 맞춰 줄을 바꾼다"는 뒤집혔다. `pre-wrap2`(40px,
+  두 버전·두 테마)에서 `pre`는 1줄, `pre-wrap`은 3줄. `te-wrap`은 12px에서 글이 상자에 들어가 구분력이 없었다. 미리보기는 이미 맞다
+- **런타임 테마의 금칙**: 런타임 패널은 금칙이 없고 미리보기도 런타임 테마에서는 금칙 없이 그린다(A2). 에디터 테마(6.3)의 금칙은
+  알려진 차이로 남는다(`zh` 60px). 에디터 테마 금칙을 재현할지는 측정 범위(어떤 문자 쌍)부터 정해야 한다
+
+- **`:root` 경고에 맞는 kind 신설 — `WarningKind`를 바꿀 수 있는 다음 큰 버전에서**(2026-10-17 결정). 지금은 kind
+  `version-dependent`·reason `matches-unity`이고 버전 차이가 아니다. 기존 17종에는 맞는 것이 없다(`unsupported-selector`도
+  사실과 다르다 — `:root`는 지원된다). `WarningKind`는 닫힌 집합이라(`WarningKindMap`, vscode `assertNever`) 새 kind는 소비자
+  컴파일을 깨므로 메이저에서만. 두 소비자는 reason을 먼저 보므로 그때까지 영향 없음(`docs/api.md` 경고 절)
 
 ### 소비자 갱신 — uxml-author가 0.6.0 이상을 받을 때
 

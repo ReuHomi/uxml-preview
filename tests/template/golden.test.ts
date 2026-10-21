@@ -15,11 +15,12 @@ interface UnityTemplateDump {
 const UNITY = join(import.meta.dirname, 'unity');
 const measured = CASES.filter((item) => item.id !== 'G3-11');
 const EXPECTED_TEMPLATE_DELTAS = [
-  ['G3-4', 'g34-instance', 'width', 140, 145, -5],
-  ['G3-4', 'g34-template-root', 'width', 140, 145, -5],
-  ['G3-4', 'g34-internal-label', 'width', 140, 145, -5],
-  ['G3-4', 'g34-outside-label', 'x', 140, 145, -5],
-  ['G3-4', 'g34-outside-label', 'width', 150, 140, 10],
+  // 0.7.0: + 3 from the theme's measured Label padding (1 + 2, probe-editor-070/c07-existing).
+  ['G3-4', 'g34-instance', 'width', 143, 145, -2],
+  ['G3-4', 'g34-template-root', 'width', 143, 145, -2],
+  ['G3-4', 'g34-internal-label', 'width', 143, 145, -2],
+  ['G3-4', 'g34-outside-label', 'x', 143, 145, -2],
+  ['G3-4', 'g34-outside-label', 'width', 153, 140, 13],
 ] as const;
 const KNOWN_TEXT_METRIC_DIVERGENCES = new Set(
   EXPECTED_TEMPLATE_DELTAS.map(([caseId, element, field]) => `${caseId}/${element}/${field}`),

@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:SliderInt name="si-plain" />
+<ui:SliderInt name="si-label" label="Label" low-value="0" high-value="10" value="5" />
+<ui:SliderInt name="si-max" low-value="0" high-value="10" value="10" />
+<ui:SliderInt name="si-input" low-value="0" high-value="10" value="5" show-input-field="true" />
+<ui:SliderInt name="si-disabled" low-value="0" high-value="10" value="5" enabled="false" />
+</ui:VisualElement>
+<ui:VisualElement name="free" style="align-items: flex-start;">
+<ui:SliderInt name="si-auto" low-value="0" high-value="10" value="5" />
+</ui:VisualElement>
+</ui:UXML>

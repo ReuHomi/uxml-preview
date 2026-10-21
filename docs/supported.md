@@ -42,12 +42,16 @@
 |---|---|---|
 | `VisualElement` | 검증됨 | 골든 케이스 대부분이 이걸로 짜여 있다 (좌표, 측정) |
 | `Label` | 검증됨 | 배치는 골든 케이스로, 글자 상자는 텍스트 코호트로 Unity와 대조했다(측정). 높이는 Unity의 FaceInfo 공식, 자간·어간·문단 간격은 Unity 규칙을 따른다 — 아래 "텍스트와 폰트" |
-| `Button` | 검증됨 | 골든 케이스 10개 좌표 대조(측정). 라벨은 **가운데 정렬**(육안 대조로 발견). Unity의 **기본 여백 `margin: 1px 3px`**을 적용한다(`src/controls/theme.ts`). `:hover` 등 상태 스타일 해석 지원. 에디터 테마 기준이며 런타임 테마는 0.7.0 |
-| `ScrollView` | 검증됨 | **암묵 계층 3층**(`unity-content-and-vertical-scroll-container` → `unity-content-viewport` → `unity-content-container`)을 재현한다. 골든 케이스 4개 좌표 대조(측정). 스크롤바는 **폭(13px)만 예약**하고 그리지 않는다 — 드래그·휠·스크롤 위치는 정지 렌더 범위 밖 |
+| `Button` | 검증됨 | 골든 케이스 10개 좌표 대조(측정). 라벨은 **가운데 정렬**(육안 대조로 발견). 테마의 바깥·안쪽 여백, 테두리, 색, `:hover`·`:active`·`:focus`·`:disabled` 색을 두 테마 모두 덤프 값으로 적용한다(`src/controls/theme.ts`, 0.7.0). `flex-shrink: 0` |
+| `ScrollView` | 검증됨 | **암묵 계층 3층**(`unity-content-and-vertical-scroll-container` → `unity-content-viewport` → `unity-content-container`)을 재현한다. 골든 케이스 4개 좌표 대조(측정). **알려진 차이: 스크롤바는 폭만 확보하고 그리지 않는다**(폭은 에디터 테마 13px, 런타임 테마 24px, 측정). Unity가 만드는 스크롤바 부품(`unity-scroller` 이하)은 만들지 않고, 클래스 테스트와 골든 대조에서 제외한다(2026-10-18 사람 결정, 다음 버전 첫 후보 — `docs/backlog.md`). 드래그·휠·스크롤 위치는 정지 렌더 범위 밖 |
+| `GroupBox` | 검증됨 | 0.7.0 묶음 B. `unity-group-box`, 바깥·안쪽 여백(두 테마, 측정). `text`가 있으면 Unity처럼 자식 앞에 제목 Label을 만든다(부품 이름 `unity-group-box__label` — Unity는 이름을 주지 않아 클래스로 부른다). 덤프 `c07-GroupBox` 두 테마의 상자·제목·resolved style 일치. `text=""`(빈 문자열)이면 제목을 만들지 않고 `text=" "`(공백)이면 만든다 — 두 버전·두 테마 측정(`r1-groupbox-empty`). 공백뿐인 제목의 높이: 런타임 0, 에디터 테마는 6.3 값(15)으로 그리고 `version-dependent`(6000.0은 0). standard 생성기면 두 버전 0(`c-whitespace`). 공백뿐인 Label·Button 글자도 같은 규칙. 작성자 USS의 `.unity-group-box__label` 규칙은 제목에 닿는다(`r1-groupbox-author`) |
+| `Box` | 검증됨 | 0.7.0 묶음 B. `unity-box`, 테두리 1·테두리색·배경(두 테마, 측정). 덤프 `c07-Box` 두 테마 일치 |
 | `Image` | 검증됨 | 전용 렌더러(`unity-image`). 대표 화면(`inventory`)의 `Image` 6개가 좌표 24값 모두 Unity 6000.0.40f1과 같고(측정), 기본 스케일 모드 `stretch-to-fill`은 육안 대조로 확인했다([육안 대조](visual-check.md) 5번). 그림은 USS `background-image`로 들어온다 — C#에서 할당한 텍스처는 미리보기가 따라갈 경로가 없다 |
-| `TextField` | 폴백 | `text`·`label`이 그려지지 않는다 |
-| `Toggle` | 폴백 | 위와 같다 |
-| `Slider` / `SliderInt` | 폴백 | 위와 같다 |
+| `TextField` | 검증됨 | 0.7.0 묶음 C. 한 줄·여러 줄(`multiline`)·placeholder·비밀번호(`password`, `mask-character`, 기본 `*`)·비활성·라벨 있음/없음, 두 테마. Unity처럼 라벨(`label`이 있을 때, 부품 이름 `unity-text-field__label`), `#unity-text-input`, 여러 줄이면 `unity-base-text-field__multiline-container`, 안쪽 글자 `unity-text-element--inner-input-field-component`를 만든다. 값이 비면 placeholder 글을 그리고 그 색을 쓴다. 비밀번호는 가림 글자만 그리고 값은 DOM에 넣지 않는다. 빈 칸도 한 줄 높이. 여러 줄은 `white-space: normal`일 때만 줄을 바꾼다. 덤프 `c07-TextField`·`c-textfield`·`c-textfield-hook`(6.3) 두 테마의 상자·부품·resolved style·hover/focus 테두리 일치. 작성자 USS는 `#unity-text-input`·`.unity-text-field__input`·`.unity-text-field__label`로 닿는다(측정). **그리지 않는 것:** 커서(깜빡이는 막대), 글자 선택 표시, 입력·편집, 여러 줄의 스크롤바 — 상호작용은 0.8 후보 |
+| `Toggle` / `RadioButton` | 검증됨 | 0.7.0 묶음 E. 라벨(`label`), 글자(`text`), 체크(`value="true"` → 요소와 입력 부품의 `:checked`), 비활성, 두 테마. 부품: 라벨 `unity-toggle__label`, 입력 `unity-toggle__input`, `#unity-checkmark`, 글자 `unity-toggle__text`(RadioButton은 `unity-radio-button__*`와 체크 표시 배경). 라디오 체크 표시는 꺼지면 숨고 켜지면 12×12(런타임)·6×6(에디터). 덤프 `c07-Toggle`·`c07-RadioButton`·`e-toggle`·`e-radio`(6.3) 두 테마의 상자·부품·resolved style·클래스 일치. **체크 표시 그림은 Unity 그림(`check`, `d_toggle_bg`, `d_toggle_on`)이 아니라 미리보기가 그린 표시** — 사람 대조(판정 5, `docs/design/0.7.0-bundle-E-shots/`). 에디터 테마의 Toggle 상자(Unity 그림 `d_toggle_bg`·`d_toggle_on`)는 Unity 화면에서 잰 색으로 칠한다(E2: 안 #2a2a2a, 위 테두리 #0d0d0d, 나머지 #212121, 반지름은 그림에서 어림 1–3px). 누르기는 그리지 않는다(0.8 후보). RadioButtonGroup은 폴백 |
+| `ProgressBar` | 검증됨 | 0.7.0 묶음 F. 값(`value`), 범위(`low-value`·`high-value`), 제목(`title`), 비활성, 두 테마. 부품: `#unity-progress-bar`(`unity-progress-bar__container`) > 배경 `unity-progress-bar__background` > 막대 `unity-progress-bar__progress` + 제목 칸 `unity-progress-bar__title-container` > 제목 Label `unity-progress-bar__title`. 막대 폭은 Unity 코드 규칙 `floor(배경 폭 − 2) × clamp(값) / high-value`(값을 low·high 사이로 자른 뒤 high로 나눈다 — low 40·값 40은 40%, `k-progress` 측정 2026-10-21) — `f-progress` 14행(값 0–150, 범위, 폭 57–292) 두 테마·두 버전 측정과 일치. 파일 자식은 ProgressBar 자신의 자식(부품 뒤). **버전 차이:** 에디터 테마에서 빈 막대(채움 0)는 6000.0.40f1이 1px, 6.3이 0px — 6.3으로 그리고 버전 경고 |
+| `TextElement` / `RepeatButton` | 검증됨 | 0.7.0 묶음 F. Unity처럼 맨 글자(테마 여백·테두리·배경 없음, `flex-shrink` 1). **RepeatButton은 버튼 모양이 아니다** — Unity 화면이 그렇다(두 테마 측정). 설계 질문 6의 결정대로 Unity처럼 맨 글자로 그린다. 파일 자식이 있으면 크기는 자식이 정한다(자기 글은 높이에 안 들어감). 강제 hover·active·focus·disabled는 아무 값도 바꾸지 않는다(`f-states`). 누르기 반복은 그리지 않는다 |
+| `Slider` / `SliderInt` | 검증됨 | 0.7.0 묶음 D. 가로·세로(`direction`), 라벨, 입력 칸(`show-input-field`), 비활성, 두 테마. 라벨(`unity-slider__label`), 입력(`unity-slider__input`), `#unity-drag-container` 안의 `#unity-tracker`·`#unity-dragger-border`·`#unity-dragger`, 입력 칸이면 TextField `#unity-text-field`(값을 보여 준다). 손잡이 위치: t = clamp((value − low) / (high − low), 0, 1), 가로 translate-x = t × (끌기 칸 폭 − 손잡이 폭), 세로 translate-y = (1 − t) × (끌기 칸 높이 − 손잡이 높이) — 값 0–10 열한 단계·세로·범위 30–144·뒤집힌 범위·범위 밖 값으로 측정(`d-slider`·`d-sliderint`). 덤프 `c07-Slider`·`c07-SliderInt`·`d-*`(6.3) 두 테마의 상자·부품·resolved style·클래스 일치. Slider 안에 쓴 파일 자식은 Unity처럼 Slider 자신의 자식으로, 부품 뒤(가로면 줄 끝)에 놓인다(`d-slider-children`, 측정). **그리지 않는 것:** 끌기·값 바꾸기(상호작용, 0.8 후보) |
 | `Foldout` | 폴백 | 위와 같다 |
 | `DropdownField` | 폴백 | 위와 같다 |
 | `ListView` | 폴백 | 미정 |
@@ -62,7 +66,9 @@
 >
 > 파싱은 어느 쪽이든 성공하며, 왕복 시 유실되지 않는다.
 
-컨트롤 전용 렌더러를 늘리는 일과 런타임 테마 선택은 0.7.0 범위다.
+컨트롤 전용 렌더러를 늘리는 일은 0.7.0 이후 묶음의 범위다.
+
+**테마 (0.7.0).** `render`의 `theme` 옵션이 `'runtime'`(기본값, 게임 화면: Unity가 새 PanelSettings에 만드는 기본 런타임 테마)과 `'editor'`(어두운 에디터 테마)를 고른다. 두 테마의 기본 글자 크기·색, Label·Button 값은 모두 덤프에서 읽었다(`tests/layout/unity/6000.3.25f1/probe-panel/`, `6000.0.40f1/probe-editor-070/`). 밝은 에디터 테마는 다루지 않는다. 코어는 패널 뒤를 칠하지 않는다(투명, Unity와 같다) — 런타임 테마의 글자는 어두운 색(#1b1b1b)이라 바탕은 화면을 보여 주는 쪽이 정한다.
 
 ## Template / Instance
 
@@ -111,7 +117,7 @@ UXML은 `project://database/Packages/...`로 해석된다(Unity 6000.0.40f1 측�
 | `letter-spacing` / `word-spacing` | A | 검증됨 | 값은 CSS px가 아니라 **값 × 글자 크기 / 100**이다. 측정과 그리기 모두 이 규칙(간격 프로브, 측정). 아래 "텍스트와 폰트" |
 | `-unity-paragraph-spacing` | A | 검증됨 | 측정과 그리기에 반영(간격 프로브, 측정) |
 | `-unity-text-generator` | A | 검증됨 | `standard`와 `advanced`의 간격 규칙 차이를 측정·그리기에 반영(측정) |
-| `white-space` | A | **부분** | 공백 처리는 측정했다(아래). `pre`의 줄바꿈은 Unity와 다르다 — Unity는 `pre`도 폭에 맞춰 줄을 바꾸고(측정) 미리보기는 바꾸지 않는다 |
+| `white-space` | A | 검증됨 | Label·Button은 작성자가 쓰지 않으면 `nowrap`이다(Unity 테마, `g-clamp` 두 버전·두 테마, 0.7.0 검증 C1) — TextElement·RepeatButton은 `normal`. 공백 처리를 측정했다(아래). `pre`는 Unity도 폭에 맞춰 줄을 바꾸지 않는다(`pre-wrap2`, 두 버전·두 테마, 2026-10-16) — 0.6.0의 "Unity는 `pre`도 줄을 바꾼다"는 구분력 없는 증거에서 나온 잘못된 판정이었다 |
 | `-unity-font-definition` | B | 검증됨 | 호스트가 `resolveFont` 훅으로 폰트를 넘기면 그 폰트로 재고 그린다(텍스트 코호트, 측정). 훅이 없거나 `null`이면 경고하고 브라우저 기본 폰트를 쓴다 |
 | `-unity-font` | B | 코드 작성 | `-unity-font-definition`과의 우선순위는 Unity 문서를 따랐다(문서). 단독 측정은 안 했다 |
 | `-unity-font-style` | B | 코드 작성 | |
@@ -217,10 +223,10 @@ render(doc, el, { states: { '#UseButton': ['hover'], '#DropButton': ['disabled']
   상태 이름은 경고한다
 - **`:enabled`는 비활성이 아닌 모든 요소에 자동으로 적용된다** — Unity가 그렇게 한다(6000.0.40f1·
   6000.3.25f1 측정)
-- **상태별 Unity 기본값(예: `:hover` 배경색)은 넣지 않았다.** 좌표 덤프로는 색을 측정할 수 없어
-  증명 수단이 없다. 상태 스타일은 사용자가 USS에 쓴 것만 적용된다
-- **중첩 비활성은 Unity와 다르다.** Unity는 `enabled="false"`를 쓴 요소만 불투명도 0.5로 흐리고 자손은
-  그대로 둔다(측정). 미리보기는 자손까지 겹쳐 0.25가 된다. 0.7.0 테마 작업에서 고친다
+- **Button의 상태별 Unity 기본값(`:hover`·`:active`·`:focus`·`:disabled` 색)은 0.7.0부터 넣었다.** 강제 의사 상태로
+  resolved style을 덤프해 쟀다(`c07-states`, 두 테마). 다른 컨트롤의 상태 기본값은 그 컨트롤을 그릴 때 잰다
+- **비활성은 쓴 요소만 흐린다(0.7.0).** Unity는 `enabled="false"`를 쓴 요소에만 `unity-disabled`와 불투명도 0.5를
+  주고 자손은 1로 둔다(측정, `nested-disabled`). 미리보기도 같다. `states`로 `disabled`를 강제한 요소도 그 요소만 흐린다
 
 `:selected`는 상태 목록에 없다. Unity 문서가 USS 미지원이라 적기 때문이다(`:checked`를 쓴다).
 
@@ -244,9 +250,11 @@ render(doc, el, { states: { '#UseButton': ['hover'], '#DropButton': ['disabled']
 
 ## 확인하지 않은 것
 
+- **알려진 차이(반 픽셀 반올림, 2026-10-19 발견):** 가운데 정렬된 글의 빈 공간이 홀수여서 위치가 반 픽셀에 떨어지면 Unity는 다음 픽셀로 올리고, 미리보기의 Yoga는 글 노드의 위치를 내린다. ProgressBar 제목(런타임 테마)에서 x가 1px 다르다 (`bundle-f.test.ts` `KNOWN_HALF_PIXEL` 6행, 설정 화면 1행). 정렬별 반올림을 측정한 뒤 정한다(`docs/backlog.md`)
+- **Unity 쪽 현상(런타임 패널, 2026-10-19 원인 확인):** 같은 패널에서 **같은 글**을 줄바꿈 설정을 달리해 먼저 그리면(`white-space: normal`인 TextElement·Label), 뒤에 오는 같은 글의 높이가 4–8px 줄고 앞의 요소 자신도 줄 수가 틀어진다(`g-clamp`의 20–21px, `t-bis-*` 덤프로 원인을 갈랐다: 앞의 같은 글을 빼면 25px로 돌아온다). 같은 글이 앞에 없으면 Unity도 미리보기와 같다. 미리보기는 이 오염을 재현하지 않는다 — Unity가 같은 문자열의 글 배치를 다시 쓰는 것으로 보인다[추론]. 에디터 테마(6.3)에서는 나타나지 않았다
 - 색·테두리·모서리는 대표 화면 하나의 육안 대조에 기대고 있다([육안 대조](visual-check.md)). 그 화면에
   없던 것은 측정하지 않았다
 - 줄바꿈된 `ScrollView`의 콘텐츠 높이가 다르다. Unity는 뷰포트에 맞춰 자르고 Yoga는 내용만큼 키운다.
   Unity의 규칙은 아직 찾지 못했다
-- 스크롤바는 폭만 예약하고 그리지 않으며, 아무것도 스크롤되지 않는다
-- 런타임 테마(PanelSettings)는 대조하지 않았다. 모든 기준값은 에디터 테마다
+- **알려진 차이:** 스크롤바는 폭만 확보하고 그리지 않으며, 아무것도 스크롤되지 않는다(0.7.0 결정, 다음 버전 첫 후보)
+- 런타임 테마(PanelSettings)는 0.7.0부터 별도 세트로 대조한다(`docs/accuracy.md` "런타임 테마"). 밝은 에디터 테마는 대조하지 않았다

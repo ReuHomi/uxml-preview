@@ -170,26 +170,44 @@ const KNOWN_DIVERGENCES: KnownDivergence[] = [
     field,
     reason:
       'Text measurement. The Footer boundary is set by the Labels\' min-content ' +
-      'width; Unity shrinks the 96px ActionBar to 93 and we shrink it to 85, and ' +
+      'width; Unity shrinks the 96px ActionBar to 92 and we shrink it to 85, and ' +
       'pinning the Labels reduces our excess to the same 3px. Not reproducible: ' +
-      'the browser cannot measure Unity\'s font asset.',
+      'the browser cannot measure Unity\'s font asset. Unity\'s side is the solo dump ' +
+      '(292/92); a session that drew other cases first gives 291/93, because the ' +
+      'Standard generator\'s text width depends on what the process drew before ' +
+      '(docs/accuracy.md, bundle A plan 27-2).',
   })),
 
-  // Not text measurement (corrected 2026-10-16, adversarial review): ItemDesc has
-  // a fixed `height: 56px`. Unity's editor theme gives every Label
-  // `flex-shrink: 0` (resolvedStyle flexShrink in
-  // tests/layout/unity/<version>/probe-editor/text-ladder.json, both versions);
-  // this preview's theme does not, so the Label shrinks to 54 in the 72px panel
-  // and sits 1px higher. Adding only `Label { flex-shrink: 0 }` to the case made
-  // ItemDesc.height and ItemDesc.y match Unity. A missing theme value, not fixed in 0.6.0.
-  {
-    case: 'inventory',
-    element: 'ItemDesc',
-    field: 'height',
-    reason:
-      'Theme: Unity gives Labels flex-shrink 0 and this preview does not, so the fixed 56px ' +
-      'Label shrinks to 54. Measured; not text measurement.',
-  },
+  // Bundle G, the settings screen in English and Korean: the footer row is sized by its
+  // Buttons' and RepeatButtons' text (align-items: flex-start), so their widths and the x of
+  // what follows are text measurement, the same kind as the inventory footer above. Six per
+  // case; every other value of the two screens matches, Slider parts included
+  // (tests/contract-070/bundle-g.test.ts judges the same screen exactly with Unity's text sizes).
+  ...(['settings', 'settings-ko'] as const).flatMap((name) =>
+    (
+      [
+        ['apply', 'width'],
+        ['cancel', 'x'],
+        ['cancel', 'width'],
+        ['minus', 'x'],
+        ['plus', 'x'],
+        ['plus', 'width'],
+      ] as const
+    ).map(([element, field]) => ({
+      case: name,
+      element,
+      field,
+      reason:
+        'Text measurement. The footer row takes its width from the button text; the harness ' +
+        'measures half an em per character, Unity its font asset. bundle-g.test.ts, with ' +
+        'Unity\'s text sizes, matches every one of these.',
+    })),
+  ),
+
+  // ItemDesc.height and ItemDesc.y left this list in 0.7.0 (bundle A, A2): the theme now
+  // gives Label flex-shrink 0, measured in both themes (probe-editor-070, probe-panel
+  // c07-existing), and both values match Unity. They were a missing theme value, as the
+  // 2026-10-16 adversarial review found, not text measurement.
 
   // Sub-pixel by the plan's own standard. Success criterion 2 allows 1px; the
   // comparator holds 0.5 so that real drift is still visible everywhere else,
@@ -198,7 +216,6 @@ const KNOWN_DIVERGENCES: KnownDivergence[] = [
     [
       ['TitleLabel', 'y'],
       ['CloseButton', 'y'],
-      ['ItemDesc', 'y'],
     ] as const
   ).map(([element, field]) => ({
     case: 'inventory',
@@ -277,7 +294,9 @@ function baseName(key: string): string {
 function compare(ours: CaseGeometry, unity: UnityDump): Mismatch[] {
   const out: Mismatch[] = [];
   for (const [element, expected] of Object.entries(unity.elements)) {
-    if (NOT_REPRODUCED.has(baseName(element))) continue;
+    // Excused only where we do not build it: a Slider's own drag container, tracker and
+    // dragger (bundle D) carry the scrollers' names and are compared (settings, bundle G).
+    if (NOT_REPRODUCED.has(baseName(element)) && ours.elements[element] === undefined) continue;
     const actual = ours.elements[element];
     if (actual === undefined) {
       out.push({ element, field: 'x', ours: NaN, unity: expected.x });
@@ -335,12 +354,15 @@ describe('accuracy: we match Unity', () => {
     const stale = [...NOT_REPRODUCED].filter((n) => !inUnity.has(n));
     expect(stale, `no dump contains: ${stale.join(', ')}`).toEqual([]);
 
-    const nowProduced = measured.flatMap((golden) =>
-      Object.keys(runCase(golden).elements).filter((n) => NOT_REPRODUCED.has(baseName(n))),
-    );
+    // What we do build under one of these names is compared, not excused (compare() skips a
+    // name only when our output lacks it). The scrollers themselves stay unbuilt: no ScrollView
+    // case produces them.
+    const nowProduced = measured
+      .filter((golden) => golden.uxml.includes('ScrollView'))
+      .flatMap((golden) => Object.keys(runCase(golden).elements).filter((n) => NOT_REPRODUCED.has(baseName(n))));
     expect(
       [...new Set(nowProduced)],
-      'these are produced now and should be compared, not excused',
+      'a ScrollView case builds a scroller part now: compare it, do not excuse it',
     ).toEqual([]);
   });
 
@@ -366,10 +388,11 @@ describe('accuracy: we match Unity', () => {
       if (unity === null) continue;
       presentCases++;
 
-      const reproduced = Object.keys(unity.elements).filter(
-        (k) => !NOT_REPRODUCED.has(baseName(k)),
-      );
       const ours = runCase(golden, unity.panel);
+      // Counted as compare() compares: an excused name counts only when we build it (bundle G).
+      const reproduced = Object.keys(unity.elements).filter(
+        (k) => !NOT_REPRODUCED.has(baseName(k)) || ours.elements[k] !== undefined,
+      );
       const mismatches = compare(ours, unity);
 
       comparedValues += reproduced.length * 4;
@@ -378,6 +401,26 @@ describe('accuracy: we match Unity', () => {
     }
 
     return { matchingValues, comparedValues, fullyMatchingCases, presentCases };
+  }
+
+  /**
+   * The runtime theme's figure (0.7.0): the same comparison against Unity's runtime
+   * panel, tests/golden/unity-runtime/ (runtime.test.ts holds what is left). A separate
+   * set, never added to the editor figure.
+   */
+  function computeRuntimeAccuracy(): { matchingValues: number; comparedValues: number } {
+    let comparedValues = 0;
+    let matchingValues = 0;
+    for (const golden of coordinateCases) {
+      const unity = readJson<UnityDump>(join(HERE, 'unity-runtime', `${golden.name}.json`));
+      if (unity === null) continue;
+      const ours = runCase(golden, unity.panel, 'runtime');
+      const reproduced = Object.keys(unity.elements).filter((k) => !NOT_REPRODUCED.has(baseName(k)) || ours.elements[k] !== undefined);
+      const mismatches = compare(ours, unity);
+      comparedValues += reproduced.length * 4;
+      matchingValues += reproduced.length * 4 - mismatches.length;
+    }
+    return { matchingValues, comparedValues };
   }
 
   /**
@@ -391,12 +434,13 @@ describe('accuracy: we match Unity', () => {
    * happens to mention the same words (there is exactly one such paragraph,
    * about a past mis-citation) is never mistaken for a data row.
    */
-  function fractionsInRowsContaining(text: string, words: string[]): Array<[number, number]> {
+  function fractionsInRowsContaining(text: string, words: string[], exclude: string[] = []): Array<[number, number]> {
     const out: Array<[number, number]> = [];
     for (const rawLine of text.split('\n')) {
       const line = rawLine.trim();
       if (!line.startsWith('|')) continue;
       if (!words.every((w) => line.includes(w))) continue;
+      if (exclude.some((w) => line.includes(w))) continue;
       const m = /(\d+)\s*\/\s*(\d+)/.exec(line);
       if (m !== null) out.push([Number(m[1]), Number(m[2])]);
     }
@@ -434,8 +478,14 @@ describe('accuracy: we match Unity', () => {
       },
     ];
 
+    // 0.7.0: the runtime set has its own row; the editor rows must not pick it up.
+    const runtime = computeRuntimeAccuracy();
+    const rt = fractionsInRowsContaining(doc, ['런타임', '값', '일치']);
+    expect(rt.length, 'docs/accuracy.md has no runtime "런타임 값 일치" row').toBeGreaterThan(0);
+    for (const fraction of rt) expect(fraction, 'docs/accuracy.md runtime row is stale').toEqual([runtime.matchingValues, runtime.comparedValues]);
+
     for (const { label, words, expected } of checks) {
-      const found = fractionsInRowsContaining(doc, words);
+      const found = fractionsInRowsContaining(doc, words, ['런타임']);
       expect(found.length, `docs/accuracy.md has no "${label}" row — update the doc or the parser`).toBeGreaterThan(0);
       for (const fraction of found) {
         expect(fraction, `docs/accuracy.md's "${label}" row is stale`).toEqual(expected);
@@ -450,10 +500,18 @@ describe('accuracy: we match Unity', () => {
    * Pinned expectations: do not edit the expectations to match an
    * implementation.
    *
-   * README convention, the only one this parser accepts: the coordinate figure
-   * sits on a line that names 6000.0.40f1, the text figures (lines, height,
-   * width, in that order) on a line that names 6000.3.25f1. Any other fraction
-   * in a README is a number nothing checks, and fails.
+   * README convention, the only one this parser accepts: the runtime-theme
+   * coordinate figure sits on a line that names both PanelSettings and
+   * 6000.3.25f1, and comes first (decision 2026-10-17: the default theme's figure
+   * leads); the editor-theme coordinate figure on a line that names 6000.0.40f1;
+   * the text figures (lines, height, width, in that order) on a line that names
+   * 6000.3.25f1. Any other fraction in a README is a number nothing checks, and fails.
+   * 0.7.0 (decision 2026-10-20: the runtime text figures first, the editor's second):
+   * the runtime-panel text figures (lines, height, width, boundary lines) on a line
+   * that names both 6000.0.40f1 and 6000.3.25f1, not PanelSettings, and carries more
+   * than one fraction (the editor coordinate line names both too, with one), held to
+   * results.json's runtime set, the same on both versions; then the editor's text
+   * figures on a line that names 6000.3.25f1 only, with its boundary lines last.
    */
   it('matches the figures published in docs/accuracy.en.md and all four READMEs', () => {
     const stats = computeAccuracy();
@@ -462,12 +520,16 @@ describe('accuracy: we match Unity', () => {
     const read = (name: string) => readFileSync(join(root, name), 'utf8');
 
     const en = read('docs/accuracy.en.md');
+    const runtime = computeRuntimeAccuracy();
+    const rtEn = fractionsInRowsContaining(en, ['Runtime', 'values', 'matching']);
+    expect(rtEn.length, 'docs/accuracy.en.md has no "Runtime values matching" row').toBeGreaterThan(0);
+    for (const fraction of rtEn) expect(fraction, 'docs/accuracy.en.md runtime row').toEqual([runtime.matchingValues, runtime.comparedValues]);
     for (const { words, expected } of [
       { words: ['Values', 'matching'], expected: [stats.matchingValues, stats.comparedValues] },
       { words: ['Cases', 'matching'], expected: [stats.fullyMatchingCases, stats.presentCases] },
       { words: ['ground truth', 'available'], expected: [baselinePresent, measured.length] },
     ]) {
-      const found = fractionsInRowsContaining(en, words);
+      const found = fractionsInRowsContaining(en, words, ['Runtime']);
       expect(found.length, `docs/accuracy.en.md has no "${words.join(' ')}" row`).toBeGreaterThan(0);
       for (const fraction of found) expect(fraction, `docs/accuracy.en.md "${words.join(' ')}"`).toEqual(expected);
     }
@@ -479,6 +541,12 @@ describe('accuracy: we match Unity', () => {
     };
     const t63 = cohort.summary['6000.3.25f1']!;
     const textFigures = [t63.lines, t63.height, t63.width].map((s) => s.split('/').map(Number));
+    const cohortRuntime = (JSON.parse(read('tests/text-cohort/results.json')) as { runtime: typeof cohort }).runtime.summary;
+    const runtimeText = (v: string) => {
+      const r = cohortRuntime[v]!;
+      return [r.lines, r.height, r.width, r.boundaryLines].map((s) => s.split('/').map(Number));
+    };
+    expect(runtimeText('6000.0.40f1'), 'runtime text figures are the same on both versions').toEqual(runtimeText('6000.3.25f1'));
     const row = (v: string) => {
       const s = cohort.summary[v]!;
       return `| ${v} | ${s.lines} | ${s.height} | ${s.width} | ${s.boundaryLines} |`;
@@ -497,21 +565,33 @@ describe('accuracy: we match Unity', () => {
       }
       let coordinateLines = 0;
       let textLines = 0;
+      let runtimeLines = 0;
+      let runtimeTextLines = 0;
       for (const line of text.split('\n')) {
         const fractions = [...line.matchAll(FRACTION)].map((m) => [Number(m[1]), Number(m[2])]);
         if (fractions.length === 0) continue;
-        if (line.includes('6000.0.40f1')) {
+        if (!line.includes('PanelSettings') && line.includes('6000.0.40f1') && line.includes('6000.3.25f1') && fractions.length > 1) {
+          runtimeTextLines++;
+          expect(textLines, `${name}: the runtime text line comes before the editor text line`).toBe(0);
+          expect(fractions, `${name}: ${line.trim()}`).toEqual(runtimeText('6000.3.25f1'));
+        } else if (line.includes('PanelSettings') && line.includes('6000.3.25f1')) {
+          runtimeLines++;
+          expect(coordinateLines, `${name}: the runtime line comes before the editor line`).toBe(0);
+          expect(fractions, `${name}: ${line.trim()}`).toEqual([[runtime.matchingValues, runtime.comparedValues]]);
+        } else if (line.includes('6000.0.40f1')) {
           coordinateLines++;
           expect(fractions, `${name}: ${line.trim()}`).toEqual([[stats.matchingValues, stats.comparedValues]]);
         } else if (line.includes('6000.3.25f1')) {
           textLines++;
-          expect(fractions, `${name}: ${line.trim()}`).toEqual(textFigures);
+          expect(fractions, `${name}: ${line.trim()}`).toEqual([...textFigures, t63.boundaryLines.split('/').map(Number)]);
         } else {
           expect.fail(`${name} has a fraction no test holds: ${line.trim()}`);
         }
       }
+      expect(runtimeLines, `${name}: runtime coordinate figure (a line naming PanelSettings and 6000.3.25f1)`).toBeGreaterThan(0);
       expect(coordinateLines, `${name}: coordinate figure (a line naming 6000.0.40f1)`).toBeGreaterThan(0);
       expect(textLines, `${name}: text figures (a line naming 6000.3.25f1)`).toBeGreaterThan(0);
+      expect(runtimeTextLines, `${name}: runtime text figures (a line naming 6000.0.40f1 and 6000.3.25f1)`).toBeGreaterThan(0);
       // npm shows the README without docs/, so a relative link breaks there.
       expect(text, `${name}: relative link into the repository`).not.toMatch(/\]\((?!https?:|#|mailto:)[^)]*\)/);
     }
@@ -530,7 +610,8 @@ describe('accuracy: we match Unity', () => {
   > {
     const counts = { 'VisualElement only': 0, Label: 0, Button: 0, ScrollView: 0, screen: 0 };
     for (const golden of coordinateCases) {
-      if (golden.name === 'inventory') counts.screen++;
+      // The representative screens: inventory (S1) and the 0.7.0 settings screen, two variants (bundle G).
+      if (golden.name === 'inventory' || golden.name === 'settings' || golden.name === 'settings-ko') counts.screen++;
       else if (/<ui:ScrollView/.test(golden.uxml)) counts.ScrollView++;
       else if (/<ui:Button/.test(golden.uxml)) counts.Button++;
       else if (/<ui:Label/.test(golden.uxml)) counts.Label++;

@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:ScrollView name="sv-default" style="height: 60px;"><ui:VisualElement name="sv-default-child" style="height: 100px;" /></ui:ScrollView>
+<ui:ScrollView name="sv-vertical" mode="Vertical" style="height: 60px;"><ui:VisualElement name="sv-vertical-child" style="height: 100px;" /></ui:ScrollView>
+<ui:ScrollView name="sv-horizontal" mode="Horizontal" style="height: 60px;"><ui:VisualElement name="sv-horizontal-child" style="width: 500px; height: 20px;" /></ui:ScrollView>
+<ui:ScrollView name="sv-both" mode="VerticalAndHorizontal" style="height: 60px;"><ui:VisualElement name="sv-both-child" style="width: 500px; height: 100px;" /></ui:ScrollView>
+</ui:VisualElement>
+</ui:UXML>

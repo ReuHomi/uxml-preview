@@ -1,0 +1,22 @@
+.t { padding: 0; margin: 0; white-space: nowrap; -unity-font-definition: url("project://database/Assets/Fonts/Inter-Regular.ttf"); }
+.box-14--3 { width: 141px; }
+.box-14--2 { width: 142px; }
+.box-14--1 { width: 143px; }
+.box-14-0 { width: 144px; }
+.box-14-1 { width: 145px; }
+.box-14-2 { width: 146px; }
+.box-14-3 { width: 147px; }
+.box-20--3 { width: 203px; }
+.box-20--2 { width: 204px; }
+.box-20--1 { width: 205px; }
+.box-20-0 { width: 206px; }
+.box-20-1 { width: 207px; }
+.box-20-2 { width: 208px; }
+.box-20-3 { width: 209px; }
+.box-32--3 { width: 326px; }
+.box-32--2 { width: 327px; }
+.box-32--1 { width: 328px; }
+.box-32-0 { width: 329px; }
+.box-32-1 { width: 330px; }
+.box-32-2 { width: 331px; }
+.box-32-3 { width: 332px; }

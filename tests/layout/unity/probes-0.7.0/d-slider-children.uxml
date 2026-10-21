@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:Slider name="sc-h" low-value="0" high-value="10" value="5"><ui:Label name="sc-h-child" text="Child" /></ui:Slider>
+<ui:Slider name="sc-label" label="Label" low-value="0" high-value="10" value="5"><ui:Label name="sc-label-child" text="Child" /></ui:Slider>
+<ui:SliderInt name="sc-int" low-value="0" high-value="10" value="5"><ui:Label name="sc-int-child" text="Child" /></ui:SliderInt>
+</ui:VisualElement>
+<ui:VisualElement name="row" style="flex-direction: row;">
+<ui:Slider name="sc-v" low-value="0" high-value="10" value="5" direction="Vertical" style="height: 120px;"><ui:Label name="sc-v-child" text="Child" /></ui:Slider>
+</ui:VisualElement>
+</ui:UXML>

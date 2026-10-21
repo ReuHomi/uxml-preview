@@ -1,0 +1,34 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 300px;">
+<ui:Slider name="s-h0" low-value="0" high-value="10" value="0" />
+<ui:Slider name="s-h1" low-value="0" high-value="10" value="1" />
+<ui:Slider name="s-h2" low-value="0" high-value="10" value="2" />
+<ui:Slider name="s-h3" low-value="0" high-value="10" value="3" />
+<ui:Slider name="s-h4" low-value="0" high-value="10" value="4" />
+<ui:Slider name="s-h5" low-value="0" high-value="10" value="5" />
+<ui:Slider name="s-h6" low-value="0" high-value="10" value="6" />
+<ui:Slider name="s-h7" low-value="0" high-value="10" value="7" />
+<ui:Slider name="s-h8" low-value="0" high-value="10" value="8" />
+<ui:Slider name="s-h9" low-value="0" high-value="10" value="9" />
+<ui:Slider name="s-h10" low-value="0" high-value="10" value="10" />
+<ui:Slider name="s-range" low-value="30" high-value="144" value="60" />
+<ui:Slider name="s-label3" label="Label" low-value="0" high-value="10" value="3" />
+<ui:Slider name="s-input7" low-value="0" high-value="10" value="7" show-input-field="true" />
+<ui:Slider name="s-out" low-value="0" high-value="10" value="12" />
+<ui:Slider name="s-rev" low-value="10" high-value="0" value="3" />
+<ui:Slider name="s-frac" low-value="0" high-value="1" value="0.7" />
+</ui:VisualElement>
+<ui:VisualElement name="row" style="flex-direction: row;">
+<ui:Slider name="s-v0" low-value="0" high-value="10" value="0" direction="Vertical" style="height: 120px;" />
+<ui:Slider name="s-v1" low-value="0" high-value="10" value="1" direction="Vertical" style="height: 120px;" />
+<ui:Slider name="s-v2" low-value="0" high-value="10" value="2" direction="Vertical" style="height: 120px;" />
+<ui:Slider name="s-v3" low-value="0" high-value="10" value="3" direction="Vertical" style="height: 120px;" />
+<ui:Slider name="s-v4" low-value="0" high-value="10" value="4" direction="Vertical" style="height: 120px;" />
+<ui:Slider name="s-v5" low-value="0" high-value="10" value="5" direction="Vertical" style="height: 120px;" />
+<ui:Slider name="s-v6" low-value="0" high-value="10" value="6" direction="Vertical" style="height: 120px;" />
+<ui:Slider name="s-v7" low-value="0" high-value="10" value="7" direction="Vertical" style="height: 120px;" />
+<ui:Slider name="s-v8" low-value="0" high-value="10" value="8" direction="Vertical" style="height: 120px;" />
+<ui:Slider name="s-v9" low-value="0" high-value="10" value="9" direction="Vertical" style="height: 120px;" />
+<ui:Slider name="s-v10" low-value="0" high-value="10" value="10" direction="Vertical" style="height: 120px;" />
+</ui:VisualElement>
+</ui:UXML>
