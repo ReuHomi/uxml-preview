@@ -224,6 +224,7 @@
 - **소비자 재측정:** 같은 실패(vscode 4, uxml-author 32), 번들 크기만 294 KB
 - **CSS 스냅숏 값의 근거(재검증 R4-CSS):** `visual.test.ts` 스냅숏에 들어간 `line-height: 14.522726666666667px`는 에디터 테마 12px × Inter FaceInfo (ascent − descent)/pointSize = 12 × (87.1875 + 21.73295)/90 — Advanced의 줄 간격, FaceInfo는 `tests/text-cohort/unity/<version>/cohort-inter.json`(Unity가 보고한 값). `font-kerning: normal`은 Advanced 생성기의 커닝(계획 29절, 코호트 폭 84/84). `white-space: nowrap`은 `g-clamp.json`(C1)
 - **R1-W 기대값 교체(사람 승인, 2026-10-21):** `measure-real.mjs`의 R1-W 기대값을 오염된 `g-clamp`(같은 문장을 줄바꿈 설정을 달리해 반복) 값에서 깨끗한 프로브 `r1w-wrap`·`r1w-wrap2` 값으로. 옛 값: `cs-te`·`cs-wrap`·`row-te-el` 런타임 95/94/95, 에디터 95/98/95. 새 값: 두 프로브의 글 요소 12개 × 두 테마(예: 런타임 te100 98×51, 에디터 74×44 — 계획 33절 표). 이유: 런타임 `cs-te`는 한 줄 17px로 그려진 오염 값이었고, 깨끗한 덤프에서 Unity는 받은 폭을 쓰지 않는다(Standard는 꺾일 때 마지막으로 들어간 글자까지, Advanced는 가장 긴 줄)
+- **프로브 오염 점검(사람 지시):** 같은 글자열을 다른 `white-space`로 반복하는 프로브 10개를 k번째만 남긴 변형 72개로 단독 덤프(256회). 554값 중 26값 다름 — `g-clamp` 런타임 높이 7요소(예: `st-label` 21→25), 6000.0 에디터의 `ctl-simple`·`te-filter`·`te-wrap`. 고정 테스트 기대값으로 쓰이던 것은 `measure-real` C1 런타임 `st-label` 높이 하나 — 폭만 판정으로 교체(옛 값 94×21, 따로 그리면 25). 계획 34절, CLAUDE.md 검증 규율 7
 - 다음에 바꿀 것: 영향 예측의 검색 대상에 "출력 전체를 고정하는 테스트"와 "덤프 폴더를 통째로 읽는 테스트"를 넣는다(이번에 둘 다 빗나감)
 
 ### 2026-10-20 (Standard 측정 규칙, 0.7.0 정리)

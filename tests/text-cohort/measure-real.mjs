@@ -34,7 +34,7 @@
  *          50, and 200% under a 50% under 20px is 200 (t2-percent.json, both versions and themes: fontSize 200,
  *          50, 200). Judged: the painted font-size and letter-spacing (10px at 200 is 20px, spacing being a
  *          percentage of the font size), the box heights, which follow the size, and the widths within 1%.
- * Not judged: the runtime height of cs-te (Unity draws it 17, one line, inside this probe's Unity-side
+ * Not judged: the runtime height of st-label (contaminated: 21 here, 25 alone — plan section 34), the runtime height of cs-te (Unity draws it 17, one line, inside this probe's Unity-side
  * contamination — docs/accuracy.md), and row-label / rh-label (20 in Unity, 21 here: the 1px left over when
  * the panel overflows, a known difference — docs/accuracy.md).
  *
@@ -153,7 +153,11 @@ for (const theme of ['runtime', 'editor']) {
   const u = (name) => { const e = gc.elements.find((x) => x.name === name); return [e.w, e.h]; };
   const ours = await draw(probe('g-clamp'), theme);
   // C1
-  for (const name of ['cs-label', 'cs-button', 'cs-ellipsis', 'st-label']) judge(`${theme} C1 ${name}`, ours[name], u(name));
+  for (const name of ['cs-label', 'cs-button', 'cs-ellipsis']) judge(`${theme} C1 ${name}`, ours[name], u(name));
+  // st-label's runtime height (21) is contaminated: alone, Unity draws it 25 (2026-10-21 check, plan section 34);
+  // in this probe the preview's 21 comes from the panel overflowing. Its width is judged on both themes.
+  if (theme === 'editor') judge(`${theme} C1 st-label`, ours['st-label'], u('st-label'));
+  else judgeWidth(`${theme} C1 st-label`, ours['st-label'], u('st-label'));
   // C4
   const ce = dump(theme, 'c-edge');
   const value = 'Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod';
