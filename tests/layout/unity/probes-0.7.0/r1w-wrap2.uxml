@@ -1,0 +1,23 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:VisualElement name="c-ja" style="width: 100px; align-items: flex-start;">
+<ui:TextElement name="ja100" class="jp" text="ゆく河の流れは絶えずしてしかももとの水にあらず" />
+</ui:VisualElement>
+<ui:VisualElement name="c-zh" style="width: 100px; align-items: flex-start;">
+<ui:TextElement name="zh100" class="sc" text="春眠不觉晓处处闻啼鸟夜来风雨声花落知多少" />
+</ui:VisualElement>
+<ui:VisualElement name="c-ko" style="width: 100px; align-items: flex-start;">
+<ui:Label name="ko100" class="kr n" text="하늘을 우러러 한 점 부끄럼이 없기를" />
+</ui:VisualElement>
+<ui:VisualElement name="c-long" style="width: 100px; align-items: flex-start;">
+<ui:TextElement name="long100" text="Antidisestablishmentarianism" />
+<ui:Label name="longlb100" class="n" text="supercalifragilisticexpialidocious is long" />
+</ui:VisualElement>
+<ui:VisualElement name="c-20" style="width: 120px; align-items: flex-start;">
+<ui:TextElement name="te20" text="kappa lambda mu nu xi omicron" style="font-size: 20px;" />
+</ui:VisualElement>
+<ui:VisualElement name="c-10" style="width: 80px; align-items: flex-start;">
+<ui:TextElement name="te10" text="pi rho sigma tau upsilon phi chi psi" style="font-size: 10px;" />
+</ui:VisualElement>
+</ui:VisualElement>
+</ui:UXML>

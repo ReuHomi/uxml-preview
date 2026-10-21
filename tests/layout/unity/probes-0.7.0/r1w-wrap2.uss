@@ -1,0 +1,4 @@
+.jp { -unity-font-definition: url("project://database/Assets/Fonts/NotoSansJP-Regular.otf"); }
+.sc { -unity-font-definition: url("project://database/Assets/Fonts/NotoSansSC-Regular.otf"); }
+.kr { -unity-font-definition: url("project://database/Assets/Fonts/Pretendard-Regular.otf"); }
+.n { white-space: normal; }

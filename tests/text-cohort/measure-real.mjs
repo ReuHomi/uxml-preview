@@ -13,12 +13,20 @@
  * between Chrome's and Unity's rasterisers, so the values judged are the ones that do not move with them:
  * line counts (through heights), heights, and box widths that the box's container decides.
  *
- * Sources: tests/layout/unity/6000.3.25f1/{probe-panel,probe-editor-070}/g-clamp.json and c-edge.json
- * (PanelDump / ProbeDump 0.7.0-r3, each probe alone in its Unity process); probes in
+ * Sources: tests/layout/unity/6000.3.25f1/{probe-panel,probe-editor-070}/{g-clamp,c-edge,t2-percent,r1w-wrap,
+ * r1w-wrap2}.json (PanelDump / ProbeDump 0.7.0-r3, each probe alone in its Unity process); probes in
  * tests/layout/unity/probes-0.7.0/. Drawn on Unity's panel size, 800x600.
- *   R1-W — a text that wraps keeps the width it was offered: cs-te (TextElement), cs-wrap (Label with
- *          white-space: normal) and row-te-el (TextElement in a row) are 95/94/95 wide on the runtime panel,
- *          95/98/95 on the editor theme, not their longest line.
+ *   R1-W — the width of a text that wraps (r1w-wrap, r1w-wrap2: every sentence used once, so no Unity-side
+ *          contamination). Advanced (the 6.3 editor): the longest line. Standard (the runtime panel): the width up
+ *          to the last glyph that fit when a line broke — the line, its space and the start of the next word —
+ *          floor + 1. A word longer than the line breaks between characters (long100, longlb100). Japanese and
+ *          Chinese break between characters (ja100, zh100). Judged: every text's box, width and height.
+ *          Replaced 2026-10-21 (human approval): the first expectations came from g-clamp's cs-te, cs-wrap and
+ *          row-te-el, whose sentence the probe repeats with different wrap settings (the Unity-side contamination):
+ *          old 95/94/95 runtime, 95/98/95 editor.
+ *          Known differences, judged by height only and failing once the width matches: the runtime ko100 (Korean,
+ *          Pretendard: Unity 83 wide, the longest line floor + 1 — the rule's next-word start over-counts by 4px)
+ *          and the runtime te10 (10px: Unity 77, the rule 79).
  *   C1   — a default Label and Button are one clipped line: cs-label, cs-button, cs-ellipsis, st-label.
  *   C4   — a multiline TextField's inner text keeps its wrapped height in a 40px field: ml-fixed inner text
  *          138x85 runtime, 154x59 editor; the field is 160x40.
@@ -30,7 +38,10 @@
  * contamination — docs/accuracy.md), and row-label / rh-label (20 in Unity, 21 here: the 1px left over when
  * the panel overflows, a known difference — docs/accuracy.md).
  *
- * Deps/Effects: UXML_TEXT_CHROMIUM, UXML_TEXT_FONTS (Inter-Regular.ttf); bundles src/ with Vite in memory.
+ * R1-W also checks the painted text: its ink stays inside the box (1px), so a word the measurer breaks is broken
+ * when painted too.
+ *
+ * Deps/Effects: UXML_TEXT_CHROMIUM, UXML_TEXT_FONTS (Inter, Noto Sans JP/SC, Pretendard); bundles src/ with Vite in memory.
  * Exits 1 when it cannot run or any row fails.
  */
 
@@ -46,7 +57,13 @@ const notRun = (why) => {
 const chromiumPath = process.env.UXML_TEXT_CHROMIUM;
 const fontDir = process.env.UXML_TEXT_FONTS;
 if (!chromiumPath || !existsSync(chromiumPath)) notRun('UXML_TEXT_CHROMIUM is not a Chromium executable');
-if (!fontDir || !existsSync(join(fontDir, 'Inter-Regular.ttf'))) notRun('UXML_TEXT_FONTS has no Inter-Regular.ttf');
+const FONTS = {
+  'Inter-Regular.ttf': { family: 'u-inter', face: { pointSize: 90, ascentLine: 87.1875, descentLine: -21.73295, lineHeight: 108.9205 } },
+  'NotoSansJP-Regular.otf': { family: 'u-noto-jp', face: { pointSize: 90, ascentLine: 104.4, descentLine: -25.92, lineHeight: 130.32 } },
+  'NotoSansSC-Regular.otf': { family: 'u-noto-sc', face: { pointSize: 90, ascentLine: 104.4, descentLine: -25.92, lineHeight: 130.32 } },
+  'Pretendard-Regular.otf': { family: 'u-pretendard', face: { pointSize: 90, ascentLine: 85.64941, descentLine: -21.70898, lineHeight: 107.3584 } },
+};
+for (const file of Object.keys(FONTS)) if (!fontDir || !existsSync(join(fontDir, file))) notRun(`UXML_TEXT_FONTS has no ${file}`);
 
 const UNITY = join(ROOT, 'tests', 'layout', 'unity');
 const dump = (theme, probe) => JSON.parse(readFileSync(join(UNITY, '6000.3.25f1', theme === 'runtime' ? 'probe-panel' : 'probe-editor-070', `${probe}.json`), 'utf8').replace(/\bNaN\b/g, 'null'));
@@ -60,28 +77,42 @@ const browser = await chromium.launch({ executablePath: chromiumPath });
 const page = await browser.newPage();
 await page.route('http://measure.test/**', (route) => {
   const path = new URL(route.request().url()).pathname;
-  if (path === '/') return route.fulfill({ contentType: 'text/html', body: '<!doctype html><style>@font-face{font-family:"u-inter";src:url("/inter.ttf")}body{margin:0}</style><script src="/core.js"></script>' });
-  if (path === '/inter.ttf') return route.fulfill({ body: readFileSync(join(fontDir, 'Inter-Regular.ttf')) });
+  if (path === '/') return route.fulfill({ contentType: 'text/html', body: `<!doctype html><style>${Object.entries(FONTS).map(([file, f]) => `@font-face{font-family:"${f.family}";src:url("/f/${file}")}`).join('')}body{margin:0}</style><script src="/core.js"></script>` });
+  if (path.startsWith('/f/')) return route.fulfill({ body: readFileSync(join(fontDir, path.slice(3))) });
   return route.fulfill({ contentType: 'text/javascript', body: coreJs });
 });
 await page.goto('http://measure.test/');
 
 /** Boxes of the named elements, and of a text part found by its text, drawn with the default measurer. */
-const draw = (uxml, theme, partText, paintedOf) => page.evaluate(async ({ uxml, theme, partText, paintedOf }) => {
-  await document.fonts.load('14px "u-inter"', 'Ag');
+const draw = (uxml, theme, partText, paintedOf, uss = '') => page.evaluate(async ({ uxml, theme, partText, paintedOf, uss, fonts }) => {
+  for (const f of Object.values(fonts)) await document.fonts.load(`14px "${f.family}"`, 'Ag\u3086\u6625\ud558');
   const core = globalThis.UxmlCore;
   await core.loadLayoutEngine();
-  const face = { pointSize: 90, ascentLine: 87.1875, descentLine: -21.73295, lineHeight: 108.9205 };
   const host = document.createElement('div');
   document.body.replaceChildren(host);
-  const r = core.render(core.parse(uxml, '* { -unity-font-definition: url("project://database/Assets/Fonts/Inter-Regular.ttf"); }'), host,
-    { theme, size: { width: 800, height: 600 }, resolveFont: () => ({ family: 'u-inter', faceInfo: face }) });
+  // Unity's default font has Inter's FaceInfo (NotInter on the runtime panel); a probe class names another font.
+  const r = core.render(core.parse(uxml, `* { -unity-font-definition: url("project://database/Assets/Fonts/Inter-Regular.ttf"); } ${uss}`), host,
+    { theme, size: { width: 800, height: 600 }, resolveFont: (path) => {
+      const file = Object.keys(fonts).find((k) => path.endsWith(k)) ?? 'Inter-Regular.ttf';
+      return { family: fonts[file].family, faceInfo: fonts[file].face };
+    } });
   const boxes = {};
   const walk = (n) => {
     const a = n.attributes.find((x) => x.name === 'name');
     if (a) {
       const b = r.boxes.get(n.id);
       boxes[a.value] = [Math.round(b.width), Math.round(b.height)];
+      // How far the painted text runs past the element's box (right, bottom), from its text nodes' rects.
+      const el = r.elements.get(n.id);
+      const box = el.getBoundingClientRect();
+      let right = -Infinity, bottom = -Infinity;
+      const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      for (let t = tw.nextNode(); t !== null; t = tw.nextNode()) {
+        const range = document.createRange();
+        range.selectNodeContents(t);
+        for (const q of range.getClientRects()) if (q.width > 0) { right = Math.max(right, q.right); bottom = Math.max(bottom, q.bottom); }
+      }
+      boxes[`${a.value}#ink`] = [right - box.right, bottom - box.bottom];
       if (paintedOf) {
         // The element that holds the text: its computed font-size and letter-spacing.
         let el = r.elements.get(n.id);
@@ -103,7 +134,7 @@ const draw = (uxml, theme, partText, paintedOf) => page.evaluate(async ({ uxml, 
   }
   r.dispose();
   return boxes;
-}, { uxml, theme, partText, paintedOf });
+}, { uxml, theme, partText, paintedOf, uss, fonts: FONTS });
 
 const rows = [];
 const judge = (label, ours, unity) => {
@@ -121,10 +152,6 @@ for (const theme of ['runtime', 'editor']) {
   const gc = dump(theme, 'g-clamp');
   const u = (name) => { const e = gc.elements.find((x) => x.name === name); return [e.w, e.h]; };
   const ours = await draw(probe('g-clamp'), theme);
-  // R1-W
-  for (const name of ['cs-wrap', 'row-te-el']) judge(`${theme} R1-W ${name}`, ours[name], u(name));
-  if (theme === 'editor') judge(`${theme} R1-W cs-te`, ours['cs-te'], u('cs-te'));
-  else judgeWidth(`${theme} R1-W cs-te`, ours['cs-te'], u('cs-te'));
   // C1
   for (const name of ['cs-label', 'cs-button', 'cs-ellipsis', 'st-label']) judge(`${theme} C1 ${name}`, ours[name], u(name));
   // C4
@@ -135,6 +162,28 @@ for (const theme of ['runtime', 'editor']) {
   const inner = ce.elements.find((x) => x.path.endsWith('ml-fixed/unity-text-input/VisualElement[0]/TextElement[0]'));
   judge(`${theme} C4 ml-fixed`, edge['ml-fixed'], [field.w, field.h]);
   judge(`${theme} C4 ml-fixed inner text`, edge['#part'], [inner.w, inner.h]);
+}
+
+// R1-W: every text of the two clean wrap probes.
+const KNOWN_R1W = new Set(['runtime ko100', 'runtime te10']);
+for (const theme of ['runtime', 'editor']) {
+  for (const name of ['r1w-wrap', 'r1w-wrap2']) {
+    const d = dump(theme, name);
+    const uss = existsSync(join(UNITY, 'probes-0.7.0', `${name}.uss`)) ? readFileSync(join(UNITY, 'probes-0.7.0', `${name}.uss`), 'utf8') : '';
+    const ours = await draw(probe(name), theme, undefined, false, uss);
+    for (const e of d.elements.filter((x) => x.text !== undefined && x.name)) {
+      if (KNOWN_R1W.has(`${theme} ${e.name}`)) {
+        const ok = ours[e.name] !== undefined && ours[e.name][1] === e.h && ours[e.name][0] !== e.w;
+        rows.push(ok);
+        console.log(`${ok ? 'know' : 'FAIL'} ${theme} R1-W ${e.name} (known width difference): ours ${ours[e.name]?.join('x')}, Unity ${e.w}x${e.h}`);
+      } else judge(`${theme} R1-W ${e.name}`, ours[e.name], [e.w, e.h]);
+      // The painted text breaks where the measurer broke it: its ink stays inside the box (1px).
+      const [overRight, overBottom] = ours[`${e.name}#ink`] ?? [Infinity, Infinity];
+      const inside = overRight <= 1 && overBottom <= 1;
+      rows.push(inside);
+      console.log(`${inside ? 'ok  ' : 'FAIL'} ${theme} R1-W ${e.name} painted inside its box: past the right ${overRight.toFixed(1)}px, past the bottom ${overBottom.toFixed(1)}px`);
+    }
+  }
 }
 
 for (const theme of ['runtime', 'editor']) {
