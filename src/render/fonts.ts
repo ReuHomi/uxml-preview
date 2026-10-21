@@ -10,6 +10,7 @@ export type ResolveFont = (path: string, form: 'url' | 'resource') => string | R
  * Purpose:      resolve font assets for measurement and painting, applying Unity's
  *               documented but unmeasured -unity-font-definition precedence.
  * Deps/Effects: calls the host hook once per distinct (path, form) per invocation.
+ *               Element and part styles share the cache and declaration warnings.
  * Ensures:      filters only not-rendered property warnings for processed font
  *               declarations, keyed by property, source document and offset
  *               (or node when no offset exists). Unresolved assets replace those
@@ -18,6 +19,7 @@ export type ResolveFont = (path: string, form: 'url' | 'resource') => string | R
 export function resolveFonts(
   styles: ReadonlyMap<NodeId, ComputedStyle>, warnings: readonly Warning[],
   locate: DeclarationLocator, resolve?: ResolveFont,
+  partStyles: ReadonlyMap<NodeId, ReadonlyMap<string, ComputedStyle>> = new Map(),
 ): { fonts: Map<ComputedStyle, ResolvedFont>; warnings: Warning[] } {
   const fonts = new Map<ComputedStyle, ResolvedFont>();
   if (resolve === undefined) return { fonts, warnings: [...warnings] };
@@ -29,7 +31,11 @@ export function resolveFonts(
     return JSON.stringify([property, location.sourceDocument, location.at,
       location.at === undefined ? origin.kind === 'inline' ? origin.node : node : null]);
   };
-  for (const [node, style] of styles) {
+  const fontStyles: [NodeId, ComputedStyle][] = [...styles];
+  for (const [node, parts] of partStyles) {
+    for (const style of parts.values()) fontStyles.push([node, style]);
+  }
+  for (const [node, style] of fontStyles) {
     for (const property of ['-unity-font', '-unity-font-definition']) {
       const entry = style.get(property);
       if (entry === undefined) continue;

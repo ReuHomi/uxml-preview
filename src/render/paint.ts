@@ -329,6 +329,9 @@ export function paint(
         for (const [property, value] of Object.entries(partDeclarations)) {
           partEl.style.setProperty(property, value);
         }
+        // Parts that host text inherit the same author font as their text leaf.
+        const partFont = options.fonts?.get(part.style);
+        if (partFont !== undefined) partEl.style.fontFamily = fontList(partFont.family);
 
         // tests/contract-070/e2-editor-checkbox.test.ts: box colours from docs/design/0.7.0-bundle-E-shots/unity-editor-c07-Toggle.png.
         if (options.theme === 'editor' && node.name.local === 'Toggle' && part.name === 'unity-checkmark') {

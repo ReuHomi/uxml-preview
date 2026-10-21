@@ -436,7 +436,9 @@ export function render(
   const measureText = options?.measureText ?? createDefaultMeasureText(ownerDocument);
   const locate = declarationLocator(renderDocument, resolved.matchedNodes);
 
-  const fontResult = resolveFonts(resolved.styles, resolved.warnings, locate, options?.resolveFont);
+  const fontResult = resolveFonts(
+    resolved.styles, resolved.warnings, locate, options?.resolveFont, resolved.partStyles,
+  );
 
   const tree = layoutDocument(renderDocument.root, resolved.styles, resolved.partStyles, {
     theme,
