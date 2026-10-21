@@ -348,8 +348,8 @@ the table above.
 
 | Unity (런타임 패널) | 줄 수 | 높이 | 너비(1px/1%) | 경계 줄 수 | 실패 (a/b/c): 줄·높이·너비 | 너비 Δ 범위 |
 |---|---:|---:|---:|---:|---|---|
-| 6000.0.40f1 | 92/92 | 84/92 | 92/92 | 159/159 | 0/0/0 · 16/0/1 · 0/0/0 | -1…0 |
-| 6000.3.25f1 | 92/92 | 84/92 | 92/92 | 159/159 | 0/0/0 · 16/0/1 · 0/0/0 | -1…0 |
+| 6000.0.40f1 | 92/92 | 84/92 | 92/92 | 159/159 | 0/0/0 · 17/0/0 · 0/0/0 | -1…0 |
+| 6000.3.25f1 | 92/92 | 84/92 | 92/92 | 159/159 | 0/0/0 · 17/0/0 · 0/0/0 | -1…0 |
 
 - **The runtime panel gives the same values on both versions, and the same as the 6000.0 editor above.** All three use the
   Standard generator. The height rule (a whole-number height +1, later lines by `lineHeight`) and Jua's English 2-4px wider are
@@ -359,9 +359,13 @@ the table above.
   without kerning — 234/235 heights and 84/84 widths on the three Standard dump sets (bundle A plan section 29). The generator is the resolved
   `-unity-text-generator`, not the theme. Before (Advanced's formula throughout) this table read heights 60/92, widths 89/92, boundary 153/159
 - The 8 heights left (a) are Inter's Hangul and mixed sentences drawn with fallback glyphs, the same 8 as the 6.3 editor table's
-- **One unexplained row (c):** `noto-jp-zh-20-w60` (Noto Sans JP 20px in 60px, 7 lines). Unity's runtime panel 201 (both
-  versions), the 6000.0 editor, also Standard, 202 (202 dumped alone too), the preview 203. The line count agrees. This row makes
-  `pnpm test:text` end in failure
+- **Known difference — a glyph the font does not have (cause found 2026-10-20, classified (a) 2026-10-21):** when a glyph the
+  given font does not have starts the last line, the runtime preview's box can be taller than Unity's (2px in the measured pair).
+  In `noto-jp-zh-20-w60` (Noto Sans JP 20px in 60px, 7 lines) the last line is `张。`; Noto Sans JP has no `张`, Unity draws it with
+  a fallback font, and Unity's runtime panel gives 201 (both versions) where the preview's Standard rule gives 203. Thirteen probes
+  dumped alone show the 2px only when the fallback glyph **starts the last line**; anywhere else the height is the same
+  (`tests/text-cohort/fallback-zh/`). The preview does not know a font's glyph coverage, so it does not reproduce this
+  (`spec.json` `known`, `docs/backlog.md`). The line count agrees
 - Kinsoku: the runtime panel has none, so the 6.3 editor's `known` row (8 lines) agrees here at 7
 - The editor set's 6000.0 dumps taken again alone have the same boxes (only 11 Jua measured widths differ, not used to judge)
 

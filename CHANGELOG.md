@@ -143,7 +143,7 @@ Play mode) on Unity 6.3, and the editor theme stays one option away.
 | Editor theme coordinates (Unity 6000.0.40f1) | 660 / 676 | 1122 / 1148 | Label `flex-shrink: 0` (`ItemDesc` y, height) gave 662/676; the settings screen (two cases, all 15 drawn controls) adds 472 values, 12 of them the footer's text widths |
 | Template cohort | 215 / 220 | 215 / 220 | unchanged; G3-4 text-width deltas moved by the Label padding |
 | Text cohort, editor (Chromium vs Unity) | 92/92 · 84/92 · 92/92 · 157/159 | unchanged | |
-| Text cohort, runtime panel (new set) | — | 92/92 · 84/92 · 92/92 · 159/159 (both versions) | measured with the Standard rules (before them: 60/92 heights, 89/92 widths); the 8 heights left are Inter's Hangul fallback rows, as on the editor. One row unexplained (`noto-jp-zh-20-w60`, 203 vs 201), so `pnpm test:text` ends in failure |
+| Text cohort, runtime panel (new set) | — | 92/92 · 84/92 · 92/92 · 159/159 (both versions) | measured with the Standard rules (before them: 60/92 heights, 89/92 widths); the 8 plain heights left are Inter's Hangul fallback rows, as on the editor; `noto-jp-zh-20-w60` (203 vs 201) is a fallback glyph starting the last line, a known difference. None unexplained |
 
 Every Unity baseline is now a solo dump, each probe or case in its own Unity
 process: under the Standard text generator a text's width depends on what the
@@ -161,8 +161,13 @@ half-pixel title.
 - Half-pixel rounding: a centred text whose position falls on a half pixel is
   rounded up by Unity and down by this preview (a ProgressBar title, 1px in x).
   Decided after measuring per alignment.
-- The runtime text cohort's `noto-jp-zh-20-w60` (7 lines of Chinese in 60px):
-  Unity 201, the Standard rule 203. Not explained.
+- A glyph the given font does not have, starting the last line: the runtime
+  preview's box can be taller than Unity's (2px in the measured pair). The text
+  cohort's `noto-jp-zh-20-w60` is this case: Noto Sans JP has no `张`, Unity draws
+  it with a fallback font, 201 against the Standard rule's 203. Thirteen probes
+  dumped alone (`tests/text-cohort/fallback-zh/`) show the 2px only when the
+  fallback glyph starts the last line. Not reproduced: the preview does not know
+  a font's glyph coverage.
 - Unity side: on the runtime panel, writing the same text earlier in a
   document with a different wrap setting makes a later copy of it shorter.
   Not reproduced.

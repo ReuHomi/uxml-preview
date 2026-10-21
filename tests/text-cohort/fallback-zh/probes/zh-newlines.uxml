@@ -1,0 +1,5 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="z" class="cohort" text="天地玄&#10;黄，宇&#10;宙洪荒&#10;。日月&#10;盈昃，&#10;辰宿列&#10;张。" style="width: 200px;" />
+</ui:VisualElement>
+</ui:UXML>

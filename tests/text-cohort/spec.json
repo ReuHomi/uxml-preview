@@ -83,6 +83,8 @@
     "widths": [60, 100, 140, 170, 220]
   },
   "known": {
-    "6000.3.25f1 noto-jp-zh-20-w60": "Unity 6.3 draws 8 lines where breaking at every CJK character gives 7: consistent with Unity not starting a line with ，or 。 (kinsoku), which is not measured and not implemented. 6000.0.40f1 draws 7"
+    "runtime 6000.0.40f1 noto-jp-zh-20-w60": "Fallback glyph: Noto Sans JP has no 张 (U+5F20), Unity draws it with a fallback font, and when the last line starts with it Unity's runtime box is 2px shorter (201 vs the Standard rule's 203). Measured alone in 13 probes: tests/text-cohort/fallback-zh/. The preview does not know a font's glyph coverage (docs/backlog.md)",
+  "runtime 6000.3.25f1 noto-jp-zh-20-w60": "Fallback glyph: Noto Sans JP has no 张 (U+5F20), Unity draws it with a fallback font, and when the last line starts with it Unity's runtime box is 2px shorter (201 vs the Standard rule's 203). Measured alone in 13 probes: tests/text-cohort/fallback-zh/. The preview does not know a font's glyph coverage (docs/backlog.md)",
+  "6000.3.25f1 noto-jp-zh-20-w60": "Unity 6.3 draws 8 lines where breaking at every CJK character gives 7: consistent with Unity not starting a line with ，or 。 (kinsoku), which is not measured and not implemented. 6000.0.40f1 draws 7"
   }
 }

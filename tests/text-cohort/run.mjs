@@ -196,8 +196,9 @@ function judge(set, v) {
     // reference (6.3 editor): a value the preview shares with it within tolerance is a
     // generator difference, (a) — measured: Standard draws Jua 2-4px wider than Advanced.
     const matchesRef = (field) => ref !== undefined && Math.abs(p[field] - ref[field]) <= Math.max(1, ref[field] * 0.01);
+    const known = KNOWN[set.known(v, name)] !== undefined;
     const why = (delta, versionRule) => {
-      if (noGlyphs(name)) return 'a';
+      if (noGlyphs(name) || known) return 'a';
       if (versionRule) return 'a';
       if (Math.abs(delta) <= 1) return 'b';
       return 'c';
@@ -222,8 +223,9 @@ function judge(set, v) {
       const pN = boxes[natural]?.w;
       const consistent = pN !== undefined && (nP > 1) === (pN > p.w);
       const bOk = /-b[pm]\d+$/.test(name) && consistent && nw <= 1;
-      row.linesCls = noGlyphs(name) || refLines === nP || KNOWN[set.known(v, name)] !== undefined ? 'a' : bOk ? 'b' : 'c';
-    } else if (KNOWN[set.known(v, name)] !== undefined) {
+      row.linesCls = noGlyphs(name) || refLines === nP || known ? 'a' : bOk ? 'b' : 'c';
+    } else if (known && dh === 0 && widthOk) {
+      // A known difference (lines, height or width) that no longer differs is stale.
       row.staleKnown = true;
     }
     // A height that differs because the line count differs is that difference, not another one.
