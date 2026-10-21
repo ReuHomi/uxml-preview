@@ -222,6 +222,7 @@
 - **1.5차**(그림, 브라우저 고정 테스트 `paint-r15.mjs`): T9·S4·K9·T12·T1·T3·T7·C5. 측정 먼저 — TextField는 연속 공백을 남긴다(`r15-tf-spaces`), Unity는 넘친 글을 자르지 않는다(`r15-overflow` 그림, 검증 C5의 전제와 반대). 새 발견 N3(고침)·N2(보고). `paint.mjs` 줄 세기 방법 결함 수정. 0.6.0 케이스 하나와 T3 충돌 — 선례대로 에디터 테마로(사람 확인 필요)
 - **2차**(측정 먼저, 프로브 다섯 개 두 버전·두 테마 + 그림): K1–K6·K8·C2–C4 고침, K7·C8은 결함 아님(고정만). 변이 9/9. 1479 통과 · 1 건너뜀(예측대로)
 - **소비자 재측정:** 같은 실패(vscode 4, uxml-author 32), 번들 크기만 294 KB
+- **CSS 스냅숏 값의 근거(재검증 R4-CSS):** `visual.test.ts` 스냅숏에 들어간 `line-height: 14.522726666666667px`는 에디터 테마 12px × Inter FaceInfo (ascent − descent)/pointSize = 12 × (87.1875 + 21.73295)/90 — Advanced의 줄 간격, FaceInfo는 `tests/text-cohort/unity/<version>/cohort-inter.json`(Unity가 보고한 값). `font-kerning: normal`은 Advanced 생성기의 커닝(계획 29절, 코호트 폭 84/84). `white-space: nowrap`은 `g-clamp.json`(C1)
 - 다음에 바꿀 것: 영향 예측의 검색 대상에 "출력 전체를 고정하는 테스트"와 "덤프 폴더를 통째로 읽는 테스트"를 넣는다(이번에 둘 다 빗나감)
 
 ### 2026-10-20 (Standard 측정 규칙, 0.7.0 정리)

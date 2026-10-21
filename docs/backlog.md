@@ -165,6 +165,10 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 
 ## 다음 버전(0.8) 후보 — 순서대로
 
+0. **기본 글꼴 동봉** — Unity 기본 글꼴(Inter, 공개 라이선스 — 런타임 NotInter와 FaceInfo가 같다)을 미리보기에 넣어, 글꼴을 넘기지 않아도 Unity 글자 폭으로 재게 한다. 라이선스 확인 포함. 근거: 재검증 R3-C4·R1(브라우저 기본 글꼴은 글자 폭이 몇 px 다르고 줄 수가 달라진다). 2026-10-21 사람 결정
+
+0. **실제 측정기 층** — 컨트롤 프로브 전체를 기본 측정기 + Unity 글꼴로 다시 돌려 덤프와 비교하는 테스트 층(`tests/text-cohort/measure-real.mjs`의 확장). 측정 흉내 함수로는 C1·R1-W를 못 잡았다. 2026-10-21 사람 결정
+
 1. **ScrollView 스크롤바 그리기** — 0.7.0은 폭만 확보하고 그리지 않는다(알려진 차이, `docs/supported.md`·`docs/accuracy.md`).
    Unity는 `unity-scroller` 아래에 반복 버튼 둘과 Slider를 만든다(`a2-scrollview` 덤프). 만들면 클래스 테스트의 제외
    (`tests/contract-070/classes.test.ts` 머리말)와 골든의 `NOT_REPRODUCED`를 함께 걷어낸다. 넘칠 때만 보이는 조건부 표시가

@@ -279,7 +279,7 @@ by Unity and by a real Chromium, and the Label boxes compared. Run it with `pnpm
 | Item | Value |
 |---|---|
 | Measured | 2026-10-16 |
-| Preview side | Google Chrome 155.0.8059.79 (Chromium). Playwright Chromium 1140 does not start on this machine (Windows side-by-side error), so the installed Chrome was used |
+| Preview side | Google Chrome 155.0.8059.85 (Chromium). Playwright Chromium 1140 does not start on this machine (Windows side-by-side error), so the installed Chrome was used |
 | Unity side | 6000.0.40f1, 6000.3.25f1 (editor window, editor theme) |
 | Fonts | Inter, Pretendard, Jua, DungGeunMo (pixel), Wanted Sans Bold, Noto Sans JP, Noto Sans SC (from 0.6.1) |
 | Sentences and sizes | English, Korean, mixed (five Korean fonts) · Japanese, Chinese, Japanese–Latin mixed, English (two Noto fonts) × 10/14/20/32px = 92; 144 at the line-break boundary (6000.0 single-line width ±2px); 15 fixed-width wraps (Noto Sans JP 20px, 60/100/140/170/220px) |
@@ -361,7 +361,7 @@ the table above.
   the Standard generator's, not a version's. So classification moved from version to generator: a Standard row is explained
   against the Advanced reference (the 6.3 editor). The editor table does not change
 - **The preview measures Standard text by Standard's rules (2026-10-20).** Height `floor(fs·r + (n−1)·fs·lineHeight/pointSize) + 1`, widths
-  without kerning — 234/235 heights and 84/84 widths on the three Standard dump sets (bundle A plan section 29). The generator is the resolved
+  without kerning — 234/235 heights and 84/84 widths on the three Standard dump sets (bundle A plan section 29 — the one height exception is `noto-jp-zh-20-w60`: 6000.0 editor 202, runtime 201, the rule 203; on the runtime side a fallback glyph starting the last line explains it). The generator is the resolved
   `-unity-text-generator`, not the theme. Before (Advanced's formula throughout) this table read heights 60/92, widths 89/92, boundary 153/159
 - The 8 heights left (a) are Inter's Hangul and mixed sentences drawn with fallback glyphs, the same 8 as the 6.3 editor table's
 - **Known difference — a glyph the font does not have (cause found 2026-10-20, classified (a) 2026-10-21):** when a glyph the
@@ -408,6 +408,10 @@ Each dump records its panel size and the web side lays the case out at that same
 are never two numbers to keep in sync by hand.
 
 **Known difference — half-pixel rounding (2026-10-19):** a centred text at a half pixel is rounded up by Unity and down by the preview (Yoga's text node). The golden sets have no such case (it is not a named element); the contract tests `bundle-f` and `bundle-g` name it. Not fixed — decided after measuring per alignment (`docs/backlog.md`).
+
+**Measuring condition — the font (2026-10-21):** the text figures are measured with the same font file Unity uses passed to the preview. Without a font, the preview measures with the browser's default font: text widths can differ by a few pixels and wrapped text can break into a different number of lines (re-check R3-C4: four lines with Chrome's default font, five with Unity's; R1: an unconstrained Label 178 against 182). The coordinate figures (1122/1148) measure layout given the text sizes — the harness uses a fixed measure (`FIXED_MEASURE`). The real measurer is measured separately by `tests/text-cohort/measure-real.mjs`, with Unity's font (Inter).
+
+**Known difference — 1px when the panel overflows (re-check R1-H, 2026-10-21):** in a column taller than the panel, as in the runtime `g-clamp`, the shrunk (flex-shrink) height can differ from Unity's by 1px (`row-label`, `rh-label`: 21 against 20). Not fixed.
 
 ## How a comparison is judged
 

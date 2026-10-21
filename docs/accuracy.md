@@ -270,7 +270,7 @@ Label 상자를 비교한다. 실행은 `pnpm test:text`(`tests/text-cohort/READ
 | 항목 | 값 |
 |---|---|
 | 측정일 | 2026-10-16 |
-| 미리보기 쪽 | Google Chrome 155.0.8059.79 (Chromium). Playwright Chromium 1140은 이 PC에서 Windows side-by-side 오류로 실행되지 않아 설치된 Chrome을 썼다 |
+| 미리보기 쪽 | Google Chrome 155.0.8059.85 (Chromium). Playwright Chromium 1140은 이 PC에서 Windows side-by-side 오류로 실행되지 않아 설치된 Chrome을 썼다 |
 | Unity 쪽 | 6000.0.40f1, 6000.3.25f1 (에디터 창, 에디터 테마) |
 | 폰트 | Inter, Pretendard, Jua, DungGeunMo(픽셀), Wanted Sans Bold, Noto Sans JP, Noto Sans SC(0.6.1부터) |
 | 문장·크기 | 영문, 한글, 혼합(한글 폰트 5종) · 일본어, 중국어, 일본어·영문 혼합, 영문(Noto 2종) × 10/14/20/32px = 92. 줄바꿈 경계(6000.0 한 줄 폭 ±2px) 144, 고정 폭 줄바꿈(Noto Sans JP 20px, 60/100/140/170/220px) 15 |
@@ -342,7 +342,7 @@ FaceInfo를 넘기는 호스트가 정확하다.
   `lineHeight`)과 Jua 영문 2~4px 넓음은 버전이 아니라 Standard 생성기의 성질이다. 그래서 분류를 버전 기준에서 생성기 기준으로
   바꿨다: Standard 행은 Advanced 기준값(6.3 에디터)에 대어 (a)를 준다. 에디터 표는 그대로다
 - **미리보기는 Standard 글을 Standard 규칙으로 잰다(2026-10-20).** 높이 `floor(fs·r + (n−1)·fs·lineHeight/pointSize) + 1`, 폭은
-  커닝 없이 — 덤프 세 Standard 세트에서 높이 234/235, 폭 84/84(묶음 A 계획 29절). 생성기는 테마가 아니라 해석된 `-unity-text-generator`
+  커닝 없이 — 덤프 세 Standard 세트에서 높이 234/235, 폭 84/84(묶음 A 계획 29절 — 높이의 1행 예외는 `noto-jp-zh-20-w60`: 6000.0 에디터 202, 런타임 201, 식 203. 런타임 쪽은 마지막 줄 첫 글자의 대체 글꼴로 설명됨). 생성기는 테마가 아니라 해석된 `-unity-text-generator`
   값으로 고른다. 그 전(Advanced 공식 그대로)에는 높이 60/92·너비 89/92·경계 153/159였다
 - 남은 높이 8건(a)은 Inter로 쓴 한글·혼합 문장의 대체 글꼴 행으로, 6.3 에디터 표의 (a) 8건과 같다
 - **알려진 차이 — 지정한 글꼴에 없는 글자(2026-10-20 원인 확인, 2026-10-21 (a)로 분류):** 지정한 글꼴에 없는 글자가 마지막 줄 맨 앞에 오면
@@ -388,6 +388,10 @@ FaceInfo를 넘기는 호스트가 정확하다.
 두 곳의 숫자를 손으로 맞출 일이 없다.
 
 **알려진 차이 — 반 픽셀 반올림(2026-10-19):** 가운데 정렬된 글이 반 픽셀에 놓이면 Unity는 올리고 미리보기(Yoga의 글 노드)는 내린다. 골든에는 이 경우가 없고(이름 붙은 요소가 아니다), 계약 테스트 `bundle-f`·`bundle-g`가 이름을 붙여 두었다. 고치지 않는다 — 정렬별 측정 뒤 결정(`docs/backlog.md`).
+
+**측정 조건 — 글꼴(2026-10-21):** 텍스트 수치는 Unity와 같은 글꼴 파일을 넘겨준 조건에서 잰 값이다. 글꼴을 넘기지 않으면 브라우저 기본 글꼴로 재며, 글자 폭이 몇 px 다르고 여러 줄 글의 줄 수가 달라질 수 있다(재검증 R3-C4: Chrome 기본 글꼴로는 4줄, Unity 글꼴로는 5줄 / R1: 제약 없는 Label 178 대 182). 좌표 수치(1122/1148)는 글 크기가 주어졌을 때의 배치를 잰다 — 하네스는 고정 측정(`FIXED_MEASURE`)을 쓴다. 실제 측정기는 `tests/text-cohort/measure-real.mjs`가 Unity 글꼴(Inter)을 넘겨 따로 잰다.
+
+**알려진 차이 — 패널이 넘칠 때의 1px(재검증 R1-H, 2026-10-21):** 런타임 `g-clamp`처럼 패널 높이를 넘는 열에서 줄어드는(flex-shrink) 높이가 Unity와 1px 다를 수 있다(`row-label`·`rh-label` 21 대 20). 고치지 않는다.
 
 ## 판정 기준
 

@@ -17,7 +17,9 @@
  * K5 — Slider value="abc" or "NaN": the default stands (field "0"); "Infinity" is clamped to high-value (field
  *      "10", dragger at the end of the track). A value that is not a number is warned (rule 6).
  * K6 — ProgressBar: the value is clamped to [low, high] and the fill is width × value / high: low 40 with
- *      value 40 or 10 is 40% full (75px of 194 on the runtime panel), 50 is 95px, 100 full; high 0 is empty.
+ *      value 40 or 10 is 40% full, 50 is 50%, 100 full; high 0 is empty. In px on the runtime panel: the fill is
+ *      floor(200 - 2) = 198 × fraction, and the progress element sits 4px inside it, so 40% is 198 × 0.4 − 4 = 75px
+ *      (k-progress.json p-40-40), 50% is 95px, 100% 194px.
  *      On the editor theme 6000.0.40f1 draws an empty fill 1px wide and 6000.3.25f1 0px (p-neg, p-abc) — the
  *      preview draws 6.3 and the existing version warning belongs to an empty fill, not to "value at low".
  * K7 — password with multiline: Unity keeps the multiline input and masks the newline too (7 marks on one
@@ -213,6 +215,7 @@ for (const theme of ['runtime', 'editor'] as const) {
       };
       expect(text('k-bool', 'pw-True'), 'password="True" masks').toBe('******');
       expect(text('k-bool', 'pw-1'), 'password="1" does not').toBe('secret');
+      expect(text('k-textfield', 'pm'), 'password with multiline masks the newline too: 7 marks, one line (K7)').toBe('*******');
       expect(['sint-frac', 'sint-abc', 'sl-abc', 'sl-inf', 'sl-nan'].map((n) => text('k-slider', n))).toEqual(['0', '0', '0', '10', '0']);
       expect(text('k-textfield', 'old-text'), 'text= is the value').toBe('Hello');
       expect(text('k-textfield', 'mask-old'), 'maskCharacter= is the mask').toBe('######');
