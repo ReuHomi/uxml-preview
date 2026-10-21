@@ -178,6 +178,8 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 
 3. **공백 — 끝 공백(T6)과 런타임 Label의 연속 공백(N2)** — 측정됨(2026-10-21, `r15-tf-spaces`·`r15-label-spaces`): Label의 연속 공백은 Standard 생성기(런타임 패널 두 버전, 6000.0 에디터)에서 남고 Advanced(6.3 에디터)에서만 접힌다. 미리보기는 어디서나 접어 런타임 Label을 좁게 잰다. 끝 공백은 생성기마다 다르다(TextField `trail     `: Standard는 버리고 Advanced는 센다). 그리는 쪽(CSS가 앞·끝 공백을 다루는 방식)과 함께 정해야 해서 0.7.0에서는 보고만 했다. 2026-10-21 사람 결정(T6은 0.8)
 
+4. **런타임 Standard 꺾임 폭** — 한국어 케이스를 늘려 측정한다. 지금은 1건(`r1w-wrap2` `ko100`, Pretendard 100px)이 규칙("꺾일 때 마지막으로 들어간 글자까지의 폭, floor + 1")보다 4px 좁고, Unity는 거기서 가장 긴 줄을 쓴다. 10px 케이스(`te10`)는 2px 차이다. 둘 다 `measure-real.mjs`의 `KNOWN_R1W`. 2026-10-21 사람 결정
+
 ## 0.7.0 — 컨트롤·테마
 
 - **중첩 비활성의 투명도** — 측정됨(`tests/layout/unity/<version>/probe-editor/nested-disabled.json`, 6000.0.40f1·

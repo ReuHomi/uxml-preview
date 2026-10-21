@@ -14,13 +14,16 @@
  * line counts (through heights), heights, and box widths that the box's container decides.
  *
  * Sources: tests/layout/unity/6000.3.25f1/{probe-panel,probe-editor-070}/{g-clamp,c-edge,t2-percent,r1w-wrap,
- * r1w-wrap2}.json (PanelDump / ProbeDump 0.7.0-r3, each probe alone in its Unity process); probes in
+ * r1w-wrap2,r1w-long}.json (PanelDump / ProbeDump 0.7.0-r3, each probe alone in its Unity process); probes in
  * tests/layout/unity/probes-0.7.0/. Drawn on Unity's panel size, 800x600.
  *   R1-W — the width of a text that wraps (r1w-wrap, r1w-wrap2: every sentence used once, so no Unity-side
  *          contamination). Advanced (the 6.3 editor): the longest line. Standard (the runtime panel): the width up
  *          to the last glyph that fit when a line broke — the line, its space and the start of the next word —
  *          floor + 1. A word longer than the line breaks between characters (long100, longlb100). Japanese and
  *          Chinese break between characters (ja100, zh100). Judged: every text's box, width and height.
+ *          r1w-long (2026-10-21, both versions and themes alike): a word longer than the line breaks between
+ *          characters in Korean and English, in a TextElement (kolong, enlong), a Label with white-space: normal
+ *          (kolb, enlb) and a multiline TextField with white-space: normal (entf, kotf; the field's box).
  *          Replaced 2026-10-21 (human approval): the first expectations came from g-clamp's cs-te, cs-wrap and
  *          row-te-el, whose sentence the probe repeats with different wrap settings (the Unity-side contamination):
  *          old 95/94/95 runtime, 95/98/95 editor.
@@ -91,7 +94,9 @@ const draw = (uxml, theme, partText, paintedOf, uss = '') => page.evaluate(async
   const host = document.createElement('div');
   document.body.replaceChildren(host);
   // Unity's default font has Inter's FaceInfo (NotInter on the runtime panel); a probe class names another font.
-  const r = core.render(core.parse(uxml, `* { -unity-font-definition: url("project://database/Assets/Fonts/Inter-Regular.ttf"); } ${uss}`), host,
+  // On :root, so it is inherited like Unity's panel default: a `*` rule would hit a TextField's inner text
+  // directly and override the font the field inherits (r1w-long kotf).
+  const r = core.render(core.parse(uxml, `:root { -unity-font-definition: url("project://database/Assets/Fonts/Inter-Regular.ttf"); } ${uss}`), host,
     { theme, size: { width: 800, height: 600 }, resolveFont: (path) => {
       const file = Object.keys(fonts).find((k) => path.endsWith(k)) ?? 'Inter-Regular.ttf';
       return { family: fonts[file].family, faceInfo: fonts[file].face };
@@ -171,11 +176,11 @@ for (const theme of ['runtime', 'editor']) {
 // R1-W: every text of the two clean wrap probes.
 const KNOWN_R1W = new Set(['runtime ko100', 'runtime te10']);
 for (const theme of ['runtime', 'editor']) {
-  for (const name of ['r1w-wrap', 'r1w-wrap2']) {
+  for (const name of ['r1w-wrap', 'r1w-wrap2', 'r1w-long']) {
     const d = dump(theme, name);
     const uss = existsSync(join(UNITY, 'probes-0.7.0', `${name}.uss`)) ? readFileSync(join(UNITY, 'probes-0.7.0', `${name}.uss`), 'utf8') : '';
     const ours = await draw(probe(name), theme, undefined, false, uss);
-    for (const e of d.elements.filter((x) => x.text !== undefined && x.name)) {
+    for (const e of d.elements.filter((x) => (x.text !== undefined || x.type === 'TextField') && x.name)) {
       if (KNOWN_R1W.has(`${theme} ${e.name}`)) {
         const ok = ours[e.name] !== undefined && ours[e.name][1] === e.h && ours[e.name][0] !== e.w;
         rows.push(ok);

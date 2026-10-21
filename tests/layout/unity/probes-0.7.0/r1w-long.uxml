@@ -1,0 +1,18 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:VisualElement name="c-kote" style="width: 60px; align-items: flex-start;">
+<ui:TextElement name="kolong" class="kr" text="부끄럼이없기를바랍니다" />
+</ui:VisualElement>
+<ui:VisualElement name="c-ente" style="width: 50px; align-items: flex-start;">
+<ui:TextElement name="enlong" text="Hamburgefonts" />
+</ui:VisualElement>
+<ui:VisualElement name="c-kolb" style="width: 70px; align-items: flex-start;">
+<ui:Label name="kolb" class="kr n" text="별헤는밤에어머님을불러봅니다" />
+</ui:VisualElement>
+<ui:VisualElement name="c-enlb" style="width: 80px; align-items: flex-start;">
+<ui:Label name="enlb" class="n" text="Pneumonoultramicroscopic" />
+</ui:VisualElement>
+<ui:TextField name="entf" class="n" multiline="true" value="Floccinaucinihilipilification" style="width: 90px;" />
+<ui:TextField name="kotf" class="kr n" multiline="true" value="계절이지나가는하늘에는가을로" style="width: 100px;" />
+</ui:VisualElement>
+</ui:UXML>

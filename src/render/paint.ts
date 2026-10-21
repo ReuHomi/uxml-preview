@@ -197,6 +197,10 @@ export function paint(
     const advance = isStandard(style) ? fs * (face.lineHeight ?? face.ascentLine - face.descentLine) / face.pointSize : glyphHeight;
     el.style.lineHeight = `${advance}px`;
     el.style.fontKerning = isStandard(style) ? 'none' : 'normal';
+    // Measured: r1w-wrap / r1w-wrap2, bundle A plan §33: oversized
+    // words break between characters, matching createDefaultMeasureText.
+    const whiteSpace = style.get('white-space')?.value || 'normal';
+    if (whiteSpace === 'normal' || whiteSpace === 'pre-wrap') el.style.overflowWrap = 'anywhere';
     const leading = advance - glyphHeight;
     const ellipsis = style.get('overflow')?.value === 'hidden' && style.get('text-overflow')?.value === 'ellipsis';
     const letterSpacing = parseLength(style.get('letter-spacing')?.value ?? '').length;

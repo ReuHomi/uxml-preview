@@ -152,6 +152,16 @@ decides it, and pinned (`tests/contract-070/review-*.test.ts`,
   line whatever the `white-space`; the painted line height is the measured
   advance (Standard `lineHeight`, Advanced ascent − descent); kerning follows
   each text's own generator; `pre-wrap` keeps runs of spaces when it wraps.
+- **A wrapping text is as wide as Unity makes it.** The editor theme
+  (Advanced) takes its longest line; the runtime theme (Standard) takes the
+  width up to the last glyph that fit where a line broke — the line, its space
+  and the start of the next word — floor + 1. Both used to take the longest
+  line. Measured on probes that use each sentence once (`r1w-wrap`,
+  `r1w-wrap2`): 22 of 24 texts match, two are known differences (below).
+- **A word longer than the line breaks between characters**, Latin and Hangul,
+  measured and painted, in a TextElement, a Label with `white-space: normal`
+  and a multiline TextField (`r1w-long`, both versions and themes). It used to
+  overflow the line as one piece. See Corrections.
 - **A TextField keeps runs of spaces in its value**, measured and painted.
 - **An author font reaches a control's part text** (field labels, the
   TextField's text, GroupBox and ProgressBar titles), as Unity draws them.
@@ -217,6 +227,9 @@ widths (`docs/accuracy.md`).
   document with a different wrap setting makes a later copy of it shorter.
   Not reproduced.
 - The editor theme's kinsoku (one 60px Chinese case on the 6.3 editor).
+- The runtime theme's wrapping width, in two of 24 measured texts: a Korean
+  sentence in 100px is 4px wider than Unity's 83 (Unity takes its longest line
+  there), and a 10px sentence 2px wider than Unity's 77. Heights match.
 
 ### For consumers
 
@@ -231,6 +244,11 @@ unsupported example), uxml-author 32 (17 already on 0.6.1; 3 such examples, 1
 
 - `white-space: pre` does not wrap to the width in Unity either. 0.6.0 said it
   did, from evidence that could not tell the two apart (`pre-wrap2`).
+- 0.6.1's "a Korean or Latin word wider than the box is not split" was
+  inferred, not measured: none of the cohort's cases had a word wider than its
+  box. Measured, Unity breaks a word longer than the line between characters
+  (`r1w-wrap2`, `r1w-long`, both versions and themes), and the preview now
+  follows it.
 
 ## 0.6.1 — 2026-10-16
 

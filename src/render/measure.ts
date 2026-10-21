@@ -66,7 +66,8 @@ export function hostFontFace(doc: Document | undefined, family: string,
   return { pointSize: 90, ascentLine: metrics.fontBoundingBoxAscent, descentLine: -metrics.fontBoundingBoxDescent };
 }
 
-// USS: Unity breaks between CJK characters, Hangul at spaces only: tests/text-cohort/unity/<version>/wrap-*.json, boundary-noto-*.json.
+// USS: Unity breaks between CJK characters, Hangul and Latin at spaces (a word longer than the line between
+// characters): tests/text-cohort/unity/<version>/wrap-*.json, boundary-noto-*.json, tests/layout/unity/<version>/*/r1w-long.json.
 export const CJK_BREAK = /((?![\uFFA0-\uFFDC])[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\u3000-\u303F\u30FC\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFFEF\u{20000}-\u{3FFFF}])/u;
 
 /**
@@ -116,6 +117,30 @@ export function createDefaultMeasureText(doc?: Document): MeasureText {
     const wraps = style.whiteSpace !== 'nowrap' && style.whiteSpace !== 'pre' && availableWidth > 0;
     let lines = 0;
     let widest = 0;
+    let widthBroken = false;
+    // Measured: 6000.3.25f1/{probe-panel,probe-editor-070}/r1w-wrap.json,
+    // r1w-wrap2.json; docs/design/0.7.0-bundle-A-plan.md §33.
+    // Standard includes the fitting prefix beyond a word break; Advanced only
+    // reports the drawn line. Oversized words break between characters in both.
+    /**
+     * Purpose:      retain Standard's fitting paragraph prefix at a width break.
+     * Ensures:      increments the line count without consuming the remaining text.
+     */
+    const recordBreak = (line: string, rest: string): void => {
+      widthBroken = true;
+      let measured = widthOf(line);
+      if (style.textGenerator === 'standard') {
+        let prefix = line;
+        for (const character of rest) {
+          prefix += character;
+          const width = widthOf(prefix);
+          if (width > availableWidth) break;
+          measured = width;
+        }
+      }
+      widest = Math.max(widest, measured);
+      lines++;
+    };
     for (const paragraph of paragraphs) {
       let current = '';
       lines++;
@@ -123,38 +148,47 @@ export function createDefaultMeasureText(doc?: Document): MeasureText {
         widest = Math.max(widest, widthOf(paragraph));
         continue;
       }
-      if (style.whiteSpace === 'pre-wrap') {
-        // probe-editor/spaces-prewrap.json: break after a preserved space run.
-        // Trailing spaces hang at the break, but count before the next word.
-        const runs = paragraph.match(/ +|[^ ]+/g) ?? [];
-        for (const run of runs) {
-          const pieces = run[0] === ' ' ? [run] : run.split(CJK_BREAK).filter(Boolean);
-          for (const piece of pieces) {
-            const candidate = current + piece;
-            if (piece[0] !== ' ' && current !== '' && widthOf(candidate) > availableWidth) {
-              widest = Math.max(widest, widthOf(current.trimEnd()));
-              lines++;
-              current = piece;
-            } else current = candidate;
+      // probe-editor/spaces-prewrap.json: preserved space runs hang at
+      // a break, but count before the following word.
+      const preserved = style.whiteSpace === 'pre-wrap';
+      const tokens = preserved
+        ? (paragraph.match(/ +|[^ ]+/g) ?? []).flatMap((run) =>
+          run[0] === ' ' ? [run] : run.split(CJK_BREAK).filter(Boolean))
+          .map((value) => ({ value, separator: '' }))
+        : paragraph.split(/\s+/).filter(Boolean).flatMap((word) =>
+          word.split(CJK_BREAK).filter(Boolean)
+            .map((value, index) => ({ value, separator: index === 0 ? ' ' : '' })));
+      let offset = 0;
+      // Token offsets refer to the normalized paragraph, retaining the spaces
+      // after a line for Standard's prefix measurement.
+      const normalized = preserved ? paragraph : tokens.map(({ value, separator }, index) =>
+        (index === 0 ? '' : separator) + value).join('');
+      for (const [index, { value: word, separator }] of tokens.entries()) {
+        const gap = index === 0 ? '' : separator;
+        const start = offset + gap.length;
+        const candidate = current === '' ? word : current + gap + word;
+        if ((!preserved || word[0] !== ' ') && current !== '' && widthOf(candidate) > availableWidth) {
+          const line = preserved ? current.trimEnd() : current;
+          recordBreak(line, (preserved ? current.slice(line.length) : gap) + normalized.slice(start));
+          current = '';
+        }
+        if (word[0] !== ' ' && widthOf(word) > availableWidth) {
+          let characterOffset = start;
+          for (const character of word) {
+            if (current !== '' && widthOf(current + character) > availableWidth) {
+              recordBreak(current, normalized.slice(characterOffset));
+              current = '';
+            }
+            current += character;
+            characterOffset += character.length;
           }
-        }
-        widest = Math.max(widest, widthOf(current));
-        continue;
-      }
-      const tokens = paragraph.split(/\s+/).filter((w) => w.length > 0).flatMap((word) =>
-        word.split(CJK_BREAK).filter((part) => part.length > 0)
-          .map((value, index) => ({ value, separator: index === 0 ? ' ' : '' })));
-      for (const { value: word, separator } of tokens) {
-        const candidate = current === '' ? word : `${current}${separator}${word}`;
-        if (current !== '' && widthOf(candidate) > availableWidth) {
-          widest = Math.max(widest, widthOf(current));
-          lines++;
-          current = word;
-        } else {
-          current = candidate;
-        }
+        } else current = current === '' ? word : current + gap + word;
+        offset = start + word.length;
       }
       widest = Math.max(widest, widthOf(current));
+    }
+    if (widthBroken && style.textGenerator === 'standard') {
+      widest = Math.min(availableWidth, Math.floor(widest) + 1);
     }
     return { width: widest, height: textHeight(lines, style.fontSize,
       face ?? EDITOR_DEFAULT_FACE_INFO, paragraphs.length - 1, style.paragraphSpacing ?? 0, style.textGenerator) };
