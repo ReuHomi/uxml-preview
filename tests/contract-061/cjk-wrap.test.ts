@@ -22,7 +22,7 @@
  * longer than the line breaks between characters. Measured 2026-10-21, both
  * versions (6000.0.40f1, 6000.3.25f1) and both themes, each probe dumped alone:
  * tests/layout/unity/<version>/{probe-panel,probe-editor-070}/r1w-wrap2.json
- * (ko100: a Korean sentence in 100px breaks at spaces, 4 lines on the runtime
+ * (ko100: a Korean sentence in 100px breaks at spaces, 3 lines on the runtime
  * panel; long100: "Antidisestablishmentarianism" in 100px is 2 lines; longlb100:
  * a long first word, then normal words) and r1w-long.json (kolong:
  * "부끄럼이없기를바랍니다" in 60px is 3 lines on the runtime panel; enlong:

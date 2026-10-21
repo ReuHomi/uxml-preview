@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.0 — unreleased
+## 0.7.0 — 2026-10-21
 
 Unity's runtime theme, by default. A preview of a game screen now looks like the
 game: the values come from a real runtime panel (PanelSettings + UIDocument in
