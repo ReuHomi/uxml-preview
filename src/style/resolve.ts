@@ -242,7 +242,7 @@ function buildStateMap(
         subject: { kind: 'states-key', key, problem: 'unknown-state', state },
       });
     }
-    parsed.push({ selectors, states });
+    parsed.push({ selectors, states: states.filter((state) => (USS_STATES as readonly string[]).includes(state)) });
   }
 
   const map = new Map<ElementNode, ReadonlySet<string>>();
@@ -261,7 +261,7 @@ function buildStateMap(
 
   const visit = (node: ElementNode, inheritedDisabled: boolean): void => {
     const disabled = inheritedDisabled || disabledHere(node);
-    const set = new Set(global);
+    const set = new Set([...global].filter((state) => (USS_STATES as readonly string[]).includes(state)));
     if (disabled) disabledSubtree.add(node);
     if (disabled) set.add('disabled');
     // Measured 2026-10-15: tests/layout/unity/probes-0.6.0 and
@@ -272,6 +272,8 @@ function buildStateMap(
         for (const state of entry.states) set.add(state);
       }
     }
+    // USS: Disabled alone, never Enabled too (e-disabled / v-enabled Unity probes).
+    if (set.has('disabled')) set.delete('enabled');
     if ((node.name.local === 'Toggle' || node.name.local === 'RadioButton') &&
       node.attributes.some((a) => a.name === 'value' && a.value === 'true')) set.add('checked');
     map.set(node, set);
