@@ -234,7 +234,8 @@ const SAMPLES: Readonly<Record<string, Sample>> = {
   '-unity-editor-text-rendering-mode': { value: 'bitmap' },
   '-unity-font': { value: 'resource("f")' },
   '-unity-font-definition': { value: 'resource("f")' },
-  '-unity-font-style': { value: 'bold' },
+  // Bold widens the text; shrink-wrapped, the box shows it (a stretched no-wrap Label would not, C1).
+  '-unity-font-style': { value: 'bold', context: 'align-self: flex-start;' },
   '-unity-material': { value: 'none' },
   '-unity-overflow-clip-box': { value: 'content-box' },
   '-unity-paragraph-spacing': { value: '5px' },

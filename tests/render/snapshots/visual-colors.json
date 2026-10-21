@@ -14,7 +14,8 @@
       "font-size": "12px",
       "justify-content": "flex-start",
       "padding-left": "1px",
-      "padding-right": "2px"
+      "padding-right": "2px",
+      "white-space": "nowrap"
     }
   },
   "warnings": []
