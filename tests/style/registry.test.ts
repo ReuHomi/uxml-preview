@@ -258,7 +258,8 @@ const SAMPLES: Readonly<Record<string, Sample>> = {
   '-unity-text-overflow-position': { value: 'start' },
   visibility: { value: 'hidden' },
   // The scene's lines fit 100px once a line break starts a new line; 40px makes "Hello world" wrap.
-  'white-space': { value: 'nowrap', context: 'width: 40px;' },
+  // A Label is no-wrap by default (g-clamp.json, C1), so the sample is the value that wraps.
+  'white-space': { value: 'normal', context: 'width: 40px;' },
   width: { value: '37px' },
   'word-spacing': { value: '5px', context: 'align-self: flex-start; white-space: nowrap;' },
 };
