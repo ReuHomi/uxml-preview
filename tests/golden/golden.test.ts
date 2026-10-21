@@ -506,6 +506,12 @@ describe('accuracy: we match Unity', () => {
    * leads); the editor-theme coordinate figure on a line that names 6000.0.40f1;
    * the text figures (lines, height, width, in that order) on a line that names
    * 6000.3.25f1. Any other fraction in a README is a number nothing checks, and fails.
+   * 0.7.0 (decision 2026-10-20: the runtime text figures first, the editor's second):
+   * the runtime-panel text figures (lines, height, width, boundary lines) on a line
+   * that names both 6000.0.40f1 and 6000.3.25f1, not PanelSettings, and carries more
+   * than one fraction (the editor coordinate line names both too, with one), held to
+   * results.json's runtime set, the same on both versions; then the editor's text
+   * figures on a line that names 6000.3.25f1 only, with its boundary lines last.
    */
   it('matches the figures published in docs/accuracy.en.md and all four READMEs', () => {
     const stats = computeAccuracy();
@@ -535,6 +541,12 @@ describe('accuracy: we match Unity', () => {
     };
     const t63 = cohort.summary['6000.3.25f1']!;
     const textFigures = [t63.lines, t63.height, t63.width].map((s) => s.split('/').map(Number));
+    const cohortRuntime = (JSON.parse(read('tests/text-cohort/results.json')) as { runtime: typeof cohort }).runtime.summary;
+    const runtimeText = (v: string) => {
+      const r = cohortRuntime[v]!;
+      return [r.lines, r.height, r.width, r.boundaryLines].map((s) => s.split('/').map(Number));
+    };
+    expect(runtimeText('6000.0.40f1'), 'runtime text figures are the same on both versions').toEqual(runtimeText('6000.3.25f1'));
     const row = (v: string) => {
       const s = cohort.summary[v]!;
       return `| ${v} | ${s.lines} | ${s.height} | ${s.width} | ${s.boundaryLines} |`;
@@ -554,10 +566,15 @@ describe('accuracy: we match Unity', () => {
       let coordinateLines = 0;
       let textLines = 0;
       let runtimeLines = 0;
+      let runtimeTextLines = 0;
       for (const line of text.split('\n')) {
         const fractions = [...line.matchAll(FRACTION)].map((m) => [Number(m[1]), Number(m[2])]);
         if (fractions.length === 0) continue;
-        if (line.includes('PanelSettings') && line.includes('6000.3.25f1')) {
+        if (!line.includes('PanelSettings') && line.includes('6000.0.40f1') && line.includes('6000.3.25f1') && fractions.length > 1) {
+          runtimeTextLines++;
+          expect(textLines, `${name}: the runtime text line comes before the editor text line`).toBe(0);
+          expect(fractions, `${name}: ${line.trim()}`).toEqual(runtimeText('6000.3.25f1'));
+        } else if (line.includes('PanelSettings') && line.includes('6000.3.25f1')) {
           runtimeLines++;
           expect(coordinateLines, `${name}: the runtime line comes before the editor line`).toBe(0);
           expect(fractions, `${name}: ${line.trim()}`).toEqual([[runtime.matchingValues, runtime.comparedValues]]);
@@ -566,7 +583,7 @@ describe('accuracy: we match Unity', () => {
           expect(fractions, `${name}: ${line.trim()}`).toEqual([[stats.matchingValues, stats.comparedValues]]);
         } else if (line.includes('6000.3.25f1')) {
           textLines++;
-          expect(fractions, `${name}: ${line.trim()}`).toEqual(textFigures);
+          expect(fractions, `${name}: ${line.trim()}`).toEqual([...textFigures, t63.boundaryLines.split('/').map(Number)]);
         } else {
           expect.fail(`${name} has a fraction no test holds: ${line.trim()}`);
         }
@@ -574,6 +591,7 @@ describe('accuracy: we match Unity', () => {
       expect(runtimeLines, `${name}: runtime coordinate figure (a line naming PanelSettings and 6000.3.25f1)`).toBeGreaterThan(0);
       expect(coordinateLines, `${name}: coordinate figure (a line naming 6000.0.40f1)`).toBeGreaterThan(0);
       expect(textLines, `${name}: text figures (a line naming 6000.3.25f1)`).toBeGreaterThan(0);
+      expect(runtimeTextLines, `${name}: runtime text figures (a line naming 6000.0.40f1 and 6000.3.25f1)`).toBeGreaterThan(0);
       // npm shows the README without docs/, so a relative link breaks there.
       expect(text, `${name}: relative link into the repository`).not.toMatch(/\]\((?!https?:|#|mailto:)[^)]*\)/);
     }
