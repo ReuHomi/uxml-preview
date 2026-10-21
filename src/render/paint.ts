@@ -1,4 +1,4 @@
-import { CJK_BREAK, EDITOR_DEFAULT_FACE_INFO, fontList } from './measure';
+import { CJK_BREAK, EDITOR_DEFAULT_FACE_INFO, fontList, hostFontFace } from './measure';
 import type { Theme } from '../controls/theme';
 import type { FaceInfo } from './measure';
 /**
@@ -126,10 +126,12 @@ export function paint(
   function appendText(host: HTMLElement, text: string, style: ComputedStyle): void {
     // Measured: tests/text-cohort/unity-runtime/; bundle A plan §29 — match measured glyph widths.
     host.style.fontKerning = isStandard(style) ? 'none' : 'normal';
-    const face = options.fonts?.get(style)?.faceInfo ?? EDITOR_DEFAULT_FACE_INFO;
+    const font = options.fonts?.get(style);
+    const face = font?.faceInfo ?? (font === undefined ? EDITOR_DEFAULT_FACE_INFO
+      : hostFontFace(options.document, font.family, style.get('-unity-font-style')?.value));
     const size = parseLength(style.get('font-size')?.value ?? '12px').length;
     const leading = isStandard(style)
-      ? (size?.kind === 'px' ? size.value : 12) * ((face.lineHeight ?? face.ascentLine - face.descentLine) - (face.ascentLine - face.descentLine)) / face.pointSize : 0;
+      ? (size?.kind === 'px' || size?.kind === 'percent' ? size.value : 12) * ((face.lineHeight ?? face.ascentLine - face.descentLine) - (face.ascentLine - face.descentLine)) / face.pointSize : 0;
     if (Math.abs(leading) >= 0.00001) {
       // Split the run without changing its text or break opportunities. Relative
       // offsets move glyphs, while the containing line boxes retain the advance.
@@ -187,9 +189,10 @@ export function paint(
     if (font !== undefined) el.style.fontFamily = fontList(font.family);
     // Unity line advances: bundle A §29/31. CSS centres glyphs in its line
     // box; remove that leading so line zero begins at the measured content top.
-    const face = font?.faceInfo ?? EDITOR_DEFAULT_FACE_INFO;
+    const face = font?.faceInfo ?? (font === undefined ? EDITOR_DEFAULT_FACE_INFO
+      : hostFontFace(options.document, font.family, style.get('-unity-font-style')?.value));
     const size = parseLength(style.get('font-size')?.value ?? '12px').length;
-    const fs = size?.kind === 'px' ? size.value : 12;
+    const fs = size?.kind === 'px' || size?.kind === 'percent' ? size.value : 12;
     const glyphHeight = fs * (face.ascentLine - face.descentLine) / face.pointSize;
     const advance = isStandard(style) ? fs * (face.lineHeight ?? face.ascentLine - face.descentLine) / face.pointSize : glyphHeight;
     el.style.lineHeight = `${advance}px`;

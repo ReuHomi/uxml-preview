@@ -428,12 +428,19 @@ export function layoutDocument(
       return;
     }
     const fontSize = length(style, 'font-size', node);
-    if (style.has('font-size') && fontSize?.kind !== 'px') {
+    if (fontSize?.kind === 'percent') {
+      // Measured: t2-percent.json, both versions/themes (bundle A plan §33).
+      warnMeasurement(node, style, 'font-size', 'invalid-value',
+        `font-size: ${read(style, 'font-size')} — Unity reads a percentage as pixels (${fontSize.value}px), not relative to the parent; drawn as Unity does`);
+    } else if (fontSize?.kind === 'px' && fontSize.value <= 0) {
+      warnMeasurement(node, style, 'font-size', 'invalid-value',
+        `font-size: ${read(style, 'font-size')} is not positive; measured as written`);
+    } else if (style.has('font-size') && fontSize?.kind !== 'px') {
       warnMeasurement(node, style, 'font-size', 'not-rendered',
         `font-size: ${read(style, 'font-size')} is not measured; 12px is used`);
     }
     const context: TextContext = {
-      fontSize: fontSize !== null && fontSize.kind === 'px' ? fontSize.value : 12,
+      fontSize: fontSize !== null && (fontSize.kind === 'px' || fontSize.kind === 'percent') ? fontSize.value : 12,
       fontStyle: read(style, '-unity-font-style') || 'normal',
       whiteSpace: read(style, 'white-space') || 'normal',
       textGenerator,

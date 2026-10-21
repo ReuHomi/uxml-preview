@@ -45,6 +45,27 @@ export function fontList(family?: string): string {
   return family === undefined ? 'sans-serif' : `${JSON.stringify(family)}, sans-serif`;
 }
 
+/**
+ * Purpose:      share the canvas-derived host face between measurement and painting.
+ * Deps/Effects: probes current canvas font metrics on every call so asynchronously loaded
+ *               fonts are reflected; sets the supplied context's font or creates a canvas.
+ * Ensures:      missing canvas metrics retain the editor fallback.
+ */
+export function hostFontFace(doc: Document | undefined, family: string,
+  fontStyle = 'normal', context?: CanvasRenderingContext2D | null): FaceInfo {
+  if (doc === undefined) return EDITOR_DEFAULT_FACE_INFO;
+  const canvas = context ?? doc.createElement('canvas').getContext?.('2d');
+  if (canvas == null) return EDITOR_DEFAULT_FACE_INFO;
+  const weight = fontStyle.includes('bold') ? 'bold' : 'normal';
+  const italic = fontStyle.includes('italic') ? 'italic' : 'normal';
+  canvas.font = `${italic} ${weight} 90px ${fontList(family)}`;
+  const metrics = canvas.measureText('Mg');
+  if (!Number.isFinite(metrics.fontBoundingBoxAscent) || !Number.isFinite(metrics.fontBoundingBoxDescent)) {
+    return EDITOR_DEFAULT_FACE_INFO;
+  }
+  return { pointSize: 90, ascentLine: metrics.fontBoundingBoxAscent, descentLine: -metrics.fontBoundingBoxDescent };
+}
+
 // USS: Unity breaks between CJK characters, Hangul at spaces only: tests/text-cohort/unity/<version>/wrap-*.json, boundary-noto-*.json.
 export const CJK_BREAK = /((?![\uFFA0-\uFFDC])[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\u3000-\u303F\u30FC\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFFEF\u{20000}-\u{3FFFF}])/u;
 
@@ -73,11 +94,7 @@ export function createDefaultMeasureText(doc?: Document): MeasureText {
     };
     let face = style.faceInfo;
     if (face === undefined && style.fontFamily !== undefined && context !== null) {
-      setFont(90);
-      const metrics = context.measureText('Mg');
-      if (Number.isFinite(metrics.fontBoundingBoxAscent) && Number.isFinite(metrics.fontBoundingBoxDescent)) {
-        face = { pointSize: 90, ascentLine: metrics.fontBoundingBoxAscent, descentLine: -metrics.fontBoundingBoxDescent };
-      }
+      face = hostFontFace(doc, style.fontFamily, style.fontStyle, context);
     }
     setFont(style.fontSize);
     const widthOf = (value: string): number => {
