@@ -135,6 +135,49 @@ Play mode) on Unity 6.3, and the editor theme stays one option away.
   three parts their `unity-scroll-view__*` classes. Classes only: no coordinate
   moved. The scrollers inside a ScrollView are still not built.
 
+### Review fixes (adversarial review, 2026-10-21)
+
+Each found by the review or while fixing it, measured on Unity where Unity
+decides it, and pinned (`tests/contract-070/review-*.test.ts`,
+`c1-nowrap.test.ts`, `n3-part-fonts.test.ts`, and in a real browser
+`tests/text-cohort/paint-r15.mjs`, now part of `pnpm test:text`).
+
+- **A Label or Button does not wrap unless the author says so.** Unity
+  resolves `white-space: nowrap` on both; the theme sheets now give it to
+  `.unity-label` and `.unity-button`. A long label in a narrow column is one
+  clipped line, as in Unity, not several. TextElement and RepeatButton still
+  wrap.
+- **Text is painted where it was measured.** A line break (`
+`) is a painted
+  line whatever the `white-space`; the painted line height is the measured
+  advance (Standard `lineHeight`, Advanced ascent − descent); kerning follows
+  each text's own generator; `pre-wrap` keeps runs of spaces when it wraps.
+- **A TextField keeps runs of spaces in its value**, measured and painted.
+- **An author font reaches a control's part text** (field labels, the
+  TextField's text, GroupBox and ProgressBar titles), as Unity draws them.
+- **Attribute values are read as Unity reads them:** booleans ignore case
+  (`"True"`; `"1"` is not true), `direction` ignores case, `inverted` mirrors a
+  slider, SliderInt takes whole numbers, a value that is not a number falls back
+  to the default and is warned (`malformed`, `invalid-value`), `Infinity` is
+  clamped, the old names `text=` and `maskCharacter=` work.
+- **ProgressBar:** the fill is `width × clamp(value, low, high) / high` (it was
+  empty whenever the value was at low).
+- **Text edges:** absolutely placed text is not wrapped; an empty TextField is
+  clipped like one with a value; a multiline TextField's text keeps its
+  wrapped height in a fixed-height field.
+- **States:** a forced `disabled` no longer matches `:enabled`; a state USS
+  does not have (`:selected`) is warned and not applied; a forced `:checked`
+  reaches the input part and draws the check mark.
+- **Author rules beat the painter's stand-ins** for the editor check box
+  (background, radius, tint).
+- **Warnings that were missing:** a non-px `font-size`; an unknown
+  `-unity-text-generator` (the theme's generator stands); an inherited author
+  generator no longer reads as "drawn as advanced"; a host font without a
+  FaceInfo under the Standard generator; a FaceInfo with no usable
+  `pointSize`.
+- **Yoga nodes are freed when layout throws** (a host measure function that
+  throws used to leave the tree allocated).
+
 ### Accuracy — previous and new figures
 
 | Set | 0.6.1 | 0.7.0 | Why |
