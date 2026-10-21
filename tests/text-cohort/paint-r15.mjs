@@ -144,17 +144,20 @@ const check = (section, name, ok, detail) => {
 // ---------------------------------------------------------------- T9
 const T9_TEXT = 'Alpha beta&#10;Gamma delta&#10;Epsilon';
 const T9_WRAP = 'alpha beta gamma delta epsilon zeta eta theta';
+// [label, UXML, USS, text, lines]: lines is the measured line count where the text fixes it (explicit
+// breaks, no wrapping); otherwise it is read back from the box height. A TextField's inner text box can be
+// taller than its text (the input's minimum), so its count cannot come from the box.
 const T9_CASES = [
-  ['label \\n (no-wrap)', `<ui:Label name="t" text="${T9_TEXT}" />`, '#t { padding: 0; margin: 0; font-size: 20px; }', 'Alpha beta\nGamma delta\nEpsilon'],
-  ['label wraps', `<ui:Label name="t" text="${T9_WRAP}" />`, '#t { padding: 0; margin: 0; font-size: 20px; width: 120px; white-space: normal; }', T9_WRAP],
-  ['TextElement wraps', `<ui:TextElement name="t" text="${T9_WRAP}" />`, '#t { padding: 0; margin: 0; font-size: 20px; width: 120px; }', T9_WRAP],
-  ['TextField multiline', `<ui:TextField name="t" multiline="true" value="${T9_TEXT}" />`, '#t { font-size: 20px; }', 'Alpha beta\nGamma delta\nEpsilon'],
+  ['label \\n (no-wrap)', `<ui:Label name="t" text="${T9_TEXT}" />`, '#t { padding: 0; margin: 0; font-size: 20px; }', 'Alpha beta\nGamma delta\nEpsilon', 3],
+  ['label wraps', `<ui:Label name="t" text="${T9_WRAP}" />`, '#t { padding: 0; margin: 0; font-size: 20px; width: 120px; white-space: normal; }', T9_WRAP, null],
+  ['TextElement wraps', `<ui:TextElement name="t" text="${T9_WRAP}" />`, '#t { padding: 0; margin: 0; font-size: 20px; width: 120px; }', T9_WRAP, null],
+  ['TextField multiline', `<ui:TextField name="t" multiline="true" value="${T9_TEXT}" />`, '#t { font-size: 20px; }', 'Alpha beta\nGamma delta\nEpsilon', 3],
 ];
 for (const theme of ['runtime', 'editor']) {
   for (const font of ['jua', 'inter']) {
-    for (const [label, body, uss, text] of T9_CASES) {
+    for (const [label, body, uss, text, lines] of T9_CASES) {
       for (const authorStandard of theme === 'editor' ? [false, true] : [false]) {
-        const row = await page.evaluate(({ body, uss, theme, font, text, authorStandard }) => {
+        const row = await page.evaluate(({ body, uss, theme, font, text, authorStandard, lines }) => {
           const R = globalThis.R15;
           const d = R.draw(`<ui:VisualElement style="align-items: flex-start;">${body}</ui:VisualElement>`,
             `${uss} * { -unity-font-definition: url("project://database/Assets/Fonts/f.ttf"); }${authorStandard ? ' #t { -unity-text-generator: standard; }' : ''}`, { theme, font });
@@ -166,12 +169,12 @@ for (const theme of ['runtime', 'editor']) {
           const cs = getComputedStyle(host);
           const contentBottom = host.getBoundingClientRect().bottom - parseFloat(cs.borderBottomWidth) - parseFloat(cs.paddingBottom);
           const painted = R.lines(host);
-          const measuredLines = Math.max(1, Math.round((host.getBoundingClientRect().height - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - parseFloat(cs.borderTopWidth) - parseFloat(cs.borderBottomWidth) - fs * r) / adv) + 1);
+          const measuredLines = lines ?? Math.max(1, Math.round((host.getBoundingClientRect().height - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - parseFloat(cs.borderTopWidth) - parseFloat(cs.borderBottomWidth) - fs * r) / adv) + 1);
           const offsets = painted.map((p, k) => (p.c - top) - (k * adv + fs * r / 2));
           const lastBottom = painted.length ? painted[painted.length - 1].bottom : 0;
           d.r.dispose();
           return { generator: standard ? 'standard' : 'advanced', paintedLines: painted.length, measuredLines, offsets, overBottom: lastBottom - contentBottom };
-        }, { body, uss, theme, font, text, authorStandard });
+        }, { body, uss, theme, font, text, authorStandard, lines });
         const worst = Math.max(0, ...row.offsets.map(Math.abs));
         const ok = row.paintedLines === row.measuredLines && worst <= 1 && row.overBottom <= 1;
         check('T9', `${theme}${authorStandard ? '+standard' : ''} ${font} ${label}`, ok,

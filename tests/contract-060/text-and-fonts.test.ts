@@ -173,10 +173,11 @@ describe('fonts: the resolveFont hook (same shape as resolveAsset)', () => {
   const uss = `#r { -unity-font-definition: url("${JUA_URL}"); font-size: 20px; }`;
   const body = '<ui:VisualElement name="r"><ui:Label name="a" text="Hello" /><ui:VisualElement><ui:Label name="b" text="World" /></ui:VisualElement></ui:VisualElement>';
 
-  function run(resolveFont: RenderOptions['resolveFont']) {
+  function run(resolveFont: RenderOptions['resolveFont'], theme?: RenderOptions['theme']) {
     const seen: TextContext[] = [];
     const calls: Array<[string, string]> = [];
     const r = draw(body, uss, {
+      ...(theme === undefined ? {} : { theme }),
       ...(resolveFont === undefined
         ? {}
         : {
@@ -206,7 +207,9 @@ describe('fonts: the resolveFont hook (same shape as resolveAsset)', () => {
   });
 
   it('a family name: called with path and form, inherited by both labels, measured and painted with it', () => {
-    const { r, seen, calls } = run(() => 'Jua');
+    // 0.7.0: the runtime theme measures with the standard generator, where a family without FaceInfo is
+    // warned (review T3, review-r15.test.ts); this case is the editor's, as written for 0.6.0.
+    const { r, seen, calls } = run(() => 'Jua', 'editor');
     try {
       expect(calls[0]).toEqual([JUA_URL, 'url']);
       expect(aboutProperty(r.warnings, '-unity-font-definition')).toEqual([]);

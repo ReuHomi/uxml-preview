@@ -105,11 +105,17 @@ const rows = await page.evaluate(async ({ cases, fonts }) => {
     walk(r.document.root);
     const el = r.elements.get(id);
     const box = r.boxes.get(id);
-    // Every painted line: group the text's client rects by their top edge.
-    const range = document.createRange();
-    range.selectNodeContents(el);
+    // Every painted line: group the client rects of its text nodes by their top edge. Text nodes only:
+    // a range over the element also returns the boxes of wrapper elements, which are not lines.
+    const rects = [];
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let t = walker.nextNode(); t !== null; t = walker.nextNode()) {
+      const range = document.createRange();
+      range.selectNodeContents(t);
+      rects.push(...range.getClientRects());
+    }
     const lines = new Map();
-    for (const q of range.getClientRects()) {
+    for (const q of rects) {
       if (q.width === 0) continue;
       const top = Math.round(q.top);
       const l = lines.get(top) ?? { left: Infinity, right: -Infinity };
