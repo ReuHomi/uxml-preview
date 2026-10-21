@@ -42,6 +42,11 @@ figures against `tests/text-cohort/results.json`).
 coordinate accuracy. It counts toward baseline coverage but not the 1122/1148 matching values or
 the 38/42 coordinate cases.
 
+**What this figure does not measure (2026-10-21, review findings G2, X1, X3):**
+- The harness measures text with a fixed measurer (`FIXED_MEASURE`: one line, never wraps). So 1122/1148 measures **layout given the text sizes**, not the preview's own text measurement (line breaking included); the text cohort measures that separately
+- 16 of the 1122 values (the Slider dragger `x`/`y` on the two settings screens) match because the harness adds the dragger's `translate` to its box: Unity's dump is after the move, the preview's Yoga box before it. The translate itself is checked against Unity by `bundle-d.test.ts`, and the painter paints the same value. Without these 16: 1106/1148
+- The settings contract test's (`bundle-g.test.ts`) "Unity's text sizes" are the dump's `MeasureTextSize`, except that a text Unity's layout made 1-2px wider takes that layout width, and wrapped TextField and ProgressBar text takes its height from the dump box. So it checks **the boxes given the text widths and line breaks**, not the text widths themselves
+
 ## Template / Instance expansion (separate cohort, measured on Unity 6000.0.40f1)
 
 The base-control and template-expansion cohorts answer different questions and are never added
@@ -243,7 +248,7 @@ Before the theme values went in (0.6.x behaviour) this set read 609/676. The val
 spacing (4·4·2·2 / 4·2·4·1), the Button margin, padding and border, 14px text and a 24px vertical scroller, all read from
 dumps (`probe-panel/`, `probe-editor-070/`).
 
-**A Unity-side effect (seen 2026-10-18, cause found 2026-10-19):** on the runtime panel, when the same text was laid out earlier with a different wrap setting, a later element with that text comes out 4-8px shorter (`g-clamp` 20-21px). Remove the earlier same text and it is 25px again, as the preview draws it (`t-bis-*`, `t-cache-*`, `t-fit*` dumps). It has nothing to do with the width being set from outside (`t-fit-pad`: a Label stretched in a narrow column is 25px). None of the 44 golden cases has this, so it is not in the figure above. Dumping each probe alone does not stop contamination **within** one document — probes avoid writing the same text twice with different wrapping.
+**A Unity-side effect (seen 2026-10-18, cause found 2026-10-19):** on the runtime panel, when the same text was laid out earlier with a different wrap setting, a later element with that text comes out 4-8px shorter (`g-clamp` 20-21px). Remove the earlier same text and it is 25px again, as the preview draws it (`t-bis-*`, `t-cache-*`, `t-fit*` dumps). It has nothing to do with the width being set from outside (`t-fit-pad`: a Label stretched in a narrow column is 25px). None of the 44 golden cases has this, so it is not in the figure above. Dumping each probe alone does not stop contamination **within** one document — probes avoid writing the same text twice with different wrapping. The pinned test (`g-clamp`) does not judge the four contaminated runtime heights (`st-label`, `row-label`, `rh-label`, `free-label`): 25px is what the `t-bis-*` dumps show, not a value a test pins (review X4).
 
 ## Unity 6.3 LTS re-measurement (2026-10-15)
 
@@ -281,7 +286,7 @@ by Unity and by a real Chromium, and the Label boxes compared. Run it with `pnpm
 | Coefficients | the FaceInfo Unity reports for that font. Not fitted |
 
 Judgement: line count must match, height must match the formula exactly, width within 1px or 1%.
-The failure columns count (a)/(b)/(c) over all 251 rows, line-break cases included. "Boundary lines" counts the boundary and the fixed-width wrap cases together.
+The failure columns count (a)/(b)/(c) over all 251 rows, line-break cases included. "Boundary lines" counts the boundary and the fixed-width wrap cases together — **line counts only**; a boundary row's height or width difference is in the failure columns.
 
 | Unity | Lines | Height | Width (1px/1%) | Boundary lines | Failures (a/b/c): lines · height · width | Width Δ range |
 |---|---:|---:|---:|---:|---|---|

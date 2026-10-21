@@ -152,8 +152,10 @@ by 1px on Unity's side (291/93 -> 292/92), still counted as mismatches.
 
 The acceptance screen (`settings`, `settings-ko`: every drawn control on one
 screen, design section 6) is in both golden sets, and a contract test judges
-the same screen with Unity's own text sizes: every box and part matches but one
-half-pixel title.
+the same screen with Unity's own text sizes (the dump's `MeasureTextSize`, or
+Unity's layout width where that is 1-2px wider): every box and part matches but
+one half-pixel title. It checks the boxes given the text sizes, not the text
+widths (`docs/accuracy.md`).
 
 ### Known differences
 
