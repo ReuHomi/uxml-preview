@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:VisualElement name="abs-host" style="width: 100px; height: 40px;">
+<ui:Label name="abs-normal" text="The quick brown fox jumps" style="position: absolute; left: 0; white-space: normal;" />
+</ui:VisualElement>
+<ui:VisualElement name="row20" style="height: 20px; flex-direction: row; align-items: flex-start;">
+<ui:TextField name="tf-value" value="Value" />
+<ui:TextField name="tf-empty" value="" />
+</ui:VisualElement>
+<ui:TextField name="ml-fixed" multiline="true" value="Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod" style="white-space: normal; height: 40px; width: 160px;" />
+<ui:VisualElement name="wide-row" style="flex-direction: row; align-items: flex-start;">
+<ui:Label name="wide" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim" />
+</ui:VisualElement>
+</ui:VisualElement>
+</ui:UXML>

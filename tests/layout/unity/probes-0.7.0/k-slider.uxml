@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:VisualElement name="vrow" style="flex-direction: row; height: 130px;">
+<ui:Slider name="dir-lower" direction="vertical" value="0" style="height: 120px;" />
+<ui:Slider name="dir-upper" direction="VERTICAL" value="0" style="height: 120px;" />
+<ui:Slider name="dir-ok" direction="Vertical" value="0" style="height: 120px;" />
+</ui:VisualElement>
+<ui:Slider name="inv0" inverted="true" value="0" style="width: 200px;" />
+<ui:Slider name="inv10" inverted="true" value="10" style="width: 200px;" />
+<ui:Slider name="inv3" inverted="true" value="3" style="width: 200px;" />
+<ui:SliderInt name="sint-frac" value="1.6" show-input-field="true" style="width: 200px;" />
+<ui:SliderInt name="sint-abc" value="abc" show-input-field="true" style="width: 200px;" />
+<ui:Slider name="sl-abc" value="abc" show-input-field="true" style="width: 200px;" />
+<ui:Slider name="sl-inf" value="Infinity" show-input-field="true" style="width: 200px;" />
+<ui:Slider name="sl-nan" value="NaN" show-input-field="true" style="width: 200px;" />
+</ui:VisualElement>
+</ui:UXML>
