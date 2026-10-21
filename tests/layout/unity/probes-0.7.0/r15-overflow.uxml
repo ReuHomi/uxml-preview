@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="width: 100px; align-items: flex-start; margin-left: 20px; margin-top: 20px; background-color: rgb(200, 230, 255);">
+<ui:Label name="o-label" text="The quick brown fox jumps" style="background-color: rgb(255, 220, 180);" />
+<ui:Button name="o-button" text="The quick brown fox jumps" />
+<ui:Label name="o-hidden" text="The quick brown fox jumps" style="overflow: hidden; background-color: rgb(255, 220, 180);" />
+<ui:Label name="o-ellipsis" text="The quick brown fox jumps" style="text-overflow: ellipsis; background-color: rgb(255, 220, 180);" />
+<ui:Label name="o-ellipsis-hidden" text="The quick brown fox jumps" style="overflow: hidden; text-overflow: ellipsis; background-color: rgb(255, 220, 180);" />
+</ui:VisualElement>
+</ui:UXML>

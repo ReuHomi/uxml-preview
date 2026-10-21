@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="l-runs" text="a     b     c" />
+<ui:Label name="l-plain" text="a b c" />
+</ui:VisualElement>
+</ui:UXML>

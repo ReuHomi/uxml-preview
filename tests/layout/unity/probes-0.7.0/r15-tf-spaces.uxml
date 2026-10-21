@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:TextField name="tf-runs" value="a     b     c" />
+<ui:TextField name="tf-lead" value="     lead" />
+<ui:TextField name="tf-plain" value="a b c" />
+<ui:TextField name="tf-trail" value="trail     " />
+</ui:VisualElement>
+</ui:UXML>
