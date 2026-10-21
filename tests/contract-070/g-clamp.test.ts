@@ -11,8 +11,10 @@
  *     a Label, a Button, a Label with text-overflow ellipsis in a column with align-items
  *     flex-start (cs-*); a Label in a row (row-label) and in a row with overflow hidden
  *     (rh-label); a stretched Label (st-label) is the column's width anyway;
- *   not clipped (nothing offered — Yoga's Undefined):
- *     an absolutely placed Label (abs-label), a Label in a row whose own width is auto (free-label).
+ *   not clipped (narrower than what is offered, or nothing offered):
+ *     an absolutely placed Label (abs-label: Unity offers it no width), a Label in a row whose own width is
+ *     auto (free-label: the root still offers the panel's width, AtMost 800; 178px is under it. A text wider
+ *     than the panel is clipped to it — c-edge.json `wide`, review C8, review-k2.test.ts).
  *     The preview's Yoga offers an absolute element its containing block's width (AtMost), which
  *     Unity's does not: absolute text is not clipped whatever the preview's Yoga offers;
  *   not clipped although offered:
