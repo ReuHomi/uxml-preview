@@ -170,12 +170,14 @@ const PROGRESS_EDITOR = `
  */
 // GroupBox/Box: measured c07-GroupBox.json and c07-Box.json in the editor
 // and runtime probe directories cited above; title keeps Label side margins/padding.
+// Measured: both versions/themes, g-clamp.json: Label/Button default NoWrap (plan §30-1).
 export const THEME_USS: string = `${PANEL_TEXT_DEFAULTS_SELECTOR} {
   font-size: 12px;
   color: #d2d2d2;
 }
 .unity-disabled { opacity: 0.5; }
 .unity-label {
+  white-space: nowrap;
   margin: 0;
   padding: 0 2px 0 1px;
   flex-shrink: 0;
@@ -229,6 +231,7 @@ export const THEME_USS: string = `${PANEL_TEXT_DEFAULTS_SELECTOR} {
   background-color: #2828284d;
 }
 .unity-button {
+  white-space: nowrap;
   margin: 1px 3px;
   padding: 1px 6px;
   border-width: 1px;
@@ -260,6 +263,7 @@ export const THEME_SHEETS: Readonly<Record<Theme, string>> = {
 }
 .unity-disabled { opacity: 0.5; }
 .unity-label {
+  white-space: nowrap;
   margin: 4px 4px 2px 2px;
   padding: 4px 2px 4px 1px;
   flex-shrink: 0;
@@ -314,6 +318,7 @@ export const THEME_SHEETS: Readonly<Record<Theme, string>> = {
   background-color: #dedede;
 }
 .unity-button {
+  white-space: nowrap;
   margin: 2px 4px;
   padding: 10px 12px;
   border-width: 1px;
