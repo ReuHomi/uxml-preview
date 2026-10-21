@@ -172,6 +172,8 @@ for (const theme of ['runtime', 'editor'] as const) {
             const differs = ours[i] !== unity[i];
             if (KNOWN[key] !== undefined) {
               if (!differs) stale.push(key);
+              // The known difference is the half pixel rounded down: exactly 1px less, nothing else (review X2).
+              else if (ours[i] !== unity[i]! - 1) problems.push(`${path} ${field}: ours ${ours[i]}, Unity ${unity[i]} (known: Unity - 1)`);
               return;
             }
             if (differs) problems.push(`${path} ${field}: ours ${ours[i]}, Unity ${unity[i]}`);
