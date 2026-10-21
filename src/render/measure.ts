@@ -106,6 +106,24 @@ export function createDefaultMeasureText(doc?: Document): MeasureText {
         widest = Math.max(widest, widthOf(paragraph));
         continue;
       }
+      if (style.whiteSpace === 'pre-wrap') {
+        // probe-editor/spaces-prewrap.json: break after a preserved space run.
+        // Trailing spaces hang at the break, but count before the next word.
+        const runs = paragraph.match(/ +|[^ ]+/g) ?? [];
+        for (const run of runs) {
+          const pieces = run[0] === ' ' ? [run] : run.split(CJK_BREAK).filter(Boolean);
+          for (const piece of pieces) {
+            const candidate = current + piece;
+            if (piece[0] !== ' ' && current !== '' && widthOf(candidate) > availableWidth) {
+              widest = Math.max(widest, widthOf(current.trimEnd()));
+              lines++;
+              current = piece;
+            } else current = candidate;
+          }
+        }
+        widest = Math.max(widest, widthOf(current));
+        continue;
+      }
       const tokens = paragraph.split(/\s+/).filter((w) => w.length > 0).flatMap((word) =>
         word.split(CJK_BREAK).filter((part) => part.length > 0)
           .map((value, index) => ({ value, separator: index === 0 ? ' ' : '' })));

@@ -438,10 +438,19 @@ export function layoutDocument(
       whiteSpace: read(style, 'white-space') || 'normal',
       textGenerator,
     };
+    // r15-tf-spaces: preserve significant spaces; ordinary single-space text
+    // retains its existing host-measurer context (normal and pre-wrap agree).
+    if (partName === 'unity-text-element--inner-input-field-component' && / {2}|^ | $/m.test(text)) {
+      context.whiteSpace = context.whiteSpace === 'normal' ? 'pre-wrap' : 'pre';
+    }
     const font = options.fonts?.get(style);
     if (font !== undefined) {
       context.fontFamily = font.family;
       const face = font.faceInfo;
+      if (face === undefined && textGenerator === 'standard') {
+        warnMeasurement(node, style, '-unity-font-definition', 'not-rendered',
+          '-unity-font-definition: host font has no FaceInfo lineHeight; later Standard lines cannot be placed as Unity does');
+      }
       if (face !== undefined) {
         if (Number.isFinite(face.pointSize) && face.pointSize > 0 &&
             Number.isFinite(face.ascentLine) && Number.isFinite(face.descentLine)) context.faceInfo = face;

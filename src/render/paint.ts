@@ -1,4 +1,4 @@
-import { CJK_BREAK, fontList } from './measure';
+import { CJK_BREAK, EDITOR_DEFAULT_FACE_INFO, fontList } from './measure';
 import type { Theme } from '../controls/theme';
 import type { FaceInfo } from './measure';
 /**
@@ -48,6 +48,7 @@ export interface PaintResult {
 
 export interface PaintOptions extends CssMapOptions {
   document: Document;
+  checkedNodes?: ReadonlySet<NodeId>;
   theme?: Theme;
   fonts?: ReadonlyMap<ComputedStyle, { family: string; faceInfo?: FaceInfo }>;
 }
@@ -105,7 +106,7 @@ export function paint(
       host.textContent = text;
       return;
     }
-    const standard = style.get('-unity-text-generator')?.value === 'standard';
+    const standard = isStandard(style);
     const characters = [...text];
     const last = characters.pop();
     for (const run of characters.join('').match(/ +|[^ ]+/g) ?? []) {
@@ -124,8 +125,24 @@ export function paint(
 
   function appendText(host: HTMLElement, text: string, style: ComputedStyle): void {
     // Measured: tests/text-cohort/unity-runtime/; bundle A plan §29 — match measured glyph widths.
-    if (style.get('-unity-text-generator')?.value === 'standard') host.style.fontKerning = 'none';
-    appendSpacedText(host, text, style);
+    host.style.fontKerning = isStandard(style) ? 'none' : 'normal';
+    const face = options.fonts?.get(style)?.faceInfo ?? EDITOR_DEFAULT_FACE_INFO;
+    const size = parseLength(style.get('font-size')?.value ?? '12px').length;
+    const leading = isStandard(style)
+      ? (size?.kind === 'px' ? size.value : 12) * ((face.lineHeight ?? face.ascentLine - face.descentLine) - (face.ascentLine - face.descentLine)) / face.pointSize : 0;
+    if (Math.abs(leading) >= 0.00001) {
+      // Split the run without changing its text or break opportunities. Relative
+      // offsets move glyphs, while the containing line boxes retain the advance.
+      const characters = [...text];
+      for (const [index, character] of characters.entries()) {
+        const span = options.document.createElement('span');
+        span.textContent = character;
+        span.style.position = 'relative';
+        span.style.top = `${-leading / 2}px`;
+        if (index === characters.length - 1) span.style.letterSpacing = '0px';
+        host.appendChild(span);
+      }
+    } else appendSpacedText(host, text, style);
     if (options.theme !== 'runtime' || !CJK_BREAK.test(text)) return;
     // Unity probe-panel/kinsoku.json: runtime allows breaks on either side of
     // CJK punctuation. Explicit opportunities bypass browser kinsoku; keep-all
@@ -151,6 +168,10 @@ export function paint(
     insertBreaks(host);
   }
 
+  /**
+   * Purpose:      paint measured line advances without CSS's extra leading.
+   * Deps/Effects: appends DOM text; reads the same font FaceInfo as layout.
+   */
   function paintText(el: HTMLElement, text: string, style: ComputedStyle,
     css: ReturnType<typeof toCss>): void {
     // Laid out as a measured leaf, so it has no painted children and can use
@@ -164,37 +185,72 @@ export function paint(
     }
     const font = options.fonts?.get(style);
     if (font !== undefined) el.style.fontFamily = fontList(font.family);
-    const gap = parseLength(style.get('-unity-paragraph-spacing')?.value ?? '').length;
-    const decoded = text;
+    // Unity line advances: bundle A §29/31. CSS centres glyphs in its line
+    // box; remove that leading so line zero begins at the measured content top.
+    const face = font?.faceInfo ?? EDITOR_DEFAULT_FACE_INFO;
+    const size = parseLength(style.get('font-size')?.value ?? '12px').length;
+    const fs = size?.kind === 'px' ? size.value : 12;
+    const glyphHeight = fs * (face.ascentLine - face.descentLine) / face.pointSize;
+    const advance = isStandard(style) ? fs * (face.lineHeight ?? face.ascentLine - face.descentLine) / face.pointSize : glyphHeight;
+    el.style.lineHeight = `${advance}px`;
+    el.style.fontKerning = isStandard(style) ? 'none' : 'normal';
+    const leading = advance - glyphHeight;
+    const ellipsis = style.get('overflow')?.value === 'hidden' && style.get('text-overflow')?.value === 'ellipsis';
     const letterSpacing = parseLength(style.get('letter-spacing')?.value ?? '').length;
-    if (gap?.kind === 'px' && decoded.includes('\n')) {
-      const size = parseLength(style.get('font-size')?.value ?? '12px').length;
-      const paragraphs = decoded.split('\n');
-      const content = options.document.createElement('div');
+    if (!text.includes('\n') && Math.abs(leading) < 0.00001 && !ellipsis &&
+        !(letterSpacing?.kind === 'px' && letterSpacing.value !== 0) &&
+        !(options.theme === 'runtime' && CJK_BREAK.test(text))) {
+      appendText(el, text, style);
+      return;
+    }
+    const content = options.document.createElement('div');
+    content.style.minWidth = '0';
+    if (Math.abs(leading) >= 0.00001) {
+      content.style.marginBottom = `${-leading}px`;
+    }
+    if (ellipsis) {
       content.style.width = '100%';
-      paragraphs.forEach((paragraph, index) => {
-        const block = options.document.createElement('div');
-        appendText(block, paragraph, style);
-        block.style.minHeight = '1em';
-        if (index < paragraphs.length - 1) block.style.marginBottom = `${gap.value * (size?.kind === 'px' ? size.value : 12) / 100}px`;
-        content.appendChild(block);
+      content.style.overflow = 'hidden';
+      content.style.textOverflow = 'ellipsis';
+      content.style.whiteSpace = 'nowrap';
+    }
+    if (options.theme === 'runtime' && CJK_BREAK.test(text)) content.style.wordBreak = 'keep-all';
+    const gap = parseLength(style.get('-unity-paragraph-spacing')?.value ?? '').length;
+    if (text.includes('\n')) {
+      content.style.width = '100%';
+      text.split('\n').forEach((paragraph, index, paragraphs) => {
+        const run = options.document.createElement('span');
+        appendText(run, paragraph, style);
+        content.append(...Array.from(run.childNodes));
+        if (paragraph === '' && index === paragraphs.length - 1) content.appendChild(options.document.createElement('br'));
         if (index < paragraphs.length - 1) {
+          const br = options.document.createElement('br');
+          content.appendChild(br);
           const separator = options.document.createElement('span');
           separator.textContent = '\n';
           separator.style.display = 'none';
           content.appendChild(separator);
+          if (gap?.kind === 'px' && gap.value !== 0) {
+            const space = options.document.createElement('div');
+            space.style.height = `${gap.value * fs / 100}px`;
+            content.appendChild(space);
+          }
         }
       });
-      el.appendChild(content);
-    } else if ((letterSpacing?.kind === 'px' && letterSpacing.value !== 0)
-      || (options.theme === 'runtime' && CJK_BREAK.test(decoded))) {
-      const content = options.document.createElement('span');
-      content.style.minWidth = '0';
-      appendText(content, decoded, style);
-      el.appendChild(content);
     } else {
-      appendText(el, decoded, style);
+      appendText(content, text, style);
     }
+    el.appendChild(content);
+  }
+
+  function isAuthor(style: ComputedStyle, property: string): boolean {
+    const origin = style.get(property)?.origin;
+    return origin?.kind === 'rule' || origin?.kind === 'inline';
+  }
+
+  function isStandard(style: ComputedStyle): boolean {
+    const generator = style.get('-unity-text-generator')?.value;
+    return generator === 'standard' || (generator !== 'advanced' && options.theme !== 'editor');
   }
 
   function build(
@@ -276,15 +332,22 @@ export function paint(
 
         // tests/contract-070/e2-editor-checkbox.test.ts: box colours from docs/design/0.7.0-bundle-E-shots/unity-editor-c07-Toggle.png.
         if (options.theme === 'editor' && node.name.local === 'Toggle' && part.name === 'unity-checkmark') {
-          partEl.style.setProperty('background-color', '#2a2a2a');
-          partEl.style.setProperty('border-radius', '2px');
+          if (!isAuthor(part.style, 'background-color')) partEl.style.setProperty('background-color', '#2a2a2a');
+          const corners = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+          if (!corners.some((corner) => isAuthor(part.style, `border-${corner}-radius`))) {
+            partEl.style.borderRadius = '2px';
+          }
+          for (const corner of corners) {
+            const property = `border-${corner}-radius`;
+            if (!isAuthor(part.style, property)) partEl.style.setProperty(property, '2px');
+          }
           partEl.style.setProperty('box-shadow', 'inset 0 1px 0 0 #0d0d0d, inset 1px 0 0 0 #212121, inset -1px 0 0 0 #212121, inset 0 -1px 0 0 #212121');
         }
 
         // e-toggle.json: Unity's built-in check/d_toggle_on textures are not
         // loadable assets here. Substitute a mark without an asset warning.
         if (node.name.local === 'Toggle' && part.name === 'unity-checkmark' &&
-          node.attributes.some((a) => a.name === 'value' && a.value === 'true')) {
+          (options.checkedNodes?.has(node.id) ?? node.attributes.some((a) => a.name === 'value' && a.value === 'true'))) {
           const svg = options.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
           svg.setAttribute('viewBox', '0 0 24 24');
           svg.setAttribute('width', '100%');
@@ -293,8 +356,9 @@ export function paint(
           const path = options.document.createElementNS('http://www.w3.org/2000/svg', 'path');
           path.setAttribute('d', 'M5 12 L10 17 L19 6');
           path.setAttribute('fill', 'none');
-          path.setAttribute('stroke', options.theme === 'editor' ? '#eeeeee' :
-            part.style.get('-unity-background-image-tint-color')?.value ?? '#323232');
+          path.setAttribute('stroke', isAuthor(part.style, '-unity-background-image-tint-color')
+            ? part.style.get('-unity-background-image-tint-color')!.value
+            : options.theme === 'editor' ? '#eeeeee' : part.style.get('-unity-background-image-tint-color')?.value ?? '#323232');
           path.setAttribute('stroke-width', '2.5');
           path.setAttribute('stroke-linecap', 'round');
           path.setAttribute('stroke-linejoin', 'round');

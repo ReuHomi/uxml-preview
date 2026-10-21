@@ -80,6 +80,8 @@ export interface ResolveOptions {
 }
 
 export interface ResolveResult {
+  /** @internal Resolved Checked bits shared by styling and the substitute check glyph. */
+  checkedNodes: ReadonlySet<NodeId>;
   /** @internal Element matches collected during this cascade, keyed by sheet and item. */
   matchedNodes: ReadonlyMap<string, readonly NodeId[]>;
   styles: ReadonlyMap<NodeId, ComputedStyle>;
@@ -446,7 +448,7 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
       const part = resolveControl(target.owner).spec.parts[target.depth];
       if ((target.owner.name.local === 'Toggle' || target.owner.name.local === 'RadioButton') &&
         part?.classes?.includes(target.owner.name.local === 'Toggle' ? 'unity-toggle__input' : 'unity-radio-button__input') &&
-        target.owner.attributes.some((a) => a.name === 'value' && a.value === 'true')) states.add('checked');
+        stateMap.get(target.owner)?.has('checked')) states.add('checked');
       return states;
     },
   };
@@ -991,7 +993,13 @@ export function resolveStyles(doc: UxmlDocument, options?: ResolveOptions): Reso
   for (const [warning, key] of prepared.declarationWarnings) {
     warning.nodes = matchedNodes.get(key) ?? [];
   }
-  return { styles, partStyles, warnings, matchedNodes };
+  const checkedNodes = new Set<NodeId>();
+  const collectChecked = (node: ElementNode): void => {
+    if (prepared.ctx.statesOf({ kind: 'element', node }).has('checked')) checkedNodes.add(node.id);
+    node.children.forEach(collectChecked);
+  };
+  collectChecked(doc.root);
+  return { styles, partStyles, warnings, matchedNodes, checkedNodes };
 }
 
 /**

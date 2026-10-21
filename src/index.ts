@@ -454,6 +454,7 @@ export function render(
   try {
     painted = paint(renderDocument.root, tree.boxes, tree.parts, resolved.styles, container, {
       document: ownerDocument,
+      checkedNodes: resolved.checkedNodes,
       theme,
       fonts: fontResult.fonts,
       resolveAsset: options?.resolveAsset,
