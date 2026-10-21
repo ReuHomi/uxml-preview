@@ -49,3 +49,24 @@ describe('T3 — a host font without FaceInfo under the Standard generator', () 
     expect(fontWarnings('runtime', FACE)).toBe(0);
   });
 });
+
+/**
+ * T10, re-check (human decision 2026-10-21): a font-size that is not positive is warned. Measuring stays as it is.
+ * Unity's behaviour at 0px is not measured; the warning says what the preview did.
+ */
+describe('T10 — a font-size that is not positive', () => {
+  const warned = (size: string): number => {
+    const r = render(parse(`<ui:UXML xmlns:ui="UnityEngine.UIElements"><ui:Label text="Hi" style="font-size: ${size};" /></ui:UXML>`),
+      document.createElement('div'), { size: { width: 400, height: 300 }, measureText: fixed });
+    const n = r.warnings.filter((w) => w.subject?.kind === 'property' && w.subject.property === 'font-size').length;
+    r.dispose();
+    return n;
+  };
+  it('0px and a negative size are warned', () => {
+    expect(warned('0px')).toBeGreaterThan(0);
+    expect(warned('-4px')).toBeGreaterThan(0);
+  });
+  it('a positive size is not', () => {
+    expect(warned('12px')).toBe(0);
+  });
+});

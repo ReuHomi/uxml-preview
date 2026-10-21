@@ -38,6 +38,10 @@
  *       cuts them at the box; text-overflow: ellipsis alone changes nothing, with overflow: hidden it
  *       ends in an ellipsis; a Button's centred text runs past both sides (6.3; 6000.0 clips it — the
  *       preview draws 6.3).
+ * T3  — a host font without FaceInfo (re-check 2026-10-21): the measurer reads the face off the canvas
+ *       (fontBoundingBox, no lineHeight); the painter must use that same face for the line advance, not the
+ *       built-in Inter FaceInfo. Same criterion as T9, with r and the advance taken from the canvas the way
+ *       createDefaultMeasureText takes them. Jua (canvas ratio 1.0) on both themes.
  *
  * Deps/Effects: as paint.mjs — UXML_TEXT_CHROMIUM, UXML_TEXT_FONTS (Inter-Regular.ttf, Jua-Regular.ttf),
  * bundles src/ with Vite in memory. Exits 1 when it cannot run or any row fails.
@@ -182,6 +186,39 @@ for (const theme of ['runtime', 'editor']) {
       }
     }
   }
+}
+
+// ---------------------------------------------------------------- T3 (re-check)
+for (const theme of ['runtime', 'editor']) {
+  const row = await page.evaluate(({ theme, text }) => {
+    const R = globalThis.R15;
+    const core = globalThis.UxmlCore;
+    document.body.replaceChildren();
+    const host = document.createElement('div');
+    document.body.append(host);
+    const r = core.render(core.parse(`<ui:UXML xmlns:ui="UnityEngine.UIElements"><ui:VisualElement style="align-items: flex-start;"><ui:Label name="t" text="${text}" /></ui:VisualElement></ui:UXML>`,
+      '#t { padding: 0; margin: 0; font-size: 20px; -unity-font-definition: url("project://database/Assets/Fonts/Jua-Regular.ttf"); }'),
+      host, { theme, size: { width: 800, height: 600 }, resolveFont: () => ({ family: R.fonts.jua.family }) });
+    let id;
+    const walk = (n) => { if (n.attributes.some((a) => a.name === 'name' && a.value === 't')) id = n.id; n.children.forEach(walk); };
+    walk(r.document.root);
+    const el = R.textHost(r.elements.get(id), 'One\nTwo\nThree');
+    // The face the measurer reads: fontBoundingBox of "Mg" at 90px.
+    const c = document.createElement('canvas').getContext('2d');
+    c.font = `normal normal 90px "${R.fonts.jua.family}", sans-serif`;
+    const m = c.measureText('Mg');
+    const fs = 20, ratio = (m.fontBoundingBoxAscent + m.fontBoundingBoxDescent) / 90, adv = fs * ratio;
+    const top = R.contentTop(el);
+    const cs = getComputedStyle(el);
+    const bottom = el.getBoundingClientRect().bottom - parseFloat(cs.borderBottomWidth) - parseFloat(cs.paddingBottom);
+    const painted = R.lines(el);
+    const offsets = painted.map((p, k) => (p.c - top) - (k * adv + fs * ratio / 2));
+    const out = { lines: painted.length, worst: Math.max(0, ...offsets.map(Math.abs)), over: painted.length ? painted[painted.length - 1].bottom - bottom : 0, adv };
+    r.dispose();
+    return out;
+  }, { theme, text: 'One&#10;Two&#10;Three' });
+  const ok = row.lines === 3 && row.worst <= 1 && row.over <= 1;
+  check('T3', `${theme} Jua without FaceInfo`, ok, `painted ${row.lines} lines; worst offset ${row.worst.toFixed(2)}px from the canvas face's advance ${row.adv.toFixed(2)}; last line past the box ${row.over.toFixed(2)}px`);
 }
 
 // ---------------------------------------------------------------- S4
