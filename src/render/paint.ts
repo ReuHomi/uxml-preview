@@ -186,7 +186,7 @@ export function paint(
       el.style.setProperty('justify-content', 'flex-start');
     }
     const font = options.fonts?.get(style);
-    if (font !== undefined) el.style.fontFamily = fontList(font.family);
+    el.style.fontFamily = fontList(font?.family);
     // Unity line advances: bundle A §29/31. CSS centres glyphs in its line
     // box; remove that leading so line zero begins at the measured content top.
     const face = font?.faceInfo ?? (font === undefined ? EDITOR_DEFAULT_FACE_INFO
