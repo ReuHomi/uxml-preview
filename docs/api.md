@@ -54,7 +54,7 @@ UXML과 USS 텍스트를 모델(`UxmlDocument`)로 읽는다. 실패하지 않�
 
 | 필드 | 뜻 |
 |---|---|
-| `warnings` | 그리면서 지키지 못한 것 전부(아래 "경고"). `doc.warnings`(입력 오류, 못 푼 `@import`)와는 별개 |
+| `warnings` | 그리면서 지키지 못한 것 전부(아래 "경고"). `doc.warnings`(입력 오류, 못 푼 `<Style src>`·`@import`)와는 별개 |
 | `boxes` | Yoga가 계산한 상자, 패널 좌표. Unity와 비교하는 숫자가 이것이다 |
 | `elements` | 모델 노드마다 그려진 DOM 요소. 클릭을 트리로 되짚을 때 쓴다 |
 | `document` | 템플릿을 전개한, 실제로 그린 트리 |

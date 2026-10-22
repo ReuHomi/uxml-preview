@@ -57,7 +57,7 @@ The result (`RenderResult`):
 
 | Field | Meaning |
 |---|---|
-| `warnings` | Everything the render could not honour (see "Warnings"). Separate from `doc.warnings`, which covers malformed input and unresolved `@import` |
+| `warnings` | Everything the render could not honour (see "Warnings"). Separate from `doc.warnings`, which covers malformed input and unresolved `<Style src>` / `@import` |
 | `boxes` | What Yoga computed, in panel coordinates. These are the numbers compared with Unity |
 | `elements` | The painted DOM element per model node, to map a click back to the tree |
 | `document` | The tree actually drawn, templates expanded |
