@@ -93,8 +93,8 @@ for (const theme of ['runtime', 'editor'] as Theme[]) {
           expect(owners.size, 'text owners found').toBeGreaterThanOrEqual(15);
           for (const nodes of owners.values()) {
             const text = nodes.map((n) => n.textContent).join('');
-            const measured = new Set(log.filter((e) => e.text !== 'Mg' && e.text !== '' && text.includes(e.text))
-              .map((e) => familyOf(e.font)));
+            // Exact: a one-line text is measured whole, and a substring match would pick up "a" for "Download".
+            const measured = new Set(log.filter((e) => e.text === text).map((e) => familyOf(e.font)));
             expect(measured.size, `"${text}" was measured in exactly one family`).toBe(1);
             for (const n of nodes) {
               let painted = '';
