@@ -137,15 +137,25 @@ UXML은 `project://database/Packages/...`로 해석된다(Unity 6000.0.40f1 측�
 0.6.0부터 글자 상자를 Unity 규칙으로 잰다. 근거는 모두 Unity 덤프다(`tests/layout/unity/`,
 `tests/text-cohort/unity/`, 6000.0.40f1·6000.3.25f1).
 
-- **높이** — `ceil(줄 수 × 글자 크기 × (ascent − descent) / pointSize)`. 계수는 Unity가 그 폰트에
-  대해 보고한 FaceInfo다(맞춘 값이 아니다). 기본 폰트(에디터의 Inter)는 12px → 15, 20px → 25.
-  여러 줄은 줄마다가 아니라 묶음 전체를 한 번 올림한다(1~4줄 × 다섯 크기, 두 버전 모두 일치).
-  6000.0은 둘째 줄부터 다르게 계산하지만 기준 버전(6.3)을 따른다
-- **간격** — `letter-spacing`·`word-spacing`은 값 × 글자 크기 / 100. 기본 생성기(`advanced`)는
-  공백 옆과 마지막 글자 뒤에 자간을 두지 않는다. 그리는 쪽도 같은 규칙이라 그린 글자가 잰 상자에
-  맞는다(실제 브라우저 대조, `tests/text-cohort/paint.mjs`)
-- **공백** — 6.3은 `normal`·`nowrap`에서 연속 공백을 하나로 접고 앞 공백을 버리며, `pre`·`pre-wrap`은
-  그대로 둔다(측정). 6000.0은 접지 않는다. 미리보기는 6.3을 따른다. **끝 공백은 측정하지 않았다**
+- **높이** — 규칙은 **테마가 아니라 해석된 `-unity-text-generator`**가 고른다. 파일이 정하지 않으면 런타임
+  테마는 `standard`, 에디터 테마는 `advanced`다(`src/layout/yoga.ts`). `r = (ascent − descent) / pointSize`는
+  Unity가 그 폰트에 대해 보고한 FaceInfo다(맞춘 값이 아니다). 문단 간격이 없을 때:
+  - Standard: `floor(fs·r + (n−1)·fs·lineHeight/pointSize) + 1`(`lineHeight`는 FaceInfo 값, 없으면 ascent − descent).
+    둘째 줄부터 `lineHeight`씩 내려간다(`tests/contract-070/t-standard.test.ts`, 런타임 패널 코호트)
+  - Advanced: `ceil(n·fs·r)` — 여러 줄은 줄마다가 아니라 묶음 전체를 한 번 올림한다(1~4줄 × 다섯 크기, 두 버전
+    모두 일치). 6000.0은 둘째 줄부터 다르게 계산하지만 기준 버전(6.3)을 따른다
+  - 기본 폰트(Inter)는 12px → 15, 14px → 17, 20px → 25로 두 규칙이 같다. 독립 함수 `textHeight(…)`는 여섯째
+    인자(`generator`)를 생략하면 **advanced**다 — 렌더러의 런타임 기본(standard)과 다르다
+- **간격** — `letter-spacing`·`word-spacing`은 값 × 글자 크기 / 100. Advanced는 공백 옆과 마지막 글자 뒤에
+  자간을 두지 않고 커닝이 있다. Standard는 공백 옆에도 자간이 붙고(마지막 글자 뒤는 없다) 커닝이 없다. 그리는 쪽도
+  같은 규칙이라 그린 글자가 잰 상자에 맞는다(실제 브라우저 대조, `tests/text-cohort/paint.mjs`)
+- **공백** — 연속 공백을 접는지는 **버전이 아니라 생성기**가 정한다. `a     b     c`의 글 폭은 런타임 패널
+  Standard(두 버전)에서 64 대 `a b c` 33, 6000.0 에디터(Standard) 55 대 28로 공백이 남고, 6.3 에디터 Advanced는
+  28 대 28로 하나로 접는다(`r15-label-spaces`). 6.3 에디터 Advanced는 앞 공백도 버리고(`spaces.json`), `pre`·
+  `pre-wrap`은 그대로 둔다(`spaces-prewrap.json`). **미리보기는 `normal`·`nowrap`에서 어느 생성기든 접는다**(에디터
+  6.3 Advanced를 따른다) — 그래서 런타임 Label의 연속 공백은 Unity보다 좁게 잰다. 이것과 TextField 끝 공백(`trail     `:
+  Standard는 버리고 Advanced는 센다, `r15-tf-spaces`)은 **측정은 했지만 구현하지 않은 알려진 차이**이고 0.8 후보다
+  (`docs/backlog.md` 3번 — 끝 공백(T6)은 2026-10-21 사람 결정으로 0.8). 미측정이 아니다
 - **폰트** — `-unity-font-definition`의 경로를 호스트가 `resolveFont(path, form)`로 풀어 준다. 반환은
   폰트 패밀리 이름, 또는 `{ family, faceInfo }`(FaceInfo를 주면 높이가 Unity와 같아진다), 또는 `null`.
   자세한 것은 [API](api.md)
@@ -153,7 +163,7 @@ UXML은 `project://database/Packages/...`로 해석된다(Unity 6000.0.40f1 측�
   기본 폰트(에디터 패널은 Inter, 런타임 패널은 NotInter-Regular)에 그 글자가 없어서 Unity가 대체 폰트로 그리고, 그 상자가 1~4px 더 높게 측정됐다(한글은 두 패널 모두).
   한자·가나는 너비도 다르다 — Unity의 상자가 6~87px 좁았다(에디터 패널에서만 측정, 10~32px, 이 PC의 Chrome 기준. 미리보기 쪽 너비는 기기의
   대체 폰트에 달려 있다). **사용자 폰트에 없는 글자는 확인하지 않는다** — 폰트 파일의 글자 범위를 읽지 않기 때문이다
-- **한자·가나 줄바꿈** — 0.6.1부터 한자·가나 글자 사이에서 줄을 바꾼다(한글·영문은 공백에서만, 측정). 폰트를 지정한
+- **한자·가나 줄바꿈** — 0.6.1부터 한자·가나 글자 사이에서 줄을 바꾼다(한글·영문은 공백에서 나누되, 상자보다 긴 낱말은 글자 사이에서도 나눈다 — 측정, `r1w-wrap2`·`r1w-long`, 두 버전·두 테마). 폰트를 지정한
   일본어·중국어는 줄 수·높이·너비가 Unity와 맞는다(텍스트 코호트). **금칙 처리(줄 머리에 `。` 등을 두지 않기)는
   측정하지 않았고 하지 않는다** — Unity 6.3과 줄 수가 하나 다른 경우가 있다
 - **리치 텍스트** — Unity는 `<b>`, `<size=…>` 같은 태그를 기본으로 해석한다. 미리보기는 태그를 글자로 그리고,
@@ -226,7 +236,9 @@ render(doc, el, { states: { '#UseButton': ['hover'], '#DropButton': ['disabled']
 - **Button의 상태별 Unity 기본값(`:hover`·`:active`·`:focus`·`:disabled` 색)은 0.7.0부터 넣었다.** 강제 의사 상태로
   resolved style을 덤프해 쟀다(`c07-states`, 두 테마). 다른 컨트롤의 상태 기본값은 그 컨트롤을 그릴 때 잰다
 - **비활성은 쓴 요소만 흐린다(0.7.0).** Unity는 `enabled="false"`를 쓴 요소에만 `unity-disabled`와 불투명도 0.5를
-  주고 자손은 1로 둔다(측정, `nested-disabled`). 미리보기도 같다. `states`로 `disabled`를 강제한 요소도 그 요소만 흐린다
+  주고 자손은 1로 둔다(측정, `nested-disabled`). 미리보기도 같다. `states`로 `disabled`를 강제하면 그 요소의 `:disabled` 상태 선택자만 켜진다 — `unity-disabled`도
+  불투명도 0.5도 주지 않고 부품·자식에 퍼지지도 않는다(측정, `e-disabled`, `tests/contract-070/forced-disabled.test.ts`).
+  작성자 USS가 `opacity`를 따로 쓰면 그 값이 적용된다
 
 `:selected`는 상태 목록에 없다. Unity 문서가 USS 미지원이라 적기 때문이다(`:checked`를 쓴다).
 

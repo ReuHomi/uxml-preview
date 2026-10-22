@@ -323,6 +323,13 @@ under `normal` and `nowrap`, and keeps them under `pre` and `pre-wrap`; 6000.0 d
 The preview follows 6.3. **Trailing spaces are not measured** — they follow CSS, which is also
 what the browser paints. No cohort sentence ends in a space, so the table above is unaffected.
 
+*(The above is the 0.6.x record.)* **0.7.0, now:** whether runs collapse is decided by the generator, not the
+version — the 6.3 editor (Advanced) collapses (`r15-label-spaces`, 28 against 28) while Standard (the runtime
+panel, both versions, and the 6000.0 editor) keeps them (64 against 33, 55 against 28). Trailing spaces are
+measured too (TextField `trail     `: Standard drops them, Advanced counts them, `r15-tf-spaces`). The preview
+collapses with either generator, so a runtime Label's run of spaces and a TextField's trailing spaces are
+**measured but not implemented known differences**, 0.8 candidates (`docs/backlog.md` item 3; the trailing-space part (T6) was a human decision for 0.8 on 2026-10-21).
+
 A font without FaceInfo (only a web font was given) falls back to the canvas's ascent and descent.
 How those differ from FaceInfo:
 

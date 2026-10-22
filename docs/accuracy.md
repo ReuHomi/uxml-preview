@@ -308,6 +308,12 @@ Label 상자를 비교한다. 실행은 `pnpm test:text`(`tests/text-cohort/READ
 6000.0은 접지 않는다. 미리보기는 6.3을 따른다. **끝 공백은 측정하지 않았다** — CSS를 따르며, 그건 브라우저가
 그리는 쪽과 같다. 코호트 문장에는 끝 공백이 없어 위 표에 영향이 없다.
 
+*(위는 0.6.x 당시 기록이다.)* **0.7.0 현재:** 접는지는 버전이 아니라 생성기가 정한다 — 6.3 에디터 Advanced는 접고
+(`r15-label-spaces` 28 대 28), Standard(런타임 패널 두 버전·6000.0 에디터)는 연속 공백을 남긴다(64 대 33, 55 대 28).
+끝 공백도 측정했다(TextField `trail     `: Standard는 버리고 Advanced는 센다, `r15-tf-spaces`). 미리보기는 어느 생성기든
+접으므로 런타임 Label의 연속 공백과 TextField 끝 공백은 **측정했지만 구현하지 않은 알려진 차이**이고 0.8 후보다
+(`docs/backlog.md` 3번 — 끝 공백(T6)은 2026-10-21 사람 결정으로 0.8).
+
 FaceInfo가 없는 폰트(웹 폰트만 주어진 경우)는 캔버스의 ascent/descent로 대신한다. 그 값과 FaceInfo의 차이:
 
 | 폰트 | FaceInfo (ascent − descent) / size | 캔버스 (ascent + descent) / size |
