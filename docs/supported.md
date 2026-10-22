@@ -142,8 +142,9 @@ UXML은 `project://database/Packages/...`로 해석된다(Unity 6000.0.40f1 측�
   Unity가 그 폰트에 대해 보고한 FaceInfo다(맞춘 값이 아니다). 문단 간격이 없을 때:
   - Standard: `floor(fs·r + (n−1)·fs·lineHeight/pointSize) + 1`(`lineHeight`는 FaceInfo 값, 없으면 ascent − descent).
     둘째 줄부터 `lineHeight`씩 내려간다(`tests/contract-070/t-standard.test.ts`, 런타임 패널 코호트)
-  - Advanced: `ceil(n·fs·r)` — 여러 줄은 줄마다가 아니라 묶음 전체를 한 번 올림한다(1~4줄 × 다섯 크기, 두 버전
-    모두 일치). 6000.0은 둘째 줄부터 다르게 계산하지만 기준 버전(6.3)을 따른다
+  - Advanced: `ceil(n·fs·r)` — 여러 줄은 줄마다가 아니라 묶음 전체를 한 번 올림한다(6.3 에디터 코호트 235/235,
+    `tests/contract-070/t-standard.test.ts`). 6000.0 에디터는 기본 생성기가 Standard라 다르다 — 정수가 되는 높이를 1 올리고
+    둘째 줄부터 `lineHeight`로 내린다(`docs/accuracy.md` 텍스트 코호트 (a)). 미리보기는 기준 버전(6.3)을 따른다
   - 기본 폰트(Inter)는 12px → 15, 14px → 17, 20px → 25로 두 규칙이 같다. 독립 함수 `textHeight(…)`는 여섯째
     인자(`generator`)를 생략하면 **advanced**다 — 렌더러의 런타임 기본(standard)과 다르다
 - **간격** — `letter-spacing`·`word-spacing`은 값 × 글자 크기 / 100. Advanced는 공백 옆과 마지막 글자 뒤에

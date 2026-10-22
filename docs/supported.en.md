@@ -149,9 +149,10 @@ From 0.6.0 text boxes are measured by Unity's rules. All of it rests on Unity du
   - Standard: `floor(fs·r + (n−1)·fs·lineHeight/pointSize) + 1` (`lineHeight` from the FaceInfo, else
     ascent − descent); later lines advance by `lineHeight` (`tests/contract-070/t-standard.test.ts`, the
     runtime-panel cohort)
-  - Advanced: `ceil(n·fs·r)` — several lines are rounded once as a block, not line by line (1–4 lines
-    × five sizes, matching on both versions). 6000.0 computes from the second line on differently; the
-    preview follows the reference version (6.3)
+  - Advanced: `ceil(n·fs·r)` — several lines are rounded once as a block, not line by line (6.3 editor
+    cohort 235/235, `tests/contract-070/t-standard.test.ts`). The 6000.0 editor differs because its default
+    generator is Standard: it adds 1 to heights that come out whole and advances later lines by `lineHeight`
+    (`docs/accuracy.md`, text cohort (a)). The preview follows the reference version (6.3)
   - The default font (Inter) gives 12px → 15, 14px → 17, 20px → 25 under either rule. The standalone
     `textHeight(…)` is **advanced** when its sixth argument (`generator`) is left out — not the
     renderer's runtime default (standard)
