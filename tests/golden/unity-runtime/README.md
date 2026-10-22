@@ -1,6 +1,6 @@
 # Unity ground truth, runtime theme
 
-The 44 golden cases on a real runtime panel (PanelSettings + UIDocument in Play mode,
+The 46 golden cases (44 when 0.7.0 was designed; `settings` and `settings-ko` were added in bundle G) on a real runtime panel (PanelSettings + UIDocument in Play mode,
 Unity's default runtime theme), Unity 6000.3.25f1, 400x300. 6000.0.40f1 gives the same
 coordinates (`tests/golden/panel-dump.test.ts`).
 
