@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.1 — 
+## 0.7.1 — 2026-10-22
 
 A patch for two things a consumer measured on 2026-10-22 (vscode-uxml-preview,
 Chromium 152 on Windows). Layout, measurement and every accuracy figure are
