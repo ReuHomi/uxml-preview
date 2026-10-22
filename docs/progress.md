@@ -4,6 +4,8 @@
 
 ## 현재 위치
 
+**0.7.1 패치 작업 중 (2026-10-22, 브랜치 `fix/0.7.1`, 푸시 안 함, 미배포).** 소비자가 잰 두 가지: (가) 글을 잰 글꼴과 그린 글꼴이 달랐다 — 글꼴 지정이 없으면 측정은 `sans-serif`, 그리기는 호스트 페이지 글꼴 → `paintText`가 늘 `fontList(font?.family)`로 글꼴을 정한다. (나) `font-fallback` 문구가 테마와 무관하게 "editor default font (Inter-Regular SDF)" → 런타임 테마는 "runtime default font (NotInter-Regular)", 한자·가나 수치는 에디터 패널에서 잰 것이라고 덧붙인다. 코어 `vitest` 1519 통과 · 1 건너뜀, tsc 0, 텍스트 코호트 수치 변화 없음(run 92/92·84/92·92/92·159/159 두 버전, paint 39/39, paint-r15 52/52, measure-real 92/92), 골든 정확도 변화 없음. CHANGELOG 0.7.1(날짜 비움), `package.json` 0.7.1. 소비자 재측정: vscode 복사본(로컬 main `2f5775d`) 0.7.0·0.7.1 모두 tsc 0 · vitest 180/180, uxml-author 복사본 0.7.0·0.7.1 모두 33건(conditions 14·exitcodes 5·binding 0·docs 14), 실패 이름 동일. npm 배포·태그는 사람. 아래 0.7.0 설명은 그대로 둔다.
+
 **0.7.0 배포됨 (2026-10-21).** GitHub 릴리스 `v0.7.0`(Latest, 14:18Z)과 npm `latest` = `0.7.0` 확인, `main` = `origin/main`(PR #14 머지 `5f3bdd4`), 열린 PR 없음. 아래 줄과 "다음 할 일"은 배포 전에 쓴 내용이라 해당 부분은 지난 상태다. (2026-10-21 23:42 갱신)
 
 이전 기록: 0.6.1 배포됨 (2026-10-16). **0.7.0 묶음 A·B·C·D·A2·E·E2·F·G, 항목 T, 글자 자르기(폭·높이), 단독 덤프 정답지, Standard 측정 규칙, 검토 뒤 정리 라운드(R1–R4) 완료. CHANGELOG 0.7.0 초안·인계 문서 최종본, **적대적 검증(grok 45건) 뒤 수정 1차·1.5차·2차**까지 — `design/0.7.0`, 푸시 안 함, 미배포. 다음은 재검증(grok).**
@@ -20,6 +22,8 @@
 정확도 세트는 서로 다른 질문을 답하므로 합산하지 않는다. `docs/accuracy.md`.
 
 ## 다음 할 일
+
+(2026-10-22) 0.7.1: 사람이 `fix/0.7.1` 검토 → PR·머지 → npm 배포·태그·CHANGELOG 날짜. 미추적 `docs/design/0.7.0-cjk-text.md`는 이번 테스트 머리말 둘이 인용한다(커밋 여부 사람 결정). 런타임 패널 기본 폰트의 한자·가나 덤프는 `docs/backlog.md` "0.7.1에서 남긴 것".
 
 (2026-10-21 23:42) 0.7.0 배포 완료. 아래 1·2·4(버전 올리기·배포) 항목은 배포로 처리된 것으로 보이나 이 세션에서 각각 확인하지 않았다 — 다음 세션 시작 시 대조한다. 남아 있는 것이 확실한 일: 소비자 갱신(인계 문서 4절), 미추적 `docs/design/0.7.0-cjk-text.md` 처리(커밋 여부 미정).
 
@@ -218,8 +222,19 @@
 | 2026-10-21 | R1-W는 생성기별 규칙 1로: Advanced는 가장 긴 줄, Standard는 꺾일 때 마지막으로 들어간 글자까지의 폭 floor + 1 | 사람 결정. 깨끗한 프로브(`r1w-wrap`·`r1w-wrap2`) 24개 중 22개 일치. 런타임 `ko100`(4px)·`te10`(2px)은 규칙을 넓히지 않고 알려진 차이로(0.8 backlog 4) |
 | 2026-10-21 | 0.6.1 고정 단언 "칸보다 긴 한글·영어 낱말은 쪼개지 않는다" 3개를 측정값으로 교체 | 사람 승인. 그 단언은 코호트 경계 케이스(칸보다 긴 낱말이 하나도 없음)에서 추론한 것이었다. `r1w-wrap2`(long100·longlb100)와 `r1w-long`(kolong·enlong 등, 두 버전·두 테마)에서 Unity는 긴 낱말을 글자 사이에서 꺾는다. 배포된 동작의 변경이라 CHANGELOG Corrections에 적음 |
 | 2026-10-21 | `measure-real.mjs`의 기본 글꼴 규칙을 `*`에서 `:root`로 | 하네스 결함. `*`는 TextField 내부 글에 직접 맞아 필드가 상속한 글꼴(Pretendard)을 덮었다(`kotf` 에디터 높이 33 vs Unity 32). Unity의 기본 글꼴은 패널에서 상속된다. 바꾼 뒤 기존 행 변화 없음 |
+| 2026-10-22 | 글꼴 지정이 없는 글도 `font-family`를 `fontList(undefined)`(=`sans-serif`)로 그린다. 요소마다(`paintText`), 루트 한 번이 아니다 | 측정과 그리기가 같은 함수에서 문자열을 얻어야 어긋나지 않는다. 루트에만 두면 작성자 글꼴이 후손에 닿는 경로가 둘이 되고, 부품 글(TextField 안쪽·Toggle 라벨 등)은 `paintText`를 지나므로 요소별이 부품을 따로 챙기지 않아도 덮는다. `<input>`/`<textarea>`는 만들지 않는다(고정 테스트가 지킨다) |
+| 2026-10-22 | `font-fallback` 문구를 테마별로: 런타임은 NotInter-Regular, 한자·가나 수치는 "에디터 패널에서 잰 것"이라 명시 | 덤프가 확정한 것은 폰트 이름(런타임 덤프 24/24, 두 버전 `font=NotInter-Regular`)과 한글 높이(두 패널, 1/2/2/4px)뿐이다. 한자·가나는 런타임 패널의 기본 폰트 덤프가 없다. 수치를 바꾸지 않고 출처를 밝혀 `affectsLayout: true`는 유지, 필요한 덤프는 backlog에 적었다 |
 
 ## 세션 로그
+
+### 2026-10-22 (0.7.1)
+
+- **지시 밖 변경:** (1) `tests/render/snapshots` 5개(visual-colors·font-style·nested-disabled·states-per-element·text-align)에 `"font-family": "sans-serif"` 12줄이 늘었다 — 영향 예측이 틀린 곳이다(아래). `GOLDEN_UPDATE=1`로 쓴 뒤 diff가 그 12줄뿐임을 확인했다. (2) `docs/supported(.en).md`·`docs/api(.en).md`의 기본 폰트 서술에 런타임 패널 NotInter-Regular와 "한자·가나 수치는 에디터 패널" 단서를 더했다. (3) 고정 테스트를 한 번 고쳤다 — `painted-font.test.ts`가 측정 문자열을 부분 문자열로 찾아 "Download"에 낱글자 "a"를 물렸다(Codex가 자기 수정 위에서 돌려 발견, 수정은 맞고 조회가 틀렸다). 기대값은 그대로 두고 정확 일치로만 바꿨고 별도 커밋이다.
+- **영향 예측(규율 5)과 결과:** 그리는 글꼴을 읽는 테스트를 `fontFamily|font-family|fontList|sans-serif`로 검색해 11개 파일, 그중 칠해진 DOM의 글꼴을 읽는 것은 3개(`contract-060/text-and-fonts` 1, `contract-070/n3-part-fonts` 2, 모두 작성자 글꼴 → 변화 없음 예측), 골든·불변식은 jsdom에서 글꼴을 계산하지 않아 0, 텍스트 코호트는 `paint.mjs`·`paint-r15.mjs`가 모든 케이스에 `-unity-font-definition`을 줘서 변화 없음 예측. 예측한 깨짐은 0개였고 **실제는 5개**(`visual.test.ts`의 CSS 스냅숏). 검색이 `outerHTML`·`getAttribute('style')`·JSON 스냅숏 파일을 안 훑었다 — 다음 예측은 스냅숏 디렉터리를 먼저 본다. 틀린 곳이 한 곳뿐이고 그 5개는 기대한 변화(글이 든 5개, 글 없는 나머지 17개는 그대로)여서 쌓은 판단은 바뀌지 않았다.
+- **(가) 글꼴:** 고정 테스트 `tests/contract-071/painted-font.test.ts`(테마 2 × 시나리오 3: 글꼴 없음·화면 전체 글꼴·일부 컨트롤만; 호스트 부모를 `serif`로; 측정 문자열은 기록하는 canvas에서 읽는다)를 먼저 커밋 — 구현 전 6개 중 4개 실패(올바른 이유: 호스트 `serif`). Codex가 `paintText`와 부품 두 줄을 바꿨고, 부품 줄은 `paintText`와 중복이라 되돌렸다(1줄 diff). 변이 4개: 고친 줄 되돌림 → 4 실패, 부품 글만 건너뜀 → 4 실패, 측정기만 기본값 변경 → 4 실패, 작성자 글꼴에서 `sans-serif` 대체 목록 제거 → 4 실패. 공유 `fontList` 기본값을 바꾸는 변이는 통과한다 — 측정과 그리기가 한 함수를 쓰므로 같이 움직이는 것이 설계의 의도이고 구멍이 아니다. 실제 Chrome에서 호스트 글꼴 `Segoe UI, serif`일 때 고침 전 그린 폭 100.7 / 85.92(canvas `sans-serif` 측정 104.24 / 89.31), 고침 후 104.25 / 89.31.
+- **(나) 문구:** 근거 확인 — 런타임 덤프 24/24(두 버전)가 `font=NotInter-Regular`, 6.3 덤프만 에셋 이름 `NotInter - Regular SDF`도 보고한다(문구는 공통인 `NotInter-Regular`). 에디터 덤프는 `Inter-Regular SDF`. 한글 높이는 `results.json`의 에디터·런타임 `inter-ko-*`가 같은 1/2/2/4px. 한자·가나는 런타임 패널 기본 폰트 덤프 없음(`kinsoku.json`은 NotoSansJP를 지정한 것) → 단서 문구 + backlog. 고정 테스트 `contract-071/font-fallback-theme.test.ts`(7개, 3개 실패로 시작)를 먼저 커밋, Codex가 `yoga.ts` 7줄. 변이 4개 모두 실패로 잡힘. `consumer-contract.test.ts`의 7개 문구에 `font-fallback`은 없고, 전체 스위트 통과.
+- **재측정:** 텍스트 코호트 4개 스크립트는 설치된 Chrome과 이전 세션 스크래치의 폰트 폴더로 돌렸고(고침 전후 같은 출력) 수치가 같다. 소비자는 스크래치 복사본에서만 돌렸다. vscode는 사람이 고른 로컬 main(`2f5775d`, `7ea57a2`의 다음 커밋)의 복사본이고 `7ea57a2` 정확 체크아웃이 아니다. uxml-author는 `~/.claude/skills/uxml-author` 복사본(작업 트리에 수정 있음)에 esbuild를 넣어 `build:core`로 0.7.0·0.7.1 번들을 차례로 만들었다. 33건은 0.7.0과 같은 이름이고, 유일한 문자열 차이는 한 실패 메시지 안의 버전 번호다.
+- 미검증: 사람의 F5(VS Code 웹뷰에서 실제 글꼴 일치), `pnpm test:text` 전체를 한 번에(스크립트를 개별로 돌렸다), `pnpm`이 이 PC의 PATH에 없어 `node_modules/.bin`을 직접 호출했다.
 
 ### 2026-10-21 (23:42 추가, 배포 상태 확인)
 

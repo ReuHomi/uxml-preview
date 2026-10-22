@@ -235,3 +235,14 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
     "UI Toolkit development status and next milestones – November 2025"
     (<https://discussions.unity.com/t/ui-toolkit-development-status-and-next-milestones-november-2025/1698009>,
     버전 명시 없음)
+
+## 0.7.1에서 남긴 것
+
+- **런타임 패널의 기본 폰트(NotInter-Regular)로 쓴 한자·가나** — 필요한 덤프: 런타임 패널(PanelDump,
+  `runtime-panel` 테마) 6000.3.25f1과 6000.0.40f1, 폰트를 지정하지 않은 Label 하나씩에
+  `漢字`·`かな`·혼합 문장, 10/14/20/32px, 상자 w/h와 `unityFontDefinition`. 지금 `font-fallback`의 한자·가나 수치
+  (높이 1~4px, 너비 6~87px 좁음)는 에디터 패널에서만 측정됐고(`docs/design/0.7.0-cjk-text.md` 결과 3), 런타임 테마
+  문구는 그렇게 적는다. 덤프가 나오면 수치를 확정하거나 문구에서 단서를 뺀다. `affectsLayout: true`는 그대로 둔
+  것이다 — 런타임 한글 높이가 측정됐고(`results.json` runtime `inter-ko-*`), 한자·가나가 영향 없다고 볼 근거도 없다
+- 런타임 패널의 폰트 이름: 6000.0.40f1 덤프는 `font=NotInter-Regular`만, 6000.3.25f1 덤프는 에셋 이름
+  `NotInter - Regular SDF`도 보고한다. 문구는 두 버전이 공통으로 보고하는 `NotInter-Regular`를 쓴다

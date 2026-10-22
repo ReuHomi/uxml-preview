@@ -135,7 +135,7 @@ interface Warning {
 - `unityEffect` — Unity가 이 값을 적용하지 못할 때 실제로 일어나는 일, 측정한 버전과 함께:
   - `unstyled-from-here` — 그 요소와 그 뒤의 모든 요소가 스타일을 잃는다(앞선 형제는 유지)
   - `file-inline-dropped` — 그 UXML 파일의 인라인 스타일이 전부 버려진다
-- `missingGlyphs` — `font-fallback`에서: 기본 폰트(Inter)에 없는 문자 체계(`hangul` · `han` · `kana`)
+- `missingGlyphs` — `font-fallback`에서: 기본 폰트(에디터 패널 Inter, 런타임 패널 NotInter-Regular)에 없는 문자 체계(`hangul` · `han` · `kana`)
 - `applied` — 예약 필드. 현재 이 값을 쓰는 등록표 행은 없다
 
 ### `at`

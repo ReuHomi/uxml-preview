@@ -143,7 +143,7 @@ Optional fields on `property`:
   - `unstyled-from-here` — that element and every element after it lose their style (earlier
     siblings keep theirs)
   - `file-inline-dropped` — every inline style in that UXML file is dropped
-- `missingGlyphs` — on `font-fallback`: the script the default font (Inter) has no glyphs for
+- `missingGlyphs` — on `font-fallback`: the script the default font (Inter in the editor panel, NotInter-Regular in the runtime panel) has no glyphs for
   (`hangul` · `han` · `kana`)
 - `applied` — reserved. No registry row uses it at present
 

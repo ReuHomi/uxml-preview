@@ -158,9 +158,10 @@ From 0.6.0 text boxes are measured by Unity's rules. All of it rests on Unity du
   returning a font family name, or `{ family, faceInfo }` (with FaceInfo the height matches
   Unity's), or `null`. Details in the [API](api.en.md)
 - **Fallback fonts** — text with no font set that contains Hangul, Han or Kana raises a
-  `font-fallback` warning. The default font Inter has none of those glyphs, so Unity draws them
-  with a fallback font, and that box measured 1–4px taller. For Han and Kana the width differs too:
-  Unity's box was 6–87px narrower (10–32px, Chrome on one PC; the preview's width depends on the
+  `font-fallback` warning. The default font (Inter in the editor panel, NotInter-Regular in the runtime panel) has none of
+  those glyphs, so Unity draws them with a fallback font, and that box measured 1–4px taller (Hangul:
+  both panels). For Han and Kana the width differs too:
+  Unity's box was 6–87px narrower (editor panel only; 10–32px, Chrome on one PC; the preview's width depends on the
   device's fallback font). **Glyphs missing from a font you set are not checked** — the preview
   does not read a font file's coverage
 - **Han and Kana line breaking** — from 0.6.1 lines break between Han and Kana characters (Hangul
