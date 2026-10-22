@@ -28,6 +28,23 @@ unchanged: only what is drawn changes, and one warning message.
   measured for them." The editor message is unchanged byte for byte. `reason`,
   `kind`, `subject` and `affectsLayout` are the same in both themes. Warning
   text is not an API: read the structured fields.
+
+### Docs
+
+Four behaviour descriptions in the public docs were wrong or out of date (found by
+a 0.7.0 doc audit, each checked against the source, tests and committed dumps):
+
+- A `disabled` forced through `states` does not dim, add `unity-disabled` or reach
+  parts and children; only `enabled="false"` does (`supported`).
+- Text height and letter spacing follow the **resolved** `-unity-text-generator`
+  (runtime theme Standard, editor theme Advanced), not the theme; `textHeight`
+  without its sixth argument is still Advanced (`supported`, `uss-vs-css`).
+- Whether runs of spaces collapse follows the generator, not the version; a runtime
+  Label's runs and a TextField's trailing spaces are measured, unimplemented known
+  differences (0.8 candidates), not unmeasured (`supported`, `accuracy`, `uss-vs-css`).
+- `white-space: pre` does not wrap to the width (`pre-wrap` does), and a word longer
+  than the box breaks between characters (`supported`, `uss-vs-css`).
+
 ## 0.7.0 — 2026-10-21
 
 Unity's runtime theme, by default. A preview of a game screen now looks like the
