@@ -4,7 +4,7 @@
 
 ## 현재 위치
 
-**0.7.1 npm 배포됨 (2026-10-22 11:49Z, npm `latest` = `0.7.1`, 레지스트리 직접 조회로 확인).** 코드·문서는 PR #16으로 `main`에 머지(`9778013`). 확인한 것과 못 한 것: GitHub 릴리스 `v0.7.1`은 이 기록을 쓸 때 **초안 상태이고 태그가 아직 없다**, CHANGELOG 날짜 PR #17은 열려 있다. 아래는 배포 전 작업 기록이다. 소비자가 잰 두 가지: (가) 글을 잰 글꼴과 그린 글꼴이 달랐다 — 글꼴 지정이 없으면 측정은 `sans-serif`, 그리기는 호스트 페이지 글꼴 → `paintText`가 늘 `fontList(font?.family)`로 글꼴을 정한다. (나) `font-fallback` 문구가 테마와 무관하게 "editor default font (Inter-Regular SDF)" → 런타임 테마는 "runtime default font (NotInter-Regular)", 한자·가나 수치는 에디터 패널에서 잰 것이라고 덧붙인다. 코어 `vitest` 1519 통과 · 1 건너뜀, tsc 0, 텍스트 코호트 수치 변화 없음(run 92/92·84/92·92/92·159/159 두 버전, paint 39/39, paint-r15 52/52, measure-real 92/92), 골든 정확도 변화 없음. CHANGELOG 0.7.1(날짜 비움), `package.json` 0.7.1. 소비자 재측정: vscode 복사본(로컬 main `2f5775d`) 0.7.0·0.7.1 모두 tsc 0 · vitest 180/180, uxml-author 복사본 0.7.0·0.7.1 모두 33건(conditions 14·exitcodes 5·binding 0·docs 14), 실패 이름 동일. 아래 0.7.0 설명은 그대로 둔다.
+**0.7.1 배포됨 (2026-10-22).** npm `latest` = `0.7.1`(11:49Z, 레지스트리 직접 조회), GitHub 릴리스 `v0.7.1`(Latest, 11:53Z, 태그 = `9778013`)을 확인했다. 코드·문서는 PR #16(`9778013`), CHANGELOG 날짜는 PR #17(`6955f77`)로 `main`에 머지됐다. 아래는 배포 전 작업 기록이다. 소비자가 잰 두 가지: (가) 글을 잰 글꼴과 그린 글꼴이 달랐다 — 글꼴 지정이 없으면 측정은 `sans-serif`, 그리기는 호스트 페이지 글꼴 → `paintText`가 늘 `fontList(font?.family)`로 글꼴을 정한다. (나) `font-fallback` 문구가 테마와 무관하게 "editor default font (Inter-Regular SDF)" → 런타임 테마는 "runtime default font (NotInter-Regular)", 한자·가나 수치는 에디터 패널에서 잰 것이라고 덧붙인다. 코어 `vitest` 1519 통과 · 1 건너뜀, tsc 0, 텍스트 코호트 수치 변화 없음(run 92/92·84/92·92/92·159/159 두 버전, paint 39/39, paint-r15 52/52, measure-real 92/92), 골든 정확도 변화 없음. CHANGELOG 0.7.1(날짜 비움), `package.json` 0.7.1. 소비자 재측정: vscode 복사본(로컬 main `2f5775d`) 0.7.0·0.7.1 모두 tsc 0 · vitest 180/180, uxml-author 복사본 0.7.0·0.7.1 모두 33건(conditions 14·exitcodes 5·binding 0·docs 14), 실패 이름 동일. 아래 0.7.0 설명은 그대로 둔다.
 
 **0.7.0 배포됨 (2026-10-21).** GitHub 릴리스 `v0.7.0`(Latest, 14:18Z)과 npm `latest` = `0.7.0` 확인, `main` = `origin/main`(PR #14 머지 `5f3bdd4`), 열린 PR 없음. 아래 줄과 "다음 할 일"은 배포 전에 쓴 내용이라 해당 부분은 지난 상태다. (2026-10-21 23:42 갱신)
 
@@ -23,7 +23,7 @@
 
 ## 다음 할 일
 
-(2026-10-22) 0.7.1: npm 배포는 끝났다. 남은 것: GitHub 릴리스 `v0.7.1` 초안 공개(태그 대상 `9778013`)와 PR #17(CHANGELOG 날짜) 머지, 그 뒤 소비자 갱신. 미추적 `docs/design/0.7.0-cjk-text.md`는 이번 테스트 머리말 둘이 인용한다(커밋 여부 사람 결정). 런타임 패널 기본 폰트의 한자·가나 덤프는 `docs/backlog.md` "0.7.1에서 남긴 것".
+(2026-10-22) 0.7.1: 0.7.1 배포는 끝났다. 남은 것: 소비자 갱신(vscode-uxml-preview, uxml-author). 미추적 `docs/design/0.7.0-cjk-text.md`는 이번 테스트 머리말 둘이 인용한다(커밋 여부 사람 결정). 런타임 패널 기본 폰트의 한자·가나 덤프는 `docs/backlog.md` "0.7.1에서 남긴 것".
 
 (2026-10-21 23:42) 0.7.0 배포 완료. 아래 1·2·4(버전 올리기·배포) 항목은 배포로 처리된 것으로 보이나 이 세션에서 각각 확인하지 않았다 — 다음 세션 시작 시 대조한다. 남아 있는 것이 확실한 일: 소비자 갱신(인계 문서 4절), 미추적 `docs/design/0.7.0-cjk-text.md` 처리(커밋 여부 미정).
 
