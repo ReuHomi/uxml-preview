@@ -28,7 +28,10 @@
 (`accuracy.en.md`)과 README 두 개도 0.6.0부터 같은 방식으로 대조한다(README의 텍스트 코호트
 수치는 `tests/text-cohort/results.json`과).
 
-## 현재 상태 (좌표 2026-08-12 · resource() 2026-08-15 측정)
+## 현재 상태 (좌표 2026-08-12 · resource() 2026-08-15 측정 · 설정 화면 2케이스 2026-10-19 추가)
+
+아래 표의 숫자는 0.7.0 기준 전체다. 좌표 기준값은 2026-08-12에 처음 뜬 것(2026-10-18 이후 단독 덤프로 교체)이고,
+`settings`·`settings-ko` 두 케이스는 2026-10-19에 더했다 — 그 둘이 들어가기 전에는 662/676이었다.
 
 | 항목 | 값 |
 |---|---|
@@ -155,7 +158,8 @@ ScrollView
 측정된 규칙 셋:
 
 - 1층은 ScrollView의 **content box**를 채운다 (padding·border 안쪽)
-- 뷰포트는 **넘칠 때만** 세로 스크롤바에 13px를 내준다. 안 넘치면 스크롤바가
+- 뷰포트는 **넘칠 때만** 세로 스크롤바에 13px를 내준다(당시 측정, 에디터 테마. 런타임 테마는 24px —
+  0.7.0, `src/controls/theme.ts`의 `VERTICAL_SCROLLBAR_PX`). 안 넘치면 스크롤바가
   `0×0`이라 폭이 온전하다 — 조건부라는 것이 값 자체만큼 중요하다
 - 컨테이너 높이는 **콘텐츠 높이**다. 뷰포트에 맞춰 줄지 않는다
 
@@ -179,7 +183,8 @@ ScrollView
 ScrollView, 없고 `<ui:Button`이 있으면 Button, 없고 `<ui:Label`이 있으면 Label,
 셋 다 없으면 `VisualElement`만으로 분류한다 — `inventory`를 뺀 39개 전부 이
 세 태그 중 최대 하나만 포함해서, 순서를 바꿔도 결과가 달라지지 않는다
-(직접 확인함: 세 태그가 동시에 나오는 케이스는 `inventory` 하나뿐).
+(직접 확인함: 세 태그가 동시에 나오는 케이스는 `inventory` 하나뿐이다. 위에서 따로 분류한 `settings`·`settings-ko`까지
+46개 전부를 `tests/golden/cases.ts`에서 확인했고, 그 둘에는 `<ui:Button`만 있고 `<ui:ScrollView`·`<ui:Label`은 없다).
 
 | 케이스 구성 | 개수 |
 |---|---|
@@ -198,7 +203,7 @@ ScrollView, 없고 `<ui:Button`이 있으면 Button, 없고 `<ui:Label`이 있�
 
 ### 이 수치가 덮는 범위 — 중요
 
-**이 97.9%는 Yoga가 계산한 좌표까지의 수치다.** 파이프라인은 네 층인데
+**이 97.7%는 Yoga가 계산한 좌표까지의 수치다.** 파이프라인은 네 층인데
 (파싱 → 스타일 계산 → Yoga 레이아웃 → DOM 페인팅), 유니티와 대조하는 것은
 세 번째 층의 출력이다. 화면에 실제로 그려진 DOM이 그 좌표를 재현하는지는
 **유니티와 대조하지 않는다.**
@@ -230,14 +235,14 @@ border 폭만큼 밀리는 버그**가 나왔는데, Yoga 좌표는 맞았고 CS
 
 ## 런타임 테마 (별도 세트, 2026-10-17 측정)
 
-0.7.0부터 기본 테마는 Unity 런타임 테마다(게임 화면). 같은 골든 44케이스를 **실제 런타임 패널**에서 덤프해
-따로 대조한다. 에디터 세트와 **합산하지 않는다.**
+0.7.0부터 기본 테마는 Unity 런타임 테마다(게임 화면). 같은 골든 케이스를 **실제 런타임 패널**에서 덤프해
+따로 대조한다. 지금 전체는 **46개**다(좌표 비교 42 — 0.7.0 설계 때는 44개였고 설정 화면 `settings`·`settings-ko`를 더했다). 에디터 세트와 **합산하지 않는다.**
 
 | 항목 | 값 |
 |---|---|
 | 측정 | Unity 6000.3.25f1, PanelSettings + UIDocument를 Play 모드에서(`tests/layout/unity/probes-0.7.0/PanelDump.cs.txt`), Unity가 새 PanelSettings에 만드는 기본 런타임 테마, 400×300 |
 | 기준값 | `tests/golden/unity-runtime/`(`tools/panel-to-golden.mjs`로 생성). 6000.0.40f1도 좌표가 모두 같다 |
-| 덤퍼 검증 | 같은 덤퍼를 에디터 테마로 돌리면 기존 UxmlLayoutDump와 1012/1012(두 버전) — `tests/golden/panel-dump.test.ts` |
+| 덤퍼 검증 | 같은 덤퍼를 에디터 테마로 돌리면 기존 UxmlLayoutDump와 1012/1012(두 버전) — `tests/golden/panel-dump.test.ts`. 이 교차검증은 **설정 화면이 들어오기 전의 44케이스** 기준이다(`golden-editor-on-panel/` 44개; 설정 화면 두 케이스에는 에디터 테마 패널 덤프가 없다). 1012를 46케이스의 값 수로 읽지 않는다 |
 | 비교 범위 | 에디터 세트와 같음(좌표 케이스 42, 0.5px, 스크롤바 부품 제외) |
 | **런타임 값 일치** | **1122 / 1148 (97.7%)** |
 | 남은 불일치 26 | 모두 에디터 세트의 알려진 불일치와 같은 자리(텍스트 메트릭 21 — 인벤토리 9, 설정 화면 바닥 줄 12, 1px 2, wrap 컨테이너 1, `%` 2). 다른 것이 생기면 `tests/golden/runtime.test.ts`가 실패한다 |
@@ -249,15 +254,19 @@ border 폭만큼 밀리는 버그**가 나왔는데, Yoga 좌표는 맞았고 CS
 
 ## Unity 6.3 LTS 재측정 (2026-10-15)
 
-기준 버전은 6.3 LTS지만 위 수치는 6000.0.40f1 측정이다. 골든 44케이스를 6000.3.25f1에서 다시 덤프해
+기준 버전은 6.3 LTS지만 위 수치는 6000.0.40f1 측정이다. 당시 골든 44케이스를 6000.3.25f1에서 다시 덤프해
 두 버전이 같은 배치를 내는지 확인했다(`tests/layout/unity/6000.3.25f1/golden/`, 에디터 테마).
 
 - 같은 날 6000.0.40f1로 다시 뜬 덤프(`tests/layout/unity/6000.0.40f1/golden/`)와 좌표 1012개가 **모두 같다.**
   골든 세트에서는 6000.0과 6.3의 배치 차이가 관측되지 않았다
-- 커밋된 기준값(`tests/golden/unity/`, 2026-08-12 덤프)과는 9개가 다르다. 전부 `inventory` Footer 경계의 1px로
-  (`DetailPanel`·`ItemName`·`ItemDesc` 폭, `ActionBar`·`UseButton`·`DropButton`의 x와 폭), 위
-  "2026-08-12 `inventory` 1px 재현"과 같은 것이다. 기준값은 바꾸지 않았다 — 2026-10-18에 원인(덤프 순서)을 찾고 단독 값으로 바꿨다
-- 6.3 덤프를 기준값으로 놓고 정확도를 다시 계산하지는 않았다. 계산하면 위 9개 때문에 숫자가 달라진다
+- *(2026-10-15 당시 기록)* 그때 커밋된 기준값(`tests/golden/unity/`, 2026-08-12 덤프)과는 9개가 달랐다. 전부 `inventory`
+  Footer 경계의 1px로(`DetailPanel`·`ItemName`·`ItemDesc` 폭, `ActionBar`·`UseButton`·`DropButton`의 x와 폭), 위
+  "2026-08-12 `inventory` 1px 재현"과 같은 것이다
+- **그 차이는 해소됐다.** 2026-10-18에 원인(덤프 순서)을 찾고 기준값을 단독 덤프 값으로 바꿨다. 지금
+  `tests/golden/unity/inventory.json`과 `tests/layout/unity/6000.3.25f1/golden/inventory.json`은 이름이 같은 47요소의
+  x/y/width/height가 **하나도 다르지 않다**(`DetailPanel` 폭 292, `ActionBar` 폭 92). 이것은 이 두 파일의 비교이고, 다른
+  케이스를 6.3 덤프로 다시 비교했다는 뜻은 아니다
+- 당시에는 6.3 덤프를 기준값으로 놓고 정확도를 다시 계산하지 않았다(계산하면 위 9개 때문에 숫자가 달라졌을 것이다 — 그 9개는 이후 해소됐다)
 - `aspect-ratio`(6.3+)는 이 세트에 없어 따로 쟀다. 상자 13개의 좌표 52개가 6000.3.25f1과 0.5px 안에서
   같다(`tests/layout/unity/6000.3.25f1/probe-editor/aspect2.json`, `tests/contract-060/aspect-ratio.test.ts`)
 
@@ -307,6 +316,12 @@ Label 상자를 비교한다. 실행은 `pnpm test:text`(`tests/text-cohort/READ
 6.3은 `normal`·`nowrap`에서 연속 공백을 하나로 접고 앞 공백을 버리며, `pre`·`pre-wrap`에서는 그대로 둔다.
 6000.0은 접지 않는다. 미리보기는 6.3을 따른다. **끝 공백은 측정하지 않았다** — CSS를 따르며, 그건 브라우저가
 그리는 쪽과 같다. 코호트 문장에는 끝 공백이 없어 위 표에 영향이 없다.
+
+*(위는 0.6.x 당시 기록이다.)* **0.7.0 현재:** 접는지는 버전이 아니라 생성기가 정한다 — 6.3 에디터 Advanced는 접고
+(`r15-label-spaces` 28 대 28), Standard(런타임 패널 두 버전·6000.0 에디터)는 연속 공백을 남긴다(64 대 33, 55 대 28).
+끝 공백도 측정했다(TextField `trail     `: Standard는 버리고 Advanced는 센다, `r15-tf-spaces`). 미리보기는 어느 생성기든
+접으므로 런타임 Label의 연속 공백과 TextField 끝 공백은 **측정했지만 구현하지 않은 알려진 차이**이고 0.8 후보다
+(`docs/backlog.md` 3번 — 끝 공백(T6)은 2026-10-21 사람 결정으로 0.8).
 
 FaceInfo가 없는 폰트(웹 폰트만 주어진 경우)는 캔버스의 ascent/descent로 대신한다. 그 값과 FaceInfo의 차이:
 
@@ -366,20 +381,46 @@ FaceInfo를 넘기는 호스트가 정확하다.
 
 ## 기준값 만드는 법
 
+**정식 절차는 케이스마다 새 Unity 프로세스로 뜨는 단독 덤프다**(2026-10-18 사람 결정, `tests/layout/unity/dump-solo.sh`).
+Standard 생성기에서는 같은 프로세스에서 앞서 그린 글이 뒤의 글 폭을 0~2px 바꾸므로, 창에서 폴더를 한 번에 `Run`하는 방식은
+기준값으로 쓰지 않는다.
+
 ```
 1. pnpm golden:emit
-     tests/golden/cases.ts  ->  tests/golden/cases/*.uxml + *.uss
+     tests/golden/cases.ts  ->  tests/golden/cases/*.uxml + *.uss   (gitignore, 하위 폴더 포함)
 
-2. tests/golden/cases/ 폴더를 유니티 프로젝트로 복사 (예: Assets/GoldenCases/)
-   tools/UxmlLayoutDump.cs 를 Assets/Editor/ 에 넣는다
+2. 유니티 프로젝트(<project>)를 준비한다 — 덤퍼를 Assets/Editor/ 에 넣는다
+     tools/UxmlLayoutDump.cs                                  (에디터 테마, "golden" 모드)
+     tests/layout/unity/probes-0.7.0/PanelDump.cs.txt  ->  PanelDump.cs   (런타임 패널, "panel" 모드)
 
-3. 유니티: Tools > uxml-preview > Golden Case Dumper
-   케이스 폴더 지정 -> Run -> 출력 폴더 지정
+3. 케이스마다 새 Unity 프로세스로 덤프한다 (bash; Windows는 Git Bash)
+     bash tests/layout/unity/dump-solo.sh <Unity.exe> <project> golden tests/golden/cases \
+          tests/layout/unity/<version>/golden
+     bash tests/layout/unity/dump-solo.sh <Unity.exe> <project> panel  tests/golden/cases \
+          tests/layout/unity/<version>/golden-panel -panelSize 400x300
+   <version>은 6000.3.25f1(기준)과 6000.0.40f1. 일부만 다시 뜰 때 `ONLY="inventory settings"`,
+   끊긴 실행을 이어갈 때 `SKIP_EXISTING=1`. 스크립트가 Assets/_Solo를 매번 지우고 다시 만든다.
+   -nographics, -quit는 쓰지 않는다(덤퍼가 직접 종료한다)
 
-4. 나온 *.json 을 tests/golden/unity/ 로 복사
+4. 기준값을 갱신한다
+     에디터: <version>/golden/ 의 JSON을 tests/golden/unity/ 로 복사한다. 커밋된 기준값은 덤프에서 observations를 뺀
+             것이다(6000.0.40f1·6000.3.25f1 `golden/`과 panel·elements가 46개 모두 같다)
+     런타임: node tools/panel-to-golden.mjs tests/layout/unity/6000.3.25f1/golden-panel tests/golden/unity-runtime
 
-5. pnpm test:golden
+5. 검증
+     pnpm test:golden        (골든 비교, 런타임 세트, tests/golden/panel-dump.test.ts)
 ```
+
+완료 조건: 스크립트가 케이스마다 `<이름> ok`를 찍고(`<이름>: no dump (exit …)`가 하나도 없고) 케이스 수만큼 JSON이 생긴다.
+덤프를 바꾼 뒤에는 `pnpm test:golden`이 통과하거나, 실패가 의도한 변화(기준값 교체)의 자리에만 있어야 한다.
+선택: `panel … -panelSize 400x300 -panelSkin editor`를 `<version>/golden-editor-on-panel/`로 뜨면 PanelDump 자체를 UxmlLayoutDump와
+대조한다(`panel-dump.test.ts`, 설정 화면 두 케이스는 이 덤프가 없다).
+
+**단독 실행이 막지 못하는 것:** 한 문서 안에서 같은 글을 반복해 그리면 뒤의 측정값이 오염된다(검증 규율 7). 프로브가 한 문서에
+같은 글자열을 여러 번 쓰면 단독 프로세스로도 값이 흔들린다 — 반복이 불가피하면 그 요소만 남긴 변형을 따로 뜬다.
+
+*(기존 방식 — 케이스 폴더를 프로젝트에 복사하고 Tools > uxml-preview > Golden Case Dumper 창에서 Run해 JSON을 복사 — 은
+탐색용으로는 쓸 수 있다. 한 프로세스에서 여러 케이스를 차례로 그리므로 그 값을 기준값으로 커밋하지 않는다.)*
 
 기준값이 없는 케이스는 **실패가 아니라 건너뛴다.** 아무도 만들 수 없는 파일이
 없다고 빌드가 깨지면 안 되고, 동시에 미측정이 통과로 보여서도 안 된다.
@@ -424,6 +465,8 @@ Phase 4의 결정이 이걸 막았다.
 
 ## 고친 불일치 — 유니티의 컨트롤 기본 여백 (2026-08-05)
 
+*(이 절은 2026-08-05, 0.1.x 구현의 기록이다. 아래 현재형 문장은 당시 상태이고, 0.7.0의 현재 동작은 절 끝의 "0.7.0 현재"에 있다.)*
+
 `Button` 케이스 5개를 처음 대조했더니 **48개 값 중 18개가 어긋났다.** 전부 같은
 모양이었다 — x가 3px, y가 1px 밀리고, 행에서는 그 차이가 누적됐다.
 
@@ -448,6 +491,15 @@ Phase 4의 결정이 이걸 막았다.
 
 **버전 의존이다.** 테마 값은 유니티 버전마다 다르므로, 적용될 때마다 측정 버전을
 담은 `version-dependent` 경고가 문서당 한 번 나온다.
+
+**0.7.0 현재.** 위 당시 규칙은 바뀌었다. 두 테마(`runtime`·`editor`)의 측정값을 적용한다 — 글자 크기·색(런타임 14px
+#1b1b1b, 에디터 12px #d2d2d2), Label 여백·안쪽 여백(런타임 4·4·2·2 / 4·2·4·1, 에디터 0 / 0·2·0·1), Button 여백·안쪽 여백·
+테두리·색과 상태 색(`src/controls/theme.ts`, 값 대조 `tests/contract-070/theme-values.test.ts`). "Label에 기본 여백이 없다"는
+에디터 테마의 여백에만 맞고, "padding·border·폰트는 미측정"은 더는 사실이 아니다. **측정된 테마 값을 적용하는 것 자체는
+경고하지 않는다**(`tests/contract-070/theme-warnings.test.ts`). `version-dependent`는 덤프에서 버전마다 값이 다른 경우에만
+나온다 — 에디터 테마: 글자 없는 Button(4px 대 19px), 생성기를 정하지 않은 자간·어간, 공백뿐인 글, low-value 이하의
+ProgressBar 막대. 런타임 테마: 없다. `:root`는 별도 계약으로 `matches-unity` 경고를 낸다. 모든 `version-dependent`가
+없어진 것이 아니다.
 
 ## 알려진 불일치 1건 — 크기 미지정 부모에 대한 `%`
 

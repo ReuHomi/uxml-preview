@@ -108,9 +108,10 @@ export function createDefaultMeasureText(doc?: Document): MeasureText {
       return base + (gaps * (style.letterSpacing ?? 0) + spaces * (style.wordSpacing ?? 0)) * style.fontSize / 100;
     };
 
-    // Leading spaces and space runs are measured in Unity 6.3 LTS (probe-editor/spaces.json);
-    // Unity 6000.0 did not collapse them. Dropping trailing spaces under normal/nowrap is
-    // NOT measured: it follows CSS, which is what the painter draws.
+    // Collapsing follows the text generator, not the version: the 6.3 editor (Advanced) collapses runs
+    // and drops leading spaces (probe-editor/spaces.json, r15-label-spaces); Standard (runtime panel,
+    // 6000.0 editor) keeps runs, and a TextField's trailing spaces differ by generator (r15-tf-spaces).
+    // This measurer collapses for both: measured, known difference, 0.8 candidate (docs/backlog.md, 0.7.0 item 3).
     // pre and pre-wrap keep spaces (probe-editor/spaces-prewrap.json).
     const paragraphs = text.split('\n').map((paragraph) =>
       style.whiteSpace === 'pre' || style.whiteSpace === 'pre-wrap' ? paragraph : paragraph.replace(/ +/g, ' ').trim());

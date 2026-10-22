@@ -54,7 +54,7 @@ UXML과 USS 텍스트를 모델(`UxmlDocument`)로 읽는다. 실패하지 않�
 
 | 필드 | 뜻 |
 |---|---|
-| `warnings` | 그리면서 지키지 못한 것 전부(아래 "경고"). `doc.warnings`(입력 오류, 못 푼 `@import`)와는 별개 |
+| `warnings` | 그리면서 지키지 못한 것 전부(아래 "경고"). `doc.warnings`(입력 오류, 못 푼 `<Style src>`·`@import`)와는 별개 |
 | `boxes` | Yoga가 계산한 상자, 패널 좌표. Unity와 비교하는 숫자가 이것이다 |
 | `elements` | 모델 노드마다 그려진 DOM 요소. 클릭을 트리로 되짚을 때 쓴다 |
 | `document` | 템플릿을 전개한, 실제로 그린 트리 |
@@ -135,7 +135,7 @@ interface Warning {
 - `unityEffect` — Unity가 이 값을 적용하지 못할 때 실제로 일어나는 일, 측정한 버전과 함께:
   - `unstyled-from-here` — 그 요소와 그 뒤의 모든 요소가 스타일을 잃는다(앞선 형제는 유지)
   - `file-inline-dropped` — 그 UXML 파일의 인라인 스타일이 전부 버려진다
-- `missingGlyphs` — `font-fallback`에서: 기본 폰트(Inter)에 없는 문자 체계(`hangul` · `han` · `kana`)
+- `missingGlyphs` — `font-fallback`에서: 기본 폰트(에디터 패널 Inter, 런타임 패널 NotInter-Regular)에 없는 문자 체계(`hangul` · `han` · `kana`)
 - `applied` — 예약 필드. 현재 이 값을 쓰는 등록표 행은 없다
 
 ### `at`

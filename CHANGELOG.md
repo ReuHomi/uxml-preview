@@ -1,5 +1,50 @@
 # Changelog
 
+## 0.7.1 — 
+
+A patch for two things a consumer measured on 2026-10-22 (vscode-uxml-preview,
+Chromium 152 on Windows). Layout, measurement and every accuracy figure are
+unchanged: only what is drawn changes, and one warning message.
+
+### Fixes
+
+- **Text is painted in the font it was measured in.** With no
+  `-unity-font-definition` the measurer used `sans-serif` while the painter set
+  no `font-family`, so the text inherited the host page's font. In a VS Code
+  webview (`"Segoe WPC", "Segoe UI", sans-serif`) "Start Game 한글" measured
+  101.71px at 14px and was drawn 98.47px wide. Every painted text now sets
+  `font-family` from the same `fontList` the measurer uses (`sans-serif`, or
+  your font followed by `sans-serif`). Visible effect: a host page that sets its
+  own font no longer changes the preview's text; the five text-bearing
+  visual snapshots gain `font-family: sans-serif`. A font you set through
+  `resolveFont` is applied exactly as before.
+- **The `font-fallback` message names the theme's default font.** It said "The
+  editor default font (Inter-Regular SDF)" under both themes. Unity's runtime
+  panel reports `NotInter-Regular` (24 of 24 dumps, both versions), so the
+  runtime theme now says "The runtime default font (NotInter-Regular)". Hangul
+  height (1–4px) was measured in both panels; the Han and Kana figures (height,
+  width 6–87px) only in the editor panel, so the runtime message adds "These
+  figures were measured in the editor panel; the runtime panel has not been
+  measured for them." The editor message is unchanged byte for byte. `reason`,
+  `kind`, `subject` and `affectsLayout` are the same in both themes. Warning
+  text is not an API: read the structured fields.
+
+### Docs
+
+Four behaviour descriptions in the public docs were wrong or out of date (found by
+a 0.7.0 doc audit, each checked against the source, tests and committed dumps):
+
+- A `disabled` forced through `states` does not dim, add `unity-disabled` or reach
+  parts and children; only `enabled="false"` does (`supported`).
+- Text height and letter spacing follow the **resolved** `-unity-text-generator`
+  (runtime theme Standard, editor theme Advanced), not the theme; `textHeight`
+  without its sixth argument is still Advanced (`supported`, `uss-vs-css`).
+- Whether runs of spaces collapse follows the generator, not the version; a runtime
+  Label's runs and a TextField's trailing spaces are measured, unimplemented known
+  differences (0.8 candidates), not unmeasured (`supported`, `accuracy`, `uss-vs-css`).
+- `white-space: pre` does not wrap to the width (`pre-wrap` does), and a word longer
+  than the box breaks between characters (`supported`, `uss-vs-css`).
+
 ## 0.7.0 — 2026-10-21
 
 Unity's runtime theme, by default. A preview of a game screen now looks like the

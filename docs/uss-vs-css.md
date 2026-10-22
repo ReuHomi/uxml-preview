@@ -202,15 +202,21 @@ USS text is laid out by Unity's text engine, not by CSS's, and the numbers do
 not carry over.
 
 - **There is no `line-height`.** A line is as tall as the font says: for the
-  editor's default font, 20px text is 25px tall per line, and several lines are
-  rounded once as a block.
+  default font, 20px text is 25px tall per line. The exact rule depends on the
+  text generator: Advanced (the editor's default) rounds several lines once as a
+  block, Standard (the runtime panel's default) adds the font's line advance for
+  each further line and rounds down plus 1.
 - **`letter-spacing` and `word-spacing` are not CSS pixels.** Unity widens each
   gap by *value × font size / 100*, so `letter-spacing: 10px` at 20px is 2px per
-  gap. The default text generator also leaves no spacing beside a space or after
-  the last character.
-- **Runs of spaces collapse** under `normal` and `nowrap` in Unity 6.3, as in
-  CSS; Unity 6000.0 kept them. `pre` and `pre-wrap` keep them in both. Unlike
-  CSS, `pre` still wraps to the width.
+  gap. Advanced (the editor's default generator) leaves no spacing beside a space
+  or after the last character; Standard (the runtime default) spaces beside a
+  space too and does not kern.
+- **Whether runs of spaces collapse depends on the text generator.** Advanced
+  (the 6.3 editor) collapses them under `normal` and `nowrap`, as CSS does;
+  Standard (the runtime panel, both versions, and the 6000.0 editor) keeps them.
+  `pre` and `pre-wrap` keep them either way. As in CSS, `pre` does not wrap to
+  the width; `pre-wrap` does. (0.6.0 said `pre` wraps; that was corrected in
+  0.7.0.)
 - **The default font has no Korean, Chinese or Japanese glyphs.** Unity draws
   them with a fallback font, and the line comes out 1–4px taller than you
   planned. Set a font with `-unity-font-definition` for any text in those

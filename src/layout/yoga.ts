@@ -605,10 +605,13 @@ export function layoutDocument(
         const missingGlyphs = code >= 0x3040 && code <= 0x30ff ? 'kana'
           : (code >= 0x3400 && code <= 0x4dbf) || (code >= 0x4e00 && code <= 0x9fff) ? 'han' : 'hangul';
         const script = { hangul: 'Hangul', han: 'Han (CJK ideographs)', kana: 'Kana' }[missingGlyphs];
+        // Unity dumps: tests/text-cohort/unity-runtime/*/ (NotInter-Regular) vs unity/*/ (Inter-Regular SDF).
+        // Hangul height: both panels (results.json inter-ko); Han/Kana: editor only (docs/design/0.7.0-cjk-text.md result 3).
         warnings.push({
           kind: 'unsupported-property', reason: 'font-fallback', node: node.id,
-          message: `The editor default font (Inter-Regular SDF) has no glyphs for ${script}; Unity draws it with a fallback font whose height can differ (measured 1–4px taller).` +
-            (missingGlyphs === 'hangul' ? '' : " Unity's box width was measured 6–87px narrower than this preview's (10–32px font sizes); this preview's width depends on the device's fallback font."),
+          message: `The ${theme === 'runtime' ? 'runtime default font (NotInter-Regular)' : 'editor default font (Inter-Regular SDF)'} has no glyphs for ${script}; Unity draws it with a fallback font whose height can differ (measured 1–4px taller).` +
+            (missingGlyphs === 'hangul' ? '' : " Unity's box width was measured 6–87px narrower than this preview's (10–32px font sizes); this preview's width depends on the device's fallback font." +
+              (theme === 'runtime' ? ' These figures were measured in the editor panel; the runtime panel has not been measured for them.' : '')),
           subject: { kind: 'property', property: '-unity-font-definition', value: '', affectsLayout: true, missingGlyphs },
         });
       }

@@ -142,29 +142,47 @@ property exists, inherits, and when it was introduced comes only from the regist
 From 0.6.0 text boxes are measured by Unity's rules. All of it rests on Unity dumps
 (`tests/layout/unity/`, `tests/text-cohort/unity/`, 6000.0.40f1 and 6000.3.25f1).
 
-- **Height** — `ceil(lines × font size × (ascent − descent) / pointSize)`. The coefficients are the
-  FaceInfo Unity reports for that font, not fitted values. The default font (the editor's Inter)
-  gives 12px → 15, 20px → 25. Several lines are rounded once as a block, not line by line (1–4
-  lines × five sizes, matching on both versions). 6000.0 computes from the second line on
-  differently; the preview follows the reference version (6.3)
-- **Spacing** — `letter-spacing` and `word-spacing` are value × font size / 100. The default
-  generator (`advanced`) puts no letter spacing beside a space or after the last character.
-  Painting follows the same rule, so the painted glyphs fit the measured box (checked in a real
-  browser, `tests/text-cohort/paint.mjs`)
-- **Spaces** — 6.3 collapses a run of spaces to one and drops leading spaces under `normal` and
-  `nowrap`, and keeps them under `pre` and `pre-wrap` (measured). 6000.0 does not collapse. The
-  preview follows 6.3. **Trailing spaces are not measured**
+- **Height** — the rule is picked by the **resolved `-unity-text-generator`, not by the theme**. Unless
+  the file sets one, the runtime theme resolves `standard` and the editor theme `advanced`
+  (`src/layout/yoga.ts`). `r = (ascent − descent) / pointSize` is the FaceInfo Unity reports for that
+  font, not a fitted value. With no paragraph spacing:
+  - Standard: `floor(fs·r + (n−1)·fs·lineHeight/pointSize) + 1` (`lineHeight` from the FaceInfo, else
+    ascent − descent); later lines advance by `lineHeight` (`tests/contract-070/t-standard.test.ts`, the
+    runtime-panel cohort)
+  - Advanced: `ceil(n·fs·r)` — several lines are rounded once as a block, not line by line (6.3 editor
+    cohort 235/235, `tests/contract-070/t-standard.test.ts`). The 6000.0 editor differs because its default
+    generator is Standard: it adds 1 to heights that come out whole and advances later lines by `lineHeight`
+    (`docs/accuracy.md`, text cohort (a)). The preview follows the reference version (6.3)
+  - The default font (Inter) gives 12px → 15, 14px → 17, 20px → 25 under either rule. The standalone
+    `textHeight(…)` is **advanced** when its sixth argument (`generator`) is left out — not the
+    renderer's runtime default (standard)
+- **Spacing** — `letter-spacing` and `word-spacing` are value × font size / 100. Advanced puts no letter
+  spacing beside a space or after the last character, and kerns. Standard also spaces beside a space (not
+  after the last character) and does not kern. Painting follows the same rule, so the painted glyphs fit
+  the measured box (checked in a real browser, `tests/text-cohort/paint.mjs`)
+- **Spaces** — whether runs collapse is decided by the **generator, not the version**. The text width of
+  `a     b     c` is 64 against 33 for `a b c` in the runtime panel (Standard, both versions) and 55
+  against 28 in the 6000.0 editor (Standard): the run stays. The 6.3 editor (Advanced) gives 28 against
+  28: it collapses to one (`r15-label-spaces`), and drops leading spaces (`spaces.json`). `pre` and
+  `pre-wrap` keep runs (`spaces-prewrap.json`). **The preview collapses under `normal` and `nowrap` with
+  either generator** (it follows the 6.3 editor), so a runtime Label's run of spaces is measured narrower
+  than Unity's. That, and a TextField's trailing spaces (`trail     `: Standard drops them, Advanced counts
+  them, `r15-tf-spaces`), are **measured but not implemented known differences**, 0.8 candidates
+  (`docs/backlog.md` item 3; the trailing-space part (T6) was a human decision for 0.8 on 2026-10-21).
+  They are not unmeasured
 - **Fonts** — the host resolves a `-unity-font-definition` path through `resolveFont(path, form)`,
   returning a font family name, or `{ family, faceInfo }` (with FaceInfo the height matches
   Unity's), or `null`. Details in the [API](api.en.md)
 - **Fallback fonts** — text with no font set that contains Hangul, Han or Kana raises a
-  `font-fallback` warning. The default font Inter has none of those glyphs, so Unity draws them
-  with a fallback font, and that box measured 1–4px taller. For Han and Kana the width differs too:
-  Unity's box was 6–87px narrower (10–32px, Chrome on one PC; the preview's width depends on the
+  `font-fallback` warning. The default font (Inter in the editor panel, NotInter-Regular in the runtime panel) has none of
+  those glyphs, so Unity draws them with a fallback font, and that box measured 1–4px taller (Hangul:
+  both panels). For Han and Kana the width differs too:
+  Unity's box was 6–87px narrower (editor panel only; 10–32px, Chrome on one PC; the preview's width depends on the
   device's fallback font). **Glyphs missing from a font you set are not checked** — the preview
   does not read a font file's coverage
 - **Han and Kana line breaking** — from 0.6.1 lines break between Han and Kana characters (Hangul
-  and Latin at spaces only, measured). Japanese and Chinese in a font you set match Unity in line
+  and Latin at spaces, and a word longer than the box also between characters — measured, `r1w-wrap2` and
+  `r1w-long`, both versions and themes). Japanese and Chinese in a font you set match Unity in line
   count, height and width (text cohort). **Kinsoku (not starting a line with `。` and the like) is
   not measured and not done** — a line count can differ from Unity 6.3's by one
 - **Rich text** — Unity interprets tags such as `<b>` and `<size=…>` by default. The preview draws
@@ -241,7 +259,9 @@ another is disabled, which a single document-wide set cannot express.
   defaults are measured when those controls get drawn.
 - **Only the element written disabled is dimmed (0.7.0).** Unity gives `unity-disabled` and opacity 0.5
   to the element with `enabled="false"` and leaves its descendants at 1 (measured, `nested-disabled`); so
-  does the preview. An element forced `disabled` through `states` is dimmed alone too.
+  does the preview. Forcing `disabled` through `states` only turns on that element's `:disabled` state selector: no
+  `unity-disabled`, no opacity 0.5, and nothing spreads to its parts or children (measured, `e-disabled`,
+  `tests/contract-070/forced-disabled.test.ts`). An opacity the author writes still applies.
 
 `:selected` is not a state: Unity's page says USS does not support it (use `:checked`).
 

@@ -1,6 +1,10 @@
 // Dumps the laid-out geometry of UXML cases to JSON, for comparison against
 // uxml-preview's own layout.
 //
+// Reference values are NOT taken from the window below: dump each case in its own Unity process with
+// tests/layout/unity/dump-solo.sh (human decision 2026-10-18; docs/accuracy.en.md, "Producing the ground truth"). The window and
+// the loop in Run() draw many cases in one process, which is for exploration only.
+//
 // Setup
 //   1. Put this file under Assets/Editor/ in any Unity project.
 //   2. In the repo run `pnpm golden:emit`, which writes tests/golden/cases/.

@@ -9,6 +9,20 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 
 ---
 
+> **아래 첫 절(2026-08-02 ~ 2026-08-05 기록)은 초기 이월 목록이다.** 줄마다 현재 상태를 고치지 않고 당시 문장을 그대로 둔다.
+> 몇 가지는 이후 처리됐고, 처리 기록은 이 파일 뒤쪽 절과 `docs/progress.md`에 있다. 지금 상태만 모으면:
+>
+> | 초기 항목 | 지금 |
+> |---|---|
+> | ScrollView 지원 | **처리됨** — S1 Step 5(`docs/supported.md`의 ScrollView). 스크롤바 그리기는 아래 "0.7.0 — 컨트롤·테마" 절 1번 |
+> | TextField / Toggle / Slider | **처리됨** — 0.7.0 묶음 C·D·E (`SliderInt`·`RadioButton`·`ProgressBar`·`TextElement`·`RepeatButton`·`GroupBox`·`Box`도 0.7.0) |
+> | Foldout / DropdownField | **여전히 미지원** — 폴백으로 그리고 `unsupported-control`을 낸다 (`MinMaxSlider`도 같다) |
+> | 유니티 기본 테마의 컨트롤별 기본 여백 | **처리됨** — Button 여백은 S1 Step 2(2026-08-05), 두 테마의 전체 측정값은 0.7.0 (`src/controls/theme.ts`) |
+> | 텍스트 측정을 유니티와 맞추기 | **처리됨** — 0.6.0부터 FaceInfo 기반(`docs/accuracy.md` 텍스트 코호트), 생성기별 규칙은 0.7.0 |
+> | 위에 없는 초기 항목(Phase 8·9, 배치모드 자동 촬영, 버전별 호환성 매트릭스 등) | 이 표에서 판정하지 않았다 — 당시 문장 그대로 |
+>
+> 위 표는 색인일 뿐 근거가 아니다 — 처리 여부는 각 문서·테스트를 보고 확인한다.
+
 - [Phase 7] ScrollView 지원 — v0.1은 컨트롤 3종 고정 (2026-08-02)
 - [Phase 7] TextField / Toggle / Slider / Foldout / DropdownField — 동일 (2026-08-02)
 - ~~[Phase 7] `<ui:Template>` / `<ui:Instance>` 전개~~ — **0.5.0에서 완료·대체됨.**
@@ -235,3 +249,17 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
     "UI Toolkit development status and next milestones – November 2025"
     (<https://discussions.unity.com/t/ui-toolkit-development-status-and-next-milestones-november-2025/1698009>,
     버전 명시 없음)
+
+## 0.7.1에서 남긴 것
+
+- **런타임 패널의 기본 폰트(NotInter-Regular)로 쓴 한자·가나** — 필요한 덤프: 런타임 패널(PanelDump,
+  `runtime-panel` 테마) 6000.3.25f1과 6000.0.40f1, 폰트를 지정하지 않은 Label 하나씩에
+  `漢字`·`かな`·혼합 문장, 10/14/20/32px, 상자 w/h와 `unityFontDefinition`. 지금 `font-fallback`의 한자·가나 수치
+  (높이 1~4px, 너비 6~87px 좁음)는 에디터 패널에서만 측정됐고(`docs/design/0.7.0-cjk-text.md` 결과 3), 런타임 테마
+  문구는 그렇게 적는다. 덤프가 나오면 수치를 확정하거나 문구에서 단서를 뺀다. `affectsLayout: true`는 그대로 둔
+  것이다 — 런타임 한글 높이가 측정됐고(`results.json` runtime `inter-ko-*`), 한자·가나가 영향 없다고 볼 근거도 없다
+- 런타임 패널의 폰트 이름: 6000.0.40f1 덤프는 `font=NotInter-Regular`만, 6000.3.25f1 덤프는 에셋 이름
+  `NotInter - Regular SDF`도 보고한다. 문구는 두 버전이 공통으로 보고하는 `NotInter-Regular`를 쓴다
+- **`docs/architecture.md` 갱신** — 맨 앞이 스스로 밝히듯 0.5.0 이후의 템플릿 전개와 폰트 해석이 빠져 있다. 현재 `render()` 흐름
+  (템플릿 전개 → 테마 스타일 → 폰트 해석 → Yoga/부품 → paint)으로 다시 쓸 일이다. 0.7.1 문서 정정 라운드에서는 하지 않았다
+  (사람 지시, 2026-10-22). 읽는 사람이 낡은 그림을 현재로 오해하지 않도록, 갱신 전에는 그 문서를 흐름의 근거로 인용하지 않는다

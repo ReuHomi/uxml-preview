@@ -1,6 +1,6 @@
 {
   "name": "uxml-preview",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Render Unity UI Toolkit UXML/USS in a browser without the Unity Editor. Laid out by Yoga, the engine UI Toolkit uses; reference Unity 6.3 LTS, measured against real Unity. Byte-exact round trips.",
   "keywords": [
     "unity",

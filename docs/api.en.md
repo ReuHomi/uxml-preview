@@ -57,7 +57,7 @@ The result (`RenderResult`):
 
 | Field | Meaning |
 |---|---|
-| `warnings` | Everything the render could not honour (see "Warnings"). Separate from `doc.warnings`, which covers malformed input and unresolved `@import` |
+| `warnings` | Everything the render could not honour (see "Warnings"). Separate from `doc.warnings`, which covers malformed input and unresolved `<Style src>` / `@import` |
 | `boxes` | What Yoga computed, in panel coordinates. These are the numbers compared with Unity |
 | `elements` | The painted DOM element per model node, to map a click back to the tree |
 | `document` | The tree actually drawn, templates expanded |
@@ -143,7 +143,7 @@ Optional fields on `property`:
   - `unstyled-from-here` — that element and every element after it lose their style (earlier
     siblings keep theirs)
   - `file-inline-dropped` — every inline style in that UXML file is dropped
-- `missingGlyphs` — on `font-fallback`: the script the default font (Inter) has no glyphs for
+- `missingGlyphs` — on `font-fallback`: the script the default font (Inter in the editor panel, NotInter-Regular in the runtime panel) has no glyphs for
   (`hangul` · `han` · `kana`)
 - `applied` — reserved. No registry row uses it at present
 
