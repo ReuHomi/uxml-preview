@@ -402,20 +402,48 @@ coordinates and are compared separately, by eye.
 
 ## Producing the ground truth
 
+**The official procedure dumps every case alone, in a fresh Unity process** (human decision 2026-10-18,
+`tests/layout/unity/dump-solo.sh`). Under the Standard text generator the text drawn earlier in the same process shifts a later
+text's width by 0–2px, so running a whole folder from the window's `Run` is not used for reference values.
+
 ```
 1. pnpm golden:emit
-     tests/golden/cases.ts  ->  tests/golden/cases/*.uxml + *.uss
+     tests/golden/cases.ts  ->  tests/golden/cases/*.uxml + *.uss   (gitignored, subfolders included)
 
-2. Copy tests/golden/cases/ into a Unity project (e.g. Assets/GoldenCases/)
-   Put tools/UxmlLayoutDump.cs under Assets/Editor/
+2. Prepare a Unity project (<project>) — put the dumpers under Assets/Editor/
+     tools/UxmlLayoutDump.cs                                  (editor theme, "golden" mode)
+     tests/layout/unity/probes-0.7.0/PanelDump.cs.txt  ->  PanelDump.cs   (runtime panel, "panel" mode)
 
-3. Unity: Tools > uxml-preview > Golden Case Dumper
-   Browse to the case folder -> Run -> choose an output folder
+3. Dump each case in its own Unity process (bash; Git Bash on Windows)
+     bash tests/layout/unity/dump-solo.sh <Unity.exe> <project> golden tests/golden/cases \
+          tests/layout/unity/<version>/golden
+     bash tests/layout/unity/dump-solo.sh <Unity.exe> <project> panel  tests/golden/cases \
+          tests/layout/unity/<version>/golden-panel -panelSize 400x300
+   <version> is 6000.3.25f1 (reference) and 6000.0.40f1. `ONLY="inventory settings"` re-dumps a subset,
+   `SKIP_EXISTING=1` resumes an interrupted run. The script recreates Assets/_Solo every time.
+   Do not pass -nographics or -quit (the dumper exits Unity itself)
 
-4. Copy the resulting *.json into tests/golden/unity/
+4. Update the reference values
+     editor:  copy the JSON from <version>/golden/ into tests/golden/unity/. The committed baselines are the dumps without
+              observations (panel and elements are identical to the 6000.0.40f1 and 6000.3.25f1 `golden/` dumps in all 46)
+     runtime: node tools/panel-to-golden.mjs tests/layout/unity/6000.3.25f1/golden-panel tests/golden/unity-runtime
 
-5. pnpm test:golden
+5. Verify
+     pnpm test:golden        (golden comparison, the runtime set, tests/golden/panel-dump.test.ts)
 ```
+
+Done when the script prints `<name> ok` for every case (no `<name>: no dump (exit …)`) and there is one JSON per case. After
+changing a dump, `pnpm test:golden` passes, or fails only where the replaced baseline is the intended change. Optional: dump
+`panel … -panelSize 400x300 -panelSkin editor` into `<version>/golden-editor-on-panel/` to check PanelDump itself against
+UxmlLayoutDump (`panel-dump.test.ts`; the two settings cases have no such dump).
+
+**What solo runs do not stop:** drawing the same text repeatedly inside one document contaminates the later measurements
+(verification rule 7). A probe that writes the same string several times can still wobble in a single process — when the
+repeat is unavoidable, dump a variant with only that element on its own.
+
+*(The earlier route — copy the case folder into the project, press Run in Tools > uxml-preview > Golden Case Dumper, copy the
+JSON — still works for exploration. It draws several cases in one process, so its values are not committed as reference
+values.)*
 
 A case with no ground truth is **skipped, not failed.** A build must not break for want of a file
 nobody can produce, and at the same time an unmeasured case must never read as a passing one.

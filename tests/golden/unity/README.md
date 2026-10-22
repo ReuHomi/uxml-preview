@@ -50,4 +50,9 @@ The panel size is recorded so the web side lays the case out at exactly the
 same size. A case with no file here is skipped and reported as unmeasured,
 never as passing.
 
-Steps are in `docs/accuracy.md`.
+**Reference values are dumped alone, one fresh Unity process per case** (`tests/layout/unity/dump-solo.sh`, human decision
+2026-10-18): `golden:emit` -> put `tools/UxmlLayoutDump.cs` in the project -> `dump-solo.sh <Unity.exe> <project> golden
+tests/golden/cases tests/layout/unity/<version>/golden` -> copy the JSON here. The runtime set is generated from the panel dump
+by `tools/panel-to-golden.mjs`. The window's `Run` (Tools > uxml-preview > Golden Case Dumper) draws several cases in one
+process and is for exploration only. Steps and the done condition are in "Producing the ground truth" in `docs/accuracy.en.md`
+(`docs/accuracy.md`, "기준값 만드는 법").

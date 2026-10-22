@@ -381,20 +381,46 @@ FaceInfo를 넘기는 호스트가 정확하다.
 
 ## 기준값 만드는 법
 
+**정식 절차는 케이스마다 새 Unity 프로세스로 뜨는 단독 덤프다**(2026-10-18 사람 결정, `tests/layout/unity/dump-solo.sh`).
+Standard 생성기에서는 같은 프로세스에서 앞서 그린 글이 뒤의 글 폭을 0~2px 바꾸므로, 창에서 폴더를 한 번에 `Run`하는 방식은
+기준값으로 쓰지 않는다.
+
 ```
 1. pnpm golden:emit
-     tests/golden/cases.ts  ->  tests/golden/cases/*.uxml + *.uss
+     tests/golden/cases.ts  ->  tests/golden/cases/*.uxml + *.uss   (gitignore, 하위 폴더 포함)
 
-2. tests/golden/cases/ 폴더를 유니티 프로젝트로 복사 (예: Assets/GoldenCases/)
-   tools/UxmlLayoutDump.cs 를 Assets/Editor/ 에 넣는다
+2. 유니티 프로젝트(<project>)를 준비한다 — 덤퍼를 Assets/Editor/ 에 넣는다
+     tools/UxmlLayoutDump.cs                                  (에디터 테마, "golden" 모드)
+     tests/layout/unity/probes-0.7.0/PanelDump.cs.txt  ->  PanelDump.cs   (런타임 패널, "panel" 모드)
 
-3. 유니티: Tools > uxml-preview > Golden Case Dumper
-   케이스 폴더 지정 -> Run -> 출력 폴더 지정
+3. 케이스마다 새 Unity 프로세스로 덤프한다 (bash; Windows는 Git Bash)
+     bash tests/layout/unity/dump-solo.sh <Unity.exe> <project> golden tests/golden/cases \
+          tests/layout/unity/<version>/golden
+     bash tests/layout/unity/dump-solo.sh <Unity.exe> <project> panel  tests/golden/cases \
+          tests/layout/unity/<version>/golden-panel -panelSize 400x300
+   <version>은 6000.3.25f1(기준)과 6000.0.40f1. 일부만 다시 뜰 때 `ONLY="inventory settings"`,
+   끊긴 실행을 이어갈 때 `SKIP_EXISTING=1`. 스크립트가 Assets/_Solo를 매번 지우고 다시 만든다.
+   -nographics, -quit는 쓰지 않는다(덤퍼가 직접 종료한다)
 
-4. 나온 *.json 을 tests/golden/unity/ 로 복사
+4. 기준값을 갱신한다
+     에디터: <version>/golden/ 의 JSON을 tests/golden/unity/ 로 복사한다. 커밋된 기준값은 덤프에서 observations를 뺀
+             것이다(6000.0.40f1·6000.3.25f1 `golden/`과 panel·elements가 46개 모두 같다)
+     런타임: node tools/panel-to-golden.mjs tests/layout/unity/6000.3.25f1/golden-panel tests/golden/unity-runtime
 
-5. pnpm test:golden
+5. 검증
+     pnpm test:golden        (골든 비교, 런타임 세트, tests/golden/panel-dump.test.ts)
 ```
+
+완료 조건: 스크립트가 케이스마다 `<이름> ok`를 찍고(`<이름>: no dump (exit …)`가 하나도 없고) 케이스 수만큼 JSON이 생긴다.
+덤프를 바꾼 뒤에는 `pnpm test:golden`이 통과하거나, 실패가 의도한 변화(기준값 교체)의 자리에만 있어야 한다.
+선택: `panel … -panelSize 400x300 -panelSkin editor`를 `<version>/golden-editor-on-panel/`로 뜨면 PanelDump 자체를 UxmlLayoutDump와
+대조한다(`panel-dump.test.ts`, 설정 화면 두 케이스는 이 덤프가 없다).
+
+**단독 실행이 막지 못하는 것:** 한 문서 안에서 같은 글을 반복해 그리면 뒤의 측정값이 오염된다(검증 규율 7). 프로브가 한 문서에
+같은 글자열을 여러 번 쓰면 단독 프로세스로도 값이 흔들린다 — 반복이 불가피하면 그 요소만 남긴 변형을 따로 뜬다.
+
+*(기존 방식 — 케이스 폴더를 프로젝트에 복사하고 Tools > uxml-preview > Golden Case Dumper 창에서 Run해 JSON을 복사 — 은
+탐색용으로는 쓸 수 있다. 한 프로세스에서 여러 케이스를 차례로 그리므로 그 값을 기준값으로 커밋하지 않는다.)*
 
 기준값이 없는 케이스는 **실패가 아니라 건너뛴다.** 아무도 만들 수 없는 파일이
 없다고 빌드가 깨지면 안 되고, 동시에 미측정이 통과로 보여서도 안 된다.
