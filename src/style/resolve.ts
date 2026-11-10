@@ -444,7 +444,13 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
     // the value's Checked bit belongs only to the control and its input.
     statesOf: (target) => {
       if (target.kind === 'element') return stateMap.get(target.node) ?? NO_STATES;
-      const states = new Set<string>([disabledSubtree.has(target.owner) ? 'disabled' : 'enabled']);
+      const states = new Set<string>();
+      for (const state of stateMap.get(target.owner) ?? NO_STATES) {
+        if (state !== 'checked') states.add(state);
+      }
+      if (!states.has('enabled') && !states.has('disabled')) {
+        states.add(disabledSubtree.has(target.owner) ? 'disabled' : 'enabled');
+      }
       const part = resolveControl(target.owner).spec.parts[target.depth];
       if ((target.owner.name.local === 'Toggle' || target.owner.name.local === 'RadioButton') &&
         part?.classes?.includes(target.owner.name.local === 'Toggle' ? 'unity-toggle__input' : 'unity-radio-button__input') &&
