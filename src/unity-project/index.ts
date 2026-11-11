@@ -77,7 +77,10 @@ export interface KnownFontAssetFormat extends FontAssetFormat {
 
 export interface FontAssetRead {
   format: FontAssetFormat;
-  /** `m_SourceFontFileGUID`; null when the file has none. */
+  /**
+   * `m_SourceFontFileGUID` of the font asset document; null when that document has no
+   * such line. Unmeasured: when Unity writes it empty or leaves it out (docs/backlog.md).
+   */
   sourceFontGuid: string | null;
   /** Same shape as the `faceInfo` that `resolveFont` returns. Each value is float32 (`Math.fround`). */
   faceInfo: FaceInfo;
@@ -85,7 +88,11 @@ export interface FontAssetRead {
 
 export interface FontAssetNotRead {
   unrecognized: 'not-a-font-asset' | 'unknown-format' | 'malformed';
-  /** Raw values after `m_Script: ` and `m_Version: `, when the reader saw them. */
+  /**
+   * From the first MonoBehaviour document (`--- !u!114`) of the file, whatever its
+   * m_Script: the text after `m_Script: ` and after `m_Version: `. A field is present
+   * exactly when its line is in that document. No MonoBehaviour document: `{}`.
+   */
   seen: { script?: string; version?: string };
 }
 
