@@ -291,7 +291,7 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 - **픽스처** — `tests/unity-project/font-assets/<unity-version>/<font>/` (Inter v4.1, Noto Sans KR 가변 글꼴, 두 Unity 버전,
   TMP 하나). 측정 방법·출처·SHA-256·문서 순서는 그 폴더의 `README.md`.
 - **고정 테스트** — `tests/unity-project/font-asset-fixtures.test.ts`(Unity 출력), `tests/unity-project/font-asset-synthetic.test.ts`(합성 입력).
-  24개, 스텁에서 전부 실패한다. 기대값을 구현에 맞춰 고치지 않는다.
+  47개, 스텁에서 전부 실패한다. 기대값을 구현에 맞춰 고치지 않는다.
 - 두 버전 사이의 측정된 차이: `m_EditorClassIdentifier`, `m_IsMultiAtlasTexturesEnabled`, `m_ClearDynamicDataOnBuild`, YAML 문서 순서.
   두 버전 모두 `m_CreationSettings.sourceFontFileGUID`를 쓴다.
 
