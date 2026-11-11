@@ -1,0 +1,20 @@
+{
+  "unity": "6000.3.25f1",
+  "asset": "Inter-Regular SDF.asset",
+  "sourceFontMeta": "Inter-Regular.ttf.meta",
+  "scriptLine": "m_Script: {fileID: 19001, guid: 0000000000000000e000000000000000, type: 0}",
+  "versionLine": "m_Version: 1.1.0",
+  "sourceFontFileGuidLine": "m_SourceFontFileGUID: 77f60c7ba91ffb741898cd8e1b48f5a6",
+  "documentOrder": [
+    "Material",
+    "MonoBehaviour",
+    "Texture2D"
+  ],
+  "unityLog": "PROBE unity=6000.3.25f1 asset=Assets/Fonts/Inter-Regular SDF.asset pointSize=90 ascentLine=87.1875 descentLine=-21.7089844 lineHeight=108.896484",
+  "faceInfoR": {
+    "pointSize": "90",
+    "ascentLine": "87.1875",
+    "descentLine": "-21.7089844",
+    "lineHeight": "108.896484"
+  }
+}
