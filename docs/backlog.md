@@ -263,3 +263,23 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 - **`docs/architecture.md` 갱신** — 맨 앞이 스스로 밝히듯 0.5.0 이후의 템플릿 전개와 폰트 해석이 빠져 있다. 현재 `render()` 흐름
   (템플릿 전개 → 테마 스타일 → 폰트 해석 → Yoga/부품 → paint)으로 다시 쓸 일이다. 0.7.1 문서 정정 라운드에서는 하지 않았다
   (사람 지시, 2026-10-22). 읽는 사람이 낡은 그림을 현재로 오해하지 않도록, 갱신 전에는 그 문서를 흐름의 근거로 인용하지 않는다
+
+## Font asset reader (0.8.0)
+
+외부 기여자가 구현한다. 이 절은 그에게 넘기는 준비물이다(2026-11-11).
+
+- **계약** — `src/unity-project/index.ts`(`uxml-preview/unity-project` 엔트리).
+  `readFontAsset(text: string): FontAssetResult`는 순수 함수이고 파일을 읽지 않는다. 지금은 스텁이라 `not implemented`를 던진다.
+  - 읽음: `{ format: { scriptFileId, scriptGuid, version }, sourceFontGuid: string | null, faceInfo: { pointSize, ascentLine, descentLine, lineHeight? } }`
+    — `faceInfo`는 `resolveFont`가 돌려주는 `FaceInfo`와 같은 타입이고, 값은 float32(`Math.fround`)다.
+  - 못 읽음: `{ unrecognized: 'not-a-font-asset' | 'unknown-format' | 'malformed', seen: { script?, version? } }` — `faceInfo`가 없다.
+  - `KNOWN_FONT_ASSET_FORMATS` — 픽스처가 증명한 행만 둔다. 지금 한 행: Text Core `m_Script {fileID: 19001, guid: 0000000000000000e000000000000000}`,
+    `m_Version 1.1.0`, `measuredOn: ['6000.0.40f1', '6000.3.25f1']`. TextMeshPro 에셋은 `m_Version`이 같고 `m_Script`가 달라 행이 아니다.
+- **픽스처** — `tests/unity-project/font-assets/<unity-version>/<font>/` (Inter v4.1, Noto Sans KR 가변 글꼴, 두 Unity 버전,
+  TMP 하나). 측정 방법·출처·SHA-256·문서 순서는 그 폴더의 `README.md`.
+- **고정 테스트** — `tests/unity-project/font-asset-fixtures.test.ts`(Unity 출력), `tests/unity-project/font-asset-synthetic.test.ts`(합성 입력).
+  22개, 스텁에서 전부 실패한다. 기대값을 구현에 맞춰 고치지 않는다.
+- 두 버전 사이의 측정된 차이: `m_EditorClassIdentifier`, `m_IsMultiAtlasTexturesEnabled`, `m_ClearDynamicDataOnBuild`, YAML 문서 순서.
+  두 버전 모두 `m_CreationSettings.sourceFontFileGUID`를 쓴다.
+
+Unity 6.7 LTS: repeat the measurement, then add one row and one fixture.

@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.8.0 — (draft, not released)
+
+Groundwork for reading Unity font assets. The reader itself is not written yet.
+
+### Added
+
+- **`readFontAsset` contract** on `uxml-preview/unity-project`: types
+  (`FontAssetResult`, `FontAssetRead`, `FontAssetNotRead`, `FontAssetFormat`), a stub that
+  throws "not implemented", and `KNOWN_FONT_ASSET_FORMATS` with one row: Text Core
+  `m_Script {fileID: 19001, guid: 0000000000000000e000000000000000}`, `m_Version 1.1.0`,
+  measured on 6000.0.40f1 and 6000.3.25f1. `faceInfo` has the same type as the `faceInfo`
+  that `resolveFont` returns.
+- **Font asset fixtures** in `tests/unity-project/font-assets/`: Inter v4.1 and Noto Sans KR
+  (variable, default instance) on both Unity versions, and one TextMeshPro asset. OFL
+  licenses beside each fixture; the font files are not in the repository.
+- **22 pinned tests** for the reader. They fail until the reader is written.
+- **`CONTRIBUTING.md`.**
+
 ## 0.7.1 — 2026-10-22
 
 A patch for two things a consumer measured on 2026-10-22 (vscode-uxml-preview,
