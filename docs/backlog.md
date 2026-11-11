@@ -273,12 +273,16 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
   - 읽음: `{ format: { scriptFileId, scriptGuid, version }, sourceFontGuid: string | null, faceInfo: { pointSize, ascentLine, descentLine, lineHeight? } }`
     — `faceInfo`는 `resolveFont`가 돌려주는 `FaceInfo`와 같은 타입이고, 값은 float32(`Math.fround`)다.
   - 못 읽음: `{ unrecognized: 'not-a-font-asset' | 'unknown-format' | 'malformed', seen: { script?, version? } }` — `faceInfo`가 없다.
+    `seen`은 파일의 첫 MonoBehaviour 문서(`--- !u!114`)에서 `m_Script: `·`m_Version: ` 뒤의 글이다. 그 줄이 있으면 반드시 채우고 없으면 뺀다.
+    MonoBehaviour 문서가 없으면 `{}`. 한 입력에 결과는 하나다(2026-11-11 사람 결정).
+  - `sourceFontGuid: null` — 글꼴 에셋 문서에 `m_SourceFontFileGUID` 줄이 없을 때. 합성 테스트 하나가 고정한다.
+    unmeasured: when Unity writes an empty or missing m_SourceFontFileGUID
   - `KNOWN_FONT_ASSET_FORMATS` — 픽스처가 증명한 행만 둔다. 지금 한 행: Text Core `m_Script {fileID: 19001, guid: 0000000000000000e000000000000000}`,
     `m_Version 1.1.0`, `measuredOn: ['6000.0.40f1', '6000.3.25f1']`. TextMeshPro 에셋은 `m_Version`이 같고 `m_Script`가 달라 행이 아니다.
 - **픽스처** — `tests/unity-project/font-assets/<unity-version>/<font>/` (Inter v4.1, Noto Sans KR 가변 글꼴, 두 Unity 버전,
   TMP 하나). 측정 방법·출처·SHA-256·문서 순서는 그 폴더의 `README.md`.
 - **고정 테스트** — `tests/unity-project/font-asset-fixtures.test.ts`(Unity 출력), `tests/unity-project/font-asset-synthetic.test.ts`(합성 입력).
-  22개, 스텁에서 전부 실패한다. 기대값을 구현에 맞춰 고치지 않는다.
+  24개, 스텁에서 전부 실패한다. 기대값을 구현에 맞춰 고치지 않는다.
 - 두 버전 사이의 측정된 차이: `m_EditorClassIdentifier`, `m_IsMultiAtlasTexturesEnabled`, `m_ClearDynamicDataOnBuild`, YAML 문서 순서.
   두 버전 모두 `m_CreationSettings.sourceFontFileGUID`를 쓴다.
 

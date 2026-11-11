@@ -15,7 +15,7 @@ Groundwork for reading Unity font assets. The reader itself is not written yet.
 - **Font asset fixtures** in `tests/unity-project/font-assets/`: Inter v4.1 and Noto Sans KR
   (variable, default instance) on both Unity versions, and one TextMeshPro asset. OFL
   licenses beside each fixture; the font files are not in the repository.
-- **22 pinned tests** for the reader. They fail until the reader is written.
+- **24 pinned tests** for the reader. They fail until the reader is written.
 - **`CONTRIBUTING.md`.**
 
 ## 0.7.1 — 2026-10-22

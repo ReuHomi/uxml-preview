@@ -142,9 +142,13 @@ describe('5.8 TextMeshPro asset: same m_Version, different m_Script', () => {
     // From the fixture: TMP writes m_Version 1.1.0, like Text Core.
     expect(tmp.measured.versionLine).toBe('m_Version: 1.1.0');
     const r = readFontAsset(tmp.text);
-    expect(r).toMatchObject({
+    // seen: the m_Script and m_Version text of the first (here the only) MonoBehaviour document.
+    expect(r).toEqual({
       unrecognized: 'not-a-font-asset',
-      seen: { script: tmp.measured.scriptLine.slice('m_Script: '.length) },
+      seen: {
+        script: tmp.measured.scriptLine.slice('m_Script: '.length),
+        version: tmp.measured.versionLine.slice('m_Version: '.length),
+      },
     });
     expect(r).not.toHaveProperty('faceInfo');
   });

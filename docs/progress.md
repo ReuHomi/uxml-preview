@@ -4,7 +4,7 @@
 
 ## 현재 위치
 
-**0.8.0 준비 중 (2026-11-11, 브랜치 `feat/0.8.0-font-asset`, 푸시·머지 안 함).** 글꼴 에셋 리더(`readFontAsset`)를 외부 기여자에게 넘기기 위한 준비물만 만들었다 — 리더는 쓰지 않았다. 픽스처(`tests/unity-project/font-assets/`, Inter v4.1·Noto Sans KR 가변, 6000.0.40f1·6000.3.25f1, TMP 하나), 계약과 스텁(`src/unity-project/index.ts`, `KNOWN_FONT_ASSET_FORMATS` 한 행), 고정 테스트 22개(스텁에서 전부 실패), `CONTRIBUTING.md`, `docs/backlog.md` "Font asset reader (0.8.0)", CHANGELOG 0.8.0 초안(날짜 없음, `package.json`은 0.7.1 그대로). 코어 `vitest` 1519 통과 · 1 건너뜀 · 새 고정 테스트 22 실패, tsc 0.
+**0.8.0 준비 중 (2026-11-11, 브랜치 `feat/0.8.0-font-asset`, 푸시·머지 안 함).** 글꼴 에셋 리더(`readFontAsset`)를 외부 기여자에게 넘기기 위한 준비물만 만들었다 — 리더는 쓰지 않았다. 픽스처(`tests/unity-project/font-assets/`, Inter v4.1·Noto Sans KR 가변, 6000.0.40f1·6000.3.25f1, TMP 하나), 계약과 스텁(`src/unity-project/index.ts`, `KNOWN_FONT_ASSET_FORMATS` 한 행), 고정 테스트 24개(스텁에서 전부 실패), `CONTRIBUTING.md`, `docs/backlog.md` "Font asset reader (0.8.0)", CHANGELOG 0.8.0 초안(날짜 없음, `package.json`은 0.7.1 그대로). 코어 `vitest` 1519 통과 · 1 건너뜀 · 새 고정 테스트 24 실패, tsc 0.
 
 **0.7.1 npm 배포됨 (2026-10-22 11:49Z, npm `latest` = `0.7.1`, 레지스트리 직접 조회로 확인).** 코드·문서는 PR #16으로 `main`에 머지(`9778013`). 확인한 것과 못 한 것: GitHub 릴리스 `v0.7.1`은 이 기록을 쓸 때 **초안 상태이고 태그가 아직 없다**, CHANGELOG 날짜 PR #17은 열려 있다. 아래는 배포 전 작업 기록이다. 소비자가 잰 두 가지: (가) 글을 잰 글꼴과 그린 글꼴이 달랐다 — 글꼴 지정이 없으면 측정은 `sans-serif`, 그리기는 호스트 페이지 글꼴 → `paintText`가 늘 `fontList(font?.family)`로 글꼴을 정한다. (나) `font-fallback` 문구가 테마와 무관하게 "editor default font (Inter-Regular SDF)" → 런타임 테마는 "runtime default font (NotInter-Regular)", 한자·가나 수치는 에디터 패널에서 잰 것이라고 덧붙인다. 코어 `vitest` 1519 통과 · 1 건너뜀, tsc 0, 텍스트 코호트 수치 변화 없음(run 92/92·84/92·92/92·159/159 두 버전, paint 39/39, paint-r15 52/52, measure-real 92/92), 골든 정확도 변화 없음. CHANGELOG 0.7.1(날짜 비움), `package.json` 0.7.1. 소비자 재측정: vscode 복사본(로컬 main `2f5775d`) 0.7.0·0.7.1 모두 tsc 0 · vitest 180/180, uxml-author 복사본 0.7.0·0.7.1 모두 33건(conditions 14·exitcodes 5·binding 0·docs 14), 실패 이름 동일. 아래 0.7.0 설명은 그대로 둔다.
 
@@ -235,6 +235,7 @@
 - 글꼴 출처를 공식으로 바꿨다(사람 지시): 처음 쓴 Inter(3.009, 출처 불명)·Windows의 Noto Sans KR은 버리고 rsms/inter `v4.1`·google/fonts `b38c5c93`에서 받아 다시 쟀다. Noto Sans KR 값이 달라졌다(ascent 90→104.4, descent -18→-25.92) — 같은 이름이라도 배포본마다 세로 메트릭이 다르다.
 - 고정 테스트 22개는 스텁에서 전부 실패. 스크래치에서 참조 리더 22/22 통과, 틀린 리더 셋(형식 검사 생략 4 · `Math.fround` 생략 8 · 파일 전체에서 필드 읽기 2 실패) 확인 뒤 삭제.
 - 지시 밖: `.gitattributes`에 픽스처 `-text`(별도 커밋), 측정 스크립트 `FontProbe.cs`를 픽스처 폴더에 동봉.
+- 추가 라운드(사람 지시): 위치로 문서를 고르는 틀린 리더 둘(첫 문서 18 실패 · 마지막 문서 15 실패, 둘 다 5.3b 포함) — 새 테스트 불필요. `seen` 계약을 "첫 MonoBehaviour 문서"로 고정(한 입력 한 결과), 5.5·5.6·5.8에서 `seen` 전체를 고정, MonoBehaviour 없는 파일·`m_SourceFontFileGUID` 없는 파일 합성 테스트 2개 추가. 고정 테스트 24개, 코어 1519 통과 · 1 건너뜀 · 24 실패(새 테스트만), tsc 0.
 
 ### 2026-10-22 (0.7.1)
 

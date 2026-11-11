@@ -51,13 +51,24 @@ describe('5.5-5.7 inputs that are not read (synthetic)', () => {
     const other = '{fileID: 11500000, guid: 0123456789abcdef0123456789abcdef, type: 3}';
     const r = readFontAsset(replaceOnce(BASE, SCRIPT, `m_Script: ${other}`));
     expectNotRead(r, 'not-a-font-asset');
-    expect(r).toMatchObject({ seen: { script: other } });
+    expect(r).toEqual({ unrecognized: 'not-a-font-asset', seen: { script: other, version: '1.1.0' } });
   });
 
   it('5.6 the right m_Script with an unknown m_Version gives unknown-format', () => {
     const r = readFontAsset(replaceOnce(BASE, '  m_Version: 1.1.0\n', '  m_Version: 9.9.9\n'));
     expectNotRead(r, 'unknown-format');
-    expect(r).toMatchObject({ seen: { version: '9.9.9' } });
+    expect(r).toEqual({
+      unrecognized: 'unknown-format',
+      seen: { script: SCRIPT.slice('m_Script: '.length), version: '9.9.9' },
+    });
+  });
+
+  it('a file with no MonoBehaviour document gives not-a-font-asset with an empty seen', () => {
+    const start = BASE.indexOf(MONO_HEADER);
+    const end = BASE.indexOf(NEXT_DOC, start);
+    const text = BASE.slice(0, start) + BASE.slice(end);
+    expect(text).not.toContain('--- !u!114');
+    expect(readFontAsset(text)).toEqual({ unrecognized: 'not-a-font-asset', seen: {} });
   });
 
   it('5.7 a faceInfo field that is not a number gives malformed', () => {
@@ -87,6 +98,12 @@ describe('5.9 synthetic inputs that are read', () => {
     // Also after the block: at the end of the same document.
     text = replaceOnce(text, NEXT_DOC, decoy + NEXT_DOC);
     expect(readFontAsset(text)).toMatchObject({ faceInfo: UNITY });
+  });
+
+  it('no m_SourceFontFileGUID line gives a read result with sourceFontGuid null', () => {
+    // Synthetic: whether Unity ever writes such a file is unmeasured (docs/backlog.md).
+    const r = readFontAsset(replaceOnce(BASE, `  m_SourceFontFileGUID: ${META_GUID}\n`, ''));
+    expect(r).toMatchObject({ sourceFontGuid: null, faceInfo: UNITY });
   });
 
   it('d. of two MonoBehaviour documents, only the one with the right m_Script is read', () => {
