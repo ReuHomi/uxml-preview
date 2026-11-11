@@ -271,12 +271,21 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 - **계약** — `src/unity-project/index.ts`(`uxml-preview/unity-project` 엔트리).
   `readFontAsset(text: string): FontAssetResult`는 순수 함수이고 파일을 읽지 않는다. 지금은 스텁이라 `not implemented`를 던진다.
   - 읽음: `{ format: { scriptFileId, scriptGuid, version }, sourceFontGuid: string | null, faceInfo: { pointSize, ascentLine, descentLine, lineHeight? } }`
-    — `faceInfo`는 `resolveFont`가 돌려주는 `FaceInfo`와 같은 타입이고, 값은 float32(`Math.fround`)다.
+    — `faceInfo`는 `resolveFont`가 돌려주는 `FaceInfo`와 같은 타입이고, 값은 float32(`Math.fround`)다. 1.1.0에서는 `lineHeight`도 항상 있다(C5).
   - 못 읽음: `{ unrecognized: 'not-a-font-asset' | 'unknown-format' | 'malformed', seen: { script?, version? } }` — `faceInfo`가 없다.
-    `seen`은 파일의 첫 MonoBehaviour 문서(`--- !u!114`)에서 `m_Script: `·`m_Version: ` 뒤의 글이다. 그 줄이 있으면 반드시 채우고 없으면 뺀다.
-    MonoBehaviour 문서가 없으면 `{}`. 한 입력에 결과는 하나다(2026-11-11 사람 결정).
-  - `sourceFontGuid: null` — 글꼴 에셋 문서에 `m_SourceFontFileGUID` 줄이 없을 때. 합성 테스트 하나가 고정한다.
-    unmeasured: when Unity writes an empty or missing m_SourceFontFileGUID
+  - 판정 규칙 C1–C9는 `readFontAsset`의 JSDoc이 원본이다(2026-11-11 적대적 검토 뒤 사람 결정). 요지:
+    C1 후보 문서 = 파일 순서로 첫 MonoBehaviour 문서 중 `m_Script`(fileID와 guid 둘 다)가 표의 행과 같은 것, 두 번째 후보는 찾지 않는다.
+    C2 후보의 `m_Version`이 표에 없거나 줄이 없으면 `unknown-format`.
+    C3 `seen`은 후보 문서에서, 후보가 없으면 첫 MonoBehaviour 문서에서, 그것도 없으면 `{}`. 줄이 없으면 키가 없다(빈 문자열 아님).
+    C4 값은 `key: ` 뒤부터 줄 끝까지(CR·LF 제외), 다듬지 않고 YAML 주석·따옴표를 해석하지 않는다.
+    C5 1.1.0에서 `m_PointSize`·`m_AscentLine`·`m_DescentLine`·`m_LineHeight` 모두 필수, 없거나 `m_FaceInfo` 블록이 없으면 `malformed`.
+    C6 `m_FaceInfo`의 직접 필드만 읽는다. C7 숫자는 부호·지수 선택의 완전한 십진수, 뒤에 글이 있거나 `Math.fround` 뒤 유한하지 않으면 `malformed`.
+    C8 `sourceFontGuid`는 후보 문서에서만. 줄이 없거나 빈 값은 null, 32자리 16진수가 아니면 `malformed`.
+    C9 읽음 결과에는 `unrecognized`·`seen` 키가 없고, 못 읽음 결과에는 `format`·`sourceFontGuid`·`faceInfo` 키가 없다.
+  - unmeasured: two candidate documents in one file
+  - unmeasured: when Unity writes an empty or missing m_SourceFontFileGUID
+  - unmeasured: a missing m_LineHeight
+  - 위 셋은 규칙이 결과를 하나로 정할 뿐, Unity가 그런 파일을 쓰는지는 측정하지 않았다. 검토 기록: `docs/reviews/font-asset-2026-11-11/`(미추적).
   - `KNOWN_FONT_ASSET_FORMATS` — 픽스처가 증명한 행만 둔다. 지금 한 행: Text Core `m_Script {fileID: 19001, guid: 0000000000000000e000000000000000}`,
     `m_Version 1.1.0`, `measuredOn: ['6000.0.40f1', '6000.3.25f1']`. TextMeshPro 에셋은 `m_Version`이 같고 `m_Script`가 달라 행이 아니다.
 - **픽스처** — `tests/unity-project/font-assets/<unity-version>/<font>/` (Inter v4.1, Noto Sans KR 가변 글꼴, 두 Unity 버전,

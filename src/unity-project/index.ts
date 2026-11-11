@@ -77,22 +77,15 @@ export interface KnownFontAssetFormat extends FontAssetFormat {
 
 export interface FontAssetRead {
   format: FontAssetFormat;
-  /**
-   * `m_SourceFontFileGUID` of the font asset document; null when that document has no
-   * such line. Unmeasured: when Unity writes it empty or leaves it out (docs/backlog.md).
-   */
+  /** `m_SourceFontFileGUID` of the candidate document (rule C8). */
   sourceFontGuid: string | null;
-  /** Same shape as the `faceInfo` that `resolveFont` returns. Each value is float32 (`Math.fround`). */
+  /** Same shape as the `faceInfo` that `resolveFont` returns. All four values are present (rules C5-C7). */
   faceInfo: FaceInfo;
 }
 
 export interface FontAssetNotRead {
   unrecognized: 'not-a-font-asset' | 'unknown-format' | 'malformed';
-  /**
-   * From the first MonoBehaviour document (`--- !u!114`) of the file, whatever its
-   * m_Script: the text after `m_Script: ` and after `m_Version: `. A field is present
-   * exactly when its line is in that document. No MonoBehaviour document: `{}`.
-   */
+  /** The `m_Script` and `m_Version` values of the candidate document, else of the first MonoBehaviour document (rule C3). */
   seen: { script?: string; version?: string };
 }
 
@@ -117,9 +110,45 @@ export const KNOWN_FONT_ASSET_FORMATS: readonly KnownFontAssetFormat[] = [
  * Purpose:      read the faceInfo of a Unity Text Core font asset (.asset YAML text)
  *               so a host can answer `resolveFont` without Unity.
  * Deps/Effects: none. Pure: takes the file text, reads no files.
- * Ensures:      a read result only for a document whose m_Script and m_Version are a
- *               row of KNOWN_FONT_ASSET_FORMATS; faceInfo comes from that document's
- *               m_FaceInfo block. Otherwise a FontAssetNotRead without faceInfo.
+ * Ensures:      one result for one input, by the rules below. Lines end at LF; a CR
+ *               before the LF is not part of the line. A document starts at a line
+ *               that begins with `--- `; a MonoBehaviour document is one whose start
+ *               line begins with `--- !u!114 `. A field of a document is a line that
+ *               begins with two spaces and `key:`; a direct field of m_FaceInfo is a
+ *               line that begins with four spaces (not five) and `key:`, after the
+ *               `  m_FaceInfo:` line and before the next line indented less than four
+ *               spaces. If a key occurs twice, the first line counts.
+ *
+ * C1 Candidate. The font asset document is the first MonoBehaviour document, in file
+ *    order, whose m_Script equals a row of KNOWN_FONT_ASSET_FORMATS: scriptFileId and
+ *    scriptGuid together. The m_Script value is compared by the pattern
+ *    `{fileID: <integer>, guid: <32 lowercase hex>, type: <integer>}`; any other value
+ *    equals no row. No other document is a candidate, and the reader does not look
+ *    for a second candidate. No candidate: 'not-a-font-asset'.
+ * C2 Version. If the candidate's m_Version is not the version of a row with the same
+ *    scriptFileId and scriptGuid, or the candidate has no m_Version line: 'unknown-format'.
+ * C3 seen. From the candidate document; with no candidate, from the first MonoBehaviour
+ *    document; with no MonoBehaviour document, `{}`. `script` and `version` are present
+ *    only when their line is in that document. A missing line is a missing key, never ''.
+ * C4 Values. A value is the text after `key: ` to the end of the line (a line that is
+ *    exactly `key:` has the value ''). It is not trimmed, and YAML comments and quotes
+ *    are not interpreted. The table lookup and `seen` use this text exactly.
+ * C5 Required fields (format 1.1.0). m_PointSize, m_AscentLine, m_DescentLine and
+ *    m_LineHeight are direct fields of m_FaceInfo and all four are required. A missing
+ *    field, or a missing m_FaceInfo block: 'malformed'.
+ * C6 Only direct fields of m_FaceInfo are read. A field of a nested mapping is not.
+ * C7 Numbers. A value must match `^[+-]?(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?$` in full;
+ *    otherwise 'malformed'. Each of the four values is Math.fround(Number(value)); a
+ *    result that is not finite is 'malformed'.
+ * C8 sourceFontGuid. Only from the candidate's m_SourceFontFileGUID line. No line, or
+ *    the value '': null. A value that is not 32 hexadecimal characters: 'malformed'.
+ * C9 Shapes. A FontAssetRead has exactly the keys format, sourceFontGuid, faceInfo (no
+ *    unrecognized, no seen). A FontAssetNotRead has exactly the keys unrecognized and
+ *    seen (no format, sourceFontGuid or faceInfo).
+ *
+ * Unmeasured (docs/backlog.md): two candidate documents in one file, an empty
+ * m_SourceFontFileGUID, a missing m_LineHeight. These rules fix one result for them;
+ * Unity has not been shown to write such files.
  *
  * Not implemented yet. The pinned tests describe the behavior.
  */
