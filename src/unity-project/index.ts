@@ -5,6 +5,7 @@
  */
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import type { FaceInfo } from '../render/measure';
 
 export interface GuidIndex {
   /** Absolute path of the asset with this GUID, or null. */
@@ -50,6 +51,74 @@ async function scan(dir: string, map: Map<string, string>): Promise<void> {
     if (guid === null) continue;
     map.set(guid, path.slice(0, -'.meta'.length));
   }
+}
+
+// ---------------------------------------------------------------------------
+// Font asset reader (0.8.0). Contract and table only; the reader is not
+// written yet. Fixtures: tests/unity-project/font-assets/. Pinned tests:
+// tests/unity-project/font-asset-*.test.ts.
+
+export type { FaceInfo };
+
+/** The header that identifies a font asset format. */
+export interface FontAssetFormat {
+  /** `fileID` of the `m_Script` line. */
+  scriptFileId: number;
+  /** `guid` of the `m_Script` line. */
+  scriptGuid: string;
+  /** Value of the `m_Version` line, as written (for example `1.1.0`). */
+  version: string;
+}
+
+export interface KnownFontAssetFormat extends FontAssetFormat {
+  /** Unity versions whose fixtures prove this row. */
+  measuredOn: readonly string[];
+}
+
+export interface FontAssetRead {
+  format: FontAssetFormat;
+  /** `m_SourceFontFileGUID`; null when the file has none. */
+  sourceFontGuid: string | null;
+  /** Same shape as the `faceInfo` that `resolveFont` returns. Each value is float32 (`Math.fround`). */
+  faceInfo: FaceInfo;
+}
+
+export interface FontAssetNotRead {
+  unrecognized: 'not-a-font-asset' | 'unknown-format' | 'malformed';
+  /** Raw values after `m_Script: ` and `m_Version: `, when the reader saw them. */
+  seen: { script?: string; version?: string };
+}
+
+export type FontAssetResult = FontAssetRead | FontAssetNotRead;
+
+/**
+ * Font asset formats that a fixture proves. A row is added only with a fixture
+ * measured on that Unity version (tests/unity-project/font-assets/README.md).
+ * The TextMeshPro asset (`TMP_FontAsset`) has the same m_Version and a different
+ * m_Script, so it is not a row.
+ */
+export const KNOWN_FONT_ASSET_FORMATS: readonly KnownFontAssetFormat[] = [
+  {
+    scriptFileId: 19001,
+    scriptGuid: '0000000000000000e000000000000000',
+    version: '1.1.0',
+    measuredOn: ['6000.0.40f1', '6000.3.25f1'],
+  },
+];
+
+/**
+ * Purpose:      read the faceInfo of a Unity Text Core font asset (.asset YAML text)
+ *               so a host can answer `resolveFont` without Unity.
+ * Deps/Effects: none. Pure: takes the file text, reads no files.
+ * Ensures:      a read result only for a document whose m_Script and m_Version are a
+ *               row of KNOWN_FONT_ASSET_FORMATS; faceInfo comes from that document's
+ *               m_FaceInfo block. Otherwise a FontAssetNotRead without faceInfo.
+ *
+ * Not implemented yet. The pinned tests describe the behavior.
+ */
+export function readFontAsset(text: string): FontAssetResult {
+  void text;
+  throw new Error('readFontAsset: not implemented');
 }
 
 async function readGuid(metaPath: string): Promise<string | null> {
