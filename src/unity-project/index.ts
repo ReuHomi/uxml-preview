@@ -61,3 +61,6 @@ async function readGuid(metaPath: string): Promise<string | null> {
   }
   return GUID_LINE.exec(text)?.[1] ?? null;
 }
+
+export { readFontAsset } from './font-asset';
+export type { FontAssetFaceInfo, FontAssetReadResult } from './font-asset';
