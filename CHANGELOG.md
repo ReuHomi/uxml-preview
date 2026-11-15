@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `readFontAsset(source)` in `uxml-preview/unity-project`: reads a TextCore
+  FontAsset's `m_FaceInfo` and source font GUID, and reports any other format
+  as `unrecognized`, with a reason.
+
 ## 0.7.1 — 2026-10-22
 
 A patch for two things a consumer measured on 2026-10-22 (vscode-uxml-preview,
