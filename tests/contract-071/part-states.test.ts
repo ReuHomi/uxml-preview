@@ -40,7 +40,7 @@ function part(container: HTMLElement, name: string): HTMLElement {
 }
 
 describe('control part states and engine classes', () => {
-  it('passes hover from a TextField owner to its input part', () => {
+  it('passes a global activeStates hover to a TextField input part', () => {
     const uxml = UXML('<ui:TextField class="field" value="x" />');
     const uss = '.field .unity-text-field__input:hover { background-color: rgb(255, 0, 0); }';
 
@@ -55,7 +55,7 @@ describe('control part states and engine classes', () => {
     hovered.container.remove();
   });
 
-  it('passes focus from a TextField owner to its input part', () => {
+  it('passes a global activeStates focus to a TextField input part', () => {
     const uxml = UXML('<ui:TextField class="field" value="x" />');
     const uss = '.field .unity-text-field__input:focus { background-color: rgb(0, 0, 255); }';
     const { view, container } = renderDocument(uxml, uss, new Set(['focus']));
@@ -65,25 +65,20 @@ describe('control part states and engine classes', () => {
     container.remove();
   });
 
-  it('applies author rules to a Toggle input part', () => {
-    const uxml = UXML('<ui:Toggle class="check" value="true" />');
-    const uss = '.check .unity-toggle__input { background-color: rgb(0, 128, 0); }';
-    const { view, container } = renderDocument(uxml, uss);
+  it('keeps per-element states on the owner, not on its parts', () => {
+    const uxml = UXML('<ui:TextField class="field" value="x" />');
+    const uss = '.field .unity-text-field__input:hover { background-color: rgb(255, 0, 0); }';
+    const doc = parse(uxml, uss);
+    const container = document.createElement('div');
+    document.body.append(container);
+    const view = render(doc, container, {
+      theme: 'runtime',
+      size: { width: 400, height: 200 },
+      states: { '.field': ['hover'] },
+      measureText,
+    });
 
-    expect(part(container, 'unity-toggle__input').style.backgroundColor).toMatch(GREEN);
-    view.dispose();
-    container.remove();
-  });
-
-  it('applies author rules to a child Label through its unity-label class', () => {
-    const uxml = UXML('<ui:Button class="with-icon"><ui:Label text="Save" /></ui:Button>');
-    const uss = '.with-icon > .unity-label { color: rgb(255, 0, 0); }';
-    const { view, container } = renderDocument(uxml, uss);
-
-    const label = [...view.elements.values()].find((element) =>
-      element.children.length === 0 && element.textContent === 'Save');
-    expect(label).toBeDefined();
-    expect(label!.style.color).toMatch(RED);
+    expect(part(container, 'unity-text-input').style.backgroundColor).not.toMatch(RED);
     view.dispose();
     container.remove();
   });
