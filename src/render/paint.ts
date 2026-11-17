@@ -175,7 +175,7 @@ export function paint(
    * Deps/Effects: appends DOM text; reads the same font FaceInfo as layout.
    */
   function paintText(el: HTMLElement, text: string, style: ComputedStyle,
-    css: ReturnType<typeof toCss>): void {
+    css: ReturnType<typeof toCss>, innerInput = false): void {
     // Laid out as a measured leaf, so it has no painted children and can use
     // flex for the vertical half of -unity-text-align.
     el.style.setProperty('display', css.declarations['display'] ?? 'flex');
@@ -201,6 +201,14 @@ export function paint(
     // words break between characters, matching createDefaultMeasureText.
     const whiteSpace = style.get('white-space')?.value || 'normal';
     if (whiteSpace === 'normal' || whiteSpace === 'pre-wrap') el.style.overflowWrap = 'anywhere';
+    const preserveSpaces = isStandard(style) && !innerInput &&
+      (whiteSpace === 'normal' || whiteSpace === 'nowrap');
+    if (preserveSpaces) {
+      // Measured: r15-label-spaces, spaces.json keep runs/leading spaces. Trailing drop is
+      // assumed for Labels from MeasureTextSize in r15-tf-spaces (spaces.test.ts header).
+      text = text.split('\n').map((paragraph) => paragraph.trimEnd()).join('\n');
+      el.style.whiteSpace = whiteSpace === 'nowrap' ? 'pre' : 'pre-wrap';
+    }
     const leading = advance - glyphHeight;
     const ellipsis = style.get('overflow')?.value === 'hidden' && style.get('text-overflow')?.value === 'ellipsis';
     const letterSpacing = parseLength(style.get('letter-spacing')?.value ?? '').length;
@@ -219,7 +227,7 @@ export function paint(
       content.style.width = '100%';
       content.style.overflow = 'hidden';
       content.style.textOverflow = 'ellipsis';
-      content.style.whiteSpace = 'nowrap';
+      content.style.whiteSpace = preserveSpaces ? 'pre' : 'nowrap';
     }
     if (options.theme === 'runtime' && CJK_BREAK.test(text)) content.style.wordBreak = 'keep-all';
     const gap = parseLength(style.get('-unity-paragraph-spacing')?.value ?? '').length;
@@ -379,7 +387,8 @@ export function paint(
         host.appendChild(partEl);
         builtParts.push({ el: partEl, box: part.box, border: partBorderOrigin(part) });
         if (part.text !== undefined) {
-          paintText(partEl, part.text, part.style, partCss);
+          paintText(partEl, part.text, part.style, partCss,
+            part.name === 'unity-text-element--inner-input-field-component');
           // Unity evidence: 6000.3.25f1/{probe-panel,probe-editor-070}/
           // c07-TextField.json: multiline value newlines survive NoWrap.
           if (part.name === 'unity-text-element--inner-input-field-component') {
