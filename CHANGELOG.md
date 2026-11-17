@@ -10,7 +10,9 @@ Reading Unity font assets, and spaces that follow the text generator.
   Unity Text Core font asset (`.asset` YAML), so a host can answer `resolveFont` without Unity.
   Pure; never throws. Read: `{ format, sourceFontGuid, faceInfo }`, all four FaceInfo values as
   float32. Not read: `{ unrecognized: 'not-a-font-asset' | 'unknown-format' | 'malformed', seen }`.
-  The rules C1–C9 are in its JSDoc. Types: `FontAssetResult`, `FontAssetRead`, `FontAssetNotRead`,
+  The rules C1–C9 are in its JSDoc. It accepts only the form Unity writes: a line ends only at LF
+  (U+2028, U+2029 and a lone CR are part of a value), a field is `key: value` or `key:`, fileID has
+  no sign or leading zeros, and the `m_FaceInfo` block starts only at the exact line `  m_FaceInfo:`. Types: `FontAssetResult`, `FontAssetRead`, `FontAssetNotRead`,
   `FontAssetFormat`, `KnownFontAssetFormat`.
 - **`KNOWN_FONT_ASSET_FORMATS`** with one row: Text Core
   `m_Script {fileID: 19001, guid: 0000000000000000e000000000000000}`, `m_Version 1.1.0`,
@@ -30,14 +32,14 @@ Reading Unity font assets, and spaces that follow the text generator.
   TextField's text still counts trailing spaces with either generator, as Unity's box does
   (`r15-tf-spaces`); 0.7.1 called that a known difference, which was a misreading of Unity's
   `MeasureTextSize`. Golden and text-cohort figures are unchanged: none of their texts has a run of
-  spaces.
+  spaces. A tab is measured and painted as one space, as before 0.8.0 (Unity's tab rendering is
+  unmeasured).
 - **At a Standard line break, spaces count only before a glyph that fits** (measured: `r8-wrap`,
   both versions and themes). The width of a wrapping Standard text is the line, then the run of
   spaces and the start of the next word only up to the last glyph that fits. A runtime Label
   "alpha     beta" in a 60px box was 51 wide; it is now 39, as in Unity. The same rule gives
   Unity's width for the two known runtime wrap differences (`ko100` 83, `te10` 77, Pretendard
-  and Inter); `measure-real.mjs` still lists them as known and now fails on them, pending a
-  decision on its pinned expectations. Golden and text-cohort figures are unchanged.
+  and Inter); `measure-real.mjs` now judges them like every other text. Golden and text-cohort figures are unchanged.
 - **Unknown `activeStates` names warn**: one `malformed` / `invalid-value` warning per name, no
   subject (as an unknown `theme`); the name is still ignored.
 - **A `states` key with rule syntax is refused**: `"#Use { x"` gave `#Use` the state; it now gets

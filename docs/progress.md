@@ -4,6 +4,8 @@
 
 ## 현재 위치
 
+**0.8.0 독립 검토 반영 (2026-11-18 저녁, 같은 브랜치, 푸시, 머지 안 함).** 리더: LF에서만 줄이 끝난다(U+2028·U+2029·홀로 있는 CR은 값), Unity 형태만 받는 명확화 넷. 탭 회귀(Standard를 CSS pre로 그려 탭 정지가 상자 밖으로) → 탭은 공백 하나로 그림. `paint-spaces` S3(Unity 글꼴 아님)·S5(못 찾으면 바깥 필드) 결함 수정. `measure-real` `KNOWN_R1W`에서 `ko100`·`te10` 뺌(사람 승인). 그 둘의 "상자 안에 그림" 1.1·1.4px는 글자가 아니라 줄 끝에 걸린 공백이라 멈추고 보고 — 사람 결정 대기. 검토의 TextField 1px 차이는 Inter로 재현 안 됨.
+
 **0.8.0 남은 두 가지 마감 (2026-11-18 오후, 같은 브랜치, 푸시, 머지 안 함).** 공백 가정 둘을 `r8-trail`·`r8-wrap`(두 버전·두 테마 단독 덤프)으로 쟀다: 끝 공백 버림은 맞음, 공백 묶음 꺾임은 틀림 → 고침(꺾인 줄 뒤 공백은 그 뒤 글자가 들어갈 때만 센다). 부수 효과로 `measure-real`의 알려진 R1-W 차이 둘(`ko100`·`te10`)이 Unity와 같아져 그 고정 스크립트가 4행 실패한다(사람 결정 대기). `activeStates`의 모르는 이름과 규칙 문법이 든 `states` 키에 경고. 코어 `vitest` 1604 통과 · 1 건너뜀. 텍스트: run·paint·paint-r15·paint-spaces·measure-spaces 통과, measure-real 88/92.
 
 **0.8.0 릴리스 준비 (2026-11-18, 브랜치 `feat/0.8.0-font-asset`, 푸시·PR, 머지·배포 안 함).** `main`(PR #19 포함)과 PR #21(@xAFK-BOTx, 커밋 그대로 `--no-ff`)을 병합하고 리더를 계약 C1–C9에 맞췄다(Codex 1라운드, 고정 47/47, 변이 3/3). 공백이 생성기를 따른다(Standard: 연속·앞 공백 남김, 끝 공백 버림 — 재기·그리기, Codex 1라운드, 변이 4/4). T6 정정: TextField 상자는 두 생성기 모두 끝 공백을 센다. states 키의 조용한 두 경우는 Unity 근거가 없어 코어 그대로(backlog). Inter 공식 릴리스 v3.5–v3.19가 `EDITOR_DEFAULT_FACE_INFO`와 같다(6000.3.25f1, 동봉 안 함). CHANGELOG 0.8.0(날짜 없음), `package.json` 0.8.0. 코어 `vitest` 1590 통과 · 1 건너뜀, tsc 0, build 통과. 텍스트: paint-r15 52/52, paint-spaces 11/11; run·paint·measure-real은 Noto Sans JP/SC 글꼴이 이 PC에 없어 못 돌렸다.
@@ -237,6 +239,14 @@
 | 2026-11-18 | states 키 두 경우(모르는 `activeStates` 이름, `{`가 든 키)는 코어를 바꾸지 않음 | 둘 다 Unity에 대응이 없어 덤프·측정 규칙이 없다. backlog에 기록, 사람 결정 |
 
 ## 세션 로그
+
+### 2026-11-18 저녁 (0.8.0 — PR #22 독립 검토 반영)
+
+- **리더(P2):** 고정 `font-asset-review.test.ts` 8개(구현 전 5 실패: 줄 끝 a–d, "019001"). 기대값은 계약 문장에서 먼저 씀. Codex 1라운드. 변이 3(값 패턴 `.` 4 실패, fileID 앞 0 허용 1, 홀로 있는 CR을 줄 끝으로 1). 47개 고정·픽스처 그대로.
+- **탭(P2):** `paint-spaces` S6 — 브랜치 3 실패(y 39.31, 상자 20; normal 2줄), `main`의 src로는 통과. 탭을 공백으로 그림(Codex). 변이 1(되돌림 → 3 실패).
+- **스크립트(P2):** S3·S5 고침. 변이: 앞 공백 4개 → S3 실패, 끝 공백 없는 값 → S5 실패.
+- **measure-real:** `KNOWN_R1W` 비움(사람 승인). 남은 2행은 `pre-wrap` 줄 끝 공백(글자 오른쪽 80.63/81, 75.63/77). Unity 덤프 `measured`는 꺾지 않은 폭이라 판단 근거가 아님 — 멈춤.
+- **TextField 1px(검토):** `r15-tf-spaces` 8개, Inter로 브랜치·main 모두 Unity와 같음. 재현 조건 미상.
 
 ### 2026-11-18 오후 (0.8.0 — 공백 가정 측정, states 입력 검사)
 

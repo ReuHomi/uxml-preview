@@ -222,8 +222,21 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 
 4. **런타임 Standard 꺾임 폭** — 한국어 케이스를 늘려 측정한다. 지금은 1건(`r1w-wrap2` `ko100`, Pretendard 100px)이 규칙("꺾일 때 마지막으로 들어간 글자까지의 폭, floor + 1")보다 4px 좁고, Unity는 거기서 가장 긴 줄을 쓴다. 10px 케이스(`te10`)는 2px 차이다. 둘 다 `measure-real.mjs`의 `KNOWN_R1W`. 2026-10-21 사람 결정
    - **(2026-11-18) 위 3번 (나)의 규칙으로 둘 다 Unity 너비와 같아졌다**(`ko100` 83, `te10` 77). 규칙의 "다음 낱말 시작"에서 공백까지만 들어가고
-     글자는 못 들어갈 때 공백 폭을 더해 넓었던 것. `measure-real.mjs`는 이 둘이 맞으면 일부러 실패하게 고정돼 있고, 그 둘의 "상자 안에 그림" 행도
-     1.1·1.4px 넘친다(허용 1px). 고정 기대값이라 사람 결정 전까지 고치지 않았다
+     글자는 못 들어갈 때 공백 폭을 더해 넓었던 것. 사람 승인으로 `KNOWN_R1W`에서 뺐다(`8459b71`) — 이제 너비·높이 모두 판정하고 맞는다.
+   - **남은 것(사람 결정):** 그 둘의 "상자 안에 그림" 행이 1.1·1.4px 넘친다(허용 1px). 글자는 내용 상자 안이다(`ko100` 글자 오른쪽 80.63 / 81,
+     `te10` 75.63 / 77). 넘친 것은 `pre-wrap`에서 줄 끝에 걸린 공백(84.14 · 78.44)이고 `measure-real.mjs`는 그것을 잉크로 센다. Unity 덤프에는
+     줄별 너비가 없어(`measured`는 꺾지 않은 200 · 163) Unity도 넘치는지는 보이지 않는다. 고칠 길 둘: 스크립트가 공백을 잉크에서 빼거나(고정
+     파일 변경), 그리기가 꺾인 줄 끝 공백을 걸지 않게 한다. 허용치는 바꾸지 않았다
+
+## 다음 버전(0.9) 후보
+
+- **탭** — Unity tab rendering is unmeasured. The font asset has m_TabWidth (32 in the fixtures). Measure tab stops before a tab
+  rule is added. 지금 미리보기는 탭을 캔버스 측정처럼 공백 하나로 재고 그린다(0.8.0, `99ecd35` — CSS `pre`가 탭 정지를 그려 상자 밖으로
+  나가던 회귀를 되돌림). 2026-11-18 검토 지적
+- **TextField 1px 차이(검토 보고)** — PR #22 독립 검토가 런타임 `tf-plain`과 에디터 `tf-trail`(`r15-tf-spaces`)의 안쪽 글 상자가 1px 다르고
+  `main`에서도 그렇다고 보고했다. 2026-11-18 재측정(Inter와 Unity FaceInfo를 `:root` `-unity-font-definition`·`resolveFont`로, 6000.3.25f1
+  덤프 대조)에서는 네 필드 × 두 테마 8개 모두 같았다(브랜치와 `main`의 `measure.ts`·`paint.ts` 둘 다). 검토 하네스가 Unity 글꼴 없이 그렸을
+  가능성(`paint-spaces.mjs` S3가 그랬다) — 재현 조건을 받아 다시 본다
 
 ## 0.7.0 — 컨트롤·테마
 
@@ -317,6 +330,10 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
     C6 `m_FaceInfo`의 직접 필드만 읽는다. C7 숫자는 부호·지수 선택의 완전한 십진수, 뒤에 글이 있거나 `Math.fround` 뒤 유한하지 않으면 `malformed`.
     C8 `sourceFontGuid`는 후보 문서에서만. 줄이 없거나 빈 값은 null, 32자리 16진수가 아니면 `malformed`.
     C9 읽음 결과에는 `unrecognized`·`seen` 키가 없고, 못 읽음 결과에는 `format`·`sourceFontGuid`·`faceInfo` 키가 없다.
+  - **명확화(2026-11-18 사람 결정: Unity가 쓰는 형태만 받는다, C1–C9의 뜻은 그대로).** fileID is an integer without a sign and without
+    leading zeros; "+19001" and "019001" equal no row. A field line is "key: value" (one space after the colon), or exactly "key:" for an
+    empty value; "key:value" is not a field. The m_FaceInfo block starts only at the exact line "  m_FaceInfo:"; a line with a trailing
+    space is not the block start. 줄은 LF에서만 끝난다 — U+2028·U+2029·LF 앞이 아닌 CR은 값의 글자다(검토 P2, `5ce6fdf`).
   - unmeasured: two candidate documents in one file
   - unmeasured: when Unity writes an empty or missing m_SourceFontFileGUID
   - unmeasured: a missing m_LineHeight
