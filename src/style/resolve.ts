@@ -437,6 +437,9 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
   // key like `Button:hover` turn itself on.
   const base: MatchContext<Target> = { ...shared, statesOf: () => NO_STATES };
   const { states: stateMap, disabledSubtree } = buildStateMap(doc, base, options, warnings);
+  const globalStates = new Set(
+    [...(options?.activeStates ?? [])].filter((state) => (USS_STATES as readonly string[]).includes(state)),
+  );
   const ctx: MatchContext<Target> = {
     ...shared,
     // e-{toggle,radio,disabled}.json (6000.3.25f1, both themes): forced
@@ -445,6 +448,8 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
     statesOf: (target) => {
       if (target.kind === 'element') return stateMap.get(target.node) ?? NO_STATES;
       const states = new Set<string>([disabledSubtree.has(target.owner) ? 'disabled' : 'enabled']);
+      for (const state of globalStates) states.add(state);
+      if (states.has('disabled')) states.delete('enabled');
       const part = resolveControl(target.owner).spec.parts[target.depth];
       if ((target.owner.name.local === 'Toggle' || target.owner.name.local === 'RadioButton') &&
         part?.classes?.includes(target.owner.name.local === 'Toggle' ? 'unity-toggle__input' : 'unity-radio-button__input') &&
