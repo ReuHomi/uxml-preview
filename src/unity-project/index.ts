@@ -152,10 +152,8 @@ export const KNOWN_FONT_ASSET_FORMATS: readonly KnownFontAssetFormat[] = [
  *
  * Not implemented yet. The pinned tests describe the behavior.
  */
-export function readFontAsset(text: string): FontAssetResult {
-  void text;
-  throw new Error('readFontAsset: not implemented');
-}
+export { readFontAsset } from './font-asset';
+export type { FontAssetFaceInfo, FontAssetReadResult } from './font-asset';
 
 async function readGuid(metaPath: string): Promise<string | null> {
   let text: string;

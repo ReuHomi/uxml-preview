@@ -17,6 +17,7 @@ Groundwork for reading Unity font assets. The reader itself is not written yet.
   licenses beside each fixture; the font files are not in the repository.
 - **47 pinned tests** for the reader. They fail until the reader is written.
 - **`CONTRIBUTING.md`.**
+- **The reader** comes from PR #21 by @xAFK-BOTx, adapted to the contract rules C1-C9.
 
 ## 0.7.1 — 2026-10-22
 
