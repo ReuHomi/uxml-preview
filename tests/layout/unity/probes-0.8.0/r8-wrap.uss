@@ -1,0 +1,2 @@
+.box { align-items: flex-start; }
+.wrap { white-space: normal; -unity-text-generator: standard; }

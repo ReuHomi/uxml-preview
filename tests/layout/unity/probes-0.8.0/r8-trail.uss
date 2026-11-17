@@ -1,0 +1,2 @@
+.std { -unity-text-generator: standard; }
+.norm { white-space: normal; }

@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:Label name="t-end3" text="end   " />
+<ui:Label name="t-tail5" text="tail     " />
+<ui:Label name="t-inner" text="x  y  " />
+<ui:Label name="t-both" text="  lead and end  " />
+<ui:Label name="s-end3" class="std" text="fin   " />
+<ui:Label name="s-tail5" class="std" text="last     " />
+<ui:Label name="n-end3" class="norm" text="stop   " />
+<ui:Label name="ns-end3" class="norm std" text="halt   " />
+</ui:VisualElement>
+</ui:UXML>
