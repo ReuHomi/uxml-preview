@@ -204,8 +204,8 @@ export function paint(
     const preserveSpaces = isStandard(style) && !innerInput &&
       (whiteSpace === 'normal' || whiteSpace === 'nowrap');
     if (preserveSpaces) {
-      // Measured: r15-label-spaces, spaces.json keep runs/leading spaces. Trailing drop is
-      // assumed for Labels from MeasureTextSize in r15-tf-spaces (spaces.test.ts header).
+      // Measured: r15-label-spaces, spaces.json keep runs/leading spaces.
+      // Measured: r8-trail (both versions, both themes): Standard drops a Label's trailing spaces.
       text = text.split('\n').map((paragraph) => paragraph.trimEnd()).join('\n');
       el.style.whiteSpace = whiteSpace === 'nowrap' ? 'pre' : 'pre-wrap';
     }
