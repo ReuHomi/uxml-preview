@@ -27,9 +27,9 @@
  *          Replaced 2026-10-21 (human approval): the first expectations came from g-clamp's cs-te, cs-wrap and
  *          row-te-el, whose sentence the probe repeats with different wrap settings (the Unity-side contamination):
  *          old 95/94/95 runtime, 95/98/95 editor.
- *          Known differences, judged by height only and failing once the width matches: the runtime ko100 (Korean,
- *          Pretendard: Unity 83 wide, the longest line floor + 1 — the rule's next-word start over-counts by 4px)
- *          and the runtime te10 (10px: Unity 77, the rule 79).
+ *          The runtime ko100 (Korean, Pretendard, Unity 83) and te10 (10px, Unity 77) were known width differences
+ *          until 0.8.0; the 0.8.0 space rule (spaces after a broken line count only before a glyph that fits, r8-wrap)
+ *          gives Unity's widths, so they are judged like every other text (human-approved, 2026-11-18).
  *   C1   — a default Label and Button are one clipped line: cs-label, cs-button, cs-ellipsis, st-label.
  *   C4   — a multiline TextField's inner text keeps its wrapped height in a 40px field: ml-fixed inner text
  *          138x85 runtime, 154x59 editor; the field is 160x40.
@@ -174,7 +174,7 @@ for (const theme of ['runtime', 'editor']) {
 }
 
 // R1-W: every text of the two clean wrap probes.
-const KNOWN_R1W = new Set(['runtime ko100', 'runtime te10']);
+const KNOWN_R1W = new Set();
 for (const theme of ['runtime', 'editor']) {
   for (const name of ['r1w-wrap', 'r1w-wrap2', 'r1w-long']) {
     const d = dump(theme, name);
