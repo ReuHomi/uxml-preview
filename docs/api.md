@@ -48,7 +48,7 @@ UXML과 USS 텍스트를 모델(`UxmlDocument`)로 읽는다. 실패하지 않�
 | `resolveFont(path, form)` | `-unity-font-definition`의 폰트를. 폰트 패밀리 이름(문자열), `{ family, faceInfo }`, 또는 `null`. `faceInfo`(Unity가 그 폰트에 보고하는 `pointSize`·`ascentLine`·`descentLine`)를 주면 글자 높이가 Unity 공식과 같아진다. 같은 (path, form)은 한 번의 render에 한 번만 부른다 |
 | `measureText(text, context, availableWidth)` | 글자 측정을 바꿔 끼운다. 기본값은 캔버스를 쓰므로 플랫폼·설치 폰트에 따라 움직인다 — 재현 가능한 결과가 필요하면(테스트) 직접 준다. `context`에 글자 크기·스타일·`whiteSpace`·폰트·FaceInfo·간격·생성기가 온다 |
 | `states` | 요소별 의사 클래스 상태. `{ '#UseButton': ['hover'] }`. 키는 USS 셀렉터 |
-| `activeStates` | 모든 요소에 켤 상태. `new Set(['hover'])` |
+| `activeStates` | 모든 요소에 켤 상태. `new Set(['hover'])`. 전역 `activeStates`는 컨트롤 부품에도 닿는다. 미리보기의 규약이지 Unity 측정이 아니다 |
 
 결과(`RenderResult`):
 
@@ -175,3 +175,18 @@ USS 위치의 `url`·`from`은 그 시트를 위해 `resolveImport`가 받은 �
 | `supportedControlNames()` | 전용 렌더러가 있는 컨트롤 |
 | `resolveStyles`, `explainProperty` | 캐스케이드 결과, 한 요소의 한 속성을 두고 경쟁한 선언 전부(편집기가 "인라인을 고칠까, 규칙을 고칠까"를 물을 때). `resolveStyles(doc, { theme })`도 테마를 받는다 — 빼면 `'runtime'`(0.7.0) |
 | `isInherited(property)` | USS 상속 여부 |
+
+## `uxml-preview/unity-project` (Node 전용)
+
+`node:fs`를 쓰므로 주 엔트리와 따로 둔다(`import { readFontAsset } from 'uxml-preview/unity-project'`).
+
+- `readFontAsset(text)` — Unity Text Core 글꼴 에셋(`.asset` YAML 글)에서 `faceInfo`를 읽어, Unity 없이 `resolveFont`에 답하게 한다.
+  순수 함수이고 파일을 읽지 않는다. 결과는 둘 중 하나다.
+  - 읽음: `{ format: { scriptFileId, scriptGuid, version }, sourceFontGuid, faceInfo }` — `faceInfo`는 `resolveFont`의 것과 같은 타입이고
+    네 값(`pointSize`·`ascentLine`·`descentLine`·`lineHeight`) 모두 float32(`Math.fround`)다. `sourceFontGuid`는 원본 글꼴 `.meta`의 guid, 없으면 `null`
+  - 못 읽음: `{ unrecognized: 'not-a-font-asset' | 'unknown-format' | 'malformed', seen: { script?, version? } }` — `seen`은 판정한 문서의
+    `m_Script`·`m_Version` 값 그대로. 던지지 않는다
+
+  판정 규칙(C1–C9)의 원본은 `readFontAsset`의 JSDoc이다. TextMeshPro 에셋은 `m_Version`이 같고 `m_Script`가 달라 `not-a-font-asset`이다.
+- `KNOWN_FONT_ASSET_FORMATS` — 읽을 수 있는 형식의 표. 행마다 `scriptFileId`·`scriptGuid`·`version`과 그 행을 증명한 픽스처의 Unity 버전
+  `measuredOn`. 지금 한 행: Text Core `1.1.0`, 6000.0.40f1·6000.3.25f1. 행은 그 버전에서 잰 픽스처가 있을 때만 더한다

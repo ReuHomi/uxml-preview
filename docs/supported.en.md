@@ -164,12 +164,12 @@ From 0.6.0 text boxes are measured by Unity's rules. All of it rests on Unity du
   `a     b     c` is 64 against 33 for `a b c` in the runtime panel (Standard, both versions) and 55
   against 28 in the 6000.0 editor (Standard): the run stays. The 6.3 editor (Advanced) gives 28 against
   28: it collapses to one (`r15-label-spaces`), and drops leading spaces (`spaces.json`). `pre` and
-  `pre-wrap` keep runs (`spaces-prewrap.json`). **The preview collapses under `normal` and `nowrap` with
-  either generator** (it follows the 6.3 editor), so a runtime Label's run of spaces is measured narrower
-  than Unity's. That, and a TextField's trailing spaces (`trail     `: Standard drops them, Advanced counts
-  them, `r15-tf-spaces`), are **measured but not implemented known differences**, 0.8 candidates
-  (`docs/backlog.md` item 3; the trailing-space part (T6) was a human decision for 0.8 on 2026-10-21).
-  They are not unmeasured
+  `pre-wrap` keep runs (`spaces-prewrap.json`). **Since 0.8.0 the preview follows the generator too**: Standard keeps runs
+  and leading spaces under `normal` and `nowrap` and drops trailing spaces; Advanced collapses. Measuring and painting agree
+  (`tests/text-cohort/paint-spaces.mjs`). A TextField's text counts trailing spaces on both generators, as Unity's box does
+  (`r15-tf-spaces` `trail     `: 49 runtime, 43 editor; "Standard drops them" was the `MeasureTextSize` value). Two assumptions:
+  Standard dropping a Label's trailing spaces is read from `MeasureTextSize` on the TextField text, and how Standard `normal` text
+  wraps at a run of spaces is not dumped (`docs/backlog.md` item 3)
 - **Fonts** — the host resolves a `-unity-font-definition` path through `resolveFont(path, form)`,
   returning a font family name, or `{ family, faceInfo }` (with FaceInfo the height matches
   Unity's), or `null`. Details in the [API](api.en.md)

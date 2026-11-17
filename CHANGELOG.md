@@ -1,23 +1,44 @@
 # Changelog
 
-## 0.8.0 — (draft, not released)
+## 0.8.0
 
-Groundwork for reading Unity font assets. The reader itself is not written yet.
+Reading Unity font assets, and spaces that follow the text generator.
 
 ### Added
 
-- **`readFontAsset` contract** on `uxml-preview/unity-project`: types
-  (`FontAssetResult`, `FontAssetRead`, `FontAssetNotRead`, `FontAssetFormat`), a stub that
-  throws "not implemented", and `KNOWN_FONT_ASSET_FORMATS` with one row: Text Core
+- **`readFontAsset(text)`** on `uxml-preview/unity-project` (Node only): reads the `faceInfo` of a
+  Unity Text Core font asset (`.asset` YAML), so a host can answer `resolveFont` without Unity.
+  Pure; never throws. Read: `{ format, sourceFontGuid, faceInfo }`, all four FaceInfo values as
+  float32. Not read: `{ unrecognized: 'not-a-font-asset' | 'unknown-format' | 'malformed', seen }`.
+  The rules C1–C9 are in its JSDoc. Types: `FontAssetResult`, `FontAssetRead`, `FontAssetNotRead`,
+  `FontAssetFormat`, `KnownFontAssetFormat`.
+- **`KNOWN_FONT_ASSET_FORMATS`** with one row: Text Core
   `m_Script {fileID: 19001, guid: 0000000000000000e000000000000000}`, `m_Version 1.1.0`,
-  measured on 6000.0.40f1 and 6000.3.25f1. `faceInfo` has the same type as the `faceInfo`
-  that `resolveFont` returns.
-- **Font asset fixtures** in `tests/unity-project/font-assets/`: Inter v4.1 and Noto Sans KR
-  (variable, default instance) on both Unity versions, and one TextMeshPro asset. OFL
-  licenses beside each fixture; the font files are not in the repository.
-- **47 pinned tests** for the reader. They fail until the reader is written.
-- **`CONTRIBUTING.md`.**
+  measured on 6000.0.40f1 and 6000.3.25f1. A TextMeshPro asset is `not-a-font-asset`.
 - **The reader** comes from PR #21 by @xAFK-BOTx, adapted to the contract rules C1-C9.
+- **Font asset fixtures** in `tests/unity-project/font-assets/` (Inter v4.1 and Noto Sans KR on both
+  Unity versions, one TextMeshPro asset; OFL licenses beside each, font files not in the repository),
+  47 pinned tests, and `CONTRIBUTING.md`.
+
+### Behavior changes
+
+- **Spaces follow the text generator** (measured: `r15-label-spaces`, `spaces.json`). On the Standard
+  generator (the runtime theme, or `-unity-text-generator: standard`) text with `white-space: normal`
+  or `nowrap` keeps runs of spaces and leading spaces and drops trailing spaces, in both measuring
+  and painting. A runtime Label `a     b     c` was measured as `a b c` (32.28px with Inter at
+  14px); it is now 63.78px, against Unity's 64. Advanced (the editor theme) is unchanged. A
+  TextField's text still counts trailing spaces with either generator, as Unity's box does
+  (`r15-tf-spaces`); 0.7.1 called that a known difference, which was a misreading of Unity's
+  `MeasureTextSize`. Golden and text-cohort figures are unchanged: none of their texts has a run of
+  spaces.
+
+### Docs
+
+- `api`: `readFontAsset`, `KNOWN_FONT_ASSET_FORMATS`, and that a global `activeStates` also reaches
+  control parts (a preview convention, not a Unity measurement).
+- `backlog`: which official Inter release the editor's default FaceInfo comes from (v3.5–v3.19
+  measured alike, v3.0 differs; no font is bundled), and two `states` inputs the core accepts
+  silently (an unknown `activeStates` name, a key with `{`), left for a human decision.
 
 ## 0.7.1 — 2026-10-22
 
