@@ -1,3 +1,8 @@
+// The seven tests of PR #21 (xAFK-BOTx), in the contract shape (rules C1-C9 in the
+// JSDoc of readFontAsset, src/unity-project/index.ts). Inputs are synthetic and kept
+// as the PR wrote them; expectations follow the contract. No measured fixture has a
+// value in exponent notation: the exponent cases only check that the C7 pattern
+// accepts it.
 import { describe, expect, it } from 'vitest';
 
 import { readFontAsset } from '../../src/unity-project';
@@ -19,10 +24,13 @@ const FACE = `  m_FaceInfo:
   m_FallbackFontAssetTable: []
 `;
 
-describe('readFontAsset', () => {
+const FORMAT = { scriptFileId: 19001, scriptGuid: '0000000000000000e000000000000000', version: '1.1.0' };
+const SEEN = { script: '{fileID: 19001, guid: 0000000000000000e000000000000000, type: 0}', version: '1.1.0' };
+
+describe('readFontAsset (PR #21 cases)', () => {
   it('reads the source font GUID and FaceInfo from a TextCore FontAsset', () => {
     expect(readFontAsset(HEADER + FACE)).toEqual({
-      kind: 'font-asset',
+      format: FORMAT,
       sourceFontGuid: '9028724ab4860dc4986985c027881692',
       faceInfo: {
         pointSize: Math.fround(90),
@@ -33,25 +41,17 @@ describe('readFontAsset', () => {
     });
   });
 
-  it('parses scientific notation and rounds values to float32', () => {
+  it('exponent values with no m_LineHeight line give malformed (C5)', () => {
     const source = `${HEADER}  m_FaceInfo:
     m_PointSize: 1.5e-05
     m_AscentLine: 119.70703
     m_DescentLine: -2.5e-06
   m_FallbackFontAssetTable: []
 `;
-    const result = readFontAsset(source);
-
-    expect(result.kind).toBe('font-asset');
-    if (result.kind !== 'font-asset') return;
-    expect(result.faceInfo).toEqual({
-      pointSize: Math.fround(1.5e-05),
-      ascentLine: Math.fround(119.70703),
-      descentLine: Math.fround(-2.5e-06),
-    });
+    expect(readFontAsset(source)).toEqual({ unrecognized: 'malformed', seen: SEEN });
   });
 
-  it('only reads m_FaceInfo fields from the m_FaceInfo block', () => {
+  it('m_FaceInfo with no m_LineHeight gives malformed, whatever another block holds (C5)', () => {
     const source = `${HEADER}  m_FaceInfo:
     m_PointSize: 90
     m_AscentLine: 10
@@ -61,49 +61,40 @@ describe('readFontAsset', () => {
     m_AscentLine: 999
     m_DescentLine: -999
 `;
-    const result = readFontAsset(source);
-
-    expect(result.kind).toBe('font-asset');
-    if (result.kind !== 'font-asset') return;
-    expect(result.faceInfo).toEqual({
-      pointSize: Math.fround(90),
-      ascentLine: Math.fround(10),
-      descentLine: Math.fround(-2),
-    });
+    expect(readFontAsset(source)).toEqual({ unrecognized: 'malformed', seen: SEEN });
   });
 
   it('rejects a different m_Script', () => {
     const source = HEADER.replace('fileID: 19001', 'fileID: 19002') + FACE;
     expect(readFontAsset(source)).toEqual({
-      kind: 'unrecognized',
-      reason: 'm_Script is not a TextCore FontAsset script',
+      unrecognized: 'not-a-font-asset',
+      seen: { ...SEEN, script: '{fileID: 19002, guid: 0000000000000000e000000000000000, type: 0}' },
     });
   });
 
   it('rejects a different m_Version', () => {
     const source = HEADER.replace('m_Version: 1.1.0', 'm_Version: 2.0.0') + FACE;
-    expect(readFontAsset(source)).toEqual({
-      kind: 'unrecognized',
-      reason: 'm_Version is not a supported TextCore FontAsset version',
-    });
+    expect(readFontAsset(source)).toEqual({ unrecognized: 'unknown-format', seen: { ...SEEN, version: '2.0.0' } });
   });
 
-  it('keeps a recognized font asset without FaceInfo', () => {
-    expect(readFontAsset(HEADER)).toEqual({
-      kind: 'font-asset',
-      sourceFontGuid: '9028724ab4860dc4986985c027881692',
-    });
+  it('a recognized font asset without FaceInfo gives malformed (C5)', () => {
+    expect(readFontAsset(HEADER)).toEqual({ unrecognized: 'malformed', seen: SEEN });
   });
 
-  it('falls back to the m_SourceFontFile reference for the source GUID', () => {
+  it('m_SourceFontFile is not read for the source GUID (C8)', () => {
     const source = HEADER.replace(
       '  m_SourceFontFileGUID: 9028724ab4860dc4986985c027881692\n',
       '  m_SourceFontFile: {fileID: 12800000, guid: 0123456789abcdef0123456789abcdef, type: 3}\n',
     ) + FACE;
-    const result = readFontAsset(source);
-
-    expect(result.kind).toBe('font-asset');
-    if (result.kind !== 'font-asset') return;
-    expect(result.sourceFontGuid).toBe('0123456789abcdef0123456789abcdef');
+    expect(readFontAsset(source)).toEqual({
+      format: FORMAT,
+      sourceFontGuid: null,
+      faceInfo: {
+        pointSize: Math.fround(90),
+        lineHeight: Math.fround(105.46875),
+        ascentLine: Math.fround(83.49609),
+        descentLine: Math.fround(-21.972656),
+      },
+    });
   });
 });
