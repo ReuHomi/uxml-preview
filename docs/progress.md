@@ -4,6 +4,8 @@
 
 ## 현재 위치
 
+**0.8.0 남은 두 가지 마감 (2026-11-18 오후, 같은 브랜치, 푸시, 머지 안 함).** 공백 가정 둘을 `r8-trail`·`r8-wrap`(두 버전·두 테마 단독 덤프)으로 쟀다: 끝 공백 버림은 맞음, 공백 묶음 꺾임은 틀림 → 고침(꺾인 줄 뒤 공백은 그 뒤 글자가 들어갈 때만 센다). 부수 효과로 `measure-real`의 알려진 R1-W 차이 둘(`ko100`·`te10`)이 Unity와 같아져 그 고정 스크립트가 4행 실패한다(사람 결정 대기). `activeStates`의 모르는 이름과 규칙 문법이 든 `states` 키에 경고. 코어 `vitest` 1604 통과 · 1 건너뜀. 텍스트: run·paint·paint-r15·paint-spaces·measure-spaces 통과, measure-real 88/92.
+
 **0.8.0 릴리스 준비 (2026-11-18, 브랜치 `feat/0.8.0-font-asset`, 푸시·PR, 머지·배포 안 함).** `main`(PR #19 포함)과 PR #21(@xAFK-BOTx, 커밋 그대로 `--no-ff`)을 병합하고 리더를 계약 C1–C9에 맞췄다(Codex 1라운드, 고정 47/47, 변이 3/3). 공백이 생성기를 따른다(Standard: 연속·앞 공백 남김, 끝 공백 버림 — 재기·그리기, Codex 1라운드, 변이 4/4). T6 정정: TextField 상자는 두 생성기 모두 끝 공백을 센다. states 키의 조용한 두 경우는 Unity 근거가 없어 코어 그대로(backlog). Inter 공식 릴리스 v3.5–v3.19가 `EDITOR_DEFAULT_FACE_INFO`와 같다(6000.3.25f1, 동봉 안 함). CHANGELOG 0.8.0(날짜 없음), `package.json` 0.8.0. 코어 `vitest` 1590 통과 · 1 건너뜀, tsc 0, build 통과. 텍스트: paint-r15 52/52, paint-spaces 11/11; run·paint·measure-real은 Noto Sans JP/SC 글꼴이 이 PC에 없어 못 돌렸다.
 
 **0.8.0 준비 중 (2026-11-11, 브랜치 `feat/0.8.0-font-asset`, 푸시·머지 안 함).** 글꼴 에셋 리더(`readFontAsset`)를 외부 기여자에게 넘기기 위한 준비물만 만들었다 — 리더는 쓰지 않았다. 픽스처(`tests/unity-project/font-assets/`, Inter v4.1·Noto Sans KR 가변, 6000.0.40f1·6000.3.25f1, TMP 하나), 계약과 스텁(`src/unity-project/index.ts`, `KNOWN_FONT_ASSET_FORMATS` 한 행), 고정 테스트 47개(스텁에서 전부 실패), `CONTRIBUTING.md`, `docs/backlog.md` "Font asset reader (0.8.0)", CHANGELOG 0.8.0 초안(날짜 없음, `package.json`은 0.7.1 그대로). 코어 `vitest` 1519 통과 · 1 건너뜀 · 새 고정 테스트 47 실패, tsc 0.
@@ -235,6 +237,13 @@
 | 2026-11-18 | states 키 두 경우(모르는 `activeStates` 이름, `{`가 든 키)는 코어를 바꾸지 않음 | 둘 다 Unity에 대응이 없어 덤프·측정 규칙이 없다. backlog에 기록, 사람 결정 |
 
 ## 세션 로그
+
+### 2026-11-18 오후 (0.8.0 — 공백 가정 측정, states 입력 검사)
+
+- **글꼴:** Noto Sans JP/SC(noto-cjk SubsetOTF, SHA-256이 텍스트 코호트 README와 같음)를 받아 `test:text` 전체를 처음으로 돌렸다. Inter는 Unity 에디터 `Resources/Fonts`의 파일과 같다. 기준선: run 92/92·84/92·92/92·159/159(두 버전), paint 39/39, measure-real 92/92 — 0.7.x와 같다.
+- **측정:** `probes-0.8.0/r8-trail`·`r8-wrap`, 스크래치에 새로 만든 두 Unity 프로젝트, `dump-solo.sh`(출력 경로는 절대 경로여야 한다 — 상대 경로면 Unity 프로젝트 안에 쓴다). (가) 끝 공백 버림 맞음. (나) 틀림: 런타임 `alpha     beta` Unity 39, 미리보기 51. 고정 `spaces-r8.test.ts`(구현 전 1/5 실패), `measure-spaces.mjs`(구현 전 31/39). Codex 1라운드. 변이 1(공백 다시 셈) 잡힘.
+- **부수 효과:** `measure-real` `ko100` 83·`te10` 77이 Unity와 같아짐 → 알려진 차이 행이 일부러 실패, "상자 안에 그림" 행 1.1·1.4px 넘침(허용 1px). 고정 기대값이라 고치지 않음.
+- **states 입력:** 모르는 `activeStates` 이름 → `malformed`·`invalid-value`(subject 없음, 모르는 theme과 같음). 규칙 문법이 든 키 → 기존 `not-uss` 거절. 고정 `state-inputs.test.ts`(구현 전 4/9 실패). 변이 3 잡힘, 동치 2 생존(한 규칙 검사, 모르는 전역 이름 적용).
 
 ### 2026-11-18 (0.8.0 — PR #21 통합, 공백, 기본 글꼴 출처, 릴리스 준비)
 

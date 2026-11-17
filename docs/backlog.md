@@ -215,10 +215,15 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
      **T6 정정:** "Standard는 버리고 Advanced는 센다"는 Unity `MeasureTextSize`(덤프의 `measured`) 값이었다. TextField 안 글 상자는
      **두 생성기 모두 끝 공백을 센다**(`tf-trail` 상자 49 런타임 · 43 에디터, 네 덤프 모두). 미리보기는 이미 그렇게 쟀다 — 고정만 했다
      (`tests/contract-080/spaces.test.ts`, `tests/text-cohort/paint-spaces.mjs`).
-   - 남은 가정(덤프로 판정할 것): Label의 끝 공백을 Standard가 버린다는 것은 TextField 글의 `MeasureTextSize`에서 읽었다 — 끝 공백 Label
-     프로브가 없다. Standard `normal` 글이 공백 묶음에서 꺾일 때도 덤프가 없다(pre-wrap처럼 공백이 줄 끝에 걸린다고 둠).
+   - **두 가정 측정됨(2026-11-18, `r8-trail`·`r8-wrap`, 두 버전·두 테마 단독 덤프, 글자열 모두 다름).** (가) Standard는 Label의 끝 공백을
+     버린다 — 맞음. (나) Standard `normal` 글이 공백 묶음에서 꺾일 때 묶음이 줄 끝에 걸려 센다 — 틀림: 너비는 줄, 그리고 공백과 다음 낱말의
+     시작을 **들어간 마지막 글자(공백 아님)까지만** 센다. 뒤 글자가 안 들어가면 공백은 세지 않는다(런타임 `alpha     beta` 39, 미리보기는 51이었다).
+     고침(`339b1c6`), `tests/text-cohort/measure-spaces.mjs` 39/39
 
 4. **런타임 Standard 꺾임 폭** — 한국어 케이스를 늘려 측정한다. 지금은 1건(`r1w-wrap2` `ko100`, Pretendard 100px)이 규칙("꺾일 때 마지막으로 들어간 글자까지의 폭, floor + 1")보다 4px 좁고, Unity는 거기서 가장 긴 줄을 쓴다. 10px 케이스(`te10`)는 2px 차이다. 둘 다 `measure-real.mjs`의 `KNOWN_R1W`. 2026-10-21 사람 결정
+   - **(2026-11-18) 위 3번 (나)의 규칙으로 둘 다 Unity 너비와 같아졌다**(`ko100` 83, `te10` 77). 규칙의 "다음 낱말 시작"에서 공백까지만 들어가고
+     글자는 못 들어갈 때 공백 폭을 더해 넓었던 것. `measure-real.mjs`는 이 둘이 맞으면 일부러 실패하게 고정돼 있고, 그 둘의 "상자 안에 그림" 행도
+     1.1·1.4px 넘친다(허용 1px). 고정 기대값이라 사람 결정 전까지 고치지 않았다
 
 ## 0.7.0 — 컨트롤·테마
 
@@ -297,18 +302,6 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 **구현됨(2026-11-18).** PR #21(@xAFK-BOTx)의 리더를 계약 C1–C9에 맞췄다(`src/unity-project/font-asset.ts`). 아래 "스텁" 설명은
 준비 당시의 기록이다. 적대적 검토 입력 14개(`font-asset-2026-11-11/*-input.yaml`)를 돌린 결과: 12개 같음, `k`는 C3이 대신함(seen은 후보
 문서에서), `h`는 다름 — 검토의 기대값은 `m_LineHeight` 없는 것을 허용하는 해석이었고 C5(그 뒤 사람 결정)가 `malformed`로 정했다.
-
-## states 키 — 코어가 말하지 않는 두 경우 (2026-11-18 판단, 코어 변경 없음)
-
-ReuHomi/uxml-author `src/check.js`(master)의 "29 of 31" 주석이 남긴 두 경우. 둘 다 `states`·`activeStates`가 미리보기의 입력이고 Unity에
-대응하는 것이 없어서, 덤프나 측정 규칙으로 판정할 수 없다. 그래서 코어를 바꾸지 않았다. 바꾸려면 사람 결정이 필요하다.
-
-1. **`activeStates`의 모르는 이름**(예: `"hovr"`) — 지금 코어는 경고 없이 버린다(`USS_STATES`로 거른다). uxml-author 주석의
-   "모든 요소에 켠다"는 지금 동작과 다르다. 같은 이름이 `states` 값에 있으면 `unknown-state`로 경고하므로, 경고를 더하는 비용은 작다.
-   근거로 쓸 만한 것은 Unity 문서의 의사 클래스 목록(측정 아님)뿐이다.
-2. **`{`가 든 `states` 키**(예: `"#Use { x"`) — 지금 코어는 경고 없이 `#Use`에 상태를 켠다(2026-11-18 확인: `#Use:hover` 규칙이 적용됨).
-   uxml-author 주석의 "아무것도 적용하지 않는다"와 다르다 — uxml-author가 미리 거르는 것은 여전히 필요하다. 키는 Unity가 읽는 USS가 아니라
-   미리보기의 셀렉터 파서가 읽으므로 Unity 측정으로 정할 수 없다.
 
 - **계약** — `src/unity-project/index.ts`(`uxml-preview/unity-project` 엔트리).
   `readFontAsset(text: string): FontAssetResult`는 순수 함수이고 파일을 읽지 않는다. 지금은 스텁이라 `not implemented`를 던진다.

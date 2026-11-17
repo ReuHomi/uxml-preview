@@ -47,8 +47,8 @@ UXML과 USS 텍스트를 모델(`UxmlDocument`)로 읽는다. 실패하지 않�
 | `resolveAsset(path, form)` | `background-image`의 `url("project://…")`·`resource("…")`를 브라우저가 읽을 URL로. `form`은 `'url'`(경로) 또는 `'resource'`(Unity Resources 이름, 확장자 없음) — 둘을 같은 경로로 풀면 엉뚱한 그림이 조용히 나온다. 에디터 내장 리소스는 디스크 호스트가 풀 수 없으니 `null`을 돌려준다. `null`이면 플레이스홀더를 그리고 경고한다 |
 | `resolveFont(path, form)` | `-unity-font-definition`의 폰트를. 폰트 패밀리 이름(문자열), `{ family, faceInfo }`, 또는 `null`. `faceInfo`(Unity가 그 폰트에 보고하는 `pointSize`·`ascentLine`·`descentLine`)를 주면 글자 높이가 Unity 공식과 같아진다. 같은 (path, form)은 한 번의 render에 한 번만 부른다 |
 | `measureText(text, context, availableWidth)` | 글자 측정을 바꿔 끼운다. 기본값은 캔버스를 쓰므로 플랫폼·설치 폰트에 따라 움직인다 — 재현 가능한 결과가 필요하면(테스트) 직접 준다. `context`에 글자 크기·스타일·`whiteSpace`·폰트·FaceInfo·간격·생성기가 온다 |
-| `states` | 요소별 의사 클래스 상태. `{ '#UseButton': ['hover'] }`. 키는 USS 셀렉터 |
-| `activeStates` | 모든 요소에 켤 상태. `new Set(['hover'])`. 전역 `activeStates`는 컨트롤 부품에도 닿는다. 미리보기의 규약이지 Unity 측정이 아니다 |
+| `states` | 요소별 의사 클래스 상태. `{ '#UseButton': ['hover'] }`. 키는 USS 셀렉터. 셀렉터로 쓸 수 없는 키(규칙 문법이 섞인 `#Use { x` 포함)는 `unsupported-selector`·`not-uss` 경고(subject `states-key`, `problem` 없음) 뒤 무시하고 아무 상태도 켜지 않는다. 모르는 상태 이름은 `unknown-state` |
+| `activeStates` | 모든 요소에 켤 상태. `new Set(['hover'])`. 전역 `activeStates`는 컨트롤 부품에도 닿는다. 미리보기의 규약이지 Unity 측정이 아니다. 모르는 이름(`hovr`)은 이름마다 `malformed`·`invalid-value` 경고(subject 없음, 모르는 `theme`과 같은 경고) 뒤 무시한다 |
 
 결과(`RenderResult`):
 
@@ -118,7 +118,7 @@ interface Warning {
 |---|---|
 | `property` | `property`, `value`(쓴 그대로), 아래 선택 필드 |
 | `selector` | `selector`, `fragment`(문제 조각) |
-| `states-key` | `key`, `problem`(`matches-nothing` · `state-in-key` · `unknown-state`, 없으면 셀렉터로 쓸 수 없는 키), `state` |
+| `states-key` | `key`, `problem`(`matches-nothing` · `state-in-key` · `unknown-state`, 없으면 셀렉터로 쓸 수 없는 키 — `#Use { x`처럼 규칙 문법이 섞인 키 포함), `state` |
 | `asset` | `path`, `form`(`url`·`resource`), `role`(`font`일 때) |
 | `import` | `url`, `from` — 훅이 받았(거나 받았을) 인자 그대로 |
 | `control` | `type` |

@@ -31,14 +31,24 @@ Reading Unity font assets, and spaces that follow the text generator.
   (`r15-tf-spaces`); 0.7.1 called that a known difference, which was a misreading of Unity's
   `MeasureTextSize`. Golden and text-cohort figures are unchanged: none of their texts has a run of
   spaces.
+- **At a Standard line break, spaces count only before a glyph that fits** (measured: `r8-wrap`,
+  both versions and themes). The width of a wrapping Standard text is the line, then the run of
+  spaces and the start of the next word only up to the last glyph that fits. A runtime Label
+  "alpha     beta" in a 60px box was 51 wide; it is now 39, as in Unity. The same rule gives
+  Unity's width for the two known runtime wrap differences (`ko100` 83, `te10` 77, Pretendard
+  and Inter); `measure-real.mjs` still lists them as known and now fails on them, pending a
+  decision on its pinned expectations. Golden and text-cohort figures are unchanged.
+- **Unknown `activeStates` names warn**: one `malformed` / `invalid-value` warning per name, no
+  subject (as an unknown `theme`); the name is still ignored.
+- **A `states` key with rule syntax is refused**: `"#Use { x"` gave `#Use` the state; it now gets
+  the `not-uss` refusal (subject `states-key`) and sets nothing.
 
 ### Docs
 
 - `api`: `readFontAsset`, `KNOWN_FONT_ASSET_FORMATS`, and that a global `activeStates` also reaches
   control parts (a preview convention, not a Unity measurement).
 - `backlog`: which official Inter release the editor's default FaceInfo comes from (v3.5–v3.19
-  measured alike, v3.0 differs; no font is bundled), and two `states` inputs the core accepts
-  silently (an unknown `activeStates` name, a key with `{`), left for a human decision.
+  measured alike, v3.0 differs; no font is bundled).
 
 ## 0.7.1 — 2026-10-22
 

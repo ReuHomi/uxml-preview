@@ -167,9 +167,8 @@ From 0.6.0 text boxes are measured by Unity's rules. All of it rests on Unity du
   `pre-wrap` keep runs (`spaces-prewrap.json`). **Since 0.8.0 the preview follows the generator too**: Standard keeps runs
   and leading spaces under `normal` and `nowrap` and drops trailing spaces; Advanced collapses. Measuring and painting agree
   (`tests/text-cohort/paint-spaces.mjs`). A TextField's text counts trailing spaces on both generators, as Unity's box does
-  (`r15-tf-spaces` `trail     `: 49 runtime, 43 editor; "Standard drops them" was the `MeasureTextSize` value). Two assumptions:
-  Standard dropping a Label's trailing spaces is read from `MeasureTextSize` on the TextField text, and how Standard `normal` text
-  wraps at a run of spaces is not dumped (`docs/backlog.md` item 3)
+  (`r15-tf-spaces` `trail     `: 49 runtime, 43 editor; "Standard drops them" was the `MeasureTextSize` value). Dropping a Label's trailing spaces, and the width at a break inside a run of spaces, are
+  measured (`r8-trail`, `r8-wrap`): spaces after a broken line count only when a glyph after them fits (runtime `alpha     beta` 39)
 - **Fonts** — the host resolves a `-unity-font-definition` path through `resolveFont(path, form)`,
   returning a font family name, or `{ family, faceInfo }` (with FaceInfo the height matches
   Unity's), or `null`. Details in the [API](api.en.md)
