@@ -118,12 +118,18 @@ export const KNOWN_FONT_ASSET_FORMATS: readonly KnownFontAssetFormat[] = [
  *               line that begins with four spaces (not five) and `key:`, after the
  *               `  m_FaceInfo:` line and before the next line indented less than four
  *               spaces. If a key occurs twice, the first line counts.
+ *               A field line is `key: value` (one space after the colon), or exactly
+ *               `key:` for an empty value; `key:value` is not a field. The m_FaceInfo
+ *               block starts only at the exact line `  m_FaceInfo:`; a line with a
+ *               trailing space is not the block start. U+2028, U+2029 and a CR that
+ *               is not before an LF are characters of the value, not line ends.
  *
  * C1 Candidate. The font asset document is the first MonoBehaviour document, in file
  *    order, whose m_Script equals a row of KNOWN_FONT_ASSET_FORMATS: scriptFileId and
  *    scriptGuid together. The m_Script value is compared by the pattern
  *    `{fileID: <integer>, guid: <32 lowercase hex>, type: <integer>}`; any other value
- *    equals no row. No other document is a candidate, and the reader does not look
+ *    equals no row. fileID is an integer without a sign and without leading zeros;
+ *    "+19001" and "019001" equal no row. No other document is a candidate, and the reader does not look
  *    for a second candidate. No candidate: 'not-a-font-asset'.
  * C2 Version. If the candidate's m_Version is not the version of a row with the same
  *    scriptFileId and scriptGuid, or the candidate has no m_Version line: 'unknown-format'.

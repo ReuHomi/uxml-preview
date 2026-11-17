@@ -1,10 +1,10 @@
 import type { FontAssetNotRead, FontAssetResult, KnownFontAssetFormat } from './index';
 
-const SCRIPT = /^\{fileID: (-?\d+), guid: ([0-9a-f]{32}), type: (-?\d+)\}$/;
-const NUMBER = /^[+-]?(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?$/;
+const SCRIPT = /^\{fileID: (0|[1-9]\d*), guid: ([0-9a-f]{32}), type: (-?\d+)\}(?![\s\S])/;
+const NUMBER = /^[+-]?(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?(?![\s\S])/;
 
 function fields(lines: readonly string[], indent: number): Map<string, string> {
-  const pattern = new RegExp(`^ {${indent}}([^\\s:]+):(?: (.*))?$`);
+  const pattern = new RegExp(`^ {${indent}}([^\\s:]+):(?: ([^\\n]*))?(?![\\s\\S])`);
   const values = new Map<string, string>();
   for (const line of lines) {
     const match = pattern.exec(line);
@@ -69,7 +69,7 @@ export function readFontAssetText(text: string, formats: readonly KnownFontAsset
     numbers.push(number);
   }
   const sourceFontGuid = values.get('m_SourceFontFileGUID') || null;
-  if (sourceFontGuid !== null && !/^[0-9a-fA-F]{32}$/.test(sourceFontGuid)) {
+  if (sourceFontGuid !== null && !/^[0-9a-fA-F]{32}(?![\s\S])/.test(sourceFontGuid)) {
     return { unrecognized: 'malformed', seen };
   }
   return {
