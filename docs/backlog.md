@@ -180,6 +180,26 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 ## 다음 버전(0.8) 후보 — 순서대로
 
 0. **기본 글꼴 동봉** — Unity 기본 글꼴(Inter, 공개 라이선스 — 런타임 NotInter와 FaceInfo가 같다)을 미리보기에 넣어, 글꼴을 넘기지 않아도 Unity 글자 폭으로 재게 한다. 라이선스 확인 포함. 근거: 재검증 R3-C4·R1(브라우저 기본 글꼴은 글자 폭이 몇 px 다르고 줄 수가 달라진다). 2026-10-21 사람 결정
+   - **어느 공식 릴리스인가 — 측정됨(2026-11-18, 동봉은 하지 않음).** `EDITOR_DEFAULT_FACE_INFO`(`src/render/measure.ts`)는
+     pointSize 90 · ascent 87.1875 · descent -21.73295 · lineHeight 108.9205. Inter v4.1은 -21.7089844 · 108.896484로 다르다(픽스처).
+     rsms/inter 공식 릴리스 zip의 Regular TTF를 픽스처와 같은 절차(`tests/unity-project/font-assets/FontProbe.cs`, 새 빈 프로젝트,
+     `Assets/Create/Text Core/Font Asset/SDF` 기본 설정, 새 프로세스에서 `faceInfo`를 `ToString("R")`)로 6000.3.25f1에서 쟀다.
+
+     | 릴리스 | 잰 TTF(zip 안 경로) | ascentLine | descentLine | lineHeight | 기본값과 | Regular woff2(zip 안 경로, 바이트) |
+     |---|---|---|---|---|---|---|
+     | v3.0 | `Inter UI (TTF)/Inter-UI-Regular.ttf` | 86.5482941 | -21.09375 | 107.642044 | 다름 | `Inter UI (web)/…woff2` 88,268 |
+     | v3.5 | `Inter (TTF)/Inter-Regular.ttf` | 87.1875 | -21.732954 | 108.920456 | 같음 | `Inter (web)/…woff2` 88,816 |
+     | v3.9 | `Inter (TTF)/Inter-Regular.ttf` | 87.1875 | -21.732954 | 108.920456 | 같음 | `Inter (web)/…woff2` 92,560 |
+     | v3.10 | `Inter (TTF)/Inter-Regular.ttf` | 87.1875 | -21.732954 | 108.920456 | 같음 | `Inter (web)/…woff2` 92,704 |
+     | v3.15 | `Inter Hinted for Windows/Desktop/Inter-Regular.ttf` | 87.1875 | -21.732954 | 108.920456 | 같음 | `Inter Web/…woff2` 98,804 |
+     | v3.19 | `Inter Hinted for Windows/Desktop/Inter-Regular.ttf` | 87.1875 | -21.732954 | 108.920456 | 같음 | `Inter Web/…woff2` 98,868 |
+
+     pointSize는 모두 90. "같음"은 기본값이 적힌 유효숫자 7자리에서 같다는 뜻이다(-21.732954 → -21.73295, 108.920456 → 108.9205).
+     상수는 반올림된 글자에서 읽은 값이라 float32 비트까지 같지는 않다(`Math.fround(-21.73295) ≠ Math.fround(-21.732954)`) — 동봉할 때
+     상수를 R 값으로 바꿀지 정한다. 3.x는 em이 2816이고 ascender 2728 · descender -680 · 줄 간격 0이면 이 값이 나온다.
+     **동봉 후보는 v3.19**(마지막 3.x, Regular woff2 98,868 B). 재지 않은 릴리스: v3.1–v3.4, v3.6–v3.8, v3.11–v3.14, v3.16–v3.18.
+     v3.15·v3.19는 힌팅된 Windows TTF를 쟀고 woff2는 힌팅 없는 웹 파일이다(수직 지표가 같다고 가정 — 동봉 전에 woff2로 다시 잰다).
+     6000.0.40f1에서는 재지 않았다.
 
 0. **실제 측정기 층** — 컨트롤 프로브 전체를 기본 측정기 + Unity 글꼴로 다시 돌려 덤프와 비교하는 테스트 층(`tests/text-cohort/measure-real.mjs`의 확장). 측정 흉내 함수로는 C1·R1-W를 못 잡았다. 2026-10-21 사람 결정
 
@@ -191,6 +211,12 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 2. **반 픽셀 반올림** — 정렬별(왼쪽·가운데·오른쪽, 빈 공간의 홀짝 나머지) 반올림을 측정한 뒤 결정. Unity는 가운데 정렬된 글을 반 픽셀에서 올리고 미리보기의 Yoga는 글 노드 위치를 내린다(ProgressBar 제목 x 1px, `bundle-f.test.ts` `KNOWN_HALF_PIXEL`). 글 노드 반올림을 바꾸면 모든 글 상자가 움직이므로 측정·예측이 먼저다. 2026-10-20 사람 결정
 
 3. **공백 — 끝 공백(T6)과 런타임 Label의 연속 공백(N2)** — 측정됨(2026-10-21, `r15-tf-spaces`·`r15-label-spaces`): Label의 연속 공백은 Standard 생성기(런타임 패널 두 버전, 6000.0 에디터)에서 남고 Advanced(6.3 에디터)에서만 접힌다. 미리보기는 어디서나 접어 런타임 Label을 좁게 잰다. 끝 공백은 생성기마다 다르다(TextField `trail     `: Standard는 버리고 Advanced는 센다). 그리는 쪽(CSS가 앞·끝 공백을 다루는 방식)과 함께 정해야 해서 0.7.0에서는 보고만 했다. 2026-10-21 사람 결정(T6은 0.8)
+   - **0.8.0에서 처리(2026-11-18).** Standard의 Label 등은 연속·앞 공백을 남기고 끝 공백을 버린다(재기와 그리기 둘 다). Advanced는 그대로.
+     **T6 정정:** "Standard는 버리고 Advanced는 센다"는 Unity `MeasureTextSize`(덤프의 `measured`) 값이었다. TextField 안 글 상자는
+     **두 생성기 모두 끝 공백을 센다**(`tf-trail` 상자 49 런타임 · 43 에디터, 네 덤프 모두). 미리보기는 이미 그렇게 쟀다 — 고정만 했다
+     (`tests/contract-080/spaces.test.ts`, `tests/text-cohort/paint-spaces.mjs`).
+   - 남은 가정(덤프로 판정할 것): Label의 끝 공백을 Standard가 버린다는 것은 TextField 글의 `MeasureTextSize`에서 읽었다 — 끝 공백 Label
+     프로브가 없다. Standard `normal` 글이 공백 묶음에서 꺾일 때도 덤프가 없다(pre-wrap처럼 공백이 줄 끝에 걸린다고 둠).
 
 4. **런타임 Standard 꺾임 폭** — 한국어 케이스를 늘려 측정한다. 지금은 1건(`r1w-wrap2` `ko100`, Pretendard 100px)이 규칙("꺾일 때 마지막으로 들어간 글자까지의 폭, floor + 1")보다 4px 좁고, Unity는 거기서 가장 긴 줄을 쓴다. 10px 케이스(`te10`)는 2px 차이다. 둘 다 `measure-real.mjs`의 `KNOWN_R1W`. 2026-10-21 사람 결정
 
@@ -267,6 +293,22 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 ## Font asset reader (0.8.0)
 
 외부 기여자가 구현한다. 이 절은 그에게 넘기는 준비물이다(2026-11-11).
+
+**구현됨(2026-11-18).** PR #21(@xAFK-BOTx)의 리더를 계약 C1–C9에 맞췄다(`src/unity-project/font-asset.ts`). 아래 "스텁" 설명은
+준비 당시의 기록이다. 적대적 검토 입력 14개(`font-asset-2026-11-11/*-input.yaml`)를 돌린 결과: 12개 같음, `k`는 C3이 대신함(seen은 후보
+문서에서), `h`는 다름 — 검토의 기대값은 `m_LineHeight` 없는 것을 허용하는 해석이었고 C5(그 뒤 사람 결정)가 `malformed`로 정했다.
+
+## states 키 — 코어가 말하지 않는 두 경우 (2026-11-18 판단, 코어 변경 없음)
+
+ReuHomi/uxml-author `src/check.js`(master)의 "29 of 31" 주석이 남긴 두 경우. 둘 다 `states`·`activeStates`가 미리보기의 입력이고 Unity에
+대응하는 것이 없어서, 덤프나 측정 규칙으로 판정할 수 없다. 그래서 코어를 바꾸지 않았다. 바꾸려면 사람 결정이 필요하다.
+
+1. **`activeStates`의 모르는 이름**(예: `"hovr"`) — 지금 코어는 경고 없이 버린다(`USS_STATES`로 거른다). uxml-author 주석의
+   "모든 요소에 켠다"는 지금 동작과 다르다. 같은 이름이 `states` 값에 있으면 `unknown-state`로 경고하므로, 경고를 더하는 비용은 작다.
+   근거로 쓸 만한 것은 Unity 문서의 의사 클래스 목록(측정 아님)뿐이다.
+2. **`{`가 든 `states` 키**(예: `"#Use { x"`) — 지금 코어는 경고 없이 `#Use`에 상태를 켠다(2026-11-18 확인: `#Use:hover` 규칙이 적용됨).
+   uxml-author 주석의 "아무것도 적용하지 않는다"와 다르다 — uxml-author가 미리 거르는 것은 여전히 필요하다. 키는 Unity가 읽는 USS가 아니라
+   미리보기의 셀렉터 파서가 읽으므로 Unity 측정으로 정할 수 없다.
 
 - **계약** — `src/unity-project/index.ts`(`uxml-preview/unity-project` 엔트리).
   `readFontAsset(text: string): FontAssetResult`는 순수 함수이고 파일을 읽지 않는다. 지금은 스텁이라 `not implemented`를 던진다.
