@@ -206,6 +206,8 @@ export function paint(
     if (preserveSpaces) {
       // Measured: r15-label-spaces, spaces.json keep runs/leading spaces.
       // Measured: r8-trail (both versions, both themes): Standard drops a Label's trailing spaces.
+      // Unity tab rendering is unmeasured (docs/backlog.md); a tab is painted as the canvas measures it, as a space.
+      text = text.replace(/\t/g, ' ');
       text = text.split('\n').map((paragraph) => paragraph.trimEnd()).join('\n');
       el.style.whiteSpace = whiteSpace === 'nowrap' ? 'pre' : 'pre-wrap';
     }
