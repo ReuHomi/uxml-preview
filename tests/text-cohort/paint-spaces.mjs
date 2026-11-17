@@ -20,7 +20,13 @@
  *   S4 — runtime Label trailing spaces, centred in a 160px Label: the ink is centred in the box (1px) — the
  *        trailing spaces are neither measured nor painted.
  *   S5 — TextField trailing spaces, both themes: the inner text box is at least the ink of "trail" plus five
- *        spaces (1px).
+ *        spaces (1px). The inner text element must be found; the outer field is never measured instead.
+ *   S6 — a tab in a runtime Label (nowrap, normal; padding 0): the ink stays inside the measured box (1px) and the
+ *        painted line count equals the measured one. Unity's tab rendering is unmeasured (docs/backlog.md, 0.9);
+ *        the measurer reads a tab as the canvas does (a space), and painting must agree, as it did on main.
+ *
+ * Every Label is drawn in Inter through `-unity-font-definition` on :root and resolveFont (S3 checks that it was
+ * called), so a reference space measured in Inter is the space the Label draws (review of PR #22).
  *
  * Deps/Effects: UXML_TEXT_CHROMIUM, UXML_TEXT_FONTS (Inter-Regular.ttf); bundles src/ with Vite in memory.
  * Exits 1 when it cannot run or any row fails.
@@ -68,8 +74,10 @@ await page.evaluate(async (font) => {
       const host = document.createElement('div');
       document.body.append(host);
       const core = globalThis.UxmlCore;
-      const doc = core.parse(`<ui:UXML xmlns:ui="UnityEngine.UIElements">${body}</ui:UXML>`, uss);
-      const r = core.render(doc, host, { theme, size: { width: 800, height: 600 }, resolveFont: () => ({ family: font.family, faceInfo: font.face }) });
+      let fontCalls = 0;
+      const r = core.render(core.parse(`<ui:UXML xmlns:ui="UnityEngine.UIElements">${body}</ui:UXML>`,
+        `:root { -unity-font-definition: url("project://database/Assets/Fonts/Inter-Regular.ttf"); } ${uss}`), host,
+        { theme, size: { width: 800, height: 600 }, resolveFont: () => { fontCalls++; return { family: font.family, faceInfo: font.face }; } });
       let node = null;
       const walk = (n) => {
         if (n.attributes.some((a) => a.name === 'name' && a.value === name)) node = n;
@@ -84,17 +92,21 @@ await page.evaluate(async (font) => {
         if (textEl === null && n.textContent === text) textEl = n;
       };
       visit(el);
-      textEl ??= el;
+      // null: the named element is the text host (a Label). Otherwise the text must be found.
+      if (text === null) textEl = el;
+      if (textEl === null) { r.dispose(); return { found: false, fontCalls }; }
+      const box = r.boxes.get(node.id);
       const cs = getComputedStyle(textEl);
       const rect = textEl.getBoundingClientRect();
       const left = rect.left + parseFloat(cs.borderLeftWidth) + parseFloat(cs.paddingLeft);
       const right = rect.right - parseFloat(cs.borderRightWidth) - parseFloat(cs.paddingRight);
       // Ink: the client rects of the non-space characters.
-      const ink = { left: Infinity, right: -Infinity };
+      const ink = { left: Infinity, right: -Infinity, top: Infinity, bottom: -Infinity };
+      const rows = [];
       const nodes = document.createTreeWalker(textEl, NodeFilter.SHOW_TEXT);
       for (let t = nodes.nextNode(); t; t = nodes.nextNode()) {
         for (let i = 0; i < t.data.length; i++) {
-          if (t.data[i] === ' ') continue;
+          if (t.data[i] === ' ' || t.data[i] === '\t') continue;
           const range = document.createRange();
           range.setStart(t, i);
           range.setEnd(t, i + 1);
@@ -102,11 +114,20 @@ await page.evaluate(async (font) => {
             if (q.width === 0) continue;
             ink.left = Math.min(ink.left, q.left);
             ink.right = Math.max(ink.right, q.right);
+            ink.top = Math.min(ink.top, q.top);
+            ink.bottom = Math.max(ink.bottom, q.bottom);
+            const c = (q.top + q.bottom) / 2;
+            if (!rows.some((y) => Math.abs(y - c) < q.height / 2)) rows.push(c);
           }
         }
       }
+      const top = rect.top + parseFloat(cs.borderTopWidth) + parseFloat(cs.paddingTop);
+      const bottom = rect.bottom - parseFloat(cs.borderBottomWidth) - parseFloat(cs.paddingBottom);
       r.dispose();
-      return { left, right, content: right - left, inkLeft: ink.left, inkRight: ink.right };
+      return { found: true, fontCalls, left, right, top, bottom, content: right - left, inkLeft: ink.left, inkRight: ink.right,
+        inkTop: ink.top, inkBottom: ink.bottom, paintedLines: rows.length, boxH: box.height,
+        // Measured line count: the Standard text height (textHeight) that equals the laid-out height.
+        measuredLines: [1, 2, 3, 4].find((n) => Math.abs(core.textHeight(n, 14, font.face, 0, 0, 'standard') - box.height) < 0.5) ?? 0 };
     },
     space(px) {
       const c = document.createElement('canvas').getContext('2d');
@@ -129,8 +150,8 @@ const f = (n) => n.toFixed(2);
 // ---------------------------------------------------------------- S1
 for (const ws of ['nowrap', 'normal']) {
   const style = `white-space: ${ws};`;
-  const runs = await measure(label('l', 'a     b     c', style), '', 'runtime', 'l', 'a     b     c');
-  const plain = await measure(label('l', 'a b c', style), '', 'runtime', 'l', 'a b c');
+  const runs = await measure(label('l', 'a     b     c', style), '', 'runtime', 'l', null);
+  const plain = await measure(label('l', 'a b c', style), '', 'runtime', 'l', null);
   const sp = await space(14);
   check('S1', `runtime Label runs (${ws}): painted = box`, Math.abs((runs.inkRight - runs.inkLeft) - runs.content) <= 1,
     `ink ${f(runs.inkRight - runs.inkLeft)}, box ${f(runs.content)}`);
@@ -140,8 +161,8 @@ for (const ws of ['nowrap', 'normal']) {
 
 // ---------------------------------------------------------------- S2
 {
-  const runs = await measure(label('l', 'a     b     c'), '', 'editor', 'l', 'a     b     c');
-  const plain = await measure(label('l', 'a b c'), '', 'editor', 'l', 'a b c');
+  const runs = await measure(label('l', 'a     b     c'), '', 'editor', 'l', null);
+  const plain = await measure(label('l', 'a b c'), '', 'editor', 'l', null);
   check('S2', 'editor Label runs: collapsed', Math.abs(runs.content - plain.content) <= 0.5, `${f(runs.content)} vs "a b c" ${f(plain.content)}`);
   check('S2', 'editor Label runs: painted = box', Math.abs((runs.inkRight - runs.inkLeft) - runs.content) <= 1,
     `ink ${f(runs.inkRight - runs.inkLeft)}, box ${f(runs.content)}`);
@@ -149,8 +170,9 @@ for (const ws of ['nowrap', 'normal']) {
 
 // ---------------------------------------------------------------- S3
 {
-  const lead = await measure(label('l', '     lead'), '', 'runtime', 'l', '     lead');
+  const lead = await measure(label('l', '     lead'), '', 'runtime', 'l', null);
   const sp = await space(14);
+  check('S3', 'runtime Label is drawn in Inter (resolveFont called)', lead.fontCalls > 0, `resolveFont calls ${lead.fontCalls}`);
   check('S3', 'runtime Label leading spaces: painted after them', lead.inkLeft >= lead.left + 5 * sp - 1,
     `ink left ${f(lead.inkLeft - lead.left)} from the content left, five spaces ${f(5 * sp)}`);
   check('S3', 'runtime Label leading spaces: ink inside the box', lead.inkRight <= lead.right + 1,
@@ -160,7 +182,7 @@ for (const ws of ['nowrap', 'normal']) {
 // ---------------------------------------------------------------- S4
 {
   const style = 'width: 160px; -unity-text-align: middle-center;';
-  const t = await measure(label('l', 'trail     ', style), '', 'runtime', 'l', 'trail     ');
+  const t = await measure(label('l', 'trail     ', style), '', 'runtime', 'l', null);
   const inkCentre = (t.inkLeft + t.inkRight) / 2;
   const boxCentre = (t.left + t.right) / 2;
   check('S4', 'runtime Label trailing spaces: centred ink', Math.abs(inkCentre - boxCentre) <= 1,
@@ -173,8 +195,21 @@ for (const theme of ['runtime', 'editor']) {
   const body = '<ui:VisualElement style="align-items: flex-start;"><ui:TextField name="t" value="trail     " /></ui:VisualElement>';
   const t = await measure(body, '', theme, 't', 'trail     ');
   const sp = await space(px);
-  check('S5', `${theme} TextField trailing spaces: counted`, t.content >= (t.inkRight - t.inkLeft) + 5 * sp - 1,
+  check('S5', `${theme} TextField trailing spaces: the inner text is found`, t.found, t.found ? 'found' : 'no element holds the value');
+  check('S5', `${theme} TextField trailing spaces: counted`, t.found && t.content >= (t.inkRight - t.inkLeft) + 5 * sp - 1,
     `inner text box ${f(t.content)}, ink of "trail" ${f(t.inkRight - t.inkLeft)} + five spaces ${f(5 * sp)}`);
+}
+
+// ---------------------------------------------------------------- S6
+// Review of PR #22 (P2): a tab. Unity's tab rendering is unmeasured (docs/backlog.md 0.9); the preview measures a
+// tab with the canvas, which reads it as a space, and painting must agree with that measurement (as on main).
+for (const ws of ['nowrap', 'normal']) {
+  const t = await measure(label('l', 'x&#9;y', `white-space: ${ws}; padding: 0;`), '', 'runtime', 'l', null);
+  check('S6', `runtime Label tab (${ws}): ink inside the box`,
+    t.inkLeft >= t.left - 1 && t.inkRight <= t.right + 1 && t.inkTop >= t.top - 1 && t.inkBottom <= t.bottom + 1,
+    `ink ${f(t.inkLeft - t.left)}–${f(t.inkRight - t.left)} x ${f(t.inkTop - t.top)}–${f(t.inkBottom - t.top)}, box ${f(t.content)} x ${f(t.bottom - t.top)}`);
+  check('S6', `runtime Label tab (${ws}): painted lines = measured lines`, t.paintedLines === t.measuredLines && t.measuredLines > 0,
+    `painted ${t.paintedLines}, measured ${t.measuredLines}`);
 }
 
 await browser.close();
