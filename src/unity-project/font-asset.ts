@@ -1,77 +1,80 @@
-export interface FontAssetFaceInfo {
-  readonly pointSize: number;
-  readonly ascentLine: number;
-  readonly descentLine: number;
-  readonly lineHeight?: number;
-}
+import type { FontAssetNotRead, FontAssetResult, KnownFontAssetFormat } from './index';
 
-export type FontAssetReadResult =
-  | {
-      readonly kind: 'font-asset';
-      readonly sourceFontGuid: string | null;
-      readonly faceInfo?: FontAssetFaceInfo;
-    }
-  | { readonly kind: 'unrecognized'; readonly reason: string };
+const SCRIPT = /^\{fileID: (-?\d+), guid: ([0-9a-f]{32}), type: (-?\d+)\}$/;
+const NUMBER = /^[+-]?(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?$/;
 
-const FACE_INFO_HEADER = /^ {2}m_FaceInfo:\s*$/m;
-const FACE_INFO_FIELD = /^ {4}(m_PointSize|m_AscentLine|m_DescentLine|m_LineHeight):\s*([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?)\s*$/gm;
-const SOURCE_GUID = /^ {2}m_SourceFontFileGUID:\s*([0-9a-f]{32})\s*$/gim;
-const SOURCE_REFERENCE = /^ {2}m_SourceFontFile:\s*\{[^}]*\bguid:\s*([0-9a-f]{32})/gim;
-const TEXTCORE_SCRIPT = /^ {2}m_Script:\s*\{fileID:\s*19001,\s*guid:\s*0000000000000000e000000000000000,\s*type:\s*0\}\s*$/m;
-const TEXTCORE_VERSION = /^ {2}m_Version:\s*1\.1\.0\s*$/m;
-
-function faceInfoBlock(source: string): string | null {
-  const header = FACE_INFO_HEADER.exec(source);
-  if (header === null) return null;
-  const start = header.index + header[0].length;
-  const lines = source.slice(start).split(/\r?\n/);
-  const block: string[] = [];
+function fields(lines: readonly string[], indent: number): Map<string, string> {
+  const pattern = new RegExp(`^ {${indent}}([^\\s:]+):(?: (.*))?$`);
+  const values = new Map<string, string>();
   for (const line of lines) {
-    if (line.trim() === '') {
-      block.push(line);
-      continue;
+    const match = pattern.exec(line);
+    if (match && !values.has(match[1]!)) values.set(match[1]!, match[2] ?? '');
+  }
+  return values;
+}
+
+function faceInfoBlock(lines: readonly string[]): readonly string[] | null {
+  const start = lines.findIndex(line => /^ {2}m_FaceInfo:(?: |$)/.test(line));
+  if (start < 0 || lines[start] !== '  m_FaceInfo:') return null;
+  let end = start + 1;
+  while (end < lines.length && lines[end]!.startsWith('    ')) end++;
+  return lines.slice(start + 1, end);
+}
+
+/**
+ * Purpose: implement the C1-C9 contract on readFontAsset in index.ts.
+ */
+export function readFontAssetText(text: string, formats: readonly KnownFontAssetFormat[]): FontAssetResult {
+  const documents: string[][] = [];
+  let document: string[] | undefined;
+  for (const line of text.replace(/\r\n/g, '\n').split('\n')) {
+    if (line.startsWith('--- ')) {
+      document = line.startsWith('--- !u!114 ') ? [] : undefined;
+      if (document) documents.push(document);
+    } else {
+      document?.push(line);
     }
-    if (!line.startsWith('    ')) break;
-    block.push(line);
-  }
-  return block.join('\n');
-}
-
-function firstGuid(pattern: RegExp, source: string): string | null {
-  pattern.lastIndex = 0;
-  return pattern.exec(source)?.[1] ?? null;
-}
-
-export function readFontAsset(source: string): FontAssetReadResult {
-  if (!TEXTCORE_SCRIPT.test(source)) {
-    return { kind: 'unrecognized', reason: 'm_Script is not a TextCore FontAsset script' };
-  }
-  if (!TEXTCORE_VERSION.test(source)) {
-    return { kind: 'unrecognized', reason: 'm_Version is not a supported TextCore FontAsset version' };
   }
 
-  const sourceFontGuid = firstGuid(SOURCE_GUID, source) ?? firstGuid(SOURCE_REFERENCE, source);
-  const block = faceInfoBlock(source);
-  if (block === null) {
-    return { kind: 'font-asset', sourceFontGuid };
+  let candidate: readonly string[] | undefined;
+  let rows: readonly KnownFontAssetFormat[] = [];
+  let values = fields(documents[0] ?? [], 2);
+  for (const doc of documents) {
+    const docValues = fields(doc, 2);
+    const script = SCRIPT.exec(docValues.get('m_Script') ?? '');
+    if (!script) continue;
+    rows = formats.filter(row => row.scriptFileId === Number(script[1]) && row.scriptGuid === script[2]);
+    if (rows.length === 0) continue;
+    candidate = doc;
+    values = docValues;
+    break;
   }
 
-  const values = new Map<string, number>();
-  FACE_INFO_FIELD.lastIndex = 0;
-  for (const match of block.matchAll(FACE_INFO_FIELD)) {
-    values.set(match[1]!, Math.fround(Number(match[2]!)));
-  }
+  const seen: FontAssetNotRead['seen'] = {};
+  if (values.has('m_Script')) seen.script = values.get('m_Script')!;
+  if (values.has('m_Version')) seen.version = values.get('m_Version')!;
+  if (!candidate) return { unrecognized: 'not-a-font-asset', seen };
+  const format = rows.find(row => row.version === values.get('m_Version'));
+  if (!format) return { unrecognized: 'unknown-format', seen };
 
-  const pointSize = values.get('m_PointSize');
-  const ascentLine = values.get('m_AscentLine');
-  const descentLine = values.get('m_DescentLine');
-  if (pointSize === undefined || ascentLine === undefined || descentLine === undefined) {
-    return { kind: 'font-asset', sourceFontGuid };
+  const block = faceInfoBlock(candidate);
+  if (block === null) return { unrecognized: 'malformed', seen };
+  const faceValues = fields(block, 4);
+  const numbers: number[] = [];
+  for (const key of ['m_PointSize', 'm_AscentLine', 'm_DescentLine', 'm_LineHeight']) {
+    const value = faceValues.get(key);
+    if (value === undefined || !NUMBER.test(value)) return { unrecognized: 'malformed', seen };
+    const number = Math.fround(Number(value));
+    if (!Number.isFinite(number)) return { unrecognized: 'malformed', seen };
+    numbers.push(number);
   }
-  const lineHeight = values.get('m_LineHeight');
+  const sourceFontGuid = values.get('m_SourceFontFileGUID') || null;
+  if (sourceFontGuid !== null && !/^[0-9a-fA-F]{32}$/.test(sourceFontGuid)) {
+    return { unrecognized: 'malformed', seen };
+  }
   return {
-    kind: 'font-asset',
+    format: { scriptFileId: format.scriptFileId, scriptGuid: format.scriptGuid, version: format.version },
     sourceFontGuid,
-    faceInfo: { pointSize, ascentLine, descentLine, ...(lineHeight === undefined ? {} : { lineHeight }) },
+    faceInfo: { pointSize: numbers[0]!, ascentLine: numbers[1]!, descentLine: numbers[2]!, lineHeight: numbers[3]! },
   };
 }

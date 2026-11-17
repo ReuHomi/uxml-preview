@@ -6,6 +6,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { FaceInfo } from '../render/measure';
+import { readFontAssetText } from './font-asset';
 
 export interface GuidIndex {
   /** Absolute path of the asset with this GUID, or null. */
@@ -54,8 +55,7 @@ async function scan(dir: string, map: Map<string, string>): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
-// Font asset reader (0.8.0). Contract and table only; the reader is not
-// written yet. Fixtures: tests/unity-project/font-assets/. Pinned tests:
+// Font asset reader (0.8.0). Fixtures: tests/unity-project/font-assets/. Pinned tests:
 // tests/unity-project/font-asset-*.test.ts.
 
 export type { FaceInfo };
@@ -150,10 +150,11 @@ export const KNOWN_FONT_ASSET_FORMATS: readonly KnownFontAssetFormat[] = [
  * m_SourceFontFileGUID, a missing m_LineHeight. These rules fix one result for them;
  * Unity has not been shown to write such files.
  *
- * Not implemented yet. The pinned tests describe the behavior.
+ * Implementation: src/unity-project/font-asset.ts (from PR #21).
  */
-export { readFontAsset } from './font-asset';
-export type { FontAssetFaceInfo, FontAssetReadResult } from './font-asset';
+export function readFontAsset(text: string): FontAssetResult {
+  return readFontAssetText(text, KNOWN_FONT_ASSET_FORMATS);
+}
 
 async function readGuid(metaPath: string): Promise<string | null> {
   let text: string;
