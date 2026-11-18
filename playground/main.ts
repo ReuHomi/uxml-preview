@@ -12,7 +12,7 @@
 
 import { loadLayoutEngine, parse, render, serialize } from '../src/index';
 import type { RenderResult, Warning } from '../src/index';
-import { EXAMPLES, resolveAsset, resolveExampleImport } from './examples';
+import { EXAMPLES, resolveAsset, resolveExampleFont, resolveExampleImport } from './examples';
 import { fitPanel } from './fit';
 import { describeWarning } from './warnings';
 
@@ -160,7 +160,7 @@ function update(): void {
         ? undefined
         : { resolveImport: (url, from) => resolveExampleImport(files, url, from) },
     );
-    result = render(doc, panelEl, { size: panel, resolveAsset });
+    result = render(doc, panelEl, { size: panel, resolveAsset, resolveFont: (path) => resolveExampleFont(activeFiles, path) });
     panelEl.dataset.theme = result.theme;
     showWarnings([...doc.warnings, ...result.warnings]);
 

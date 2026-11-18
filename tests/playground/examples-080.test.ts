@@ -52,7 +52,7 @@ const box = (r: RenderResult, name: string) => {
     if (n.attributes.some((a) => a.name === 'name' && a.value === name)) id = n.id;
     (n.children as (typeof n)[]).forEach(walk);
   };
-  walk(r.document.root as never);
+  walk(r.document!.root as never);
   expect(id, `element #${name}`).toBeDefined();
   return r.boxes.get(id as never)!;
 };
@@ -107,7 +107,7 @@ describe('New in 0.8.0: line height from a Unity font asset', () => {
         if (n.attributes.some((a) => a.name === 'name' && a.value === 'with-asset')) assetId = n.id;
         (n.children as (typeof n)[]).forEach(walk);
       };
-      walk(r.document.root as never);
+      walk(r.document!.root as never);
       expect(ids.has(assetId as never)).toBe(false);
       expect(r.warnings.filter((w) => w.subject?.kind === 'asset' && (w.subject as { role?: string }).role === 'font')).toEqual([]);
     } finally {

@@ -6,7 +6,8 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { FaceInfo } from '../render/measure';
-import { readFontAssetText } from './font-asset';
+import { KNOWN_FONT_ASSET_FORMATS, readFontAssetText } from './font-asset';
+export { KNOWN_FONT_ASSET_FORMATS } from './font-asset';
 
 export interface GuidIndex {
   /** Absolute path of the asset with this GUID, or null. */
@@ -90,21 +91,6 @@ export interface FontAssetNotRead {
 }
 
 export type FontAssetResult = FontAssetRead | FontAssetNotRead;
-
-/**
- * Font asset formats that a fixture proves. A row is added only with a fixture
- * measured on that Unity version (tests/unity-project/font-assets/README.md).
- * The TextMeshPro asset (`TMP_FontAsset`) has the same m_Version and a different
- * m_Script, so it is not a row.
- */
-export const KNOWN_FONT_ASSET_FORMATS: readonly KnownFontAssetFormat[] = [
-  {
-    scriptFileId: 19001,
-    scriptGuid: '0000000000000000e000000000000000',
-    version: '1.1.0',
-    measuredOn: ['6000.0.40f1', '6000.3.25f1'],
-  },
-];
 
 /**
  * Purpose:      read the faceInfo of a Unity Text Core font asset (.asset YAML text)
