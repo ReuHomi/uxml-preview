@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * Playground examples.
  *
@@ -6,6 +8,9 @@
  * one render live is worth more than a paragraph explaining it.
  */
 
+import type { FaceInfo } from '../src/render/measure';
+import { KNOWN_FONT_ASSET_FORMATS, readFontAssetText } from '../src/unity-project/font-asset';
+import notoFont from '../tests/unity-project/font-assets/6000.3.25f1/noto-sans-kr/NotoSansKR[wght] SDF.asset?raw';
 import { CASES, PANEL } from '../tests/golden/cases';
 
 export interface Example {
@@ -26,6 +31,17 @@ export function resolveExampleImport(
     if (relative !== undefined) return relative;
   }
   return files[url] ?? null;
+}
+
+/**
+ * Purpose: resolve bundled Unity font metrics without importing the Node entry point.
+ * Ensures: unrecognized or missing assets leave font resolution to the renderer.
+ */
+export function resolveExampleFont(files: Readonly<Record<string, string>> | undefined, path: string): { family: string; faceInfo: FaceInfo } | null {
+  const entry = Object.entries(files ?? {}).find(([key]) => key.endsWith('.asset') && path.endsWith(key));
+  if (entry === undefined) return null;
+  const result = readFontAssetText(entry[1], KNOWN_FONT_ASSET_FORMATS);
+  return 'faceInfo' in result ? { family: 'sans-serif', faceInfo: result.faceInfo } : null;
 }
 
 /**
@@ -61,6 +77,70 @@ export function resolveAsset(path: string): string | null {
 const inventory = CASES.find((c) => c.name === 'inventory')!;
 
 export const EXAMPLES: Example[] = [
+  {
+    name: 'New in 0.8.0: spaces follow the text generator',
+    panel: { width: 640, height: 360 },
+    uxml: `<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <!--
+    Unity runtime Label keeps runs: 64 vs 33 at 14px (r15-label-spaces).
+    Advanced, the 6.3 editor default, collapses them: 28 vs 28.
+    Standard keeps leading spaces and drops trailing ones (r8-trail).
+    At a wrap spaces count only if the next glyph fits: "alpha     beta"
+    in a 60px box is 39 wide in Unity (r8-wrap).
+  -->
+  <ui:VisualElement class="demo">
+    <ui:Label text="Standard: spaces stay" class="title" />
+    <ui:Label name="runs" text="a     b     c" />
+    <ui:Label name="plain" text="a b c" />
+    <ui:Label text="    leading spaces" />
+    <ui:Label text="alpha     beta" class="wrap" />
+    <ui:Label text="Advanced: spaces collapse" class="title" />
+    <ui:Label name="adv-runs" text="a     b     c" class="advanced" />
+    <ui:Label name="adv-plain" text="a b c" class="advanced" />
+  </ui:VisualElement>
+</ui:UXML>
+`,
+    uss: `.demo { padding: 20px; align-items: flex-start; background-color: rgb(31, 34, 42); }
+Label { color: rgb(232, 235, 242); font-size: 14px; }
+.title { margin-top: 8px; color: rgb(130, 190, 245); -unity-font-style: bold; }
+.wrap { width: 60px; white-space: normal; }
+.advanced { -unity-text-generator: advanced; }
+`,
+  },
+  {
+    name: 'New in 0.8.0: line height from a Unity font asset',
+    panel: { width: 640, height: 360 },
+    files: { 'Assets/Fonts/NotoSansKR SDF.asset': notoFont },
+    uxml: `<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <!--
+    This is the font asset Unity 6000.3.25f1 wrote for Noto Sans KR.
+    The playground reads it with readFontAsset (uxml-preview/unity-project)
+    and hands its FaceInfo (ascent 104.4, descent -25.92, line height 130.32
+    at 90) to resolveFont. Line heights follow Unity's formula for that font
+    without Unity. Glyphs are the browser's; the font file is not shipped.
+  -->
+  <ui:VisualElement class="demo">
+    <ui:VisualElement class="column">
+      <ui:Label text="Unity default font" class="title" />
+      <ui:Label name="default-font" class="sample" text="안녕하세요&#10;반갑습니다&#10;좋은 하루 되세요" />
+    </ui:VisualElement>
+    <ui:VisualElement class="column">
+      <ui:Label text="Noto Sans KR font asset" class="title" />
+      <ui:Label name="with-asset" class="sample asset-font" text="안녕하세요&#10;반갑습니다&#10;좋은 하루 되세요" />
+    </ui:VisualElement>
+  </ui:VisualElement>
+</ui:UXML>
+`,
+    uss: `.demo { flex-direction: row; align-items: flex-start; padding: 20px; background-color: rgb(31, 34, 42); }
+.column { margin-right: 24px; }
+Label { color: rgb(232, 235, 242); font-size: 20px; }
+.title { margin-bottom: 6px; color: rgb(130, 190, 245); font-size: 14px; }
+/* The box is the measured height: the asset's lines advance 29px at 20px, the default font's 24px. */
+.sample { background-color: rgb(48, 54, 68); }
+.asset-font { -unity-font-definition: url("project://database/Assets/Fonts/NotoSansKR SDF.asset"); }
+`,
+  },
+
   {
     name: 'Templates: reusable parts and a caught override typo',
     panel: { width: 640, height: 360 },
@@ -268,7 +348,7 @@ Label { color: rgb(240, 242, 248); }
   },
 
   {
-    name: 'Trap: flex-direction defaults to column',
+    name: 'Traps: column by default, no z-index',
     panel: { width: 640, height: 360 },
     uxml: `<ui:UXML xmlns:ui="UnityEngine.UIElements">
   <!--
@@ -282,6 +362,9 @@ Label { color: rgb(240, 242, 248); }
     <ui:Button text="Edit" class="tab" />
     <ui:Button text="View" class="tab" />
   </ui:VisualElement>
+  <!-- USS has no z-index: later siblings draw on top. Swap these cards to change the overlap. -->
+  <ui:VisualElement class="card card--back" />
+  <ui:VisualElement class="card card--front" />
 </ui:UXML>
 `,
     uss: `.toolbar {
@@ -297,22 +380,8 @@ Label { color: rgb(240, 242, 248); }
   color: rgb(220, 222, 228);
   border-radius: 3px;
 }
-`,
-  },
 
-  {
-    name: 'Trap: overlap has no z-index',
-    panel: { width: 640, height: 360 },
-    uxml: `<ui:UXML xmlns:ui="UnityEngine.UIElements">
-  <!--
-    USS has no z-index. Whichever element comes later in the markup
-    is drawn on top. Swap these two lines to swap the stacking.
-  -->
-  <ui:VisualElement class="card card--back" />
-  <ui:VisualElement class="card card--front" />
-</ui:UXML>
-`,
-    uss: `.card {
+.card {
   position: absolute;
   width: 200px;
   height: 140px;

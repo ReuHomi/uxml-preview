@@ -4,6 +4,8 @@
 
 ## 현재 위치
 
+**0.8.0 문서·놀이터·홍보 GIF (2026-11-18, 같은 브랜치, 푸시, 머지 안 함).** README 네 언어에 0.8.0 줄·`readFontAsset` 예시·새 GIF 경로, supported·accuracy·uss-vs-css(영·한)·CONTRIBUTING 갱신(accuracy의 `tf-trail` 미리보기 42 → Inter로 다시 재 43). 놀이터 첫 두 예제를 0.8.0으로(공백·생성기, Unity 글꼴 에셋으로 줄 높이 — 픽스처를 `?raw`로 싣고 `readFontAsset`으로 resolveFont), 함정 예제 둘을 하나로. `KNOWN_FONT_ASSET_FORMATS`를 Node 의존이 없는 `font-asset.ts`로 옮기고 index에서 다시 내보냄. 홍보 GIF `docs/media/promo-0.8.0.gif`(EffectCraft, `Documents/uxml-preview-promo-0.8.0`) — 0.7.0 연출 유지, 0.8.0 라이브러리로 조각을 다시 찍음(현재 Chrome에서 글 폭 1~3px 차이), 버전 표기·끝 카드("reads Unity font assets"). `playground.png` 새로 찍음. `promo-0.7.0.gif`는 지난 릴리스 노트가 가리킬 수 있어 남김.
+
 **0.8.0 measure-real 마감 (2026-11-18 밤, 같은 브랜치, 푸시, 머지 안 함).** 사람 결정(방법 1): "상자 안에 그림"은 잉크만 잰다 — 공백(줄 끝에 걸린 것 포함)은 잉크가 아니다. 허용치 1px 그대로. `pnpm test:text` 통과(run 표 변화 없음, paint 39/39, paint-r15 52/52, paint-spaces 18/18, measure-spaces 39/39, measure-real 92/92), `vitest` 1612 통과 · 1 건너뜀, build 통과. 변이: 공백 다시 셈 → ko100·te10 실패. ko100 상자 3px 좁힘은 실패하지 않음(잉크 여유 2.4·3.0px, 허용 1px 안), 4px에서 실패.
 
 **0.8.0 독립 검토 반영 (2026-11-18 저녁, 같은 브랜치, 푸시, 머지 안 함).** 리더: LF에서만 줄이 끝난다(U+2028·U+2029·홀로 있는 CR은 값), Unity 형태만 받는 명확화 넷. 탭 회귀(Standard를 CSS pre로 그려 탭 정지가 상자 밖으로) → 탭은 공백 하나로 그림. `paint-spaces` S3(Unity 글꼴 아님)·S5(못 찾으면 바깥 필드) 결함 수정. `measure-real` `KNOWN_R1W`에서 `ko100`·`te10` 뺌(사람 승인). 그 둘의 "상자 안에 그림" 1.1·1.4px는 글자가 아니라 줄 끝에 걸린 공백이라 멈추고 보고 — 사람 결정 대기. 검토의 TextField 1px 차이는 Inter로 재현 안 됨.

@@ -5,7 +5,7 @@
 **Unity UI Toolkit の UXML/USS を、Unity エディタなしでブラウザ上に描画します。レイアウトには
 UI Toolkit 自身が使用する Yoga エンジンを採用し、描画結果は実際の Unity と突き合わせて検証しています。**
 
-![uxml-preview 0.7.0：左に UXML・USS で書いた設定画面、右にブラウザで描画した結果](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/promo-0.7.0.gif)
+![uxml-preview 0.8.0：左に UXML・USS で書いた設定画面、右にブラウザで描画した結果](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/promo-0.8.0.gif)
 
 [![プレイグラウンド画面：上部にプレビュー画面、下部に各警告の理由と Unity 側の実際の挙動を表示](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/playground.png)](https://reuhomi.github.io/uxml-preview/)
 
@@ -17,6 +17,8 @@ UI Toolkit 自身が使用する Yoga エンジンを採用し、描画結果は
 [![CI](https://github.com/ReuHomi/uxml-preview/actions/workflows/ci.yml/badge.svg)](https://github.com/ReuHomi/uxml-preview/actions/workflows/ci.yml)
 [![Pages](https://github.com/ReuHomi/uxml-preview/actions/workflows/pages.yml/badge.svg)](https://github.com/ReuHomi/uxml-preview/actions/workflows/pages.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/ReuHomi/uxml-preview/blob/main/LICENSE)
+
+**0.8.0 の新機能：** プロジェクトのフォントアセットから Unity の行の高さの情報を直接読み取ります — `readFontAsset` が Text Core の `.asset` ファイルを Unity なしで読み込みます。また、スペースが Unity のテキストジェネレーターに従うようになりました（ランタイムパネルの Label は Unity と同じく連続したスペースを保持します）。[変更履歴 →](https://github.com/ReuHomi/uxml-preview/blob/main/CHANGELOG.md)（英語）
 
 ## 検証方法
 
@@ -62,12 +64,25 @@ view.dispose();                           // Yoga ノードはガベージコレ
 const { uxml, uss } = serialize(doc);     // 未編集なら入力とバイト単位で一致
 ```
 
+Node では `uxml-preview/unity-project` エントリが Unity のファイルを読み取ります。Text Core のフォントアセットから
+そのフォントの FaceInfo、つまり Unity の行の高さが得られます（0.8.0）。
+
+```ts
+import { readFile } from 'node:fs/promises';
+import { readFontAsset } from 'uxml-preview/unity-project';
+
+const asset = readFontAsset(await readFile('Assets/Fonts/Inter-Regular SDF.asset', 'utf8'));
+// { format, sourceFontGuid, faceInfo } または { unrecognized, seen } — 例外は投げない
+const font = 'faceInfo' in asset ? { family: 'Inter', faceInfo: asset.faceInfo } : null;
+render(doc, container, { size, resolveFont: () => font });
+```
+
 ## ドキュメント
 
 - [USS は CSS ではない](https://github.com/ReuHomi/uxml-preview/blob/main/docs/uss-vs-css.md)（英語） — CSS から移植したスタイルシートが意図通りにならない違いを実例付きで解説
 - [サポート範囲](https://github.com/ReuHomi/uxml-preview/blob/main/docs/supported.en.md)（英語） — コントロール、プロパティ、ステート、バージョン、およびそれぞれの検証範囲
 - [精度](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md)（英語） — すべての数値、測定方法、既知の差異一覧
-- [API](https://github.com/ReuHomi/uxml-preview/blob/main/docs/api.en.md)（英語） — `parse`、`render`、`serialize`、各種フック、警告、`classifyVisibility`
+- [API](https://github.com/ReuHomi/uxml-preview/blob/main/docs/api.en.md)（英語） — `parse`、`render`、`serialize`、各種フック、警告、`classifyVisibility`、Unity フォントアセットを読む `readFontAsset`
 - [変更履歴](https://github.com/ReuHomi/uxml-preview/blob/main/CHANGELOG.md)（英語）
 - [目視比較](https://github.com/ReuHomi/uxml-preview/blob/main/docs/visual-check.md)（韓国語） — 色や質感を Unity と並べて比較した単発の検証記録（2026-08）
 

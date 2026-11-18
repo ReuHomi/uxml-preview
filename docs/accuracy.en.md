@@ -337,9 +337,15 @@ version — the 6.3 editor (Advanced) collapses (`r15-label-spaces`, 28 against 
 panel, both versions, and the 6000.0 editor) keeps them (64 against 33, 55 against 28). TextField trailing
 spaces are measured too (`r15-tf-spaces`). **0.8.0, now:** the preview follows the generator — Standard keeps runs and leading
 spaces and drops trailing spaces, Advanced collapses. A TextField's text box counts trailing spaces on both generators, as Unity's
-does (`trail     ` 49 and 43; the preview with Inter, 49 and 42). A runtime Label's `a     b     c` is 64 wide in Unity and 63.78 with
+does (`trail     ` 49 and 43; the preview too, 49 and 43, re-measured 2026-11-18 with Inter passed through `-unity-font-definition`). A runtime Label's `a     b     c` is 64 wide in Unity and 63.78 with
 the preview's measurer (Inter, Unity's FaceInfo; 32.28 before). No text in the published figures (golden, cohort) has a run of
 spaces, so they are unaffected (`docs/backlog.md` item 3).
+Trailing spaces and a break inside a run of spaces are measured on their own (`r8-trail`, `r8-wrap`, both versions and themes,
+each probe alone): Standard drops a Label's trailing spaces, and after a line break the spaces count toward the width only when
+the next glyph fits too (runtime `alpha     beta` in a 60px box: 39; the preview before 0.8.0 gave 51). The preview's boxes equal
+Unity's in all 39 rows: 13 Labels in three dumps, runtime on both versions and editor on 6.3 (`tests/text-cohort/measure-spaces.mjs`). The same rule
+brings `measure-real`'s two known runtime differences, `ko100` (83) and `te10` (77), to Unity's widths. Tabs are not measured:
+the preview reads a tab as the canvas does, as one space.
 
 A font without FaceInfo (only a web font was given) falls back to the canvas's ascent and descent.
 How those differ from FaceInfo:

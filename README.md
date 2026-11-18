@@ -5,7 +5,7 @@
 **Render Unity UI Toolkit UXML/USS in a browser, without the Unity Editor — laid
 out by Yoga, the engine UI Toolkit itself uses, and measured against Unity.**
 
-![uxml-preview 0.7.0: a settings screen written in UXML and USS on the left, drawn in the browser on the right](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/promo-0.7.0.gif)
+![uxml-preview 0.8.0: a settings screen written in UXML and USS on the left, drawn in the browser on the right](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/promo-0.8.0.gif)
 
 [![The playground: a screen, and under it each warning with its reason and what Unity does instead](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/playground.png)](https://reuhomi.github.io/uxml-preview/)
 
@@ -17,6 +17,8 @@ all runs in the page.
 [![CI](https://github.com/ReuHomi/uxml-preview/actions/workflows/ci.yml/badge.svg)](https://github.com/ReuHomi/uxml-preview/actions/workflows/ci.yml)
 [![Pages](https://github.com/ReuHomi/uxml-preview/actions/workflows/pages.yml/badge.svg)](https://github.com/ReuHomi/uxml-preview/actions/workflows/pages.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/ReuHomi/uxml-preview/blob/main/LICENSE)
+
+**New in 0.8.0:** Unity's line metrics straight from a project's font asset — `readFontAsset` reads a Text Core `.asset` file without Unity — and spaces that follow Unity's text generator (on the runtime panel a Label keeps a run of spaces, as Unity does). [Changelog →](https://github.com/ReuHomi/uxml-preview/blob/main/CHANGELOG.md)
 
 ## How it is verified
 
@@ -62,12 +64,25 @@ view.dispose();                           // Yoga nodes are not garbage collecte
 const { uxml, uss } = serialize(doc);     // unedited: byte-identical to the input
 ```
 
+In Node, the `uxml-preview/unity-project` entry reads Unity files. A Text Core font asset gives the
+font's FaceInfo, and with it Unity's line heights (0.8.0):
+
+```ts
+import { readFile } from 'node:fs/promises';
+import { readFontAsset } from 'uxml-preview/unity-project';
+
+const asset = readFontAsset(await readFile('Assets/Fonts/Inter-Regular SDF.asset', 'utf8'));
+// { format, sourceFontGuid, faceInfo } — or { unrecognized, seen }; it never throws
+const font = 'faceInfo' in asset ? { family: 'Inter', faceInfo: asset.faceInfo } : null;
+render(doc, container, { size, resolveFont: () => font });
+```
+
 ## Documentation
 
 - [USS is not CSS](https://github.com/ReuHomi/uxml-preview/blob/main/docs/uss-vs-css.md) — the differences that make a ported stylesheet come out wrong, each with an example
 - [Supported](https://github.com/ReuHomi/uxml-preview/blob/main/docs/supported.en.md) — controls, properties, states, versions, and how far each was checked
 - [Accuracy](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md) — every number, how it was measured, every known difference
-- [API](https://github.com/ReuHomi/uxml-preview/blob/main/docs/api.en.md) — `parse`, `render`, `serialize`, the hooks, warnings, `classifyVisibility`
+- [API](https://github.com/ReuHomi/uxml-preview/blob/main/docs/api.en.md) — `parse`, `render`, `serialize`, the hooks, warnings, `classifyVisibility`, and `readFontAsset` for Unity font assets
 - [Changelog](https://github.com/ReuHomi/uxml-preview/blob/main/CHANGELOG.md)
 - [Visual check](https://github.com/ReuHomi/uxml-preview/blob/main/docs/visual-check.md) — the one side-by-side comparison of colour and texture with Unity (2026-08, Korean)
 
