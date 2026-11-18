@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.8.0
+## 0.8.0 — 2026-11-18
 
 Reading Unity font assets, and spaces that follow the text generator.
 
