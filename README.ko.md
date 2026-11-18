@@ -5,7 +5,7 @@
 **Unity UI Toolkit의 UXML/USS를 Unity 에디터 없이 브라우저에서 그립니다. 배치는 UI Toolkit이
 쓰는 엔진인 Yoga가 하고, 결과는 Unity와 대조해 측정했습니다.**
 
-![uxml-preview 0.7.0: 왼쪽에 UXML·USS로 쓴 설정 화면, 오른쪽에 브라우저가 그린 결과](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/promo-0.7.0.gif)
+![uxml-preview 0.8.0: 왼쪽에 UXML·USS로 쓴 설정 화면, 오른쪽에 브라우저가 그린 결과](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/promo-0.8.0.gif)
 
 [![놀이터 화면: 위에는 화면, 아래에는 경고마다 이유와 Unity가 대신 하는 일](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/playground.png)](https://reuhomi.github.io/uxml-preview/)
 
@@ -17,6 +17,8 @@
 [![CI](https://github.com/ReuHomi/uxml-preview/actions/workflows/ci.yml/badge.svg)](https://github.com/ReuHomi/uxml-preview/actions/workflows/ci.yml)
 [![Pages](https://github.com/ReuHomi/uxml-preview/actions/workflows/pages.yml/badge.svg)](https://github.com/ReuHomi/uxml-preview/actions/workflows/pages.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/ReuHomi/uxml-preview/blob/main/LICENSE)
+
+**0.8.0 새 기능:** 프로젝트의 글꼴 에셋에서 Unity의 줄 높이 정보를 바로 읽습니다 — `readFontAsset`이 Text Core `.asset` 파일을 Unity 없이 읽습니다. 그리고 공백이 Unity의 텍스트 생성기를 따릅니다(런타임 패널의 Label은 Unity처럼 연속 공백을 남깁니다). [변경 기록 →](https://github.com/ReuHomi/uxml-preview/blob/main/CHANGELOG.md)
 
 ## 어떻게 확인했나
 
@@ -62,12 +64,25 @@ view.dispose();                           // Yoga 노드는 가비지 컬렉션�
 const { uxml, uss } = serialize(doc);     // 고치지 않았으면 입력과 바이트 단위로 같다
 ```
 
+Node에서는 `uxml-preview/unity-project` 엔트리가 Unity 파일을 읽습니다. Text Core 글꼴 에셋에서
+그 글꼴의 FaceInfo를, 그래서 Unity의 줄 높이를 얻습니다(0.8.0).
+
+```ts
+import { readFile } from 'node:fs/promises';
+import { readFontAsset } from 'uxml-preview/unity-project';
+
+const asset = readFontAsset(await readFile('Assets/Fonts/Inter-Regular SDF.asset', 'utf8'));
+// { format, sourceFontGuid, faceInfo } 또는 { unrecognized, seen } — 던지지 않는다
+const font = 'faceInfo' in asset ? { family: 'Inter', faceInfo: asset.faceInfo } : null;
+render(doc, container, { size, resolveFont: () => font });
+```
+
 ## 문서
 
 - [USS는 CSS가 아니다](https://github.com/ReuHomi/uxml-preview/blob/main/docs/uss-vs-css.ko.md) — 옮겨 온 스타일시트가 틀어지는 차이들, 예제와 함께
 - [지원 범위](https://github.com/ReuHomi/uxml-preview/blob/main/docs/supported.md) — 컨트롤·속성·상태·버전, 그리고 각각 어디까지 확인했는지
 - [정확도](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.md) — 모든 수치, 잰 방법, 알려진 차이 전부
-- [API](https://github.com/ReuHomi/uxml-preview/blob/main/docs/api.md) — `parse`, `render`, `serialize`, 훅, 경고, `classifyVisibility`
+- [API](https://github.com/ReuHomi/uxml-preview/blob/main/docs/api.md) — `parse`, `render`, `serialize`, 훅, 경고, `classifyVisibility`, Unity 글꼴 에셋을 읽는 `readFontAsset`
 - [변경 기록](https://github.com/ReuHomi/uxml-preview/blob/main/CHANGELOG.md) (영문)
 - [육안 대조](https://github.com/ReuHomi/uxml-preview/blob/main/docs/visual-check.md) — 색과 질감을 Unity와 나란히 놓고 본 1회 기록(2026-08)
 

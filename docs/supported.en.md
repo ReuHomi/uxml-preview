@@ -171,7 +171,9 @@ From 0.6.0 text boxes are measured by Unity's rules. All of it rests on Unity du
   measured (`r8-trail`, `r8-wrap`): spaces after a broken line count only when a glyph after them fits (runtime `alpha     beta` 39)
 - **Fonts** — the host resolves a `-unity-font-definition` path through `resolveFont(path, form)`,
   returning a font family name, or `{ family, faceInfo }` (with FaceInfo the height matches
-  Unity's), or `null`. Details in the [API](api.en.md)
+  Unity's), or `null`. The FaceInfo can be read from the project's Text Core font asset (`.asset`)
+  with `readFontAsset` from `uxml-preview/unity-project` (0.8.0, Node only, format `1.1.0` — proven by
+  fixtures from 6000.0.40f1 and 6000.3.25f1; a TextMeshPro asset is not read). Details in the [API](api.en.md)
 - **Fallback fonts** — text with no font set that contains Hangul, Han or Kana raises a
   `font-fallback` warning. The default font (Inter in the editor panel, NotInter-Regular in the runtime panel) has none of
   those glyphs, so Unity draws them with a fallback font, and that box measured 1–4px taller (Hangul:

@@ -320,9 +320,13 @@ Label 상자를 비교한다. 실행은 `pnpm test:text`(`tests/text-cohort/READ
 *(위는 0.6.x 당시 기록이다.)* **0.7.0 현재:** 접는지는 버전이 아니라 생성기가 정한다 — 6.3 에디터 Advanced는 접고
 (`r15-label-spaces` 28 대 28), Standard(런타임 패널 두 버전·6000.0 에디터)는 연속 공백을 남긴다(64 대 33, 55 대 28).
 TextField 끝 공백도 측정했다(`r15-tf-spaces`). **0.8.0 현재:** 미리보기는 생성기를 따른다 — Standard는 연속·앞 공백을 남기고 끝 공백을
-버리며 Advanced는 접는다. TextField 글 상자는 Unity처럼 두 생성기 모두 끝 공백을 센다(`trail     ` 49 · 43, 미리보기 Inter로 49 · 42).
+버리며 Advanced는 접는다. TextField 글 상자는 Unity처럼 두 생성기 모두 끝 공백을 센다(`trail     ` 49 · 43, 미리보기도 Inter로 49 · 43 — 2026-11-18, Inter를 `-unity-font-definition`으로 넘겨 다시 잼).
 런타임 Label `a     b     c`는 Unity 글 폭 64, 미리보기 측정기(Inter, Unity FaceInfo)로 63.78(이전 32.28). 공개 수치(골든·코호트)에는
 공백 묶음이 있는 글이 없어 영향이 없다(`docs/backlog.md` 3번).
+끝 공백과 공백 묶음에서의 꺾임은 따로 쟀다(`r8-trail`·`r8-wrap`, 두 버전·두 테마 단독 덤프): Standard는 Label의 끝 공백을 버리고,
+줄이 꺾일 때 그 뒤 공백은 다음 글자가 들어갈 때만 너비에 든다(런타임 `alpha     beta` 60px 칸에서 39, 0.8.0 이전 미리보기 51).
+미리보기 상자는 Label 13개 × 덤프 셋(런타임 두 버전·에디터 6.3) 39행 모두 Unity와 같다(`tests/text-cohort/measure-spaces.mjs`). 같은 규칙으로
+`measure-real`의 알려진 차이였던 런타임 `ko100`(83)·`te10`(77)도 Unity 너비와 같아졌다. 탭은 측정하지 않았다 — 캔버스처럼 공백 하나로 잰다.
 
 FaceInfo가 없는 폰트(웹 폰트만 주어진 경우)는 캔버스의 ascent/descent로 대신한다. 그 값과 FaceInfo의 차이:
 

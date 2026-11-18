@@ -35,7 +35,9 @@ and finding assets in a project. The **skill** holds authoring work: prompts, ch
 generated UI, and its own reports. If only one consumer needs something, it goes in that
 consumer. If a consumer can work around a missing core feature cheaply, it is not yet core work.
 
-## Good first task: the font asset reader (0.8.0)
+## The font asset reader (0.8.0)
 
-`readFontAsset` in `src/unity-project/index.ts` is a stub. The contract, fixtures and pinned
-tests are ready: see "Font asset reader (0.8.0)" in `docs/backlog.md`.
+`readFontAsset` was the first task handed to a contributor: the contract, fixtures and pinned tests
+came first, and the reader came from PR #21 (thank you, @xAFK-BOTx), adapted to the contract rules
+C1-C9 in its JSDoc. That is the shape a contribution here takes: tests whose expected values come
+from Unity, then the code. Open candidates are in `docs/backlog.md` (for example "다음 버전(0.9) 후보").
