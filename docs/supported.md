@@ -160,6 +160,8 @@ UXML은 `project://database/Packages/...`로 해석된다(Unity 6000.0.40f1 측�
   (`r8-trail`·`r8-wrap`): 꺾인 줄 뒤의 공백은 그 뒤 글자가 들어갈 때만 너비에 든다(런타임 `alpha     beta` 39)
 - **폰트** — `-unity-font-definition`의 경로를 호스트가 `resolveFont(path, form)`로 풀어 준다. 반환은
   폰트 패밀리 이름, 또는 `{ family, faceInfo }`(FaceInfo를 주면 높이가 Unity와 같아진다), 또는 `null`.
+  FaceInfo는 프로젝트의 Text Core 글꼴 에셋(`.asset`)에서 `uxml-preview/unity-project`의 `readFontAsset`으로 읽을 수 있다
+  (0.8.0, Node 전용, 형식 `1.1.0` — 6000.0.40f1·6000.3.25f1 픽스처로 확인. TextMeshPro 에셋은 읽지 않는다).
   자세한 것은 [API](api.md)
 - **대체 폰트** — 폰트를 지정하지 않은 글자에 한글·한자·가나가 있으면 경고 `font-fallback`을 낸다.
   기본 폰트(에디터 패널은 Inter, 런타임 패널은 NotInter-Regular)에 그 글자가 없어서 Unity가 대체 폰트로 그리고, 그 상자가 1~4px 더 높게 측정됐다(한글은 두 패널 모두).

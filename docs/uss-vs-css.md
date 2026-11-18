@@ -213,7 +213,9 @@ not carry over.
   space too and does not kern.
 - **Whether runs of spaces collapse depends on the text generator.** Advanced
   (the 6.3 editor) collapses them under `normal` and `nowrap`, as CSS does;
-  Standard (the runtime panel, both versions, and the 6000.0 editor) keeps them.
+  Standard (the runtime panel, both versions, and the 6000.0 editor) keeps them,
+  keeps leading spaces and drops trailing ones; when its text wraps, the spaces
+  after a line count toward the width only if the next glyph fits too.
   `pre` and `pre-wrap` keep them either way. As in CSS, `pre` does not wrap to
   the width; `pre-wrap` does. (0.6.0 said `pre` wraps; that was corrected in
   0.7.0.)

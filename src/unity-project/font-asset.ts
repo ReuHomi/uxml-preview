@@ -1,5 +1,21 @@
 import type { FontAssetNotRead, FontAssetResult, KnownFontAssetFormat } from './index';
 
+
+/**
+ * Font asset formats that a fixture proves. A row is added only with a fixture
+ * measured on that Unity version (tests/unity-project/font-assets/README.md).
+ * The TextMeshPro asset (`TMP_FontAsset`) has the same m_Version and a different
+ * m_Script, so it is not a row.
+ */
+export const KNOWN_FONT_ASSET_FORMATS: readonly KnownFontAssetFormat[] = [
+  {
+    scriptFileId: 19001,
+    scriptGuid: '0000000000000000e000000000000000',
+    version: '1.1.0',
+    measuredOn: ['6000.0.40f1', '6000.3.25f1'],
+  },
+];
+
 const SCRIPT = /^\{fileID: (0|[1-9]\d*), guid: ([0-9a-f]{32}), type: (-?\d+)\}(?![\s\S])/;
 const NUMBER = /^[+-]?(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?(?![\s\S])/;
 

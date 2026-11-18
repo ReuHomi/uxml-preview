@@ -5,7 +5,7 @@
 **无需 Unity 编辑器，即可在浏览器中渲染 Unity UI Toolkit 的 UXML/USS——由 UI Toolkit 自身使用的
 Yoga 引擎负责布局，并与 Unity 实测结果进行了比对验证。**
 
-![uxml-preview 0.7.0：左侧是用 UXML 和 USS 编写的设置界面，右侧是浏览器中的渲染结果](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/promo-0.7.0.gif)
+![uxml-preview 0.8.0：左侧是用 UXML 和 USS 编写的设置界面，右侧是浏览器中的渲染结果](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/promo-0.8.0.gif)
 
 [![在线体验页面：上方为预览画面，下方列出每条警告的原因及 Unity 的实际处理方式](https://raw.githubusercontent.com/ReuHomi/uxml-preview/main/docs/media/playground.png)](https://reuhomi.github.io/uxml-preview/)
 
@@ -17,6 +17,8 @@ Yoga 引擎负责布局，并与 Unity 实测结果进行了比对验证。**
 [![CI](https://github.com/ReuHomi/uxml-preview/actions/workflows/ci.yml/badge.svg)](https://github.com/ReuHomi/uxml-preview/actions/workflows/ci.yml)
 [![Pages](https://github.com/ReuHomi/uxml-preview/actions/workflows/pages.yml/badge.svg)](https://github.com/ReuHomi/uxml-preview/actions/workflows/pages.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/ReuHomi/uxml-preview/blob/main/LICENSE)
+
+**0.8.0 新功能：** 直接从项目的字体资源中读取 Unity 的行高信息 —— `readFontAsset` 无需 Unity 即可读取 Text Core 的 `.asset` 文件。此外，空格现在遵循 Unity 的文本生成器（运行时面板中的 Label 会像 Unity 一样保留连续空格）。[更新日志 →](https://github.com/ReuHomi/uxml-preview/blob/main/CHANGELOG.md)（英文）
 
 ## 验证方式
 
@@ -62,12 +64,25 @@ view.dispose();                           // Yoga 节点不会被垃圾回收，
 const { uxml, uss } = serialize(doc);     // 若未修改，输出与输入字节级完全一致
 ```
 
+在 Node 中，`uxml-preview/unity-project` 入口用于读取 Unity 文件。从 Text Core 字体资源可以得到
+该字体的 FaceInfo，从而得到 Unity 的行高（0.8.0）。
+
+```ts
+import { readFile } from 'node:fs/promises';
+import { readFontAsset } from 'uxml-preview/unity-project';
+
+const asset = readFontAsset(await readFile('Assets/Fonts/Inter-Regular SDF.asset', 'utf8'));
+// { format, sourceFontGuid, faceInfo } 或 { unrecognized, seen } —— 不会抛出异常
+const font = 'faceInfo' in asset ? { family: 'Inter', faceInfo: asset.faceInfo } : null;
+render(doc, container, { size, resolveFont: () => font });
+```
+
 ## 文档
 
 - [USS 不是 CSS](https://github.com/ReuHomi/uxml-preview/blob/main/docs/uss-vs-css.md)（英文） — 导致迁移过来的样式表显示异常的各项差异，均附有示例
 - [支持范围](https://github.com/ReuHomi/uxml-preview/blob/main/docs/supported.en.md)（英文） — 控件、属性、状态、版本，以及各项的验证程度
 - [精度说明](https://github.com/ReuHomi/uxml-preview/blob/main/docs/accuracy.en.md)（英文） — 所有数据、测量方法及全部已知差异
-- [API](https://github.com/ReuHomi/uxml-preview/blob/main/docs/api.en.md)（英文） — `parse`、`render`、`serialize`、钩子（Hooks）、警告、`classifyVisibility`
+- [API](https://github.com/ReuHomi/uxml-preview/blob/main/docs/api.en.md)（英文） — `parse`、`render`、`serialize`、钩子（Hooks）、警告、`classifyVisibility`、读取 Unity 字体资源的 `readFontAsset`
 - [更新日志](https://github.com/ReuHomi/uxml-preview/blob/main/CHANGELOG.md)（英文）
 - [视觉比对](https://github.com/ReuHomi/uxml-preview/blob/main/docs/visual-check.md)（韩文） — 将色彩与质感同 Unity 并排对比的单次记录（2026-08）
 
