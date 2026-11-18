@@ -107,15 +107,26 @@ const draw = (uxml, theme, partText, paintedOf, uss = '') => page.evaluate(async
     if (a) {
       const b = r.boxes.get(n.id);
       boxes[a.value] = [Math.round(b.width), Math.round(b.height)];
-      // How far the painted text runs past the element's box (right, bottom), from its text nodes' rects.
+      // How far the painted ink runs past the element's box (right, bottom), from the rects of its characters.
+      // Whitespace has no ink: a space (or another whitespace the painter keeps) hanging at the end of a wrapped
+      // pre-wrap line lies past the box but draws nothing (human-approved 2026-11-18, ko100 / te10). Whitespace
+      // inside a line never reaches past the glyph after it, so every whitespace character is left out.
       const el = r.elements.get(n.id);
       const box = el.getBoundingClientRect();
       let right = -Infinity, bottom = -Infinity;
       const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
       for (let t = tw.nextNode(); t !== null; t = tw.nextNode()) {
-        const range = document.createRange();
-        range.selectNodeContents(t);
-        for (const q of range.getClientRects()) if (q.width > 0) { right = Math.max(right, q.right); bottom = Math.max(bottom, q.bottom); }
+        const characters = [...t.data];
+        let offset = 0;
+        for (const character of characters) {
+          const start = offset;
+          offset += character.length;
+          if (/\s/.test(character)) continue;
+          const range = document.createRange();
+          range.setStart(t, start);
+          range.setEnd(t, offset);
+          for (const q of range.getClientRects()) if (q.width > 0) { right = Math.max(right, q.right); bottom = Math.max(bottom, q.bottom); }
+        }
       }
       boxes[`${a.value}#ink`] = [right - box.right, bottom - box.bottom];
       if (paintedOf) {
