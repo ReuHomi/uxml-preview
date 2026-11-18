@@ -334,10 +334,12 @@ what the browser paints. No cohort sentence ends in a space, so the table above 
 
 *(The above is the 0.6.x record.)* **0.7.0, now:** whether runs collapse is decided by the generator, not the
 version — the 6.3 editor (Advanced) collapses (`r15-label-spaces`, 28 against 28) while Standard (the runtime
-panel, both versions, and the 6000.0 editor) keeps them (64 against 33, 55 against 28). Trailing spaces are
-measured too (TextField `trail     `: Standard drops them, Advanced counts them, `r15-tf-spaces`). The preview
-collapses with either generator, so a runtime Label's run of spaces and a TextField's trailing spaces are
-**measured but not implemented known differences**, 0.8 candidates (`docs/backlog.md` item 3; the trailing-space part (T6) was a human decision for 0.8 on 2026-10-21).
+panel, both versions, and the 6000.0 editor) keeps them (64 against 33, 55 against 28). TextField trailing
+spaces are measured too (`r15-tf-spaces`). **0.8.0, now:** the preview follows the generator — Standard keeps runs and leading
+spaces and drops trailing spaces, Advanced collapses. A TextField's text box counts trailing spaces on both generators, as Unity's
+does (`trail     ` 49 and 43; the preview with Inter, 49 and 42). A runtime Label's `a     b     c` is 64 wide in Unity and 63.78 with
+the preview's measurer (Inter, Unity's FaceInfo; 32.28 before). No text in the published figures (golden, cohort) has a run of
+spaces, so they are unaffected (`docs/backlog.md` item 3).
 
 A font without FaceInfo (only a web font was given) falls back to the canvas's ascent and descent.
 How those differ from FaceInfo:

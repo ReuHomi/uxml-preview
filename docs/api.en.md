@@ -50,8 +50,8 @@ when it cannot be found (a warning is recorded).
 | `resolveAsset(path, form)` | Turns a `background-image` `url("project://…")` or `resource("…")` into a URL the browser can load. `form` is `'url'` (a path) or `'resource'` (a Unity Resources name, no extension) — resolving both as the same kind of path silently produces the wrong picture. A disk-only host cannot resolve editor built-ins, so return `null` for those. On `null` a placeholder is drawn and a warning recorded |
 | `resolveFont(path, form)` | The font for `-unity-font-definition`: a font family name (string), `{ family, faceInfo }`, or `null`. With `faceInfo` (the `pointSize`, `ascentLine` and `descentLine` Unity reports for that font) text height matches Unity's formula. Called once per distinct (path, form) per render |
 | `measureText(text, context, availableWidth)` | Replaces text measurement. The default uses a canvas, so it moves with the platform and the installed fonts — supply your own where results must be reproducible (tests). `context` carries size, style, `whiteSpace`, font, FaceInfo, spacing and generator |
-| `states` | Pseudo-class states per element, `{ '#UseButton': ['hover'] }`. Keys are USS selectors |
-| `activeStates` | States switched on for every element, `new Set(['hover'])` |
+| `states` | Pseudo-class states per element, `{ '#UseButton': ['hover'] }`. Keys are USS selectors. A key that is not a usable selector (including one with rule syntax, `#Use { x`) warns `unsupported-selector` / `not-uss` (subject `states-key`, no `problem`), is ignored and sets no state. An unknown state name warns `unknown-state` |
+| `activeStates` | States switched on for every element, `new Set(['hover'])`. Global activeStates also reach control parts. This is a preview convention, not a Unity measurement. An unknown name (`hovr`) warns `malformed` / `invalid-value` once per name (no subject; the same warning as an unknown `theme`) and is ignored |
 
 The result (`RenderResult`):
 
@@ -123,7 +123,7 @@ kept byte for byte (`tests/render/consumer-contract.test.ts`), but they are not 
 |---|---|
 | `property` | `property`, `value` (as written), and the optional fields below |
 | `selector` | `selector`, `fragment` (the offending part) |
-| `states-key` | `key`, `problem` (`matches-nothing` · `state-in-key` · `unknown-state`; absent = not a usable selector), `state` |
+| `states-key` | `key`, `problem` (`matches-nothing` · `state-in-key` · `unknown-state`; absent = not a usable selector, including a key with rule syntax such as `#Use { x`), `state` |
 | `asset` | `path`, `form` (`url` · `resource`), `role` (`font` when it is one) |
 | `import` | `url`, `from` — exactly the arguments the hook received, or would have |
 | `control` | `type` |
@@ -185,3 +185,21 @@ Opacity and `visibility` are not part of the verdict — only whether there is a
 | `supportedControlNames()` | controls with a renderer of their own |
 | `resolveStyles`, `explainProperty` | the cascade result; every declaration that competed for one property on one element (what an editor asks before "edit the inline style, or the rule?"). `resolveStyles(doc, { theme })` takes the theme too — left out, `'runtime'` (0.7.0) |
 | `isInherited(property)` | whether a USS property inherits |
+
+## `uxml-preview/unity-project` (Node only)
+
+It uses `node:fs`, so it is a subpath of its own (`import { readFontAsset } from 'uxml-preview/unity-project'`).
+
+- `readFontAsset(text)` — reads the `faceInfo` of a Unity Text Core font asset (the `.asset` YAML text), so a host can answer
+  `resolveFont` without Unity. Pure: it reads no files. The result is one of two shapes.
+  - Read: `{ format: { scriptFileId, scriptGuid, version }, sourceFontGuid, faceInfo }` — `faceInfo` has the type `resolveFont` takes,
+    and all four values (`pointSize`, `ascentLine`, `descentLine`, `lineHeight`) are float32 (`Math.fround`). `sourceFontGuid` is the guid in
+    the source font's `.meta`, or `null`
+  - Not read: `{ unrecognized: 'not-a-font-asset' | 'unknown-format' | 'malformed', seen: { script?, version? } }` — `seen` holds the
+    `m_Script` and `m_Version` values of the document it judged, as written. It does not throw
+
+  The rules (C1–C9) are in the JSDoc of `readFontAsset`. A TextMeshPro asset has the same `m_Version` and another `m_Script`, so it is
+  `not-a-font-asset`.
+- `KNOWN_FONT_ASSET_FORMATS` — the formats it reads. Each row is `scriptFileId`, `scriptGuid`, `version`, and `measuredOn`, the Unity
+  versions of the fixtures that prove it. One row today: Text Core `1.1.0`, 6000.0.40f1 and 6000.3.25f1. A row is added only with a fixture
+  measured on that version

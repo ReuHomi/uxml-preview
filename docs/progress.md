@@ -4,6 +4,16 @@
 
 ## 현재 위치
 
+**0.8.0 measure-real 마감 (2026-11-18 밤, 같은 브랜치, 푸시, 머지 안 함).** 사람 결정(방법 1): "상자 안에 그림"은 잉크만 잰다 — 공백(줄 끝에 걸린 것 포함)은 잉크가 아니다. 허용치 1px 그대로. `pnpm test:text` 통과(run 표 변화 없음, paint 39/39, paint-r15 52/52, paint-spaces 18/18, measure-spaces 39/39, measure-real 92/92), `vitest` 1612 통과 · 1 건너뜀, build 통과. 변이: 공백 다시 셈 → ko100·te10 실패. ko100 상자 3px 좁힘은 실패하지 않음(잉크 여유 2.4·3.0px, 허용 1px 안), 4px에서 실패.
+
+**0.8.0 독립 검토 반영 (2026-11-18 저녁, 같은 브랜치, 푸시, 머지 안 함).** 리더: LF에서만 줄이 끝난다(U+2028·U+2029·홀로 있는 CR은 값), Unity 형태만 받는 명확화 넷. 탭 회귀(Standard를 CSS pre로 그려 탭 정지가 상자 밖으로) → 탭은 공백 하나로 그림. `paint-spaces` S3(Unity 글꼴 아님)·S5(못 찾으면 바깥 필드) 결함 수정. `measure-real` `KNOWN_R1W`에서 `ko100`·`te10` 뺌(사람 승인). 그 둘의 "상자 안에 그림" 1.1·1.4px는 글자가 아니라 줄 끝에 걸린 공백이라 멈추고 보고 — 사람 결정 대기. 검토의 TextField 1px 차이는 Inter로 재현 안 됨.
+
+**0.8.0 남은 두 가지 마감 (2026-11-18 오후, 같은 브랜치, 푸시, 머지 안 함).** 공백 가정 둘을 `r8-trail`·`r8-wrap`(두 버전·두 테마 단독 덤프)으로 쟀다: 끝 공백 버림은 맞음, 공백 묶음 꺾임은 틀림 → 고침(꺾인 줄 뒤 공백은 그 뒤 글자가 들어갈 때만 센다). 부수 효과로 `measure-real`의 알려진 R1-W 차이 둘(`ko100`·`te10`)이 Unity와 같아져 그 고정 스크립트가 4행 실패한다(사람 결정 대기). `activeStates`의 모르는 이름과 규칙 문법이 든 `states` 키에 경고. 코어 `vitest` 1604 통과 · 1 건너뜀. 텍스트: run·paint·paint-r15·paint-spaces·measure-spaces 통과, measure-real 88/92.
+
+**0.8.0 릴리스 준비 (2026-11-18, 브랜치 `feat/0.8.0-font-asset`, 푸시·PR, 머지·배포 안 함).** `main`(PR #19 포함)과 PR #21(@xAFK-BOTx, 커밋 그대로 `--no-ff`)을 병합하고 리더를 계약 C1–C9에 맞췄다(Codex 1라운드, 고정 47/47, 변이 3/3). 공백이 생성기를 따른다(Standard: 연속·앞 공백 남김, 끝 공백 버림 — 재기·그리기, Codex 1라운드, 변이 4/4). T6 정정: TextField 상자는 두 생성기 모두 끝 공백을 센다. states 키의 조용한 두 경우는 Unity 근거가 없어 코어 그대로(backlog). Inter 공식 릴리스 v3.5–v3.19가 `EDITOR_DEFAULT_FACE_INFO`와 같다(6000.3.25f1, 동봉 안 함). CHANGELOG 0.8.0(날짜 없음), `package.json` 0.8.0. 코어 `vitest` 1590 통과 · 1 건너뜀, tsc 0, build 통과. 텍스트: paint-r15 52/52, paint-spaces 11/11; run·paint·measure-real은 Noto Sans JP/SC 글꼴이 이 PC에 없어 못 돌렸다.
+
+**0.8.0 준비 중 (2026-11-11, 브랜치 `feat/0.8.0-font-asset`, 푸시·머지 안 함).** 글꼴 에셋 리더(`readFontAsset`)를 외부 기여자에게 넘기기 위한 준비물만 만들었다 — 리더는 쓰지 않았다. 픽스처(`tests/unity-project/font-assets/`, Inter v4.1·Noto Sans KR 가변, 6000.0.40f1·6000.3.25f1, TMP 하나), 계약과 스텁(`src/unity-project/index.ts`, `KNOWN_FONT_ASSET_FORMATS` 한 행), 고정 테스트 47개(스텁에서 전부 실패), `CONTRIBUTING.md`, `docs/backlog.md` "Font asset reader (0.8.0)", CHANGELOG 0.8.0 초안(날짜 없음, `package.json`은 0.7.1 그대로). 코어 `vitest` 1519 통과 · 1 건너뜀 · 새 고정 테스트 47 실패, tsc 0.
+
 **0.7.1 배포됨 (2026-10-22).** npm `latest` = `0.7.1`(11:49Z, 레지스트리 직접 조회), GitHub 릴리스 `v0.7.1`(Latest, 11:53Z, 태그 = `9778013`)을 확인했다. 코드·문서는 PR #16(`9778013`), CHANGELOG 날짜는 PR #17(`6955f77`)로 `main`에 머지됐다. 아래는 배포 전 작업 기록이다. 소비자가 잰 두 가지: (가) 글을 잰 글꼴과 그린 글꼴이 달랐다 — 글꼴 지정이 없으면 측정은 `sans-serif`, 그리기는 호스트 페이지 글꼴 → `paintText`가 늘 `fontList(font?.family)`로 글꼴을 정한다. (나) `font-fallback` 문구가 테마와 무관하게 "editor default font (Inter-Regular SDF)" → 런타임 테마는 "runtime default font (NotInter-Regular)", 한자·가나 수치는 에디터 패널에서 잰 것이라고 덧붙인다. 코어 `vitest` 1519 통과 · 1 건너뜀, tsc 0, 텍스트 코호트 수치 변화 없음(run 92/92·84/92·92/92·159/159 두 버전, paint 39/39, paint-r15 52/52, measure-real 92/92), 골든 정확도 변화 없음. CHANGELOG 0.7.1(날짜 비움), `package.json` 0.7.1. 소비자 재측정: vscode 복사본(로컬 main `2f5775d`) 0.7.0·0.7.1 모두 tsc 0 · vitest 180/180, uxml-author 복사본 0.7.0·0.7.1 모두 33건(conditions 14·exitcodes 5·binding 0·docs 14), 실패 이름 동일. 아래 0.7.0 설명은 그대로 둔다.
 
 **0.7.0 배포됨 (2026-10-21).** GitHub 릴리스 `v0.7.0`(Latest, 14:18Z)과 npm `latest` = `0.7.0` 확인, `main` = `origin/main`(PR #14 머지 `5f3bdd4`), 열린 PR 없음. 아래 줄과 "다음 할 일"은 배포 전에 쓴 내용이라 해당 부분은 지난 상태다. (2026-10-21 23:42 갱신)
@@ -22,6 +32,8 @@
 정확도 세트는 서로 다른 질문을 답하므로 합산하지 않는다. `docs/accuracy.md`.
 
 ## 다음 할 일
+
+(2026-11-18) 0.8.0: PR 리뷰·머지(머지 커밋으로, #21이 머지로 기록되게) → CHANGELOG 날짜 → 배포(사람). 그 전에 Noto Sans JP/SC 글꼴로 `pnpm test:text` 전체를 한 번 돌린다(이번에는 run·paint·measure-real을 못 돌림). states 키 두 경우와 Inter v3.19 동봉은 사람 결정(`docs/backlog.md`).
 
 (2026-10-22) 0.7.1: 0.7.1 배포는 끝났다. 남은 것: 소비자 갱신(vscode-uxml-preview, uxml-author). 미추적 `docs/design/0.7.0-cjk-text.md`는 이번 테스트 머리말 둘이 인용한다(커밋 여부 사람 결정). 런타임 패널 기본 폰트의 한자·가나 덤프는 `docs/backlog.md` "0.7.1에서 남긴 것".
 
@@ -224,8 +236,54 @@
 | 2026-10-21 | `measure-real.mjs`의 기본 글꼴 규칙을 `*`에서 `:root`로 | 하네스 결함. `*`는 TextField 내부 글에 직접 맞아 필드가 상속한 글꼴(Pretendard)을 덮었다(`kotf` 에디터 높이 33 vs Unity 32). Unity의 기본 글꼴은 패널에서 상속된다. 바꾼 뒤 기존 행 변화 없음 |
 | 2026-10-22 | 글꼴 지정이 없는 글도 `font-family`를 `fontList(undefined)`(=`sans-serif`)로 그린다. 요소마다(`paintText`), 루트 한 번이 아니다 | 측정과 그리기가 같은 함수에서 문자열을 얻어야 어긋나지 않는다. 루트에만 두면 작성자 글꼴이 후손에 닿는 경로가 둘이 되고, 부품 글(TextField 안쪽·Toggle 라벨 등)은 `paintText`를 지나므로 요소별이 부품을 따로 챙기지 않아도 덮는다. `<input>`/`<textarea>`는 만들지 않는다(고정 테스트가 지킨다) |
 | 2026-10-22 | `font-fallback` 문구를 테마별로: 런타임은 NotInter-Regular, 한자·가나 수치는 "에디터 패널에서 잰 것"이라 명시 | 덤프가 확정한 것은 폰트 이름(런타임 덤프 24/24, 두 버전 `font=NotInter-Regular`)과 한글 높이(두 패널, 1/2/2/4px)뿐이다. 한자·가나는 런타임 패널의 기본 폰트 덤프가 없다. 수치를 바꾸지 않고 출처를 밝혀 `affectsLayout: true`는 유지, 필요한 덤프는 backlog에 적었다 |
+| 2026-11-18 | PR #21의 리더를 계약에 맞추되 PR의 테스트 7개는 입력을 그대로 두고 기대값만 계약으로 | 지시. 4개 기대값이 바뀜(C5 셋, C8 하나), "Unity가 지수 표기를 쓴다" 주장은 측정 픽스처에 없어 제목에서 뺐다. PR 커밋 메시지·본문의 주장은 히스토리라 남는다 |
+| 2026-11-18 | T6을 "TextField 끝 공백은 두 생성기 모두 센다"로 정정, 미리보기 동작은 그대로 고정 | 덤프의 상자(49·43)가 근거. 이전 기록의 "Standard는 버린다"는 `measured`(MeasureTextSize) 값이었다 |
+| 2026-11-18 | states 키 두 경우(모르는 `activeStates` 이름, `{`가 든 키)는 코어를 바꾸지 않음 | 둘 다 Unity에 대응이 없어 덤프·측정 규칙이 없다. backlog에 기록, 사람 결정 |
 
 ## 세션 로그
+
+### 2026-11-18 밤 (0.8.0 — measure-real 잉크만)
+
+- `measure-real.mjs` "painted inside its box": 글자마다 사각형을 재고 공백 문자(`s`)는 뺀다. 바뀐 행은 런타임 ko100·te10 두 개(FAIL → ok)뿐.
+- 변이 a(지시: ko100 상자 3px 좁힘): 그린 요소를 좁히면 브라우저가 다시 꺾어 넘치지 않는다. 판정 쪽 상자 끝을 3px 안으로 → 0.6·0.0px, 허용 안이라 통과. 4px → 1.6·1.0px 실패. 진짜 넘침은 잡히지만 3px는 여유보다 작다.
+- 변이 b(공백 다시 셈): ko100 1.1px·te10 1.4px 실패, 90/92.
+
+### 2026-11-18 저녁 (0.8.0 — PR #22 독립 검토 반영)
+
+- **리더(P2):** 고정 `font-asset-review.test.ts` 8개(구현 전 5 실패: 줄 끝 a–d, "019001"). 기대값은 계약 문장에서 먼저 씀. Codex 1라운드. 변이 3(값 패턴 `.` 4 실패, fileID 앞 0 허용 1, 홀로 있는 CR을 줄 끝으로 1). 47개 고정·픽스처 그대로.
+- **탭(P2):** `paint-spaces` S6 — 브랜치 3 실패(y 39.31, 상자 20; normal 2줄), `main`의 src로는 통과. 탭을 공백으로 그림(Codex). 변이 1(되돌림 → 3 실패).
+- **스크립트(P2):** S3·S5 고침. 변이: 앞 공백 4개 → S3 실패, 끝 공백 없는 값 → S5 실패.
+- **measure-real:** `KNOWN_R1W` 비움(사람 승인). 남은 2행은 `pre-wrap` 줄 끝 공백(글자 오른쪽 80.63/81, 75.63/77). Unity 덤프 `measured`는 꺾지 않은 폭이라 판단 근거가 아님 — 멈춤.
+- **TextField 1px(검토):** `r15-tf-spaces` 8개, Inter로 브랜치·main 모두 Unity와 같음. 재현 조건 미상.
+
+### 2026-11-18 오후 (0.8.0 — 공백 가정 측정, states 입력 검사)
+
+- **글꼴:** Noto Sans JP/SC(noto-cjk SubsetOTF, SHA-256이 텍스트 코호트 README와 같음)를 받아 `test:text` 전체를 처음으로 돌렸다. Inter는 Unity 에디터 `Resources/Fonts`의 파일과 같다. 기준선: run 92/92·84/92·92/92·159/159(두 버전), paint 39/39, measure-real 92/92 — 0.7.x와 같다.
+- **측정:** `probes-0.8.0/r8-trail`·`r8-wrap`, 스크래치에 새로 만든 두 Unity 프로젝트, `dump-solo.sh`(출력 경로는 절대 경로여야 한다 — 상대 경로면 Unity 프로젝트 안에 쓴다). (가) 끝 공백 버림 맞음. (나) 틀림: 런타임 `alpha     beta` Unity 39, 미리보기 51. 고정 `spaces-r8.test.ts`(구현 전 1/5 실패), `measure-spaces.mjs`(구현 전 31/39). Codex 1라운드. 변이 1(공백 다시 셈) 잡힘.
+- **부수 효과:** `measure-real` `ko100` 83·`te10` 77이 Unity와 같아짐 → 알려진 차이 행이 일부러 실패, "상자 안에 그림" 행 1.1·1.4px 넘침(허용 1px). 고정 기대값이라 고치지 않음.
+- **states 입력:** 모르는 `activeStates` 이름 → `malformed`·`invalid-value`(subject 없음, 모르는 theme과 같음). 규칙 문법이 든 키 → 기존 `not-uss` 거절. 고정 `state-inputs.test.ts`(구현 전 4/9 실패). 변이 3 잡힘, 동치 2 생존(한 규칙 검사, 모르는 전역 이름 적용).
+
+### 2026-11-18 (0.8.0 — PR #21 통합, 공백, 기본 글꼴 출처, 릴리스 준비)
+
+- **병합:** `main`(PR #19) → 머지 커밋(`docs/progress.md` 충돌, 양쪽 문단 유지). PR #21 `--no-ff`: CHANGELOG 충돌(브랜치 글 + #21 한 줄), `index.ts`는 글자 충돌 없이 합쳐졌지만 스텁과 재수출이 겹쳐 스텁을 지우고 계약·표·JSDoc을 남겼다.
+- **리더:** Codex 1라운드. `index.ts`의 `readFontAsset`이 표를 `font-asset.ts`의 `readFontAssetText`에 넘긴다(타입만 거꾸로 import, 런타임 순환 없음). 고정 47 + PR 7 = 54 + guid 5. 변이: 형식 검사 제거 8실패, `Math.fround` 제거 20실패, 파일 전체를 한 문서로 3실패.
+- **검토 입력 14개:** 12 같음, `h` 다름(C5), `k` C3이 대신함.
+- **공백:** 영향 예측 — 공백 민감 글을 읽는 테스트 파일 6개(`review-fixes` #1, `whitespace-text`, `whitespace-title`, `r1-measured`, `paint-r15` T1·T7), 예측 0개 변화 → 실제 0개(새 테스트 6개만 실패→통과). 고정: `tests/contract-080/spaces.test.ts` 14개(구현 전 6 실패), `paint-spaces.mjs` 11행(구현 전 3 실패, `test:text`에 추가). 변이 4/4. 공개 수치 변화 없음. 런타임 Label `a     b     c` 측정 32.28 → 63.78(Unity 64, Inter).
+- **브라우저:** playwright Chromium 1140이 side-by-side 오류로 안 떠서 설치된 Chrome으로 돌렸다. 하네스의 기본 글꼴(`-unity-font-definition` 없음)은 브라우저 기본 글꼴이라 `a     b     c` 상자가 72였다 — 측정기 결함이 아니라 backlog 0번(기본 글꼴 동봉) 몫.
+- **states 키:** uxml-author master `src/check.js`의 두 경우를 지금 코어로 재현 — `"hovr"`는 조용히 버림, `"#Use { x"`는 조용히 `#Use`에 적용. 주석의 설명과 둘 다 다르다.
+- **Inter:** rsms/inter v3.0·3.5·3.9·3.10·3.15·3.19 Regular TTF를 6000.3.25f1 `FontProbe`로. v3.5 이후 다섯이 기본값과 같다(7자리), v3.0은 다르다. v3.19 woff2 98,868 B.
+
+### 2026-11-11 (0.8.0 글꼴 에셋 리더 준비)
+
+- 첫 측정이 지시서의 KNOWN FACT("6000.3.25f1 파일만 `sourceFontFileGUID` 줄이 하나 더 있다")와 달라 멈추고 보고했다. 두 버전 모두 그 줄이 있고(Malgun Gothic 두 파일도 YES/YES), 실제 차이는 `m_EditorClassIdentifier`·`m_IsMultiAtlasTexturesEnabled`·`m_ClearDynamicDataOnBuild`·YAML 문서 순서다. 사람이 사실을 정정하고 5.3을 바꿨다.
+- 글꼴 출처를 공식으로 바꿨다(사람 지시): 처음 쓴 Inter(3.009, 출처 불명)·Windows의 Noto Sans KR은 버리고 rsms/inter `v4.1`·google/fonts `b38c5c93`에서 받아 다시 쟀다. Noto Sans KR 값이 달라졌다(ascent 90→104.4, descent -18→-25.92) — 같은 이름이라도 배포본마다 세로 메트릭이 다르다.
+- 고정 테스트 22개는 스텁에서 전부 실패. 스크래치에서 참조 리더 22/22 통과, 틀린 리더 셋(형식 검사 생략 4 · `Math.fround` 생략 8 · 파일 전체에서 필드 읽기 2 실패) 확인 뒤 삭제.
+- 지시 밖: `.gitattributes`에 픽스처 `-text`(별도 커밋), 측정 스크립트 `FontProbe.cs`를 픽스처 폴더에 동봉.
+- 추가 라운드(사람 지시): 위치로 문서를 고르는 틀린 리더 둘(첫 문서 18 실패 · 마지막 문서 15 실패, 둘 다 5.3b 포함) — 새 테스트 불필요. `seen` 계약을 "첫 MonoBehaviour 문서"로 고정(한 입력 한 결과), 5.5·5.6·5.8에서 `seen` 전체를 고정, MonoBehaviour 없는 파일·`m_SourceFontFileGUID` 없는 파일 합성 테스트 2개 추가. 고정 테스트 24개, 코어 1519 통과 · 1 건너뜀 · 24 실패(새 테스트만), tsc 0.
+- 0.8.0 준비 완료: 픽스처, 계약 C1–C9(`readFontAsset` JSDoc·`docs/backlog.md`), 고정 테스트 47개(픽스처 14 · 합성 33, 스텁에서 전부 실패).
+- 적대적 검토(2026-11-11)가 틀린 리더 19개를 썼고, 그중 13개가 당시 고정 테스트 24개를 통과했다. 계약과 테스트를 고쳤고, 그 13개는 이제 실패한다(스크래치의 단일 결함 리더로 재확인, 올바른 리더는 47/47 통과). 검토 기록은 저장소 밖 `C:/Users/leuho/uxml-reviews/font-asset-2026-11-11`로 옮겼다.
+- 리더는 구현하지 않았다. 외부 기여자에게 구현을 청한다(이슈, vscode-uxml-preview PR #2 댓글).
+- 대비책: 2026-11-18까지 PR이 오지 않으면 메인테이너가 리더를 구현한다.
 
 ### 2026-10-22 (0.7.1)
 

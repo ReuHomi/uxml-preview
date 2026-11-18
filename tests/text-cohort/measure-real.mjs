@@ -27,9 +27,9 @@
  *          Replaced 2026-10-21 (human approval): the first expectations came from g-clamp's cs-te, cs-wrap and
  *          row-te-el, whose sentence the probe repeats with different wrap settings (the Unity-side contamination):
  *          old 95/94/95 runtime, 95/98/95 editor.
- *          Known differences, judged by height only and failing once the width matches: the runtime ko100 (Korean,
- *          Pretendard: Unity 83 wide, the longest line floor + 1 — the rule's next-word start over-counts by 4px)
- *          and the runtime te10 (10px: Unity 77, the rule 79).
+ *          The runtime ko100 (Korean, Pretendard, Unity 83) and te10 (10px, Unity 77) were known width differences
+ *          until 0.8.0; the 0.8.0 space rule (spaces after a broken line count only before a glyph that fits, r8-wrap)
+ *          gives Unity's widths, so they are judged like every other text (human-approved, 2026-11-18).
  *   C1   — a default Label and Button are one clipped line: cs-label, cs-button, cs-ellipsis, st-label.
  *   C4   — a multiline TextField's inner text keeps its wrapped height in a 40px field: ml-fixed inner text
  *          138x85 runtime, 154x59 editor; the field is 160x40.
@@ -107,15 +107,26 @@ const draw = (uxml, theme, partText, paintedOf, uss = '') => page.evaluate(async
     if (a) {
       const b = r.boxes.get(n.id);
       boxes[a.value] = [Math.round(b.width), Math.round(b.height)];
-      // How far the painted text runs past the element's box (right, bottom), from its text nodes' rects.
+      // How far the painted ink runs past the element's box (right, bottom), from the rects of its characters.
+      // Whitespace has no ink: a space (or another whitespace the painter keeps) hanging at the end of a wrapped
+      // pre-wrap line lies past the box but draws nothing (human-approved 2026-11-18, ko100 / te10). Whitespace
+      // inside a line never reaches past the glyph after it, so every whitespace character is left out.
       const el = r.elements.get(n.id);
       const box = el.getBoundingClientRect();
       let right = -Infinity, bottom = -Infinity;
       const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
       for (let t = tw.nextNode(); t !== null; t = tw.nextNode()) {
-        const range = document.createRange();
-        range.selectNodeContents(t);
-        for (const q of range.getClientRects()) if (q.width > 0) { right = Math.max(right, q.right); bottom = Math.max(bottom, q.bottom); }
+        const characters = [...t.data];
+        let offset = 0;
+        for (const character of characters) {
+          const start = offset;
+          offset += character.length;
+          if (/\s/.test(character)) continue;
+          const range = document.createRange();
+          range.setStart(t, start);
+          range.setEnd(t, offset);
+          for (const q of range.getClientRects()) if (q.width > 0) { right = Math.max(right, q.right); bottom = Math.max(bottom, q.bottom); }
+        }
       }
       boxes[`${a.value}#ink`] = [right - box.right, bottom - box.bottom];
       if (paintedOf) {
@@ -174,7 +185,7 @@ for (const theme of ['runtime', 'editor']) {
 }
 
 // R1-W: every text of the two clean wrap probes.
-const KNOWN_R1W = new Set(['runtime ko100', 'runtime te10']);
+const KNOWN_R1W = new Set();
 for (const theme of ['runtime', 'editor']) {
   for (const name of ['r1w-wrap', 'r1w-wrap2', 'r1w-long']) {
     const d = dump(theme, name);

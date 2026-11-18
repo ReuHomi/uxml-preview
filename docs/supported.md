@@ -153,10 +153,11 @@ UXML은 `project://database/Packages/...`로 해석된다(Unity 6000.0.40f1 측�
 - **공백** — 연속 공백을 접는지는 **버전이 아니라 생성기**가 정한다. `a     b     c`의 글 폭은 런타임 패널
   Standard(두 버전)에서 64 대 `a b c` 33, 6000.0 에디터(Standard) 55 대 28로 공백이 남고, 6.3 에디터 Advanced는
   28 대 28로 하나로 접는다(`r15-label-spaces`). 6.3 에디터 Advanced는 앞 공백도 버리고(`spaces.json`), `pre`·
-  `pre-wrap`은 그대로 둔다(`spaces-prewrap.json`). **미리보기는 `normal`·`nowrap`에서 어느 생성기든 접는다**(에디터
-  6.3 Advanced를 따른다) — 그래서 런타임 Label의 연속 공백은 Unity보다 좁게 잰다. 이것과 TextField 끝 공백(`trail     `:
-  Standard는 버리고 Advanced는 센다, `r15-tf-spaces`)은 **측정은 했지만 구현하지 않은 알려진 차이**이고 0.8 후보다
-  (`docs/backlog.md` 3번 — 끝 공백(T6)은 2026-10-21 사람 결정으로 0.8). 미측정이 아니다
+  `pre-wrap`은 그대로 둔다(`spaces-prewrap.json`). **0.8.0부터 미리보기도 생성기를 따른다**: Standard는 `normal`·`nowrap`에서
+  연속·앞 공백을 남기고 끝 공백을 버리며, Advanced는 접는다. 재는 쪽과 그리는 쪽이 같다(`tests/text-cohort/paint-spaces.mjs`).
+  TextField 안 글은 두 생성기 모두 끝 공백을 센다 — Unity의 상자도 그렇다(`r15-tf-spaces` `trail     ` 49 런타임 · 43 에디터;
+  "Standard는 버린다"는 `MeasureTextSize` 값이었다). Label의 끝 공백 버림과, 공백 묶음에서 꺾일 때의 너비는 측정했다
+  (`r8-trail`·`r8-wrap`): 꺾인 줄 뒤의 공백은 그 뒤 글자가 들어갈 때만 너비에 든다(런타임 `alpha     beta` 39)
 - **폰트** — `-unity-font-definition`의 경로를 호스트가 `resolveFont(path, form)`로 풀어 준다. 반환은
   폰트 패밀리 이름, 또는 `{ family, faceInfo }`(FaceInfo를 주면 높이가 Unity와 같아진다), 또는 `null`.
   자세한 것은 [API](api.md)

@@ -1,0 +1,13 @@
+{
+  "unity": "6000.3.25f1",
+  "asset": "Inter-Regular SDF.asset",
+  "sourceFontMeta": "Inter-Regular.ttf.meta",
+  "scriptLine": "m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}",
+  "versionLine": "m_Version: 1.1.0",
+  "sourceFontFileGuidLine": "m_SourceFontFileGUID: 787a2c421f2a1564b95b3a39f117f26e",
+  "documentOrder": [
+    "Material",
+    "Texture2D",
+    "MonoBehaviour"
+  ]
+}

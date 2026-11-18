@@ -1,5 +1,57 @@
 # Changelog
 
+## 0.8.0
+
+Reading Unity font assets, and spaces that follow the text generator.
+
+### Added
+
+- **`readFontAsset(text)`** on `uxml-preview/unity-project` (Node only): reads the `faceInfo` of a
+  Unity Text Core font asset (`.asset` YAML), so a host can answer `resolveFont` without Unity.
+  Pure; never throws. Read: `{ format, sourceFontGuid, faceInfo }`, all four FaceInfo values as
+  float32. Not read: `{ unrecognized: 'not-a-font-asset' | 'unknown-format' | 'malformed', seen }`.
+  The rules C1–C9 are in its JSDoc. It accepts only the form Unity writes: a line ends only at LF
+  (U+2028, U+2029 and a lone CR are part of a value), a field is `key: value` or `key:`, fileID has
+  no sign or leading zeros, and the `m_FaceInfo` block starts only at the exact line `  m_FaceInfo:`. Types: `FontAssetResult`, `FontAssetRead`, `FontAssetNotRead`,
+  `FontAssetFormat`, `KnownFontAssetFormat`.
+- **`KNOWN_FONT_ASSET_FORMATS`** with one row: Text Core
+  `m_Script {fileID: 19001, guid: 0000000000000000e000000000000000}`, `m_Version 1.1.0`,
+  measured on 6000.0.40f1 and 6000.3.25f1. A TextMeshPro asset is `not-a-font-asset`.
+- **The reader** comes from PR #21 by @xAFK-BOTx, adapted to the contract rules C1-C9.
+- **Font asset fixtures** in `tests/unity-project/font-assets/` (Inter v4.1 and Noto Sans KR on both
+  Unity versions, one TextMeshPro asset; OFL licenses beside each, font files not in the repository),
+  47 pinned tests, and `CONTRIBUTING.md`.
+
+### Behavior changes
+
+- **Spaces follow the text generator** (measured: `r15-label-spaces`, `spaces.json`). On the Standard
+  generator (the runtime theme, or `-unity-text-generator: standard`) text with `white-space: normal`
+  or `nowrap` keeps runs of spaces and leading spaces and drops trailing spaces, in both measuring
+  and painting. A runtime Label `a     b     c` was measured as `a b c` (32.28px with Inter at
+  14px); it is now 63.78px, against Unity's 64. Advanced (the editor theme) is unchanged. A
+  TextField's text still counts trailing spaces with either generator, as Unity's box does
+  (`r15-tf-spaces`); 0.7.1 called that a known difference, which was a misreading of Unity's
+  `MeasureTextSize`. Golden and text-cohort figures are unchanged: none of their texts has a run of
+  spaces. A tab is measured and painted as one space, as before 0.8.0 (Unity's tab rendering is
+  unmeasured).
+- **At a Standard line break, spaces count only before a glyph that fits** (measured: `r8-wrap`,
+  both versions and themes). The width of a wrapping Standard text is the line, then the run of
+  spaces and the start of the next word only up to the last glyph that fits. A runtime Label
+  "alpha     beta" in a 60px box was 51 wide; it is now 39, as in Unity. The same rule gives
+  Unity's width for the two known runtime wrap differences (`ko100` 83, `te10` 77, Pretendard
+  and Inter); `measure-real.mjs` now judges them like every other text. Golden and text-cohort figures are unchanged.
+- **Unknown `activeStates` names warn**: one `malformed` / `invalid-value` warning per name, no
+  subject (as an unknown `theme`); the name is still ignored.
+- **A `states` key with rule syntax is refused**: `"#Use { x"` gave `#Use` the state; it now gets
+  the `not-uss` refusal (subject `states-key`) and sets nothing.
+
+### Docs
+
+- `api`: `readFontAsset`, `KNOWN_FONT_ASSET_FORMATS`, and that a global `activeStates` also reaches
+  control parts (a preview convention, not a Unity measurement).
+- `backlog`: which official Inter release the editor's default FaceInfo comes from (v3.5–v3.19
+  measured alike, v3.0 differs; no font is bundled).
+
 ## 0.7.1 — 2026-10-22
 
 A patch for two things a consumer measured on 2026-10-22 (vscode-uxml-preview,

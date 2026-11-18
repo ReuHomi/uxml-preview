@@ -211,7 +211,9 @@ function buildStateMap(
 
   const parsed: Array<{ selectors: readonly Selector[]; states: readonly string[] }> = [];
   for (const [key, states] of entries) {
-    const rule = parseUss(`${key} {}`, null, -1).sheet.items.find((i) => i.kind === 'rule');
+    // This API's own input check; no Unity counterpart. Reject rule syntax in selector keys.
+    const items = /[{};]/.test(key) ? [] : parseUss(`${key} {}`, null, -1).sheet.items;
+    const rule = items.length === 1 && items[0]?.kind === 'rule' ? items[0] : undefined;
     const bad = rule === undefined ? key : unsupportedFragment(rule.rule.selectors);
     if (rule === undefined || bad !== null) {
       warnings.push({
@@ -437,9 +439,15 @@ function prepare(doc: UxmlDocument, options?: ResolveOptions): Prepared {
   // key like `Button:hover` turn itself on.
   const base: MatchContext<Target> = { ...shared, statesOf: () => NO_STATES };
   const { states: stateMap, disabledSubtree } = buildStateMap(doc, base, options, warnings);
-  const globalStates = new Set(
-    [...(options?.activeStates ?? [])].filter((state) => (USS_STATES as readonly string[]).includes(state)),
-  );
+  const globalStates = new Set<string>();
+  // This API's own input check; no Unity counterpart. Report unknown names once per resolution.
+  for (const state of options?.activeStates ?? []) {
+    if ((USS_STATES as readonly string[]).includes(state)) globalStates.add(state);
+    else warnings.push({
+      kind: 'malformed', reason: 'invalid-value',
+      message: `Unknown state '${state}' in activeStates; it is ignored. Accepted: ${USS_STATES.join(', ')}.`,
+    });
+  }
   const ctx: MatchContext<Target> = {
     ...shared,
     // e-{toggle,radio,disabled}.json (6000.3.25f1, both themes): forced

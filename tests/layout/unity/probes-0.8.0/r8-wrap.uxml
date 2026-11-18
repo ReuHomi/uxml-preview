@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+<ui:VisualElement name="col" style="align-items: flex-start;">
+<ui:VisualElement name="w1" class="box" style="width: 60px;"><ui:Label name="b1" class="wrap" text="alpha     beta" /></ui:VisualElement>
+<ui:VisualElement name="w2" class="box" style="width: 80px;"><ui:Label name="b2" class="wrap" text="one two     three four" /></ui:VisualElement>
+<ui:VisualElement name="w3" class="box" style="width: 50px;"><ui:Label name="b3" class="wrap" text="wide   zone   rim" /></ui:VisualElement>
+<ui:VisualElement name="w4" class="box" style="width: 70px;"><ui:Label name="b4" class="wrap" text="glass         jar" /></ui:VisualElement>
+<ui:VisualElement name="w5" class="box" style="width: 60px;"><ui:Label name="b5" class="wrap" text="mint  " /></ui:VisualElement>
+</ui:VisualElement>
+</ui:UXML>

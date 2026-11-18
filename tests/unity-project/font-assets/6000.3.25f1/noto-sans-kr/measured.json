@@ -1,0 +1,20 @@
+{
+  "unity": "6000.3.25f1",
+  "asset": "NotoSansKR[wght] SDF.asset",
+  "sourceFontMeta": "NotoSansKR[wght].ttf.meta",
+  "scriptLine": "m_Script: {fileID: 19001, guid: 0000000000000000e000000000000000, type: 0}",
+  "versionLine": "m_Version: 1.1.0",
+  "sourceFontFileGuidLine": "m_SourceFontFileGUID: e6856940f3686054384804fbfcae94f0",
+  "documentOrder": [
+    "Material",
+    "Texture2D",
+    "MonoBehaviour"
+  ],
+  "unityLog": "PROBE unity=6000.3.25f1 asset=Assets/Fonts/NotoSansKR[wght] SDF.asset pointSize=90 ascentLine=104.4 descentLine=-25.92 lineHeight=130.32",
+  "faceInfoR": {
+    "pointSize": "90",
+    "ascentLine": "104.4",
+    "descentLine": "-25.92",
+    "lineHeight": "130.32"
+  }
+}

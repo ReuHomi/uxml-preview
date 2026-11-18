@@ -21,3 +21,6 @@ tests/golden/** -text
 *.mp4 binary
 *.woff binary
 *.woff2 binary
+
+# Unity font asset fixtures: Unity output, compared byte for byte.
+tests/unity-project/font-assets/** -text

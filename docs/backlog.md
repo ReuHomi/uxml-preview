@@ -180,6 +180,26 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 ## 다음 버전(0.8) 후보 — 순서대로
 
 0. **기본 글꼴 동봉** — Unity 기본 글꼴(Inter, 공개 라이선스 — 런타임 NotInter와 FaceInfo가 같다)을 미리보기에 넣어, 글꼴을 넘기지 않아도 Unity 글자 폭으로 재게 한다. 라이선스 확인 포함. 근거: 재검증 R3-C4·R1(브라우저 기본 글꼴은 글자 폭이 몇 px 다르고 줄 수가 달라진다). 2026-10-21 사람 결정
+   - **어느 공식 릴리스인가 — 측정됨(2026-11-18, 동봉은 하지 않음).** `EDITOR_DEFAULT_FACE_INFO`(`src/render/measure.ts`)는
+     pointSize 90 · ascent 87.1875 · descent -21.73295 · lineHeight 108.9205. Inter v4.1은 -21.7089844 · 108.896484로 다르다(픽스처).
+     rsms/inter 공식 릴리스 zip의 Regular TTF를 픽스처와 같은 절차(`tests/unity-project/font-assets/FontProbe.cs`, 새 빈 프로젝트,
+     `Assets/Create/Text Core/Font Asset/SDF` 기본 설정, 새 프로세스에서 `faceInfo`를 `ToString("R")`)로 6000.3.25f1에서 쟀다.
+
+     | 릴리스 | 잰 TTF(zip 안 경로) | ascentLine | descentLine | lineHeight | 기본값과 | Regular woff2(zip 안 경로, 바이트) |
+     |---|---|---|---|---|---|---|
+     | v3.0 | `Inter UI (TTF)/Inter-UI-Regular.ttf` | 86.5482941 | -21.09375 | 107.642044 | 다름 | `Inter UI (web)/…woff2` 88,268 |
+     | v3.5 | `Inter (TTF)/Inter-Regular.ttf` | 87.1875 | -21.732954 | 108.920456 | 같음 | `Inter (web)/…woff2` 88,816 |
+     | v3.9 | `Inter (TTF)/Inter-Regular.ttf` | 87.1875 | -21.732954 | 108.920456 | 같음 | `Inter (web)/…woff2` 92,560 |
+     | v3.10 | `Inter (TTF)/Inter-Regular.ttf` | 87.1875 | -21.732954 | 108.920456 | 같음 | `Inter (web)/…woff2` 92,704 |
+     | v3.15 | `Inter Hinted for Windows/Desktop/Inter-Regular.ttf` | 87.1875 | -21.732954 | 108.920456 | 같음 | `Inter Web/…woff2` 98,804 |
+     | v3.19 | `Inter Hinted for Windows/Desktop/Inter-Regular.ttf` | 87.1875 | -21.732954 | 108.920456 | 같음 | `Inter Web/…woff2` 98,868 |
+
+     pointSize는 모두 90. "같음"은 기본값이 적힌 유효숫자 7자리에서 같다는 뜻이다(-21.732954 → -21.73295, 108.920456 → 108.9205).
+     상수는 반올림된 글자에서 읽은 값이라 float32 비트까지 같지는 않다(`Math.fround(-21.73295) ≠ Math.fround(-21.732954)`) — 동봉할 때
+     상수를 R 값으로 바꿀지 정한다. 3.x는 em이 2816이고 ascender 2728 · descender -680 · 줄 간격 0이면 이 값이 나온다.
+     **동봉 후보는 v3.19**(마지막 3.x, Regular woff2 98,868 B). 재지 않은 릴리스: v3.1–v3.4, v3.6–v3.8, v3.11–v3.14, v3.16–v3.18.
+     v3.15·v3.19는 힌팅된 Windows TTF를 쟀고 woff2는 힌팅 없는 웹 파일이다(수직 지표가 같다고 가정 — 동봉 전에 woff2로 다시 잰다).
+     6000.0.40f1에서는 재지 않았다.
 
 0. **실제 측정기 층** — 컨트롤 프로브 전체를 기본 측정기 + Unity 글꼴로 다시 돌려 덤프와 비교하는 테스트 층(`tests/text-cohort/measure-real.mjs`의 확장). 측정 흉내 함수로는 C1·R1-W를 못 잡았다. 2026-10-21 사람 결정
 
@@ -191,8 +211,32 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 2. **반 픽셀 반올림** — 정렬별(왼쪽·가운데·오른쪽, 빈 공간의 홀짝 나머지) 반올림을 측정한 뒤 결정. Unity는 가운데 정렬된 글을 반 픽셀에서 올리고 미리보기의 Yoga는 글 노드 위치를 내린다(ProgressBar 제목 x 1px, `bundle-f.test.ts` `KNOWN_HALF_PIXEL`). 글 노드 반올림을 바꾸면 모든 글 상자가 움직이므로 측정·예측이 먼저다. 2026-10-20 사람 결정
 
 3. **공백 — 끝 공백(T6)과 런타임 Label의 연속 공백(N2)** — 측정됨(2026-10-21, `r15-tf-spaces`·`r15-label-spaces`): Label의 연속 공백은 Standard 생성기(런타임 패널 두 버전, 6000.0 에디터)에서 남고 Advanced(6.3 에디터)에서만 접힌다. 미리보기는 어디서나 접어 런타임 Label을 좁게 잰다. 끝 공백은 생성기마다 다르다(TextField `trail     `: Standard는 버리고 Advanced는 센다). 그리는 쪽(CSS가 앞·끝 공백을 다루는 방식)과 함께 정해야 해서 0.7.0에서는 보고만 했다. 2026-10-21 사람 결정(T6은 0.8)
+   - **0.8.0에서 처리(2026-11-18).** Standard의 Label 등은 연속·앞 공백을 남기고 끝 공백을 버린다(재기와 그리기 둘 다). Advanced는 그대로.
+     **T6 정정:** "Standard는 버리고 Advanced는 센다"는 Unity `MeasureTextSize`(덤프의 `measured`) 값이었다. TextField 안 글 상자는
+     **두 생성기 모두 끝 공백을 센다**(`tf-trail` 상자 49 런타임 · 43 에디터, 네 덤프 모두). 미리보기는 이미 그렇게 쟀다 — 고정만 했다
+     (`tests/contract-080/spaces.test.ts`, `tests/text-cohort/paint-spaces.mjs`).
+   - **두 가정 측정됨(2026-11-18, `r8-trail`·`r8-wrap`, 두 버전·두 테마 단독 덤프, 글자열 모두 다름).** (가) Standard는 Label의 끝 공백을
+     버린다 — 맞음. (나) Standard `normal` 글이 공백 묶음에서 꺾일 때 묶음이 줄 끝에 걸려 센다 — 틀림: 너비는 줄, 그리고 공백과 다음 낱말의
+     시작을 **들어간 마지막 글자(공백 아님)까지만** 센다. 뒤 글자가 안 들어가면 공백은 세지 않는다(런타임 `alpha     beta` 39, 미리보기는 51이었다).
+     고침(`339b1c6`), `tests/text-cohort/measure-spaces.mjs` 39/39
 
 4. **런타임 Standard 꺾임 폭** — 한국어 케이스를 늘려 측정한다. 지금은 1건(`r1w-wrap2` `ko100`, Pretendard 100px)이 규칙("꺾일 때 마지막으로 들어간 글자까지의 폭, floor + 1")보다 4px 좁고, Unity는 거기서 가장 긴 줄을 쓴다. 10px 케이스(`te10`)는 2px 차이다. 둘 다 `measure-real.mjs`의 `KNOWN_R1W`. 2026-10-21 사람 결정
+   - **(2026-11-18) 위 3번 (나)의 규칙으로 둘 다 Unity 너비와 같아졌다**(`ko100` 83, `te10` 77). 규칙의 "다음 낱말 시작"에서 공백까지만 들어가고
+     글자는 못 들어갈 때 공백 폭을 더해 넓었던 것. 사람 승인으로 `KNOWN_R1W`에서 뺐다(`8459b71`) — 이제 너비·높이 모두 판정하고 맞는다.
+   - **남은 것(사람 결정):** 그 둘의 "상자 안에 그림" 행이 1.1·1.4px 넘친다(허용 1px). 글자는 내용 상자 안이다(`ko100` 글자 오른쪽 80.63 / 81,
+     `te10` 75.63 / 77). 넘친 것은 `pre-wrap`에서 줄 끝에 걸린 공백(84.14 · 78.44)이고 `measure-real.mjs`는 그것을 잉크로 센다. Unity 덤프에는
+     줄별 너비가 없어(`measured`는 꺾지 않은 200 · 163) Unity도 넘치는지는 보이지 않는다. 고칠 길 둘: 스크립트가 공백을 잉크에서 빼거나(고정
+     파일 변경), 그리기가 꺾인 줄 끝 공백을 걸지 않게 한다. 허용치는 바꾸지 않았다
+
+## 다음 버전(0.9) 후보
+
+- **탭** — Unity tab rendering is unmeasured. The font asset has m_TabWidth (32 in the fixtures). Measure tab stops before a tab
+  rule is added. 지금 미리보기는 탭을 캔버스 측정처럼 공백 하나로 재고 그린다(0.8.0, `99ecd35` — CSS `pre`가 탭 정지를 그려 상자 밖으로
+  나가던 회귀를 되돌림). 2026-11-18 검토 지적
+- **TextField 1px 차이(검토 보고)** — PR #22 독립 검토가 런타임 `tf-plain`과 에디터 `tf-trail`(`r15-tf-spaces`)의 안쪽 글 상자가 1px 다르고
+  `main`에서도 그렇다고 보고했다. 2026-11-18 재측정(Inter와 Unity FaceInfo를 `:root` `-unity-font-definition`·`resolveFont`로, 6000.3.25f1
+  덤프 대조)에서는 네 필드 × 두 테마 8개 모두 같았다(브랜치와 `main`의 `measure.ts`·`paint.ts` 둘 다). 검토 하네스가 Unity 글꼴 없이 그렸을
+  가능성(`paint-spaces.mjs` S3가 그랬다) — 재현 조건을 받아 다시 본다
 
 ## 0.7.0 — 컨트롤·테마
 
@@ -263,3 +307,44 @@ v0.1 스코프 밖으로 밀린 것들. 지금 하지 않는다.
 - **`docs/architecture.md` 갱신** — 맨 앞이 스스로 밝히듯 0.5.0 이후의 템플릿 전개와 폰트 해석이 빠져 있다. 현재 `render()` 흐름
   (템플릿 전개 → 테마 스타일 → 폰트 해석 → Yoga/부품 → paint)으로 다시 쓸 일이다. 0.7.1 문서 정정 라운드에서는 하지 않았다
   (사람 지시, 2026-10-22). 읽는 사람이 낡은 그림을 현재로 오해하지 않도록, 갱신 전에는 그 문서를 흐름의 근거로 인용하지 않는다
+
+## Font asset reader (0.8.0)
+
+외부 기여자가 구현한다. 이 절은 그에게 넘기는 준비물이다(2026-11-11).
+
+**구현됨(2026-11-18).** PR #21(@xAFK-BOTx)의 리더를 계약 C1–C9에 맞췄다(`src/unity-project/font-asset.ts`). 아래 "스텁" 설명은
+준비 당시의 기록이다. 적대적 검토 입력 14개(`font-asset-2026-11-11/*-input.yaml`)를 돌린 결과: 12개 같음, `k`는 C3이 대신함(seen은 후보
+문서에서), `h`는 다름 — 검토의 기대값은 `m_LineHeight` 없는 것을 허용하는 해석이었고 C5(그 뒤 사람 결정)가 `malformed`로 정했다.
+
+- **계약** — `src/unity-project/index.ts`(`uxml-preview/unity-project` 엔트리).
+  `readFontAsset(text: string): FontAssetResult`는 순수 함수이고 파일을 읽지 않는다. 지금은 스텁이라 `not implemented`를 던진다.
+  - 읽음: `{ format: { scriptFileId, scriptGuid, version }, sourceFontGuid: string | null, faceInfo: { pointSize, ascentLine, descentLine, lineHeight? } }`
+    — `faceInfo`는 `resolveFont`가 돌려주는 `FaceInfo`와 같은 타입이고, 값은 float32(`Math.fround`)다. 1.1.0에서는 `lineHeight`도 항상 있다(C5).
+  - 못 읽음: `{ unrecognized: 'not-a-font-asset' | 'unknown-format' | 'malformed', seen: { script?, version? } }` — `faceInfo`가 없다.
+  - 판정 규칙 C1–C9는 `readFontAsset`의 JSDoc이 원본이다(2026-11-11 적대적 검토 뒤 사람 결정). 요지:
+    C1 후보 문서 = 파일 순서로 첫 MonoBehaviour 문서 중 `m_Script`(fileID와 guid 둘 다)가 표의 행과 같은 것, 두 번째 후보는 찾지 않는다.
+    C2 후보의 `m_Version`이 표에 없거나 줄이 없으면 `unknown-format`.
+    C3 `seen`은 후보 문서에서, 후보가 없으면 첫 MonoBehaviour 문서에서, 그것도 없으면 `{}`. 줄이 없으면 키가 없다(빈 문자열 아님).
+    C4 값은 `key: ` 뒤부터 줄 끝까지(CR·LF 제외), 다듬지 않고 YAML 주석·따옴표를 해석하지 않는다.
+    C5 1.1.0에서 `m_PointSize`·`m_AscentLine`·`m_DescentLine`·`m_LineHeight` 모두 필수, 없거나 `m_FaceInfo` 블록이 없으면 `malformed`.
+    C6 `m_FaceInfo`의 직접 필드만 읽는다. C7 숫자는 부호·지수 선택의 완전한 십진수, 뒤에 글이 있거나 `Math.fround` 뒤 유한하지 않으면 `malformed`.
+    C8 `sourceFontGuid`는 후보 문서에서만. 줄이 없거나 빈 값은 null, 32자리 16진수가 아니면 `malformed`.
+    C9 읽음 결과에는 `unrecognized`·`seen` 키가 없고, 못 읽음 결과에는 `format`·`sourceFontGuid`·`faceInfo` 키가 없다.
+  - **명확화(2026-11-18 사람 결정: Unity가 쓰는 형태만 받는다, C1–C9의 뜻은 그대로).** fileID is an integer without a sign and without
+    leading zeros; "+19001" and "019001" equal no row. A field line is "key: value" (one space after the colon), or exactly "key:" for an
+    empty value; "key:value" is not a field. The m_FaceInfo block starts only at the exact line "  m_FaceInfo:"; a line with a trailing
+    space is not the block start. 줄은 LF에서만 끝난다 — U+2028·U+2029·LF 앞이 아닌 CR은 값의 글자다(검토 P2, `5ce6fdf`).
+  - unmeasured: two candidate documents in one file
+  - unmeasured: when Unity writes an empty or missing m_SourceFontFileGUID
+  - unmeasured: a missing m_LineHeight
+  - 위 셋은 규칙이 결과를 하나로 정할 뿐, Unity가 그런 파일을 쓰는지는 측정하지 않았다. 검토 기록: `docs/reviews/font-asset-2026-11-11/`(미추적).
+  - `KNOWN_FONT_ASSET_FORMATS` — 픽스처가 증명한 행만 둔다. 지금 한 행: Text Core `m_Script {fileID: 19001, guid: 0000000000000000e000000000000000}`,
+    `m_Version 1.1.0`, `measuredOn: ['6000.0.40f1', '6000.3.25f1']`. TextMeshPro 에셋은 `m_Version`이 같고 `m_Script`가 달라 행이 아니다.
+- **픽스처** — `tests/unity-project/font-assets/<unity-version>/<font>/` (Inter v4.1, Noto Sans KR 가변 글꼴, 두 Unity 버전,
+  TMP 하나). 측정 방법·출처·SHA-256·문서 순서는 그 폴더의 `README.md`.
+- **고정 테스트** — `tests/unity-project/font-asset-fixtures.test.ts`(Unity 출력), `tests/unity-project/font-asset-synthetic.test.ts`(합성 입력).
+  47개, 스텁에서 전부 실패한다. 기대값을 구현에 맞춰 고치지 않는다.
+- 두 버전 사이의 측정된 차이: `m_EditorClassIdentifier`, `m_IsMultiAtlasTexturesEnabled`, `m_ClearDynamicDataOnBuild`, YAML 문서 순서.
+  두 버전 모두 `m_CreationSettings.sourceFontFileGUID`를 쓴다.
+
+Unity 6.7 LTS: repeat the measurement, then add one row and one fixture.

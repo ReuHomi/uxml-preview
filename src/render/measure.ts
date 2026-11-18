@@ -110,11 +110,14 @@ export function createDefaultMeasureText(doc?: Document): MeasureText {
 
     // Collapsing follows the text generator, not the version: the 6.3 editor (Advanced) collapses runs
     // and drops leading spaces (probe-editor/spaces.json, r15-label-spaces); Standard (runtime panel,
-    // 6000.0 editor) keeps runs, and a TextField's trailing spaces differ by generator (r15-tf-spaces).
-    // This measurer collapses for both: measured, known difference, 0.8 candidate (docs/backlog.md, 0.7.0 item 3).
+    // 6000.0 editor) keeps runs. A TextField's inner text is measured as pre / pre-wrap in yoga.ts: its box
+    // counts trailing spaces on every generator (r15-tf-spaces, 49 / 43).
+    // USS: Standard keeps runs and leading spaces (r15-label-spaces, spaces.json).
+    // Measured: r8-trail (both versions, both themes): Standard drops a Label's trailing spaces.
     // pre and pre-wrap keep spaces (probe-editor/spaces-prewrap.json).
     const paragraphs = text.split('\n').map((paragraph) =>
-      style.whiteSpace === 'pre' || style.whiteSpace === 'pre-wrap' ? paragraph : paragraph.replace(/ +/g, ' ').trim());
+      style.whiteSpace === 'pre' || style.whiteSpace === 'pre-wrap' ? paragraph
+        : style.textGenerator === 'standard' ? paragraph.trimEnd() : paragraph.replace(/ +/g, ' ').trim());
     const wraps = style.whiteSpace !== 'nowrap' && style.whiteSpace !== 'pre' && availableWidth > 0;
     let lines = 0;
     let widest = 0;
@@ -123,6 +126,9 @@ export function createDefaultMeasureText(doc?: Document): MeasureText {
     // r1w-wrap2.json; docs/design/0.7.0-bundle-A-plan.md §33.
     // Standard includes the fitting prefix beyond a word break; Advanced only
     // reports the drawn line. Oversized words break between characters in both.
+    // Measured: tests/layout/unity/<version>/{probe-panel,probe-editor-070}/r8-wrap.json,
+    // both versions: "alpha     beta" is 39 at runtime, 59 in editor. Spaces beyond
+    // the line count only when a following non-space glyph also fits.
     /**
      * Purpose:      retain Standard's fitting paragraph prefix at a width break.
      * Ensures:      increments the line count without consuming the remaining text.
@@ -136,7 +142,7 @@ export function createDefaultMeasureText(doc?: Document): MeasureText {
           prefix += character;
           const width = widthOf(prefix);
           if (width > availableWidth) break;
-          measured = width;
+          if (character !== ' ') measured = width;
         }
       }
       widest = Math.max(widest, measured);
@@ -151,7 +157,9 @@ export function createDefaultMeasureText(doc?: Document): MeasureText {
       }
       // probe-editor/spaces-prewrap.json: preserved space runs hang at
       // a break, but count before the following word.
-      const preserved = style.whiteSpace === 'pre-wrap';
+      // Standard normal preserves runs too; r8-wrap above measures their fitting prefix.
+      const preserved = style.whiteSpace === 'pre-wrap' ||
+        (style.textGenerator === 'standard' && style.whiteSpace === 'normal');
       const tokens = preserved
         ? (paragraph.match(/ +|[^ ]+/g) ?? []).flatMap((run) =>
           run[0] === ' ' ? [run] : run.split(CJK_BREAK).filter(Boolean))
